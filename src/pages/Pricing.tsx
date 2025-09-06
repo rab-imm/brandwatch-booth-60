@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Icon } from "@/components/ui/Icon"
 import { Header } from "@/components/Header"
+import { Footer } from "@/components/Footer"
 
 const Pricing = () => {
   const tiers = [
@@ -215,26 +216,7 @@ const Pricing = () => {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-12 px-6 bg-card">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="md:col-span-2">
-              <h3 className="text-2xl font-bold text-brand-primary mb-4">CreateAI</h3>
-              <p className="text-muted-foreground mb-4 max-w-md">
-                AI-native content factory trusted by 500+ agencies worldwide. 
-                Built for agencies, by agency people.
-              </p>
-            </div>
-          </div>
-          
-          <div className="border-t border-border mt-8 pt-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              CreateAI © 2025 • Built for agencies, by agency people • SOC 2 Type II Certified
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

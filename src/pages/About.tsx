@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Icon } from "@/components/ui/Icon"
 import { Header } from "@/components/Header"
+import { Footer } from "@/components/Footer"
 
 const About = () => {
   const teamMembers = [
@@ -226,17 +227,7 @@ const About = () => {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-12 px-6 bg-card">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-brand-primary mb-4">CreateAI</h3>
-            <p className="text-sm text-muted-foreground">
-              CreateAI © 2025 • Built for agencies, by agency people • SOC 2 Type II Certified
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

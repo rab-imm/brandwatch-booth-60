@@ -1,4 +1,12 @@
 import { Button } from "@/components/ui/button"
+import { Icon } from "@/components/ui/Icon"
+import { Link } from "react-router-dom"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export const Header = () => {
   return (
@@ -6,23 +14,42 @@ export const Header = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
-            <h1 className="text-2xl font-bold text-brand-primary font-pact-display">CreateAI</h1>
+            <Link to="/" className="text-2xl font-bold text-brand-primary font-pact-display">CreateAI</Link>
             <nav className="hidden md:flex items-center space-x-6">
-              <a href="/features" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/features" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
                 Features
-              </a>
-              <a href="/pricing" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+              </Link>
+              <Link to="/pricing" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
                 Pricing
-              </a>
-              <a href="/use-cases" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+              </Link>
+              <Link to="/use-cases" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
                 Use Cases
-              </a>
-              <a href="/about" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+              </Link>
+              <Link to="/about" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
                 About
-              </a>
-              <a href="/resources" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                Resources
-              </a>
+              </Link>
+              
+              {/* Resources Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+                  Resources
+                  <Icon name="chevron-down" size={12} />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-card border border-border">
+                  <DropdownMenuItem asChild>
+                    <Link to="/resources#blog">Blog</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/resources#help">Help Center</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/resources#docs">API Docs</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/resources#status">Status Page</Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </nav>
           </div>
           

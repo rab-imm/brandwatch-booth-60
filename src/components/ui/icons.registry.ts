@@ -257,6 +257,7 @@ export const iconRegistry: Record<string, ComponentType<any>> = {
   'activity': RadixActivity,
   'grip-vertical': DragHandleVerticalIcon,
   'panel-left': HamburgerMenuIcon, // Alias for sidebar toggle
+  'arrow-right': ArrowRightIcon,
   
   // Common UI aliases for better DX
   'bar-chart-3': BarChartIcon, // From Radix  
@@ -274,7 +275,6 @@ export const iconRegistry: Record<string, ComponentType<any>> = {
   'heart': Heart,
   'play': Play,
   'download': Download,
-  'arrow-right': ArrowRight,
 
   // Data & Storage - Tabler for technical icons
   'database': IconDatabase,
