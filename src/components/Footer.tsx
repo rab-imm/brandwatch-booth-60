@@ -30,25 +30,25 @@ export const Footer = () => {
 
             {/* Social Links */}
             <div className="flex space-x-4 mb-4">
-              <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="https://twitter.com/createai" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Icon name="brand-twitter" size={20} />
               </a>
-              <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="https://linkedin.com/company/createai" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Icon name="brand-linkedin" size={20} />
               </a>
-              <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="https://facebook.com/createai" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Icon name="brand-facebook" size={20} />
               </a>
             </div>
 
             <div className="flex space-x-4 text-sm">
-              <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
                 Privacy Policy
               </a>
-              <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
                 Terms of Service
               </a>
-              <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="/security" className="text-muted-foreground hover:text-foreground transition-colors">
                 Security
               </a>
             </div>
@@ -66,9 +66,9 @@ export const Footer = () => {
               <Link to="/use-cases" className="block text-muted-foreground hover:text-foreground transition-colors">
                 Use Cases
               </Link>
-              <a href="#integrations" className="block text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/features#integrations" className="block text-muted-foreground hover:text-foreground transition-colors">
                 Integrations
-              </a>
+              </Link>
             </div>
           </div>
           

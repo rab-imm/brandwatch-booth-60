@@ -19,13 +19,17 @@ export const Hero = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="premium" size="lg" className="group">
-                Start Free Trial
-                <Icon name="arrow-right" size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+              <Button variant="premium" size="lg" className="group" asChild>
+                <a href="/pricing">
+                  Start Free Trial
+                  <Icon name="arrow-right" size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                </a>
               </Button>
-              <Button variant="outline" size="lg" className="group">
-                <Icon name="play" size={20} className="mr-2" />
-                Watch 3-Min Demo
+              <Button variant="outline" size="lg" className="group" asChild>
+                <a href="#demo">
+                  <Icon name="play" size={20} className="mr-2" />
+                  Watch 3-Min Demo
+                </a>
               </Button>
             </div>
             
