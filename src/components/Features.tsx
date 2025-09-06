@@ -1,46 +1,59 @@
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 
 export const Features = () => {
   const features = [
     {
       icon: "brain",
-      title: "AI-Powered Analysis",
-      description: "Advanced machine learning algorithms analyze sentiment, detect trends, and predict brand performance across all channels."
+      title: "Brand Intelligence",
+      description: "Upload guidelines once or let AI discover them. Every asset follows your rules — colors, fonts, voice.",
+      cta: "Explore Brand Intelligence"
     },
     {
-      icon: "lightning",
-      title: "Real-time Monitoring",
-      description: "Get instant alerts and updates as your brand mentions, competitor activities, and market dynamics change."
+      icon: "trending-up",
+      title: "Trend Research",
+      description: "AI-curated trend insights with citations. Know what's working before your client asks.",
+      cta: "Explore Trend Research"
     },
     {
       icon: "target",
-      title: "Precise Targeting",
-      description: "Identify key influencers, brand advocates, and at-risk customers with sophisticated audience segmentation."
+      title: "Strategy Synthesis",
+      description: "Trends translated into content pillars, risk levels, and channel-ready campaigns.",
+      cta: "See Strategy in Action"
     },
     {
-      icon: "globe",
-      title: "Global Coverage",
-      description: "Monitor your brand presence across 50+ languages and 200+ countries with comprehensive global insights."
+      icon: "layers",
+      title: "Multi-Format Generation",
+      description: "Videos, carousels, posts, and copy variants generated in one pass.",
+      cta: "Generate Content"
     },
     {
-      icon: "shield",
-      title: "Crisis Prevention",
-      description: "Early warning systems detect potential PR crises before they escalate, protecting your brand reputation."
+      icon: "users",
+      title: "Human-in-the-Loop",
+      description: "Review and approve at each checkpoint. No surprises, no rogue AI.",
+      cta: "Review Workflow"
     },
     {
-      icon: "chart-bar",
-      title: "Advanced Analytics",
-      description: "Deep-dive analytics with custom reporting, trend analysis, and competitive benchmarking tools."
+      icon: "lightning",
+      title: "Bulk Operations",
+      description: "Generate a month of content in an afternoon. Localize to 30 languages with one click.",
+      cta: "Scale with Bulk Ops"
+    },
+    {
+      icon: "share",
+      title: "Direct Publishing",
+      description: "Export perfectly formatted or publish directly to all platforms.",
+      cta: "Publish Smarter"
     }
   ]
 
   const stats = [
-    { icon: "trending-up", label: "ROI Increase", value: "340%" },
-    { icon: "clock", label: "Time Saved", value: "25 hrs/week" },
-    { icon: "users", label: "Brands Trust Us", value: "500+" },
-    { icon: "warning", label: "Crises Prevented", value: "1,200+" }
+    { icon: "clock", label: "Production Time", value: "87% less" },
+    { icon: "rocket", label: "Content Output", value: "10x more" },
+    { icon: "target", label: "Brief → Campaign", value: "2 hrs" },
+    { icon: "check", label: "First-Approval Rate", value: "95%" }
   ]
 
   return (
@@ -48,14 +61,14 @@ export const Features = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <Badge variant="outline" className="mb-4">
-            Powerful Features
+            Everything Your Agency Needs to Scale
           </Badge>
           <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            Everything you need for brand intelligence
+            Everything Your Agency Needs to Scale
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            From real-time monitoring to predictive analytics, our platform provides 
-            the complete toolkit for modern brand management.
+            From brand intelligence to bulk operations, our platform provides 
+            the complete toolkit for modern content production.
           </p>
         </div>
 
@@ -81,9 +94,12 @@ export const Features = () => {
                 <h3 className="text-xl font-semibold text-brand-primary">
                   {feature.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed mb-4">
                   {feature.description}
                 </p>
+                <Button variant="outline" size="sm">
+                  {feature.cta}
+                </Button>
               </div>
             </Card>
           ))}

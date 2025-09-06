@@ -4,10 +4,9 @@ import { Icon } from "@/components/ui/Icon"
 
 export const CallToAction = () => {
   const benefits = [
-    "14-day free trial",
-    "No credit card required", 
-    "Full platform access",
-    "24/7 support included"
+    "No credit card required",
+    "Full access", 
+    "Cancel anytime"
   ]
 
   return (
@@ -22,12 +21,11 @@ export const CallToAction = () => {
           <div className="relative z-10 text-center space-y-8">
             <div className="space-y-4">
               <h2 className="text-4xl lg:text-5xl font-bold leading-tight font-pact-display tracking-tight">
-                Ready to transform your
-                <span className="block">brand intelligence?</span>
+                Ready to 10x Your
+                <span className="block">Content Output?</span>
               </h2>
               <p className="text-xl opacity-90 max-w-2xl mx-auto">
-                Join hundreds of brands using BrandIQ to make smarter decisions, 
-                prevent crises, and accelerate growth through data-driven insights.
+                Join 500+ agencies already using CreateAI to ship more, stress less, and actually leave on time.
               </p>
             </div>
             
@@ -36,14 +34,14 @@ export const CallToAction = () => {
                 size="lg" 
                 className="bg-white text-brand-primary hover:bg-white/90 font-semibold group"
               >
-                Start Free Trial Today
+                Start 14-Day Free Trial
                 <Icon name="arrow-right" className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button 
                 variant="outline-contrast" 
                 size="lg"
               >
-                Schedule Demo
+                Book a Demo
               </Button>
             </div>
             
