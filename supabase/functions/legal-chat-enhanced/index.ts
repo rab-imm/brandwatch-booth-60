@@ -45,6 +45,7 @@ serve(async (req) => {
 
     // Step 1: Search internal documents using embedding similarity
     let documentContext = ""
+    let documentSources: any[] = []
     try {
       console.log('Searching internal documents...')
       const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
@@ -77,6 +78,15 @@ serve(async (req) => {
         documentContext = similarDocs
           .map((doc: any) => `Document: ${doc.title}\nContent: ${doc.content.substring(0, 800)}...`)
           .join('\n\n')
+        
+        // Store document sources for response
+        documentSources = similarDocs.map((doc: any) => ({
+          title: doc.title || 'Legal Document',
+          category: doc.category || 'legal',
+          content: doc.content?.substring(0, 200) || '',
+          similarity: doc.similarity || 0
+        }))
+        
         console.log(`Found ${similarDocs.length} relevant internal documents`)
       }
     } catch (error) {
