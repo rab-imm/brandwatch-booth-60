@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2"
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY')
+const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY')
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,6 +18,15 @@ serve(async (req) => {
 
   try {
     const { message, conversationId } = await req.json()
+    console.log('Legal chat request received:', { message: message.substring(0, 100), conversationId })
+
+    // Validate API keys
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured')
+    }
+    if (!perplexityApiKey) {
+      throw new Error('Perplexity API key not configured')
+    }
 
     // Create Supabase client with service role key for full access
     const supabase = createClient(
@@ -33,10 +43,10 @@ serve(async (req) => {
     const user = userData.user
     if (!user) throw new Error("User not authenticated")
 
-    // Search for relevant documents using embedding similarity
+    // Step 1: Search internal documents using embedding similarity
     let documentContext = ""
     try {
-      // Generate embedding for the user's message
+      console.log('Searching internal documents...')
       const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
         method: 'POST',
         headers: {
@@ -49,6 +59,10 @@ serve(async (req) => {
         }),
       })
 
+      if (!embeddingResponse.ok) {
+        throw new Error(`Embedding API error: ${embeddingResponse.status}`)
+      }
+
       const embeddingData = await embeddingResponse.json()
       const messageEmbedding = embeddingData.data[0].embedding
 
@@ -56,82 +70,221 @@ serve(async (req) => {
       const { data: similarDocs, error: searchError } = await supabase.rpc('search_documents', {
         query_embedding: messageEmbedding,
         match_threshold: 0.7,
-        match_count: 5
+        match_count: 3
       })
 
       if (!searchError && similarDocs && similarDocs.length > 0) {
         documentContext = similarDocs
-          .map((doc: any) => `Document: ${doc.title}\nContent: ${doc.content.substring(0, 1000)}...`)
+          .map((doc: any) => `Document: ${doc.title}\nContent: ${doc.content.substring(0, 800)}...`)
           .join('\n\n')
+        console.log(`Found ${similarDocs.length} relevant internal documents`)
       }
     } catch (error) {
-      console.error('Error searching documents:', error)
-      // Continue without document context if search fails
+      console.error('Error searching internal documents:', error)
     }
 
-    // Enhanced system prompt with UAE law specialization
-    const systemPrompt = `You are an AI legal assistant specializing in UAE law and employment regulations. You have access to a comprehensive database of UAE legal documents.
+    // Step 2: Get real-time UAE legal research from Perplexity
+    let researchContext = ""
+    let researchSources: any[] = []
+    try {
+      console.log('Fetching real-time UAE legal research...')
+      const perplexityQuery = `UAE law ${message} legal information federal emirates regulations 2024 2025`
+      
+      const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${perplexityApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-sonar-large-128k-online',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a UAE legal research assistant. Provide current, accurate UAE law information with specific citations and sources. Focus on federal UAE law and emirate-specific regulations.'
+            },
+            {
+              role: 'user',
+              content: perplexityQuery
+            }
+          ],
+          max_tokens: 1000,
+          temperature: 0.2,
+          top_p: 0.9,
+          return_citations: true,
+          search_domain_filter: ['uaelaws.com', 'government.ae', 'moj.gov.ae', 'mohre.gov.ae'],
+          search_recency_filter: 'year'
+        }),
+      })
 
-Key responsibilities:
-1. Provide accurate legal information based on UAE federal law and emirate-specific regulations
-2. Focus heavily on UAE employment law, labor regulations, and workplace rights
-3. Always cite specific legal sources when available
-4. Indicate when legal advice requires a qualified lawyer
-5. Provide practical guidance while emphasizing legal compliance
+      if (perplexityResponse.ok) {
+        const perplexityData = await perplexityResponse.json()
+        researchContext = perplexityData.choices[0].message.content
+        researchSources = perplexityData.citations || []
+        console.log(`Perplexity research completed with ${researchSources.length} sources`)
+      } else {
+        console.error('Perplexity API error:', perplexityResponse.status)
+      }
+    } catch (error) {
+      console.error('Error fetching Perplexity research:', error)
+    }
 
-Available document context:
-${documentContext || "No specific documents found for this query."}
+    // Step 3: Get conversation context for better responses
+    let conversationContext = ""
+    try {
+      if (conversationId) {
+        const { data: recentMessages } = await supabase
+          .from('messages')
+          .select('role, content')
+          .eq('conversation_id', conversationId)
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(6)
 
-Guidelines:
-- Always prioritize UAE law over other jurisdictions
-- Mention relevant UAE labor law articles and regulations
-- Suggest when to consult with a qualified UAE lawyer
-- Provide actionable advice within legal boundaries
-- Include disclaimers about the need for professional legal advice
+        if (recentMessages && recentMessages.length > 0) {
+          conversationContext = recentMessages
+            .reverse()
+            .map(msg => `${msg.role}: ${msg.content.substring(0, 200)}`)
+            .join('\n')
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching conversation context:', error)
+    }
 
-Remember: You are providing legal information, not legal advice. Always recommend consulting with a qualified UAE lawyer for specific legal matters.`
+    // Step 4: Create comprehensive system prompt
+    const systemPrompt = `You are an expert UAE Legal Research Assistant with access to real-time legal information. You specialize in UAE federal law, emirate-specific regulations, and particularly UAE employment law.
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+CURRENT UAE LEGAL RESEARCH:
+${researchContext || "No current research available"}
+
+INTERNAL LEGAL DOCUMENTS:
+${documentContext || "No internal documents found"}
+
+CONVERSATION CONTEXT:
+${conversationContext || "New conversation"}
+
+INSTRUCTIONS:
+1. Provide accurate, current UAE legal information based on the research above
+2. Always cite specific UAE laws, regulations, and official sources when available
+3. Include article numbers, decree references, and official publication dates
+4. Distinguish between federal UAE law and emirate-specific regulations
+5. For employment matters, reference UAE Labor Law and MOHRE regulations
+6. Always include proper legal disclaimers
+7. Suggest when to consult qualified UAE lawyers
+8. Provide practical, actionable advice within legal boundaries
+
+RESPONSE FORMAT:
+- Start with a direct answer to the user's question
+- Include relevant legal citations with sources
+- Provide practical implications and next steps
+- End with appropriate legal disclaimers
+
+CRITICAL: You provide legal information, not legal advice. Always recommend consulting qualified UAE legal professionals for specific matters.`
+
+    // Step 5: Generate response using GPT-5
+    console.log('Generating AI response with GPT-5...')
+    const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-5-2025-08-07',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
         ],
-        temperature: 0.7,
-        max_tokens: 1500,
+        max_completion_tokens: 1500,
       }),
     })
 
-    const data = await response.json()
-    const aiResponse = data.choices[0].message.content
-
-    // Update query usage for the user
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({ 
-        queries_used: supabase.sql`queries_used + 1`
-      })
-      .eq('user_id', user.id)
-
-    if (updateError) {
-      console.error('Error updating query usage:', updateError)
+    if (!aiResponse.ok) {
+      const errorData = await aiResponse.json()
+      console.error('OpenAI API error:', errorData)
+      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`)
     }
 
+    const data = await aiResponse.json()
+    const finalResponse = data.choices[0].message.content
+
+    // Step 6: Update query usage (fix the syntax error)
+    try {
+      // First get current value, then increment
+      const { data: currentProfile } = await supabase
+        .from('profiles')
+        .select('queries_used')
+        .eq('user_id', user.id)
+        .single()
+      
+      if (currentProfile) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ queries_used: (currentProfile.queries_used || 0) + 1 })
+          .eq('user_id', user.id)
+        
+        if (updateError) {
+          console.error('Error updating query usage:', updateError)
+        }
+      }
+    } catch (queryError) {
+      console.error('Error with query usage update:', queryError)
+    }
+
+
+    // Step 7: Log the successful interaction
+    await supabase
+      .from('activity_logs')
+      .insert({
+        user_id: user.id,
+        action: 'ai_chat_query',
+        resource_type: 'legal_chat',
+        resource_id: conversationId,
+        metadata: {
+          message_length: message.length,
+          has_research: !!researchContext,
+          has_documents: !!documentContext,
+          sources_count: researchSources.length
+        }
+      })
+      .select()
+
+    // Prepare source information
+    const sourceInfo = {
+      hasResearch: !!researchContext,
+      hasDocuments: !!documentContext,
+      sourcesCount: researchSources.length,
+      researchSources: researchSources.slice(0, 5).map(source => ({
+        title: source.title || 'UAE Legal Source',
+        url: source.url || '',
+        snippet: source.text?.substring(0, 150) || ''
+      }))
+    }
+
+    console.log('Legal chat response generated successfully')
+
     return new Response(JSON.stringify({ 
-      response: aiResponse,
-      documentSources: documentContext ? "Based on UAE legal documents" : "General legal knowledge"
+      response: finalResponse,
+      documentSources: documentContext ? "Internal legal documents + Real-time UAE legal research" : "Real-time UAE legal research",
+      sourceInfo,
+      timestamp: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
+
   } catch (error) {
     console.error('Error in legal-chat-enhanced function:', error)
-    return new Response(JSON.stringify({ error: error.message }), {
+    
+    // Return a helpful error response
+    const errorMessage = error.message.includes('API key') 
+      ? 'Service temporarily unavailable. Please try again later.'
+      : 'Unable to process your legal query at this time. Please try again.'
+
+    return new Response(JSON.stringify({ 
+      error: errorMessage,
+      timestamp: new Date().toISOString()
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

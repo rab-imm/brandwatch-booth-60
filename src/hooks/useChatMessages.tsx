@@ -10,6 +10,17 @@ interface Message {
   user_id: string
   conversation_id: string
   updated_at: string
+  sources?: {
+    hasResearch: boolean
+    hasDocuments: boolean
+    sourcesCount: number
+    researchSources: Array<{
+      title: string
+      url: string
+      snippet: string
+    }>
+  }
+  documentSources?: string
 }
 
 interface Conversation {
@@ -155,8 +166,13 @@ export const useChatMessages = () => {
 
       if (aiMessageError) throw aiMessageError
 
-      // Update messages state with AI response
-      setMessages(prev => [...prev, aiMessage as Message])
+      // Update messages state with AI response and include source information
+      const enrichedAiMessage = {
+        ...aiMessage,
+        sources: aiResult?.sourceInfo,
+        documentSources: aiResult?.documentSources
+      } as Message
+      setMessages(prev => [...prev, enrichedAiMessage])
 
       // Profile queries_used is already updated by the edge function
       // Refetch profile to update query count in UI

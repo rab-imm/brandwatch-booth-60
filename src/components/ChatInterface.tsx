@@ -49,9 +49,26 @@ export const ChatInterface = () => {
       await sendMessage(content)
       setInputValue("")
     } catch (error) {
+      console.error('Chat error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      
+      let title = "Error"
+      let description = "Failed to send message. Please try again."
+      
+      if (errorMessage.includes('API key')) {
+        title = "Service Unavailable"
+        description = "Legal research service is temporarily unavailable. Please try again later."
+      } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+        title = "Connection Error"
+        description = "Please check your internet connection and try again."
+      } else if (errorMessage.includes('authentication')) {
+        title = "Authentication Error"
+        description = "Please refresh the page and sign in again."
+      }
+      
       toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
+        title,
+        description,
         variant: "destructive"
       })
     }
@@ -80,32 +97,56 @@ export const ChatInterface = () => {
                 Welcome to UAE Legal Research
               </h2>
               <p className="text-muted-foreground max-w-md">
-                Ask questions about UAE law, get instant answers with verified citations, 
-                and research legal precedents efficiently.
+                Get instant answers backed by real-time UAE legal research, verified citations, 
+                and comprehensive legal analysis from the latest sources.
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
               <Button
                 variant="outline"
                 className="h-auto p-4 text-left"
-                onClick={() => handleSendMessage("What are the key employment laws in the UAE?")}
+                onClick={() => handleSendMessage("What are the latest UAE employment law changes in 2024?")}
               >
                 <div className="space-y-1">
-                  <div className="font-medium">Employment Law</div>
+                  <div className="font-medium">Latest Employment Updates</div>
                   <div className="text-sm text-muted-foreground">
-                    Learn about UAE labor regulations
+                    Real-time UAE labor law changes
                   </div>
                 </div>
               </Button>
               <Button
                 variant="outline"
                 className="h-auto p-4 text-left"
-                onClick={() => handleSendMessage("How do I register a company in Dubai?")}
+                onClick={() => handleSendMessage("What are the new Dubai business licensing requirements for 2025?")}
               >
                 <div className="space-y-1">
-                  <div className="font-medium">Business Setup</div>
+                  <div className="font-medium">Business Licensing</div>
                   <div className="text-sm text-muted-foreground">
-                    Company registration procedures
+                    Current registration procedures
+                  </div>
+                </div>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-auto p-4 text-left"
+                onClick={() => handleSendMessage("What are my rights as an employee in the UAE according to current law?")}
+              >
+                <div className="space-y-1">
+                  <div className="font-medium">Employee Rights</div>
+                  <div className="text-sm text-muted-foreground">
+                    Current workplace protections
+                  </div>
+                </div>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-auto p-4 text-left"
+                onClick={() => handleSendMessage("How do UAE contract laws apply to international businesses in 2024?")}
+              >
+                <div className="space-y-1">
+                  <div className="font-medium">Contract Law</div>
+                  <div className="text-sm text-muted-foreground">
+                    International business applications
                   </div>
                 </div>
               </Button>
@@ -124,7 +165,7 @@ export const ChatInterface = () => {
                 message={{
                   id: 'loading',
                   role: 'assistant',
-                  content: 'Analyzing your legal query...',
+                  content: 'Researching UAE legal sources and analyzing your query...',
                   created_at: new Date().toISOString(),
                   user_id: '',
                   conversation_id: currentConversationId || '',

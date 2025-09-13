@@ -11,6 +11,17 @@ interface Message {
   user_id: string
   conversation_id: string
   updated_at: string
+  sources?: {
+    hasResearch: boolean
+    hasDocuments: boolean
+    sourcesCount: number
+    researchSources: Array<{
+      title: string
+      url: string
+      snippet: string
+    }>
+  }
+  documentSources?: string
 }
 
 interface MessageBubbleProps {
@@ -68,15 +79,67 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
             </div>
 
             {!isUser && !isLoading && (
-              <div className="flex items-center space-x-2 pt-2 border-t border-border/20">
-                <Badge variant="secondary" className="text-xs">
-                  <Icon name="check" className="w-3 h-3 mr-1" />
-                  AI-Verified
-                </Badge>
-                <Badge variant="outline" className="text-xs">
-                  <Icon name="book" className="w-3 h-3 mr-1" />
-                  UAE Law
-                </Badge>
+              <div className="space-y-3 pt-2 border-t border-border/20">
+                <div className="flex items-center space-x-2">
+                  {message.sources?.hasResearch && (
+                    <Badge variant="secondary" className="text-xs">
+                      <Icon name="globe" className="w-3 h-3 mr-1" />
+                      Real-time Research
+                    </Badge>
+                  )}
+                  {message.sources?.hasDocuments && (
+                    <Badge variant="outline" className="text-xs">
+                      <Icon name="file-text" className="w-3 h-3 mr-1" />
+                      Internal Docs
+                    </Badge>
+                  )}
+                  <Badge variant="outline" className="text-xs">
+                    <Icon name="book" className="w-3 h-3 mr-1" />
+                    UAE Law
+                  </Badge>
+                  {message.sources?.sourcesCount && message.sources.sourcesCount > 0 && (
+                    <Badge variant="default" className="text-xs">
+                      <Icon name="link" className="w-3 h-3 mr-1" />
+                      {message.sources.sourcesCount} Sources
+                    </Badge>
+                  )}
+                </div>
+                
+                {message.sources?.researchSources && message.sources.researchSources.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">Sources:</p>
+                    <div className="space-y-1">
+                      {message.sources.researchSources.slice(0, 3).map((source, index) => (
+                        <div key={index} className="text-xs bg-muted/50 rounded p-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium truncate">{source.title}</span>
+                            {source.url && (
+                              <a 
+                                href={source.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline ml-2"
+                              >
+                                <Icon name="external-link" className="w-3 h-3" />
+                              </a>
+                            )}
+                          </div>
+                          {source.snippet && (
+                            <p className="text-muted-foreground mt-1 text-xs">
+                              {source.snippet}...
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {message.documentSources && (
+                  <p className="text-xs text-muted-foreground">
+                    📚 Based on: {message.documentSources}
+                  </p>
+                )}
               </div>
             )}
           </div>
