@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 import { Link } from "react-router-dom"
-import { NotificationCenter } from "@/components/NotificationCenter"
 import { useAuth } from "@/hooks/useAuth"
+import { NotificationCenter } from "@/components/NotificationCenter"
 import {
   DropdownMenu,
   DropdownMenuContent,
