@@ -167,9 +167,21 @@ export const useChatMessages = () => {
         throw new Error('Failed to get AI response')
       }
 
-      if (!result || !result.response) {
-        console.error('Invalid AI response:', result)
-        throw new Error('Invalid response from AI service')
+      console.log('AI service response:', result)
+      
+      if (!result) {
+        console.error('No result from AI service')
+        throw new Error('No response from AI service')
+      }
+      
+      if (result.error) {
+        console.error('AI service returned error:', result.error)
+        throw new Error(result.error)
+      }
+      
+      if (!result.response) {
+        console.error('Invalid AI response structure:', result)
+        throw new Error('Invalid response structure from AI service')
       }
 
       // Create AI message with sources

@@ -274,6 +274,12 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
 
   } catch (error) {
     console.error('Error in legal-chat-enhanced function:', error)
+    console.error('Error stack:', error.stack)
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      cause: error.cause
+    })
     
     // Return a helpful error response
     const errorMessage = error.message.includes('API key') 
@@ -282,6 +288,7 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
 
     return new Response(JSON.stringify({ 
       error: errorMessage,
+      details: error.message,
       timestamp: new Date().toISOString()
     }), {
       status: 500,

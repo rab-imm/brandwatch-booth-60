@@ -69,6 +69,8 @@ import {
   IconShare as TablerShare,
   IconThumbUp,
   IconMessageCircle as TablerMessageCircle,
+  IconMessage as TablerMessage,
+  IconScale as TablerScale,
   IconBookmark as TablerBookmark,
   IconFilter as TablerFilter,
   IconArrowsSort,
@@ -202,6 +204,7 @@ export const iconRegistry: Record<string, ComponentType<any>> = {
   // Business & Marketing - Mixed for visual variety
   'eye': Eye, // Phosphor
   'target': TablerTarget, // Tabler for elegance
+  'scale': TablerScale, // Tabler for legal scale
   'users': TablerUsers, // Tabler for clean lines
   'brain': Brain, // Phosphor
   'lightning': Lightning, // Phosphor
@@ -231,6 +234,7 @@ export const iconRegistry: Record<string, ComponentType<any>> = {
   'share': Share1Icon,
   'thumbs-up': ThickArrowUpIcon,
   'message': ChatBubbleIcon,
+  'message-square': TablerMessage,
   'bookmark': BookmarkIcon,
   'filter': MixerHorizontalIcon,
   'sort': CaretSortIcon,
