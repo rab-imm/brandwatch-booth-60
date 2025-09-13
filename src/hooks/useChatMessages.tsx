@@ -126,42 +126,32 @@ export const useChatMessages = () => {
         await updateConversationTitle(conversationId, title)
       }
 
-      // Simulate AI response (placeholder for now)
-      const aiResponse = `Thank you for your legal question: "${content}". 
+      // Call OpenAI via edge function for AI response
+      const { data: aiResult, error: aiCallError } = await supabase.functions.invoke('legal-chat', {
+        body: {
+          message: content,
+          userId: user.id,
+          conversationId: conversationId
+        }
+      });
 
-This is a placeholder response. In a full implementation, this would:
+      if (aiCallError || !aiResult.success) {
+        console.error('AI function error:', aiCallError || aiResult.error);
+        throw new Error(aiResult?.error || 'Failed to get AI response');
+      }
 
-1. Analyze your query using advanced legal AI
-2. Search through UAE legal databases and statutes
-3. Provide accurate legal information with citations
-4. Reference relevant case law and precedents
-
-Key areas this system would cover:
-- Employment Law in the UAE
-- Commercial and Corporate Law
-- Real Estate and Property Law
-- Civil and Criminal Procedures
-- Free Zone Regulations
-- Family Law and Personal Status
-
-Please note: This is not legal advice. Consult with a qualified UAE legal professional for specific legal matters.`
-
-      // Add AI response
-      const { data: aiMessage, error: aiError } = await supabase
+      // AI message is already stored by the edge function, so we need to fetch it
+      const { data: latestMessages, error: fetchError } = await supabase
         .from('messages')
-        .insert({
-          user_id: user.id,
-          conversation_id: conversationId,
-          role: 'assistant',
-          content: aiResponse
-        })
-        .select()
-        .single()
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true });
 
-      if (aiError) throw aiError
+      if (fetchError) throw fetchError;
 
-      // Update messages with AI response
-      setMessages(prev => [...prev, aiMessage as Message])
+      // Update messages with the complete conversation
+      setMessages((latestMessages || []) as Message[])
 
       // Increment query count
       const { error: updateError } = await supabase
