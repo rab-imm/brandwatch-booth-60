@@ -52,7 +52,14 @@ export const useChatMessages = () => {
         .order('created_at', { ascending: true })
 
       if (error) throw error
-      setMessages((data || []) as Message[])
+      
+      const formattedMessages: Message[] = (data || []).map((msg: any) => ({
+        ...msg,
+        role: msg.role as 'user' | 'assistant',
+        sources: msg.metadata?.sources || undefined
+      }))
+      
+      setMessages(formattedMessages)
     } catch (error) {
       console.error('Error fetching messages:', error)
       setMessages([])
@@ -212,7 +219,8 @@ export const useChatMessages = () => {
           user_id: aiMessage.user_id,
           conversation_id: aiMessage.conversation_id,
           created_at: aiMessage.created_at,
-          updated_at: aiMessage.updated_at
+          updated_at: aiMessage.updated_at,
+          metadata: aiMessage.sources ? { sources: aiMessage.sources } : null
         }])
 
       if (aiMessageError) throw aiMessageError
