@@ -71,7 +71,7 @@ import {
   IconMessageCircle as TablerMessageCircle,
   IconMessage as TablerMessage,
   IconScale as TablerScale,
-  IconBookmark as TablerBookmark,
+  IconBook as TablerBook,
   IconFilter as TablerFilter,
   IconArrowsSort,
   IconGrid3x3,
@@ -204,7 +204,7 @@ export const iconRegistry: Record<string, ComponentType<any>> = {
   // Business & Marketing - Mixed for visual variety
   'eye': Eye, // Phosphor
   'target': TablerTarget, // Tabler for elegance
-  'scale': TablerScale, // Tabler for legal scale
+  'book': TablerBook, // Tabler for book
   'users': TablerUsers, // Tabler for clean lines
   'brain': Brain, // Phosphor
   'lightning': Lightning, // Phosphor

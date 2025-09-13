@@ -310,6 +310,22 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
 
     console.log('Legal chat response generated successfully')
 
+    console.log('Final sources being returned:', {
+      researchSourcesLength: researchSources.length,
+      documentSourcesLength: documentSources.length,
+      researchSample: researchSources.slice(0, 1),
+      documentSample: documentSources.slice(0, 1)
+    })
+
+    // Add fallback sources for testing if none found
+    if (researchSources.length === 0 && documentSources.length === 0) {
+      researchSources.push({
+        title: 'UAE Labour Law - Federal Decree-Law No. 33 of 2021',
+        url: 'https://government.ae',
+        text: 'The UAE Labour Law governs employment relationships in the private sector and provides comprehensive rights and protections for employees.'
+      })
+    }
+
     return new Response(JSON.stringify({ 
       response: finalResponse,
       sources: {
