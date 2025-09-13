@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useChatMessages } from "@/hooks/useChatMessages"
 import { MessageBubble } from "@/components/MessageBubble"
 import { ChatInput } from "@/components/ChatInput"
+import { LawyerRequestButton } from "@/components/LawyerRequestButton"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/components/ui/use-toast"
@@ -26,7 +27,7 @@ export const ChatInterface = () => {
     if (!content.trim() || loading) return
 
     // Check query limits
-    if (profile?.subscription_tier === 'free' && (profile?.queries_used || 0) >= 5) {
+    if (profile?.subscription_tier === 'free' && (profile?.queries_used || 0) >= 10) {
       toast({
         title: "Query limit reached",
         description: "You've reached your free tier limit. Upgrade to continue.",
@@ -35,10 +36,10 @@ export const ChatInterface = () => {
       return
     }
 
-    if (profile?.subscription_tier === 'pro' && (profile?.queries_used || 0) >= 100) {
+    if (profile?.subscription_tier === 'essential' && (profile?.queries_used || 0) >= 50) {
       toast({
         title: "Query limit reached", 
-        description: "You've reached your pro tier limit for this month.",
+        description: "You've reached your essential tier limit for this month.",
         variant: "destructive"
       })
       return
@@ -137,7 +138,10 @@ export const ChatInterface = () => {
         <div ref={messagesEndRef} />
       </div>
       
-      <div className="border-t p-4">
+      <div className="border-t p-4 space-y-3">
+        <div className="flex justify-center">
+          <LawyerRequestButton conversationId={currentConversationId} />
+        </div>
         <ChatInput
           value={inputValue}
           onChange={setInputValue}

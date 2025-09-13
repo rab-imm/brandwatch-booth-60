@@ -16,6 +16,7 @@ import UseCasesPage from "./pages/UseCasesPage";
 import NotFound from "./pages/NotFound";
 import { TemplateStore } from "./components/TemplateStore";
 import { SuperAdminDashboard } from "./components/SuperAdminDashboard";
+import { DocumentUpload } from "./components/DocumentUpload";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <SuperAdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/upload" 
+              element={
+                <ProtectedRoute>
+                  <DocumentUpload />
                 </ProtectedRoute>
               } 
             />

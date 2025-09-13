@@ -5,11 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/hooks/use-toast"
+import { DocumentUpload } from "./DocumentUpload"
 
 export const SuperAdminDashboard = () => {
   const { user, profile } = useAuth()
@@ -281,36 +279,7 @@ export const SuperAdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="upload" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload New Document</CardTitle>
-                <CardDescription>
-                  Upload legal documents for AI training and reference
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Input placeholder="Document title" />
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="employment">Employment</SelectItem>
-                    <SelectItem value="commercial">Commercial</SelectItem>
-                    <SelectItem value="real_estate">Real Estate</SelectItem>
-                    <SelectItem value="family">Family</SelectItem>
-                    <SelectItem value="criminal">Criminal</SelectItem>
-                    <SelectItem value="corporate">Corporate</SelectItem>
-                    <SelectItem value="intellectual_property">Intellectual Property</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Textarea placeholder="Document content..." rows={10} />
-                <Button className="w-full">
-                  <Icon name="upload" className="h-4 w-4 mr-2" />
-                  Upload Document
-                </Button>
-              </CardContent>
-            </Card>
+            <DocumentUpload />
           </TabsContent>
         </Tabs>
       </div>
