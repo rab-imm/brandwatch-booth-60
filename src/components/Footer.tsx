@@ -7,10 +7,10 @@ export const Footer = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="grid md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
-            <h3 className="text-2xl font-bold text-brand-primary mb-4">CreateAI</h3>
+            <h3 className="text-2xl font-bold text-brand-primary mb-4">UAE Legal Research</h3>
             <p className="text-muted-foreground mb-4 max-w-md">
-              AI-native content factory trusted by 500+ agencies worldwide. 
-              Built for agencies, by agency people.
+              AI-powered legal research platform trusted by leading UAE law firms. 
+              Comprehensive legal document coverage with verified citations.
             </p>
             
             {/* Newsletter Signup */}
@@ -25,18 +25,18 @@ export const Footer = () => {
                   Subscribe
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">Get weekly AI insights</p>
+              <p className="text-xs text-muted-foreground mt-2">Get weekly legal insights</p>
             </div>
 
             {/* Social Links */}
             <div className="flex space-x-4 mb-4">
-              <a href="https://twitter.com/createai" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="https://twitter.com/uaelegalresearch" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Icon name="brand-twitter" size={20} />
               </a>
-              <a href="https://linkedin.com/company/createai" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="https://linkedin.com/company/uaelegalresearch" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Icon name="brand-linkedin" size={20} />
               </a>
-              <a href="https://facebook.com/createai" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="https://facebook.com/uaelegalresearch" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Icon name="brand-facebook" size={20} />
               </a>
             </div>
@@ -96,7 +96,7 @@ export const Footer = () => {
         
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            CreateAI © 2025 • Built for agencies, by agency people • SOC 2 Type II Certified
+            UAE Legal Research © 2025 • Built for legal professionals • ISO 27001 Certified
           </p>
           <div className="flex items-center space-x-4 mt-4 md:mt-0">
             <Icon name="shield" size={16} className="text-muted-foreground" />
