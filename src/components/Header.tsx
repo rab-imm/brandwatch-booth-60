@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 import { Link } from "react-router-dom"
+import { useAuth } from "@/hooks/useAuth"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export const Header = () => {
+  const { user, signOut } = useAuth();
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-6 py-4">
@@ -54,12 +56,25 @@ export const Header = () => {
           </div>
           
           <div className="flex items-center space-x-4">
-            <Button variant="outline" size="sm">
-              See Demo
-            </Button>
-            <Button variant="premium" size="sm">
-              Try Free Queries
-            </Button>
+            {user ? (
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-muted-foreground hidden sm:block">
+                  {user.email}
+                </span>
+                <Button variant="outline" size="sm" onClick={signOut}>
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/auth">Sign In</Link>
+                </Button>
+                <Button variant="premium" size="sm" asChild>
+                  <Link to="/auth">Try Free Queries</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
