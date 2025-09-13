@@ -107,7 +107,7 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-large-128k-online',
+          model: 'sonar',
           messages: [
             {
               role: 'system',
@@ -118,31 +118,23 @@ serve(async (req) => {
               content: perplexityQuery
             }
           ],
-          temperature: 0.2,
-          top_p: 0.9,
-          max_tokens: 1000,
-          return_images: false,
-          return_related_questions: false,
-          search_domain_filter: ['uaelaws.com', 'government.ae', 'moj.gov.ae', 'mohre.gov.ae'],
-          search_recency_filter: 'year',
-          frequency_penalty: 1,
-          presence_penalty: 0
+          max_tokens: 1000
         }),
       })
 
       if (perplexityResponse.ok) {
         const perplexityData = await perplexityResponse.json()
-        console.log('Perplexity response structure:', Object.keys(perplexityData))
+        console.log('Perplexity response keys:', Object.keys(perplexityData))
         
         if (perplexityData.choices && perplexityData.choices[0]) {
           researchContext = perplexityData.choices[0].message.content
           
-          // Extract sources from Perplexity response
-          if (perplexityData.citations && perplexityData.citations.length > 0) {
-            researchSources = perplexityData.citations.map((citation: any) => ({
-              title: citation.title || 'UAE Legal Source',
-              url: citation.url || '',
-              text: citation.text || ''
+          // Extract sources from search_results (not citations)
+          if (perplexityData.search_results && perplexityData.search_results.length > 0) {
+            researchSources = perplexityData.search_results.map((result: any) => ({
+              title: result.title || 'UAE Legal Source',
+              url: result.url || '',
+              text: result.content || `Source from ${result.title || 'UAE Legal Database'}`
             }))
           }
           
@@ -312,19 +304,8 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
 
     console.log('Final sources being returned:', {
       researchSourcesLength: researchSources.length,
-      documentSourcesLength: documentSources.length,
-      researchSample: researchSources.slice(0, 1),
-      documentSample: documentSources.slice(0, 1)
+      documentSourcesLength: documentSources.length
     })
-
-    // Add fallback sources for testing if none found
-    if (researchSources.length === 0 && documentSources.length === 0) {
-      researchSources.push({
-        title: 'UAE Labour Law - Federal Decree-Law No. 33 of 2021',
-        url: 'https://government.ae',
-        text: 'The UAE Labour Law governs employment relationships in the private sector and provides comprehensive rights and protections for employees.'
-      })
-    }
 
     return new Response(JSON.stringify({ 
       response: finalResponse,
