@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import { TemplateStore } from "./components/TemplateStore";
 import { SuperAdminDashboard } from "./components/SuperAdminDashboard";
 import { DocumentUpload } from "./components/DocumentUpload";
+import { SubscriptionManager } from "./components/SubscriptionManager";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <DocumentUpload />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/subscription" 
+              element={
+                <ProtectedRoute>
+                  <SubscriptionManager />
                 </ProtectedRoute>
               } 
             />

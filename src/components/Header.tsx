@@ -64,6 +64,9 @@ export const Header = () => {
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/subscription">Subscription</Link>
+                </Button>
                 {profile?.user_role === 'super_admin' && (
                   <Button variant="ghost" size="sm" asChild>
                     <Link to="/admin">Admin</Link>

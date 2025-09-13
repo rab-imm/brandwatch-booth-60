@@ -427,6 +427,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_template: {
+        Args: {
+          p_category: Database["public"]["Enums"]["template_category"]
+          p_content: string
+          p_created_by: string
+          p_description: string
+          p_price_aed: number
+          p_title: string
+        }
+        Returns: string
+      }
       reset_monthly_queries: {
         Args: Record<PropertyKey, never>
         Returns: undefined

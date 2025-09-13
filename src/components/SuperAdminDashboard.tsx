@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/hooks/use-toast"
 import { DocumentUpload } from "./DocumentUpload"
+import { TemplateCreator } from "./TemplateCreator"
 
 export const SuperAdminDashboard = () => {
   const { user, profile } = useAuth()
@@ -138,7 +139,7 @@ export const SuperAdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="documents" className="flex items-center gap-2">
               <Icon name="file-text" className="h-4 w-4" />
               Documents
@@ -153,7 +154,11 @@ export const SuperAdminDashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="upload" className="flex items-center gap-2">
               <Icon name="upload" className="h-4 w-4" />
-              Upload
+              Upload Document
+            </TabsTrigger>
+            <TabsTrigger value="templates" className="flex items-center gap-2">
+              <Icon name="file-plus" className="h-4 w-4" />
+              Create Template
             </TabsTrigger>
           </TabsList>
 
@@ -280,6 +285,10 @@ export const SuperAdminDashboard = () => {
 
           <TabsContent value="upload" className="space-y-4">
             <DocumentUpload />
+          </TabsContent>
+
+          <TabsContent value="templates" className="space-y-4">
+            <TemplateCreator />
           </TabsContent>
         </Tabs>
       </div>
