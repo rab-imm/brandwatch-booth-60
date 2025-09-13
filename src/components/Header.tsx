@@ -21,6 +21,9 @@ export const Header = () => {
               <Link to="/features" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
                 Features
               </Link>
+              <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                Templates
+              </Link>
               <Link to="/pricing" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
                 Pricing
               </Link>
@@ -61,6 +64,11 @@ export const Header = () => {
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
+                {user && ((user as any).user_role === 'super_admin') && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/admin">Admin</Link>
+                  </Button>
+                )}
                 <span className="text-sm text-muted-foreground hidden sm:block">
                   {user.email}
                 </span>

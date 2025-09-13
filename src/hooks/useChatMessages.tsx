@@ -126,47 +126,41 @@ export const useChatMessages = () => {
         await updateConversationTitle(conversationId, title)
       }
 
-      // Call OpenAI via edge function for AI response
-      const { data: aiResult, error: aiCallError } = await supabase.functions.invoke('legal-chat', {
+      // Call the enhanced legal chat function with document search
+      const { data: aiResult, error: aiCallError } = await supabase.functions.invoke('legal-chat-enhanced', {
         body: {
           message: content,
-          userId: user.id,
           conversationId: conversationId
         }
       });
 
-      if (aiCallError || !aiResult.success) {
-        console.error('AI function error:', aiCallError || aiResult.error);
-        throw new Error(aiResult?.error || 'Failed to get AI response');
+      if (aiCallError) {
+        console.error('AI function error:', aiCallError);
+        throw new Error('Failed to get AI response');
       }
 
-      // AI message is already stored by the edge function, so we need to fetch it
-      const { data: latestMessages, error: fetchError } = await supabase
+      const aiResponseText = aiResult?.response || 'I apologize, but I could not generate a response at this time.'
+
+      // Add AI response message
+      const { data: aiMessage, error: aiMessageError } = await supabase
         .from('messages')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: true });
-
-      if (fetchError) throw fetchError;
-
-      // Update messages with the complete conversation
-      setMessages((latestMessages || []) as Message[])
-
-      // Increment query count
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ 
-          queries_used: ((user as any)?.queries_used || 0) + 1 
+        .insert({
+          user_id: user.id,
+          conversation_id: conversationId,
+          role: 'assistant',
+          content: aiResponseText
         })
-        .eq('user_id', user.id)
+        .select()
+        .single()
 
-      if (updateError) {
-        console.error('Error updating query count:', updateError)
-      } else {
-        // Refetch profile to update query count in UI
-        await refetchProfile()
-      }
+      if (aiMessageError) throw aiMessageError
+
+      // Update messages state with AI response
+      setMessages(prev => [...prev, aiMessage as Message])
+
+      // Profile queries_used is already updated by the edge function
+      // Refetch profile to update query count in UI
+      await refetchProfile()
 
     } catch (error) {
       console.error('Error sending message:', error)
