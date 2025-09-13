@@ -293,7 +293,11 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
     return new Response(JSON.stringify({ 
       response: finalResponse,
       sources: {
-        research: researchSources,
+        research: researchSources.slice(0, 5).map(source => ({
+          title: source.title || 'UAE Legal Source',
+          url: source.url || '',
+          snippet: source.text?.substring(0, 150) || ''
+        })),
         documents: documentSources
       },
       timestamp: new Date().toISOString()

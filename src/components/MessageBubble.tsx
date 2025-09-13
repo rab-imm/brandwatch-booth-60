@@ -50,11 +50,19 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
                   <span className="text-sm">Analyzing your query...</span>
                 </div>
               ) : (
-                <p className={`text-sm leading-relaxed ${
+                <div className={`text-sm leading-relaxed ${
                   isUser ? 'text-primary-foreground' : 'text-foreground'
-                } whitespace-pre-wrap`}>
-                  {message.content}
-                </p>
+                }`} dangerouslySetInnerHTML={{
+                  __html: isUser 
+                    ? message.content.replace(/\n/g, '<br/>') 
+                    : message.content
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/\n/g, '<br/>')
+                        .replace(/^### (.*$)/gim, '<h3 class="font-semibold text-base mb-2 mt-4">$1</h3>')
+                        .replace(/^## (.*$)/gim, '<h2 class="font-semibold text-lg mb-2 mt-4">$1</h2>')
+                        .replace(/^# (.*$)/gim, '<h1 class="font-bold text-xl mb-2 mt-4">$1</h1>')
+                }} />
               )}
             </div>
 
