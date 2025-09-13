@@ -58,6 +58,9 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-3">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/dashboard">Dashboard</Link>
+                </Button>
                 <span className="text-sm text-muted-foreground hidden sm:block">
                   {user.email}
                 </span>
