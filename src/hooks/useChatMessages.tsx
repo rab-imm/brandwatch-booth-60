@@ -2,25 +2,28 @@ import { useState, useEffect } from "react"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/integrations/supabase/client"
 
-interface Message {
+export interface Message {
   id: string
-  role: 'user' | 'assistant'
   content: string
+  role: 'user' | 'assistant'
   created_at: string
+  updated_at: string
   user_id: string
   conversation_id: string
-  updated_at: string
   sources?: {
-    hasResearch: boolean
-    hasDocuments: boolean
-    sourcesCount: number
-    researchSources: Array<{
+    research?: Array<{
       title: string
-      url: string
       snippet: string
+      url: string
+      domain: string
+    }>
+    documents?: Array<{
+      title: string
+      content: string
+      category: string
+      similarity: number
     }>
   }
-  documentSources?: string
 }
 
 interface Conversation {
@@ -56,27 +59,30 @@ export const useChatMessages = () => {
     }
   }
 
-  const createNewConversation = async () => {
-    if (!user) return
-
+  const createNewConversation = async (): Promise<string | null> => {
     try {
       const { data, error } = await supabase
         .from('conversations')
-        .insert({
-          user_id: user.id,
-          title: 'New Conversation'
-        })
+        .insert([
+          { 
+            user_id: user.id,
+            title: 'New Conversation',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ])
         .select()
         .single()
 
       if (error) throw error
-      
-      setCurrentConversationId(data.id)
-      setMessages([])
-      return data.id
+
+      const newConversationId = data.id
+      setCurrentConversationId(newConversationId)
+      setMessages([]) // Clear messages immediately when creating new conversation
+      return newConversationId
     } catch (error) {
       console.error('Error creating conversation:', error)
-      throw error
+      return null
     }
   }
 
@@ -116,21 +122,31 @@ export const useChatMessages = () => {
 
     try {
       // Add user message
-      const { data: userMessage, error: userError } = await supabase
+      const userMessage: Message = {
+        id: crypto.randomUUID(),
+        content: content.trim(),
+        role: 'user',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_id: user.id,
+        conversation_id: conversationId
+      }
+
+      const { error: userError } = await supabase
         .from('messages')
-        .insert({
-          user_id: user.id,
-          conversation_id: conversationId,
-          role: 'user',
-          content: content.trim()
-        })
-        .select()
-        .single()
+        .insert([{
+          content: userMessage.content,
+          role: userMessage.role,
+          user_id: userMessage.user_id,
+          conversation_id: userMessage.conversation_id,
+          created_at: userMessage.created_at,
+          updated_at: userMessage.updated_at
+        }])
 
       if (userError) throw userError
 
       // Update messages state with user message
-      setMessages(prev => [...prev, userMessage as Message])
+      setMessages(prev => [...prev, userMessage])
 
       // Update conversation title based on first message
       if (messages.length === 0) {
@@ -138,44 +154,50 @@ export const useChatMessages = () => {
         await updateConversationTitle(conversationId, title)
       }
 
-      // Call the enhanced legal chat function with document search
-      const { data: aiResult, error: aiCallError } = await supabase.functions.invoke('legal-chat-enhanced', {
+      // Call the enhanced legal chat function
+      const { data: result, error: aiCallError } = await supabase.functions.invoke('legal-chat-enhanced', {
         body: {
           message: content,
           conversationId: conversationId
         }
-      });
+      })
 
       if (aiCallError) {
-        console.error('AI function error:', aiCallError);
-        throw new Error('Failed to get AI response');
+        console.error('AI function error:', aiCallError)
+        throw new Error('Failed to get AI response')
       }
 
-      const aiResponseText = aiResult?.response || 'I apologize, but I could not generate a response at this time.'
+      // Create AI message with sources
+      const aiMessage: Message = {
+        id: crypto.randomUUID(),
+        content: result.response,
+        role: 'assistant',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_id: user.id,
+        conversation_id: conversationId,
+        sources: result.sources ? {
+          research: result.sources.research || [],
+          documents: result.sources.documents || []
+        } : undefined
+      }
 
-      // Add AI response message
-      const { data: aiMessage, error: aiMessageError } = await supabase
+      const { error: aiMessageError } = await supabase
         .from('messages')
-        .insert({
-          user_id: user.id,
-          conversation_id: conversationId,
-          role: 'assistant',
-          content: aiResponseText
-        })
-        .select()
-        .single()
+        .insert([{
+          content: aiMessage.content,
+          role: aiMessage.role,
+          user_id: aiMessage.user_id,
+          conversation_id: aiMessage.conversation_id,
+          created_at: aiMessage.created_at,
+          updated_at: aiMessage.updated_at
+        }])
 
       if (aiMessageError) throw aiMessageError
 
-      // Update messages state with AI response and include source information
-      const enrichedAiMessage = {
-        ...aiMessage,
-        sources: aiResult?.sourceInfo,
-        documentSources: aiResult?.documentSources
-      } as Message
-      setMessages(prev => [...prev, enrichedAiMessage])
+      // Update messages state with AI response
+      setMessages(prev => [...prev, aiMessage])
 
-      // Profile queries_used is already updated by the edge function
       // Refetch profile to update query count in UI
       await refetchProfile()
 

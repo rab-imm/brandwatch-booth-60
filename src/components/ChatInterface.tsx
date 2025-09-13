@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useAuth } from "@/hooks/useAuth"
-import { useChatMessages } from "@/hooks/useChatMessages"
+import { useChatMessages, Message } from "@/hooks/useChatMessages"
 import { MessageBubble } from "@/components/MessageBubble"
 import { ChatInput } from "@/components/ChatInput"
 import { LawyerRequestButton } from "@/components/LawyerRequestButton"

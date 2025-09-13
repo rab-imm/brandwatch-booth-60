@@ -2,27 +2,7 @@ import { formatDistanceToNow } from "date-fns"
 import { Icon } from "@/components/ui/Icon"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-
-interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  created_at: string
-  user_id: string
-  conversation_id: string
-  updated_at: string
-  sources?: {
-    hasResearch: boolean
-    hasDocuments: boolean
-    sourcesCount: number
-    researchSources: Array<{
-      title: string
-      url: string
-      snippet: string
-    }>
-  }
-  documentSources?: string
-}
+import { Message } from "@/hooks/useChatMessages"
 
 interface MessageBubbleProps {
   message: Message
@@ -78,16 +58,16 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
               )}
             </div>
 
-            {!isUser && !isLoading && (
+            {!isUser && !isLoading && message.sources && (
               <div className="space-y-3 pt-2 border-t border-border/20">
-                <div className="flex items-center space-x-2">
-                  {message.sources?.hasResearch && (
+                <div className="flex items-center flex-wrap gap-2">
+                  {message.sources.research && message.sources.research.length > 0 && (
                     <Badge variant="secondary" className="text-xs">
                       <Icon name="globe" className="w-3 h-3 mr-1" />
                       Real-time Research
                     </Badge>
                   )}
-                  {message.sources?.hasDocuments && (
+                  {message.sources.documents && message.sources.documents.length > 0 && (
                     <Badge variant="outline" className="text-xs">
                       <Icon name="file-text" className="w-3 h-3 mr-1" />
                       Internal Docs
@@ -97,19 +77,17 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
                     <Icon name="book" className="w-3 h-3 mr-1" />
                     UAE Law
                   </Badge>
-                  {message.sources?.sourcesCount && message.sources.sourcesCount > 0 && (
-                    <Badge variant="default" className="text-xs">
-                      <Icon name="link" className="w-3 h-3 mr-1" />
-                      {message.sources.sourcesCount} Sources
-                    </Badge>
-                  )}
+                  <Badge variant="default" className="text-xs">
+                    <Icon name="link" className="w-3 h-3 mr-1" />
+                    {(message.sources.research?.length || 0) + (message.sources.documents?.length || 0)} Sources
+                  </Badge>
                 </div>
                 
-                {message.sources?.researchSources && message.sources.researchSources.length > 0 && (
+                {message.sources.research && message.sources.research.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground">Sources:</p>
+                    <p className="text-xs font-medium text-muted-foreground">Research Sources:</p>
                     <div className="space-y-1">
-                      {message.sources.researchSources.slice(0, 3).map((source, index) => (
+                      {message.sources.research.slice(0, 3).map((source, index) => (
                         <div key={index} className="text-xs bg-muted/50 rounded p-2">
                           <div className="flex items-center justify-between">
                             <span className="font-medium truncate">{source.title}</span>
@@ -126,7 +104,7 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
                           </div>
                           {source.snippet && (
                             <p className="text-muted-foreground mt-1 text-xs">
-                              {source.snippet}...
+                              {source.snippet}
                             </p>
                           )}
                         </div>
@@ -134,11 +112,20 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
                     </div>
                   </div>
                 )}
-                
-                {message.documentSources && (
-                  <p className="text-xs text-muted-foreground">
-                    📚 Based on: {message.documentSources}
-                  </p>
+
+                {message.sources.documents && message.sources.documents.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">Document Sources:</p>
+                    <div className="space-y-1">
+                      {message.sources.documents.slice(0, 2).map((source, index) => (
+                        <div key={index} className="text-xs bg-secondary/20 rounded p-2">
+                          <div className="font-medium">{source.title}</div>
+                          <div className="text-muted-foreground">Category: {source.category}</div>
+                          <div className="text-muted-foreground">Relevance: {Math.round(source.similarity * 100)}%</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             )}
