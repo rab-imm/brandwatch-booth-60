@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
-import heroImage from "@/assets/dashboard-hero.jpg"
+import heroImage from "@/assets/uae-legal-hero.jpg"
 
 export const Hero = () => {
   return (
