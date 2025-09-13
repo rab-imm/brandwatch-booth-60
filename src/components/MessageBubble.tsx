@@ -67,7 +67,7 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
             </div>
 
             {!isUser && !isLoading && message.sources && (
-              <div className="space-y-3 pt-2 border-t border-border/20">
+              <div className="space-y-3 pt-3 border-t border-border/20 overflow-visible">
                 <div className="flex items-center flex-wrap gap-2">
                   {message.sources.research && message.sources.research.length > 0 && (
                     <Badge variant="secondary" className="text-xs">
@@ -92,26 +92,27 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
                 </div>
                 
                 {message.sources.research && message.sources.research.length > 0 && (
-                  <div className="space-y-2">
+                  <div className="space-y-2 overflow-visible">
                     <p className="text-xs font-medium text-muted-foreground">Research Sources:</p>
-                    <div className="space-y-1">
+                    <div className="space-y-2 overflow-visible">
                       {message.sources.research.slice(0, 3).map((source, index) => (
-                        <div key={index} className="text-xs bg-muted/50 rounded p-2">
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium truncate">{source.title}</span>
+                        <div key={index} className="text-xs bg-muted/50 rounded-md p-3 overflow-visible relative">
+                          <div className="flex items-start justify-between gap-3 min-h-[20px]">
+                            <span className="font-medium text-foreground leading-tight flex-1 pr-2">{source.title}</span>
                             {source.url && (
                               <a 
                                 href={source.url} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="text-primary hover:underline ml-2"
+                                className="text-primary hover:text-primary/80 transition-colors flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded hover:bg-primary/10 relative z-10"
+                                title="Open source link"
                               >
                                 <Icon name="external-link" className="w-3 h-3" />
                               </a>
                             )}
                           </div>
                           {source.snippet && (
-                            <p className="text-muted-foreground mt-1 text-xs">
+                            <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
                               {source.snippet}
                             </p>
                           )}
@@ -122,13 +123,13 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
                 )}
 
                 {message.sources.documents && message.sources.documents.length > 0 && (
-                  <div className="space-y-2">
+                  <div className="space-y-2 overflow-visible">
                     <p className="text-xs font-medium text-muted-foreground">Document Sources:</p>
-                    <div className="space-y-1">
+                    <div className="space-y-2 overflow-visible">
                       {message.sources.documents.slice(0, 2).map((source, index) => (
-                        <div key={index} className="text-xs bg-secondary/20 rounded p-2">
-                          <div className="font-medium">{source.title}</div>
-                          <div className="text-muted-foreground">Category: {source.category}</div>
+                        <div key={index} className="text-xs bg-secondary/20 rounded-md p-3 overflow-visible">
+                          <div className="font-medium text-foreground">{source.title}</div>
+                          <div className="text-muted-foreground mt-1">Category: {source.category}</div>
                           <div className="text-muted-foreground">Relevance: {Math.round(source.similarity * 100)}%</div>
                         </div>
                       ))}
