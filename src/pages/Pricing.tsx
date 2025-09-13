@@ -8,70 +8,75 @@ import { Footer } from "@/components/Footer"
 const Pricing = () => {
   const tiers = [
     {
-      name: "Basic",
-      price: "$49",
-      period: "/month",
-      description: "Perfect for solo practitioners and small firms",
+      name: "Free",
+      price: "Free",
+      period: "",
+      description: "Perfect for individuals trying our platform",
       features: [
-        "100 AI queries/month",
-        "Basic document search",
-        "Standard export formats",
-        "Email support",
-        "UAE federal laws access",
-        "Citation tracking"
+        "3 AI queries per month",
+        "Basic UAE legal questions",
+        "Verified citations included",
+        "All UAE jurisdictions covered",
+        "Community support",
+        "Legal disclaimers included"
       ],
-      cta: "Choose Basic",
-      popular: false
+      cta: "Start Free",
+      popular: false,
+      highlight: "Most Popular for Individuals"
+    },
+    {
+      name: "Individual",
+      price: "$19", 
+      period: "/month",
+      description: "Great for individuals and small business owners",
+      features: [
+        "50 AI queries per month",
+        "All legal topics covered",
+        "Employment, business, family law",
+        "Email support",
+        "Document citations",
+        "Mobile-friendly chat",
+        "Query history"
+      ],
+      cta: "Choose Individual",
+      popular: true,
+      highlight: "Best Value"
+    },
+    {
+      name: "Small Business",
+      price: "$49",
+      period: "/month", 
+      description: "For small businesses and startups",
+      features: [
+        "200 AI queries per month",
+        "Business compliance guidance",
+        "Contract and employment help",
+        "Priority email support",
+        "Team member access (3 users)",
+        "Export chat conversations",
+        "UAE business law focus"
+      ],
+      cta: "Choose Business",
+      popular: false,
+      highlight: ""
     },
     {
       name: "Professional",
-      price: "$199", 
+      price: "$149",
       period: "/month",
-      description: "Most popular choice for growing law firms",
+      description: "For legal professionals and larger teams",
       features: [
-        "1,000 AI queries/month",
+        "1,000 AI queries per month",
         "Advanced legal research",
         "All UAE jurisdictions",
-        "Priority processing",
-        "Custom reports",
-        "Phone support",
-        "Compliance monitoring"
+        "Phone & email support",
+        "Team access (10 users)",
+        "API access available",
+        "Custom legal reports"
       ],
       cta: "Choose Professional",
-      popular: true
-    },
-    {
-      name: "Enterprise",
-      price: "$999",
-      period: "/month", 
-      description: "For large firms and corporate legal teams",
-      features: [
-        "Unlimited queries",
-        "White-label options",
-        "API access",
-        "Dedicated support",
-        "Custom integrations",
-        "Advanced analytics",
-        "SLA guarantee"
-      ],
-      cta: "Choose Enterprise",
-      popular: false
-    },
-    {
-      name: "Custom",
-      price: "Contact Us",
-      period: "",
-      description: "Tailored solutions for government and institutions",
-      features: [
-        "Unlimited everything",
-        "Custom AI training",
-        "On-premise deployment",
-        "Government compliance", 
-        "Dedicated infrastructure",
-        "24/7 phone support"
-      ],
-      cta: "Contact Sales",
-      popular: false
+      popular: false,
+      highlight: ""
     }
   ]
 
@@ -118,11 +123,19 @@ const Pricing = () => {
         <section className="py-20 px-6 bg-gradient-warm">
           <div className="container mx-auto max-w-4xl text-center">
           <h1 className="text-5xl lg:text-6xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            Legal Research Plans for Every Professional
+            Simple, Transparent Pricing
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Transparent pricing for UAE legal research. From solo practitioners to large firms.
+            Start free, then choose the plan that fits your needs. From individuals to businesses to legal professionals.
           </p>
+          <div className="mt-8 bg-brand-warm/20 rounded-lg p-4 border border-brand-warm/30 max-w-lg mx-auto">
+            <p className="text-lg font-semibold text-brand-primary mb-1">
+              🎯 Start with 3 Free Queries
+            </p>
+            <p className="text-sm text-muted-foreground">
+              No credit card required • Try before you buy • Cancel anytime
+            </p>
+          </div>
           </div>
         </section>
 
@@ -131,10 +144,15 @@ const Pricing = () => {
           <div className="container mx-auto max-w-7xl">
             <div className="grid lg:grid-cols-4 gap-8">
               {tiers.map((tier, index) => (
-                <Card key={index} className={`p-8 relative ${tier.popular ? 'border-brand-accent shadow-dashboard' : 'border-dashboard-border'}`}>
+                <Card key={index} className={`p-8 relative ${tier.popular ? 'border-brand-accent shadow-dashboard' : 'border-dashboard-border'} ${tier.name === 'Free' ? 'bg-brand-warm/5' : ''}`}>
                   {tier.popular && (
                     <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-brand-accent text-white">
-                      Most Popular
+                      {tier.highlight}
+                    </Badge>
+                  )}
+                  {tier.name === 'Free' && (
+                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-brand-warm text-white">
+                      {tier.highlight}
                     </Badge>
                   )}
                   

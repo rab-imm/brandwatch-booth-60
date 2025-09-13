@@ -55,10 +55,10 @@ export const Header = () => {
           
           <div className="flex items-center space-x-4">
             <Button variant="outline" size="sm">
-              Book a Demo
+              See Demo
             </Button>
             <Button variant="premium" size="sm">
-              Start Free Trial
+              Try Free Queries
             </Button>
           </div>
         </div>

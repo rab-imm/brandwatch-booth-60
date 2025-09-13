@@ -1,12 +1,12 @@
 import { Header } from "@/components/Header"
 import { Hero } from "@/components/Hero"
 import { ProblemSection } from "@/components/ProblemSection"
-
+import { ChatPreview } from "@/components/ChatPreview"
 import { ThreeModePipeline } from "@/components/ThreeModePipeline"
 import { HowItWorks } from "@/components/HowItWorks"
 import { Features } from "@/components/Features"
 import { UseCases } from "@/components/UseCases"
-
+import { LegalDisclaimers } from "@/components/LegalDisclaimers"
 import { CallToAction } from "@/components/CallToAction"
 import { Footer } from "@/components/Footer"
 
@@ -16,11 +16,12 @@ const Index = () => {
       <Header />
       <main>
         <Hero />
-        <ProblemSection />
+        <ChatPreview />
         <ThreeModePipeline />
-        <HowItWorks />
+        <ProblemSection />
         <Features />
         <UseCases />
+        <LegalDisclaimers />
         <CallToAction />
       </main>
       <Footer />
