@@ -167,6 +167,11 @@ export const useChatMessages = () => {
         throw new Error('Failed to get AI response')
       }
 
+      if (!result || !result.response) {
+        console.error('Invalid AI response:', result)
+        throw new Error('Invalid response from AI service')
+      }
+
       // Create AI message with sources
       const aiMessage: Message = {
         id: crypto.randomUUID(),

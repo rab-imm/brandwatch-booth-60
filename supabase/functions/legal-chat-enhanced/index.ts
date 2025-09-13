@@ -263,8 +263,10 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
 
     return new Response(JSON.stringify({ 
       response: finalResponse,
-      documentSources: documentContext ? "Internal legal documents + Real-time UAE legal research" : "Real-time UAE legal research",
-      sourceInfo,
+      sources: {
+        research: researchSources,
+        documents: documentSources
+      },
       timestamp: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

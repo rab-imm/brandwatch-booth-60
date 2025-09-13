@@ -61,7 +61,7 @@ export const ChatInput = ({
           disabled={!value.trim() || disabled}
           className="absolute bottom-2 right-2 h-8 w-8 p-0"
         >
-          <Icon name="send" className="w-4 h-4" />
+          <Icon name="arrow-right" className="w-4 h-4" />
         </Button>
       </div>
       
