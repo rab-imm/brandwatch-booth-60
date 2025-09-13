@@ -285,6 +285,92 @@ export type Database = {
           },
         ]
       }
+      revenue_shares: {
+        Row: {
+          created_at: string
+          creator_share_aed: number
+          creator_user_id: string
+          download_id: string
+          id: string
+          platform_share_aed: number
+          sale_amount_aed: number
+          status: string
+          template_id: string
+        }
+        Insert: {
+          created_at?: string
+          creator_share_aed: number
+          creator_user_id: string
+          download_id: string
+          id?: string
+          platform_share_aed: number
+          sale_amount_aed: number
+          status?: string
+          template_id: string
+        }
+        Update: {
+          created_at?: string
+          creator_share_aed?: number
+          creator_user_id?: string
+          download_id?: string
+          id?: string
+          platform_share_aed?: number
+          sale_amount_aed?: number
+          status?: string
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_shares_download_id_fkey"
+            columns: ["download_id"]
+            isOneToOne: false
+            referencedRelation: "template_downloads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "revenue_shares_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_analytics: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          template_id: string
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          template_id: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          template_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_analytics_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       template_downloads: {
         Row: {
           company_id: string | null
@@ -427,6 +513,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_revenue_share: {
+        Args: {
+          p_download_id: string
+          p_sale_amount: number
+          p_template_id: string
+        }
+        Returns: string
+      }
       create_template: {
         Args: {
           p_category: Database["public"]["Enums"]["template_category"]
@@ -455,6 +549,14 @@ export type Database = {
           similarity: number
           title: string
         }[]
+      }
+      track_template_analytics: {
+        Args: {
+          p_action_type: string
+          p_metadata?: Json
+          p_template_id: string
+        }
+        Returns: string
       }
     }
     Enums: {

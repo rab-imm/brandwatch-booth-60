@@ -14,7 +14,7 @@ import About from "./pages/About";
 import Resources from "./pages/Resources";
 import UseCasesPage from "./pages/UseCasesPage";
 import NotFound from "./pages/NotFound";
-import { TemplateStore } from "./components/TemplateStore";
+import { EnhancedTemplateStore } from "./components/EnhancedTemplateStore";
 import { SuperAdminDashboard } from "./components/SuperAdminDashboard";
 import { DocumentUpload } from "./components/DocumentUpload";
 import { SubscriptionManager } from "./components/SubscriptionManager";
@@ -44,7 +44,20 @@ const App = () => (
             <Route path="/use-cases" element={<UseCasesPage />} />
             <Route path="/about" element={<About />} />
             <Route path="/resources" element={<Resources />} />
-            <Route path="/templates" element={<TemplateStore />} />
+            <Route path="/templates" element={
+              <ProtectedRoute>
+                <div className="min-h-screen bg-background">
+                  <header className="border-b">
+                    <div className="container mx-auto px-4 py-4">
+                      <h1 className="text-3xl font-bold">Legal Template Store</h1>
+                    </div>
+                  </header>
+                  <main className="container mx-auto px-4 py-8">
+                    <EnhancedTemplateStore />
+                  </main>
+                </div>
+              </ProtectedRoute>
+            } />
             <Route 
               path="/admin" 
               element={
