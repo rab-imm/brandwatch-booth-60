@@ -179,9 +179,9 @@ export const useChatMessages = () => {
         throw new Error(result.error)
       }
       
-      if (!result.response) {
-        console.error('Invalid AI response structure:', result)
-        throw new Error('Invalid response structure from AI service')
+      if (!result.response || result.response.trim() === '') {
+        console.error('Empty AI response:', result)
+        throw new Error('Empty response from AI service')
       }
 
       // Create AI message with sources

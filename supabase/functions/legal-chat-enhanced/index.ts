@@ -214,7 +214,20 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
     }
 
     const data = await aiResponse.json()
+    console.log('OpenAI response data:', JSON.stringify(data, null, 2))
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Invalid OpenAI response structure:', data)
+      throw new Error('Invalid response structure from OpenAI')
+    }
+    
     const finalResponse = data.choices[0].message.content
+    console.log('Final AI response:', finalResponse)
+    
+    if (!finalResponse || finalResponse.trim() === '') {
+      console.error('Empty response from OpenAI')
+      throw new Error('Empty response from OpenAI API')
+    }
 
     // Step 6: Update query usage (fix the syntax error)
     try {
