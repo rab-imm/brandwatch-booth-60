@@ -8,65 +8,65 @@ import { Footer } from "@/components/Footer"
 const Pricing = () => {
   const tiers = [
     {
-      name: "Starter",
-      price: "$299",
+      name: "Basic",
+      price: "$49",
       period: "/month",
-      description: "Perfect for small agencies getting started",
+      description: "Perfect for solo practitioners and small firms",
       features: [
-        "3 team members",
-        "5 brands",
-        "1,000 credits/month",
-        "All content types",
-        "Basic analytics",
-        "Email support"
+        "100 AI queries/month",
+        "Basic document search",
+        "Standard export formats",
+        "Email support",
+        "UAE federal laws access",
+        "Citation tracking"
       ],
-      cta: "Choose Starter",
+      cta: "Choose Basic",
       popular: false
     },
     {
       name: "Professional",
-      price: "$899", 
+      price: "$199", 
       period: "/month",
-      description: "Most popular choice for growing agencies",
+      description: "Most popular choice for growing law firms",
       features: [
-        "10 team members",
-        "25 brands", 
-        "5,000 credits/month",
-        "Priority generation",
-        "Advanced analytics",
-        "Client preview links",
-        "Slack support"
+        "1,000 AI queries/month",
+        "Advanced legal research",
+        "All UAE jurisdictions",
+        "Priority processing",
+        "Custom reports",
+        "Phone support",
+        "Compliance monitoring"
       ],
       cta: "Choose Professional",
       popular: true
     },
     {
-      name: "Agency",
-      price: "$2,499",
+      name: "Enterprise",
+      price: "$999",
       period: "/month", 
-      description: "For established agencies scaling fast",
+      description: "For large firms and corporate legal teams",
       features: [
-        "30 team members",
-        "Unlimited brands",
-        "20,000 credits/month", 
-        "Fastest generation",
+        "Unlimited queries",
+        "White-label options",
+        "API access",
+        "Dedicated support",
         "Custom integrations",
-        "Dedicated success manager",
+        "Advanced analytics",
         "SLA guarantee"
       ],
-      cta: "Choose Agency",
+      cta: "Choose Enterprise",
       popular: false
     },
     {
-      name: "Enterprise",
-      price: "Custom",
+      name: "Custom",
+      price: "Contact Us",
       period: "",
-      description: "Tailored solutions for enterprise needs",
+      description: "Tailored solutions for government and institutions",
       features: [
         "Unlimited everything",
         "Custom AI training",
-        "On-premise option",
-        "White-label available", 
+        "On-premise deployment",
+        "Government compliance", 
         "Dedicated infrastructure",
         "24/7 phone support"
       ],
@@ -75,29 +75,37 @@ const Pricing = () => {
     }
   ]
 
-  const creditExamples = [
-    { type: "1 post", credits: "≈ 5 credits" },
-    { type: "1 30s video", credits: "≈ 150 credits" },
-    { type: "1 carousel (5 slides)", credits: "≈ 25 credits" },
-    { type: "1 campaign (20 posts + 3 videos + 5 carousels)", credits: "≈ 500 credits" }
+  const queryExamples = [
+    { type: "Simple legal question", queries: "1 AI query" },
+    { type: "Contract analysis", queries: "3-5 AI queries" },
+    { type: "Compliance research", queries: "5-10 AI queries" },
+    { type: "Due diligence project", queries: "20-50 AI queries" }
   ]
 
   const faqs = [
     {
-      question: "What happens if I run out of credits?",
-      answer: "Buy packs anytime or upgrade your plan. No service interruption."
+      question: "What happens if I run out of queries?",
+      answer: "You can upgrade your plan or purchase additional query packs. No service interruption."
     },
     {
       question: "Can I change plans anytime?", 
-      answer: "Yes, upgrades are instant. Downgrades at billing cycle end."
+      answer: "Yes, upgrades are instant. Downgrades take effect at your next billing cycle."
     },
     {
-      question: "Do unused credits roll over?",
-      answer: "Monthly credits expire, but packs don't."
+      question: "Do unused queries roll over?",
+      answer: "No, monthly queries reset each billing period to ensure fresh capacity."
     },
     {
       question: "Is there a free trial?",
-      answer: "Yes. 14 days with 500 credits."
+      answer: "Yes. 14 days with 50 free queries to test our platform."
+    },
+    {
+      question: "Do you cover all UAE jurisdictions?",
+      answer: "Yes, we cover federal laws, all seven emirates, DIFC, ADGM, and major free zones."
+    },
+    {
+      question: "How accurate are the AI responses?",
+      answer: "Our platform provides 99.8% citation accuracy with verified legal references and source links."
     }
   ]
 
@@ -109,12 +117,12 @@ const Pricing = () => {
         {/* Hero Section */}
         <section className="py-20 px-6 bg-gradient-warm">
           <div className="container mx-auto max-w-4xl text-center">
-            <h1 className="text-5xl lg:text-6xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-              Transparent Pricing That Scales With You
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              No surprises. No overage fees. No "contact us for pricing" nonsense.
-            </p>
+          <h1 className="text-5xl lg:text-6xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
+            Legal Research Plans for Every Professional
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Transparent pricing for UAE legal research. From solo practitioners to large firms.
+          </p>
           </div>
         </section>
 
@@ -167,19 +175,19 @@ const Pricing = () => {
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display">
-                What Do Credits Get You?
+                How Many Queries Do You Need?
               </h2>
               <p className="text-xl text-muted-foreground">
-                Understanding our credit system and what you can create
+                Understanding query usage for different types of legal research
               </p>
             </div>
             
             <div className="grid md:grid-cols-2 gap-6 mb-8">
-              {creditExamples.map((example, index) => (
+              {queryExamples.map((example, index) => (
                 <Card key={index} className="p-6 bg-card">
                   <div className="flex justify-between items-center">
                     <span className="font-medium">{example.type}</span>
-                    <span className="text-brand-accent font-semibold">{example.credits}</span>
+                    <span className="text-brand-accent font-semibold">{example.queries}</span>
                   </div>
                 </Card>
               ))}
@@ -187,7 +195,7 @@ const Pricing = () => {
             
             <div className="text-center">
               <Button variant="premium" size="lg">
-                Calculate Your Campaign
+                Calculate Your Usage
               </Button>
             </div>
           </div>

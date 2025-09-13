@@ -21,11 +21,11 @@ export const CallToAction = () => {
           <div className="relative z-10 text-center space-y-8">
             <div className="space-y-4">
               <h2 className="text-4xl lg:text-5xl font-bold leading-tight font-pact-display tracking-tight">
-                Ready to 10x Your
-                <span className="block">Content Output?</span>
+                Ready to Transform Your
+                <span className="block">Legal Research?</span>
               </h2>
               <p className="text-xl opacity-90 max-w-2xl mx-auto">
-                Join 500+ agencies already using CreateAI to ship more, stress less, and actually leave on time.
+                Join leading UAE law firms using our platform to research faster, stay compliant, and deliver better client outcomes.
               </p>
             </div>
             
@@ -34,14 +34,14 @@ export const CallToAction = () => {
                 size="lg" 
                 className="bg-white text-brand-primary hover:bg-white/90 font-semibold group"
               >
-                Start 14-Day Free Trial
+                Start Research Trial
                 <Icon name="arrow-right" className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button 
                 variant="outline-contrast" 
                 size="lg"
               >
-                Book a Demo
+                Schedule Legal Demo
               </Button>
             </div>
             

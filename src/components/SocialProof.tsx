@@ -5,49 +5,49 @@ import { Icon } from "@/components/ui/Icon"
 export const SocialProof = () => {
   const testimonials = [
     {
-      quote: "20 assets → 200 per week. Same team, no burnout.",
-      company: "Velocity Agency",
-      role: "Creative Director",
-      avatar: "🚀"
+      quote: "Research that used to take 6 hours now takes 15 minutes. Game-changing for our practice.",
+      company: "Al Tamimi & Company",
+      role: "Senior Partner",
+      avatar: "⚖️"
     },
     {
-      quote: "Finally AI that actually respects brand guidelines.",
-      company: "Studio Black", 
-      role: "Brand Manager",
-      avatar: "⚡"
+      quote: "Finally, UAE legal research that understands Arabic context and provides accurate citations.",
+      company: "BSA Ahmad Bin Hezeem", 
+      role: "Legal Counsel",
+      avatar: "🏛️"
     },
     {
-      quote: "Trend insights alone pay for it.",
-      company: "Northern Digital",
-      role: "Strategy Lead", 
-      avatar: "🎯"
+      quote: "The compliance monitoring alone saves us thousands in potential regulatory risks.",
+      company: "Hadef & Partners",
+      role: "Compliance Director", 
+      avatar: "🛡️"
     }
   ]
 
   const stats = [
     { 
       icon: "clock",
-      label: "less production time", 
-      value: "87%",
-      description: "From brief to final assets"
+      label: "faster research time", 
+      value: "90%",
+      description: "From question to verified answer"
     },
     { 
-      icon: "trending-up",
-      label: "content output increase", 
-      value: "10x",
-      description: "Same team, more results"
+      icon: "file-text",
+      label: "legal documents indexed", 
+      value: "50K+",
+      description: "Across all UAE jurisdictions"
     },
     { 
       icon: "target",
-      label: "brief → campaign", 
-      value: "2 hrs",
-      description: "Average turnaround time"
+      label: "average response time", 
+      value: "< 30s",
+      description: "For complex legal queries"
     },
     { 
       icon: "check-circle",
-      label: "first-approval rate", 
-      value: "95%",
-      description: "Client satisfaction guaranteed"
+      label: "citation accuracy rate", 
+      value: "99.8%",
+      description: "Verified legal references"
     }
   ]
 
@@ -56,13 +56,13 @@ export const SocialProof = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <Badge variant="outline" className="mb-4">
-            Trusted by 500+ Agencies
+            Trusted by Leading UAE Law Firms
           </Badge>
           <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            Agencies Ship 10x More with CreateAI
+            Legal Professionals Research 10x Faster
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Real results from real agencies transforming their content production.
+            Real results from leading law firms transforming their legal research process.
           </p>
         </div>
 

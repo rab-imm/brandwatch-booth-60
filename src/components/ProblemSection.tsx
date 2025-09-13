@@ -2,12 +2,12 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
 export const ProblemSection = () => {
-  const weeklyStruggles = [
-    { day: "Monday", task: "Client wants 'something viral' by Friday" },
-    { day: "Tuesday", task: "6 hours researching trends that might already be dead" },
-    { day: "Wednesday", task: "20 rounds of 'make the logo bigger'" },
-    { day: "Thursday", task: "Panic-producing 15 variants for 5 platforms" },
-    { day: "Friday", task: "Deliver content that's safe, not stellar" }
+  const legalChallenges = [
+    { challenge: "Document Hunt", task: "Hours searching through scattered UAE legal sources" },
+    { challenge: "Language Barrier", task: "Arabic-English legal document translation struggles" },
+    { challenge: "Version Control", task: "Which amendment is current? When did it take effect?" },
+    { challenge: "Citation Accuracy", task: "Manual cross-referencing across federal and emirate laws" },
+    { challenge: "Compliance Risk", task: "Missing recent regulatory updates and changes" }
   ]
 
   return (
@@ -15,28 +15,28 @@ export const ProblemSection = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            Your Creative Team is Drowning
+            Legal Research is Broken in the UAE
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-12">
-            Every agency knows the pattern:
+            Every legal professional faces these daily challenges:
           </p>
         </div>
 
         <div className="grid md:grid-cols-5 gap-4 mb-12">
-          {weeklyStruggles.map((struggle, index) => (
+          {legalChallenges.map((challenge, index) => (
             <Card key={index} className="p-6 bg-card shadow-soft border-dashboard-border text-center">
-              <div className="text-lg font-semibold text-brand-accent mb-2">{struggle.day}:</div>
-              <p className="text-sm text-muted-foreground">{struggle.task}</p>
+              <div className="text-lg font-semibold text-brand-accent mb-2">{challenge.challenge}</div>
+              <p className="text-sm text-muted-foreground">{challenge.task}</p>
             </Card>
           ))}
         </div>
 
         <div className="text-center space-y-6">
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Meanwhile, your competitors are shipping 10x more content with half the team.
+            Meanwhile, international firms are accessing UAE legal information instantly with AI-powered research.
           </p>
           <Button variant="premium" size="lg">
-            See How It Works
+            See the Solution
           </Button>
         </div>
       </div>

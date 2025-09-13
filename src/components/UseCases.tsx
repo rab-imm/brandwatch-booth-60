@@ -6,35 +6,35 @@ import { Icon } from "@/components/ui/Icon"
 export const UseCases = () => {
   const useCases = [
     {
-      title: "Product Launches",
-      subtitle: "Trend-Informed",
-      description: "Generate 50+ assets across all channels from a single brief. Hero videos, social posts, ads — all coordinated and on-brand.",
-      cta: "See Launch Workflow",
-      icon: "rocket",
+      title: "Contract Analysis",
+      subtitle: "Commercial Law",
+      description: "Analyze commercial contracts against UAE Commercial Companies Law and DIFC regulations. Get risk assessments and compliance recommendations.",
+      cta: "Try Contract Analysis",
+      icon: "file-text",
       gradient: "bg-gradient-to-br from-brand-primary/10 to-brand-accent/10"
     },
     {
-      title: "Always-On Content", 
-      subtitle: "Guided",
-      description: "Keep calendars full without burnout. Set content pillars once, generate weeks of variations.",
-      cta: "See Always-On Workflow",
-      icon: "calendar",
+      title: "Regulatory Compliance", 
+      subtitle: "Multi-Jurisdiction",
+      description: "Stay compliant across federal, emirate, and free zone regulations. Monitor changes and get instant impact assessments.",
+      cta: "Monitor Compliance",
+      icon: "shield-check",
       gradient: "bg-gradient-to-br from-brand-accent/10 to-brand-warm/20"
     },
     {
-      title: "Rapid Response",
-      subtitle: "Prescriptive", 
-      description: "Jump on trends in minutes, not days. Perfect for reactive client asks.",
-      cta: "See Rapid Response",
-      icon: "lightning",
+      title: "Legal Due Diligence",
+      subtitle: "Corporate Law", 
+      description: "Research corporate structures, licensing requirements, and regulatory obligations for M&A and investment decisions.",
+      cta: "Research Due Diligence",
+      icon: "search",
       gradient: "bg-gradient-to-br from-brand-warm/20 to-brand-secondary/10"
     },
     {
-      title: "Global Campaigns",
-      subtitle: "Any Mode",
-      description: "One campaign, 30 markets. Automatic localization with nuance, not just translation.",
-      cta: "See Global Campaigns", 
-      icon: "globe",
+      title: "Litigation Support",
+      subtitle: "Case Research",
+      description: "Find relevant precedents, statutes, and regulatory guidance across UAE courts and arbitration centers.",
+      cta: "Research Precedents", 
+      icon: "gavel",
       gradient: "bg-gradient-to-br from-brand-secondary/10 to-brand-primary/10"
     }
   ]
@@ -47,10 +47,10 @@ export const UseCases = () => {
             Real-World Applications
           </Badge>
           <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            Built for How Agencies Actually Work
+            Built for Every Legal Practice Area
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Whether it's a major launch or daily content needs, CreateAI adapts to your workflow.
+            From corporate transactions to litigation support, our platform adapts to your specific legal research needs.
           </p>
         </div>
 

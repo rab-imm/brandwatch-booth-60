@@ -10,41 +10,41 @@ export const Hero = () => {
           <div className="space-y-8">
             <div className="space-y-6">
               <h1 className="text-5xl lg:text-6xl font-bold leading-tight text-brand-primary font-pact-display tracking-tight">
-                Stop Producing Content.
-                <span className="block text-brand-accent">Start Manufacturing It.</span>
+                UAE Legal Research.
+                <span className="block text-brand-accent">Finally Simplified.</span>
               </h1>
               <p className="text-xl text-muted-foreground leading-relaxed max-w-lg font-pact-body">
-                The AI-native content factory with strategy built in. From brief to campaign in minutes — intelligence + control.
+                AI-powered legal research platform with comprehensive UAE document coverage. From federal laws to emirate regulations — instant answers with verified citations.
               </p>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4">
               <Button variant="premium" size="lg" className="group" asChild>
                 <a href="/pricing">
-                  Start Free Trial
+                  Start Research Trial
                   <Icon name="arrow-right" size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </a>
               </Button>
               <Button variant="outline" size="lg" className="group" asChild>
                 <a href="#demo">
-                  <Icon name="play" size={20} className="mr-2" />
-                  Watch 3-Min Demo
+                  <Icon name="search" size={20} className="mr-2" />
+                  See Legal AI Demo
                 </a>
               </Button>
             </div>
             
             <div className="flex items-center space-x-8 pt-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-brand-primary">500+</div>
-                <div className="text-sm text-muted-foreground">agencies</div>
+                <div className="text-2xl font-bold text-brand-primary">50K+</div>
+                <div className="text-sm text-muted-foreground">legal documents</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-brand-primary">1M+</div>
-                <div className="text-sm text-muted-foreground">assets created</div>
+                <div className="text-2xl font-bold text-brand-primary">5</div>
+                <div className="text-sm text-muted-foreground">jurisdictions</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-brand-primary">99.9%</div>
-                <div className="text-sm text-muted-foreground">uptime</div>
+                <div className="text-2xl font-bold text-brand-primary">24/7</div>
+                <div className="text-sm text-muted-foreground">monitoring</div>
               </div>
             </div>
           </div>
@@ -53,7 +53,7 @@ export const Hero = () => {
             <div className="relative rounded-2xl overflow-hidden shadow-dashboard">
               <img 
                 src={heroImage} 
-                alt="AI content factory dashboard showing campaign generation" 
+                alt="UAE Legal Research Platform dashboard showing AI-powered document search and analysis" 
                 className="w-full h-auto"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/5 to-transparent" />

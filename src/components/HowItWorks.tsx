@@ -7,24 +7,24 @@ export const HowItWorks = () => {
   const steps = [
     {
       number: "01",
-      title: "Tell Us What You Need",
-      description: "Drop in a brief or describe the campaign. Our AI understands context, not just keywords.",
-      cta: "Write a Brief",
-      icon: "edit"
+      title: "Ask Your Legal Question",
+      description: "Type your question in plain English or Arabic. Our AI understands context, not just keywords.",
+      cta: "Try Sample Query",
+      icon: "message-circle"
     },
     {
       number: "02", 
-      title: "We Research, Strategize & Create",
-      description: "AI analyzes trends, builds strategy, and generates videos, carousels, and copy in every format.",
-      cta: "See the Pipeline",
+      title: "AI Searches & Analyzes",
+      description: "AI searches across 50K+ UAE legal documents, analyzes relevant laws, and identifies applicable regulations.",
+      cta: "See Search Results",
       icon: "brain"
     },
     {
       number: "03",
-      title: "Review, Refine & Ship",
-      description: "Approve what works, adjust what doesn't, export everything ready-to-publish.",
-      cta: "Preview Content Gallery",
-      icon: "rocket"
+      title: "Get Verified Answers",
+      description: "Receive detailed answers with proper citations, risk assessments, and relevant case references.",
+      cta: "View Sample Response",
+      icon: "shield-check"
     }
   ]
 
@@ -36,10 +36,10 @@ export const HowItWorks = () => {
             Simple Process
           </Badge>
           <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            From Brief to Brilliant in 3 Steps
+            From Question to Answer in 3 Steps
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Our AI-native workflow transforms your ideas into production-ready campaigns faster than ever.
+            Our AI-powered legal research workflow provides accurate answers with verified citations faster than traditional research.
           </p>
         </div>
 

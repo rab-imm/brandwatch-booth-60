@@ -6,54 +6,54 @@ import { Icon } from "@/components/ui/Icon"
 export const Features = () => {
   const features = [
     {
+      icon: "globe",
+      title: "Comprehensive Coverage",
+      description: "Access federal laws, emirate regulations, DIFC/ADGM rules, and free zone legislation in one platform.",
+      cta: "Browse All Sources"
+    },
+    {
+      icon: "language",
+      title: "Arabic & English",
+      description: "Advanced OCR and translation for Arabic legal documents with accurate legal terminology.",
+      cta: "See Translation Quality"
+    },
+    {
       icon: "brain",
-      title: "Brand Intelligence",
-      description: "Upload guidelines once or let AI discover them. Every asset follows your rules — colors, fonts, voice.",
-      cta: "Explore Brand Intelligence"
+      title: "AI Legal Assistant",
+      description: "Chat with AI that understands UAE law context, precedents, and regulatory relationships.",
+      cta: "Try Legal Assistant"
     },
     {
-      icon: "trending-up",
-      title: "Trend Research",
-      description: "AI-curated trend insights with citations. Know what's working before your client asks.",
-      cta: "Explore Trend Research"
+      icon: "shield-check",
+      title: "Verified Citations",
+      description: "Every answer includes proper legal citations with direct links to source documents.",
+      cta: "See Citation Format"
     },
     {
-      icon: "target",
-      title: "Strategy Synthesis",
-      description: "Trends translated into content pillars, risk levels, and channel-ready campaigns.",
-      cta: "See Strategy in Action"
+      icon: "alert-triangle",
+      title: "Risk Assessment",
+      description: "AI evaluates legal risks and provides compliance guidance for business decisions.",
+      cta: "View Risk Analysis"
     },
     {
-      icon: "layers",
-      title: "Multi-Format Generation",
-      description: "Videos, carousels, posts, and copy variants generated in one pass.",
-      cta: "Generate Content"
+      icon: "clock",
+      title: "Real-time Updates",
+      description: "Continuous monitoring for amendments, new regulations, and regulatory changes.",
+      cta: "Monitor Changes"
     },
     {
-      icon: "users",
-      title: "Human-in-the-Loop",
-      description: "Review and approve at each checkpoint. No surprises, no rogue AI.",
-      cta: "Review Workflow"
-    },
-    {
-      icon: "lightning",
-      title: "Bulk Operations",
-      description: "Generate a month of content in an afternoon. Localize to 30 languages with one click.",
-      cta: "Scale with Bulk Ops"
-    },
-    {
-      icon: "share",
-      title: "Direct Publishing",
-      description: "Export perfectly formatted or publish directly to all platforms.",
-      cta: "Publish Smarter"
+      icon: "download",
+      title: "Export & Reports",
+      description: "Generate legal research reports, export documents, and create client-ready summaries.",
+      cta: "Create Reports"
     }
   ]
 
   const stats = [
-    { icon: "clock", label: "Production Time", value: "87% less" },
-    { icon: "rocket", label: "Content Output", value: "10x more" },
-    { icon: "target", label: "Brief → Campaign", value: "2 hrs" },
-    { icon: "check", label: "First-Approval Rate", value: "95%" }
+    { icon: "clock", label: "Research Time", value: "90% faster" },
+    { icon: "file-text", label: "Legal Documents", value: "50K+" },
+    { icon: "target", label: "Query → Answer", value: "< 30 sec" },
+    { icon: "check", label: "Citation Accuracy", value: "99.8%" }
   ]
 
   return (
@@ -61,14 +61,14 @@ export const Features = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <Badge variant="outline" className="mb-4">
-            Everything Your Agency Needs to Scale
+            Complete UAE Legal Research Platform
           </Badge>
           <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            Everything Your Agency Needs to Scale
+            Everything Legal Professionals Need
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            From brand intelligence to bulk operations, our platform provides 
-            the complete toolkit for modern content production.
+            From comprehensive document coverage to AI-powered analysis, our platform provides 
+            the complete toolkit for modern legal research in the UAE.
           </p>
         </div>
 

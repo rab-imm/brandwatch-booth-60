@@ -4,10 +4,10 @@ import { Icon } from "@/components/ui/Icon"
 
 export const IntelligenceLayer = () => {
   const flowSteps = [
-    { icon: "dna", label: "Brand DNA", description: "Discovers and maps your brand identity" },
-    { icon: "trending-up", label: "Trend Research", description: "Real-time analysis of what's working" },
-    { icon: "brain", label: "Strategy", description: "Translates insights into actionable plans" },
-    { icon: "rocket", label: "Campaign Assets", description: "Multi-format content generation" }
+    { icon: "file-search", label: "Document Discovery", description: "AI-powered scraping of all UAE legal sources" },
+    { icon: "language", label: "Arabic Processing", description: "Advanced OCR and translation for Arabic documents" },
+    { icon: "brain", label: "Legal Analysis", description: "AI understands context, amendments, and relationships" },
+    { icon: "message-circle", label: "Instant Answers", description: "Chat interface with proper citations and risk assessment" }
   ]
 
   return (
@@ -15,11 +15,11 @@ export const IntelligenceLayer = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            The Brain Behind the Factory
+            AI That Understands UAE Law
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Unlike template tools, CreateAI actually thinks. It discovers your brand, researches trends, 
-            builds strategy, and generates campaigns — all while keeping humans in the loop.
+            Our RAG-powered system continuously monitors official UAE legal sources, processes Arabic documents, 
+            tracks amendments, and provides instant research with verified citations — like having a legal research team that never sleeps.
           </p>
         </div>
 
@@ -48,7 +48,7 @@ export const IntelligenceLayer = () => {
 
         <div className="text-center">
           <Button variant="premium" size="lg">
-            Discover the Intelligence Layer
+            See Legal AI in Action
           </Button>
         </div>
       </div>
