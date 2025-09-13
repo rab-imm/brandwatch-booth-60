@@ -431,6 +431,20 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      search_documents: {
+        Args: {
+          match_count: number
+          match_threshold: number
+          query_embedding: string
+        }
+        Returns: {
+          category: string
+          content: string
+          id: string
+          similarity: number
+          title: string
+        }[]
+      }
     }
     Enums: {
       document_category:
