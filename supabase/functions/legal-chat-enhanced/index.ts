@@ -201,12 +201,12 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-5-2025-08-07',
+          model: 'gpt-4o',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: message }
           ],
-          max_completion_tokens: 1500,
+          max_tokens: 1500,
         }),
       })
 
