@@ -14,7 +14,7 @@ export const Header = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
-            <Link to="/" className="text-2xl font-bold text-brand-primary font-pact-display">CreateAI</Link>
+            <Link to="/" className="text-2xl font-bold text-brand-primary font-pact-display">UAE Legal Research</Link>
             <nav className="hidden md:flex items-center space-x-6">
               <Link to="/features" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
                 Features

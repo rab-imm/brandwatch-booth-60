@@ -8,116 +8,116 @@ import { Footer } from "@/components/Footer"
 const Features = () => {
   const featureCategories = [
     {
-      title: "Brand Intelligence",
-      description: "AI that understands and preserves your brand identity",
+      title: "Document Intelligence",
+      description: "AI that understands and processes complex UAE legal documents",
       features: [
         {
-          name: "Visual DNA Mapping",
-          description: "Automatically extract color palettes, typography, and design patterns from your existing materials."
+          name: "Arabic OCR Processing",
+          description: "Advanced optical character recognition for Arabic legal documents with 99.8% accuracy."
         },
         {
-          name: "Voice Profiling", 
-          description: "Learn your brand's tone, messaging style, and communication patterns from past content."
+          name: "Legal Language Translation", 
+          description: "Context-aware translation between Arabic and English maintaining legal terminology precision."
         },
         {
-          name: "Audience Personas",
-          description: "Build detailed customer profiles based on engagement data and brand interactions."
+          name: "Document Classification",
+          description: "Automatic categorization by document type, jurisdiction, and legal subject matter."
         },
         {
-          name: "Competitive Differentiation",
-          description: "Identify what makes your brand unique in the competitive landscape."
+          name: "Amendment Tracking",
+          description: "Monitor changes, updates, and amendments across all legal documents automatically."
         },
         {
-          name: "Auto-Discovery from URL",
-          description: "Input your website URL and let AI discover your brand guidelines automatically."
+          name: "Citation Extraction",
+          description: "Identify and map legal references, cross-references, and citation networks."
         }
       ],
-      cta: "Explore Brand Intelligence",
+      cta: "Explore Document Intelligence",
+      icon: "file-search"
+    },
+    {
+      title: "AI Legal Research",
+      description: "Intelligent search and analysis across comprehensive UAE legal database",
+      features: [
+        {
+          name: "Natural Language Queries",
+          description: "Ask complex legal questions in plain English or Arabic and get accurate answers."
+        },
+        {
+          name: "Multi-Jurisdiction Search",
+          description: "Search across federal, emirate, DIFC, ADGM, and free zone regulations simultaneously."
+        },
+        {
+          name: "Precedent Analysis",
+          description: "Find relevant case law, court decisions, and regulatory precedents."
+        },
+        {
+          name: "Risk Assessment",
+          description: "AI evaluates legal risks and provides compliance recommendations."
+        },
+        {
+          name: "Verified Citations",
+          description: "Every answer includes proper legal citations with direct links to source documents."
+        }
+      ],
+      cta: "Try Legal Research AI",
       icon: "brain"
     },
     {
-      title: "Content Generation",
-      description: "Multi-format content creation that stays on-brand",
+      title: "Compliance Monitoring",
+      description: "Real-time tracking of regulatory changes and compliance requirements",
       features: [
         {
-          name: "Video Generation",
-          description: "Create engaging video content from scripts to final edit, optimized for each platform."
+          name: "Real-Time Updates",
+          description: "Continuous monitoring of official sources for new regulations and amendments."
         },
         {
-          name: "Image & Carousel Creation",
-          description: "Generate stunning visuals and multi-slide carousels that tell your story."
+          name: "Impact Analysis",
+          description: "Assess how regulatory changes affect your business or client matters."
         },
         {
-          name: "Copy & Captions",
-          description: "Platform-specific copy that matches your voice and drives engagement."
+          name: "Alert System",
+          description: "Customizable notifications for specific practice areas or jurisdictions."
         },
         {
-          name: "Platform-Specific Variants",
-          description: "One concept, multiple formats - Instagram, TikTok, LinkedIn, and more."
+          name: "Compliance Calendar",
+          description: "Track important dates, deadlines, and effective dates for new regulations."
         },
         {
-          name: "Brand-Safe Outputs",
-          description: "Every piece of content follows your guidelines - colors, fonts, voice, every time."
+          name: "Regulatory Reports",
+          description: "Generate comprehensive compliance reports for clients and stakeholders."
         }
       ],
-      cta: "See Generation in Action",
-      icon: "layers"
+      cta: "Monitor Compliance",
+      icon: "shield-check"
     },
     {
-      title: "Workflow Control",
-      description: "Human oversight at every step of the process",
+      title: "Professional Tools",
+      description: "Advanced features for legal professionals and organizations",
       features: [
         {
-          name: "Multi-Gate Approval",
-          description: "Review and approve at Brief → Research → Strategy → Review → Final sign-off."
+          name: "Legal Research Reports",
+          description: "Generate comprehensive, client-ready research reports with proper formatting."
         },
         {
-          name: "Full Audit Trail",
-          description: "Track every decision, edit, and approval throughout the content creation process."
+          name: "Case Management Integration",
+          description: "Export research findings directly to popular case management systems."
         },
         {
-          name: "Role-Based Permissions",
-          description: "Control who can view, edit, and approve content at each stage."
+          name: "Team Collaboration",
+          description: "Share research, annotate documents, and collaborate with colleagues."
         },
         {
-          name: "Version Control",
-          description: "Track changes and revert to previous versions with complete revision history."
+          name: "API Access",
+          description: "Integrate UAE legal research capabilities into your existing systems."
         },
         {
-          name: "Quality Checkpoints",
-          description: "Automated brand compliance checks at every stage of production."
+          name: "White-Label Options",
+          description: "Brand the platform with your firm's identity for client presentations."
         }
       ],
-      cta: "Explore Workflow Control",
-      icon: "shield"
-    },
-    {
-      title: "Collaboration",
-      description: "Seamless teamwork and client communication",
-      features: [
-        {
-          name: "Real-Time Collaboration",
-          description: "Multiple team members can work on campaigns simultaneously with conflict resolution."
-        },
-        {
-          name: "Comments & @Mentions",
-          description: "Leave feedback, tag team members, and maintain context throughout the project."
-        },
-        {
-          name: "Client Preview Links",
-          description: "Share password-protected previews with clients for feedback and approval."
-        },
-        {
-          name: "Team Activity Feed",
-          description: "Stay updated on project progress with real-time notifications and updates."
-        },
-        {
-          name: "Integration Hub",
-          description: "Connect with Slack, Trello, Asana, and other tools your team already uses."
-        }
-      ],
-      cta: "Explore Collaboration",
-      icon: "users"
+      cta: "Explore Professional Tools",
+      icon: "briefcase"
     }
   ]
 
@@ -130,10 +130,10 @@ const Features = () => {
         <section className="py-20 px-6 bg-gradient-warm">
           <div className="container mx-auto max-w-4xl text-center">
             <h1 className="text-5xl lg:text-6xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-              Every Feature You Need, None You Don't
+              Complete UAE Legal Research Platform
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              CreateAI is built with agencies, for agencies. Every feature solves a real workflow pain.
+              Every feature you need for comprehensive legal research across all UAE jurisdictions.
             </p>
           </div>
         </section>
@@ -184,21 +184,21 @@ const Features = () => {
               Platform Performance
             </Badge>
             <h2 className="text-4xl font-bold mb-12 text-brand-primary font-pact-display">
-              Built for Scale and Speed
+              Built for Reliability and Performance
             </h2>
             
             <div className="grid md:grid-cols-3 gap-8">
               <Card className="p-8 bg-card text-center">
-                <div className="text-4xl font-bold text-brand-primary mb-2">99.9%</div>
-                <div className="text-muted-foreground">Uptime Guarantee</div>
+                <div className="text-4xl font-bold text-brand-primary mb-2">99.8%</div>
+                <div className="text-muted-foreground">Citation Accuracy</div>
               </Card>
               <Card className="p-8 bg-card text-center">
                 <div className="text-4xl font-bold text-brand-primary mb-2">&lt;30s</div>
-                <div className="text-muted-foreground">Average Generation Time</div>
+                <div className="text-muted-foreground">Average Query Response</div>
               </Card>
               <Card className="p-8 bg-card text-center">
-                <div className="text-4xl font-bold text-brand-primary mb-2">50+</div>
-                <div className="text-muted-foreground">Output Formats</div>
+                <div className="text-4xl font-bold text-brand-primary mb-2">50K+</div>
+                <div className="text-muted-foreground">Legal Documents</div>
               </Card>
             </div>
           </div>

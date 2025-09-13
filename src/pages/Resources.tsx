@@ -8,25 +8,25 @@ import { Footer } from "@/components/Footer"
 const Resources = () => {
   const blogPosts = [
     {
-      title: "The AI Content Revolution: What Agencies Need to Know",
-      excerpt: "How artificial intelligence is transforming content creation and what it means for your agency's future.",
+      title: "UAE Legal Research in the AI Era: A Comprehensive Guide",
+      excerpt: "How artificial intelligence is transforming legal research in the UAE and what it means for legal professionals.",
       date: "Dec 15, 2024",
       readTime: "8 min read",
-      category: "AI Insights"
+      category: "AI & Legal"
     },
     {
-      title: "10x Content Output Without Burnout: A Case Study", 
-      excerpt: "How Velocity Agency increased their content production by 1000% while reducing team stress.",
+      title: "Navigating UAE's Multi-Jurisdictional Legal Framework", 
+      excerpt: "Understanding the complex relationship between federal, emirate, and free zone regulations.",
       date: "Dec 12, 2024",
       readTime: "6 min read",
-      category: "Case Study"
+      category: "Legal Framework"
     },
     {
-      title: "Brand Guidelines in the AI Era",
-      excerpt: "Maintaining brand consistency when AI is creating your content.",
+      title: "Arabic Legal Document Processing: Best Practices",
+      excerpt: "Effective strategies for processing and analyzing Arabic legal documents using AI technology.",
       date: "Dec 8, 2024", 
       readTime: "5 min read",
-      category: "Best Practices"
+      category: "Technology"
     }
   ]
 
@@ -35,51 +35,51 @@ const Resources = () => {
       title: "Getting Started",
       articles: 12,
       icon: "play",
-      topics: ["Account Setup", "First Campaign", "Team Onboarding", "Brand Configuration"]
+      topics: ["Account Setup", "First Legal Query", "Platform Navigation", "Search Techniques"]
     },
     {
-      title: "Content Creation",
+      title: "Legal Research",
       articles: 24,
-      icon: "layers",
-      topics: ["Video Generation", "Image Creation", "Copy Writing", "Multi-Format Campaigns"]
+      icon: "search",
+      topics: ["Advanced Queries", "Citation Verification", "Multi-Jurisdiction Search", "Precedent Analysis"]
     },
     {
-      title: "Workflow Management", 
+      title: "Document Analysis", 
       articles: 18,
-      icon: "workflow",
-      topics: ["Approval Process", "Team Collaboration", "Client Reviews", "Version Control"]
+      icon: "file-text",
+      topics: ["Contract Review", "Compliance Checking", "Risk Assessment", "Arabic Processing"]
     },
     {
-      title: "Integrations",
+      title: "Compliance Monitoring",
       articles: 15,
-      icon: "link",
-      topics: ["Slack Integration", "Publishing Platforms", "Analytics Tools", "CRM Systems"]
+      icon: "shield-check",
+      topics: ["Alert Setup", "Regulatory Tracking", "Change Notifications", "Report Generation"]
     }
   ]
 
   const apiSections = [
     {
-      title: "Content Generation API",
-      description: "Programmatically create content using our AI engine",
-      endpoints: ["POST /generate/video", "POST /generate/image", "POST /generate/copy"]
+      title: "Legal Search API",
+      description: "Programmatically search UAE legal documents and get AI-powered answers",
+      endpoints: ["POST /search/query", "GET /search/documents", "POST /search/analyze"]
     },
     {
-      title: "Brand Management API",
-      description: "Manage brand guidelines and asset libraries",
-      endpoints: ["GET /brands", "POST /brands/{id}/assets", "PUT /brands/{id}/guidelines"]
+      title: "Document Processing API",
+      description: "Upload and analyze legal documents with AI-powered insights",
+      endpoints: ["POST /documents/upload", "GET /documents/{id}/analysis", "POST /documents/compare"]
     },
     {
-      title: "Workflow API",
-      description: "Integrate with your existing approval workflows", 
-      endpoints: ["GET /campaigns", "POST /campaigns/{id}/approve", "GET /campaigns/{id}/status"]
+      title: "Compliance API",
+      description: "Monitor regulatory changes and get compliance updates", 
+      endpoints: ["GET /compliance/updates", "POST /compliance/monitor", "GET /compliance/alerts"]
     }
   ]
 
   const statusMetrics = [
     { label: "API Uptime", value: "99.98%", status: "operational" },
-    { label: "Average Response Time", value: "234ms", status: "operational" }, 
-    { label: "Content Generation", value: "Online", status: "operational" },
-    { label: "CDN Performance", value: "Optimal", status: "operational" }
+    { label: "Average Response Time", value: "180ms", status: "operational" }, 
+    { label: "Legal Document Search", value: "Online", status: "operational" },
+    { label: "AI Analysis Engine", value: "Optimal", status: "operational" }
   ]
 
   return (
@@ -91,10 +91,10 @@ const Resources = () => {
         <section className="py-20 px-6 bg-gradient-warm">
           <div className="container mx-auto max-w-4xl text-center">
             <h1 className="text-5xl lg:text-6xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-              Resources & Support
+              Legal Resources & Support
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to succeed with CreateAI
+              Everything you need to succeed with UAE legal research
             </p>
           </div>
         </section>
@@ -106,21 +106,21 @@ const Resources = () => {
               <Card className="p-8 text-center bg-card hover:shadow-dashboard transition-all">
                 <Icon name="book" size={32} className="mx-auto mb-4 text-brand-accent" />
                 <h3 className="text-xl font-semibold text-brand-primary mb-2">Blog</h3>
-                <p className="text-muted-foreground mb-4">AI + agency insights</p>
+                <p className="text-muted-foreground mb-4">Legal insights & updates</p>
                 <Button variant="outline">Read Blog</Button>
               </Card>
               
               <Card className="p-8 text-center bg-card hover:shadow-dashboard transition-all">
                 <Icon name="help-circle" size={32} className="mx-auto mb-4 text-brand-accent" />
                 <h3 className="text-xl font-semibold text-brand-primary mb-2">Help Center</h3>
-                <p className="text-muted-foreground mb-4">FAQs, how-tos</p>
+                <p className="text-muted-foreground mb-4">Research guides & FAQs</p>
                 <Button variant="outline">Get Help</Button>
               </Card>
               
               <Card className="p-8 text-center bg-card hover:shadow-dashboard transition-all">
                 <Icon name="code" size={32} className="mx-auto mb-4 text-brand-accent" />
                 <h3 className="text-xl font-semibold text-brand-primary mb-2">API Docs</h3>
-                <p className="text-muted-foreground mb-4">For developers</p>
+                <p className="text-muted-foreground mb-4">For legal tech developers</p>
                 <Button variant="outline">View Docs</Button>
               </Card>
               
@@ -140,7 +140,7 @@ const Resources = () => {
             <div className="text-center mb-12">
               <Badge variant="outline" className="mb-4">Latest from our Blog</Badge>
               <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display">
-                AI + Agency Insights
+                Legal Insights & Updates
               </h2>
             </div>
             
@@ -209,10 +209,10 @@ const Resources = () => {
             <div className="text-center mb-12">
               <Badge variant="outline" className="mb-4">API Documentation</Badge>
               <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display">
-                Build with CreateAI
+                Build with UAE Legal Research
               </h2>
               <p className="text-xl text-muted-foreground">
-                Integrate our AI content generation into your applications
+                Integrate our AI-powered legal research into your applications and systems
               </p>
             </div>
             

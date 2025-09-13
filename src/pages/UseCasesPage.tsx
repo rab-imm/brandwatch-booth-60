@@ -8,100 +8,100 @@ import { Footer } from "@/components/Footer"
 const UseCasesPage = () => {
   const caseStudies = [
     {
-      title: "Global Product Launch",
-      company: "Major Sportswear Brand",
-      industry: "Fashion & Sports",
-      challenge: "Launch new sneaker line across 15 markets in record time",
-      solution: "Used Trend-Informed mode to generate localized campaigns",
+      title: "M&A Due Diligence",
+      company: "International Investment Firm",
+      industry: "Financial Services",
+      challenge: "Complete legal due diligence for UAE acquisition in record time",
+      solution: "Used comprehensive research mode to analyze regulatory compliance",
       results: [
-        "300+ assets created in 3 days",
-        "Localized to 15 languages", 
-        "94% first-approval rate",
-        "40% faster time-to-market"
+        "200+ legal documents analyzed in 2 days",
+        "Cross-referenced across 5 jurisdictions", 
+        "95% faster than traditional research",
+        "30% reduction in legal costs"
       ],
-      testimonial: "CreateAI helped us launch globally without losing our brand voice. The localization quality was incredible.",
-      avatar: "👟",
+      testimonial: "The platform identified regulatory risks we would have missed. Saved us weeks of manual research.",
+      avatar: "🏢",
       cta: "Read Full Case Study"
     },
     {
-      title: "Always-On Social Strategy",
-      company: "B2B SaaS Company",
-      industry: "Technology",
-      challenge: "Maintain consistent social presence without burning out creative team",
-      solution: "Implemented Guided mode for systematic content creation",
+      title: "Corporate Compliance Audit",
+      company: "Major UAE Corporation",
+      industry: "Manufacturing",
+      challenge: "Ensure compliance across multiple UAE jurisdictions and free zones",
+      solution: "Implemented compliance monitoring for real-time regulatory tracking",
       results: [
-        "5 posts per day automated",
-        "300% increase in content volume",
-        "50% reduction in production time",
-        "2x engagement rate improvement"
+        "24/7 compliance monitoring",
+        "100% regulatory change detection",
+        "80% reduction in compliance risks",
+        "50% faster regulatory response"
       ],
-      testimonial: "We went from struggling to post twice a week to having a full content calendar months in advance.",
-      avatar: "💻",
+      testimonial: "We now catch regulatory changes the day they're published. Our compliance team is always ahead.",
+      avatar: "🏭",
       cta: "Read Full Case Study"
     },
     {
-      title: "Trend-Jacking Success",
-      company: "Fashion Retailer",
-      industry: "E-commerce",
-      challenge: "React to trends fast enough to capture viral moments",
-      solution: "Prescriptive mode for rapid response campaigns",
+      title: "Complex Litigation Research",
+      company: "Leading UAE Law Firm",
+      industry: "Legal Services",
+      challenge: "Find precedents for complex cross-border commercial dispute",
+      solution: "Legal AI assistant for comprehensive precedent and case law research",
       results: [
-        "Response time: 48h → 2h",
-        "5x increase in viral content",
-        "300% boost in trend engagement",
-        "25% increase in sales from viral posts"
+        "Research time: 40h → 4h",
+        "Identified 50+ relevant precedents",
+        "Cross-jurisdictional analysis",
+        "Client case won at first instance"
       ],
-      testimonial: "We can now jump on trends while they're hot. Our speed-to-market is unmatched.",
-      avatar: "👗",
+      testimonial: "The AI found precedents our senior associates missed. It's like having a research team that never sleeps.",
+      avatar: "⚖️",
       cta: "Read Full Case Study"
     }
   ]
 
   const workflows = [
     {
-      title: "Product Launch Workflow",
-      mode: "Trend-Informed",
-      description: "Perfect for major launches requiring market research and trend analysis",
+      title: "Contract Analysis Workflow",
+      mode: "Comprehensive Research",
+      description: "Deep analysis for complex commercial agreements and regulatory compliance",
       steps: [
-        "Market trend analysis",
-        "Competitive landscape review", 
-        "Strategic positioning",
-        "Multi-format asset generation",
-        "Localization and adaptation"
+        "Document upload and processing",
+        "Regulatory compliance check", 
+        "Risk assessment analysis",
+        "Cross-reference verification",
+        "Detailed report generation"
       ],
-      timeframe: "3-5 days",
-      outputCount: "50-100 assets",
-      icon: "rocket"
+      timeframe: "2-4 hours",
+      outputCount: "Comprehensive analysis",
+      icon: "file-text"
     },
     {
-      title: "Always-On Content Workflow",
-      mode: "Guided",
-      description: "Systematic content creation for consistent brand presence",
+      title: "Legal Research Workflow",
+      mode: "AI Assistant",
+      description: "Interactive research for ongoing matters and general legal queries",
       steps: [
-        "Content pillar definition",
-        "Calendar planning",
-        "Batch asset generation",
-        "Quality review process",
-        "Scheduling and publishing"
+        "Query formulation",
+        "AI-powered document search",
+        "Citation verification",
+        "Precedent analysis",
+        "Research summary delivery"
       ],
-      timeframe: "2-3 hours weekly",
-      outputCount: "20-30 assets",
-      icon: "calendar"
+      timeframe: "15-30 minutes",
+      outputCount: "Verified answers",
+      icon: "search"
     },
     {
-      title: "Rapid Response Workflow", 
-      mode: "Prescriptive",
-      description: "Quick turnaround for trending topics and reactive content",
+      title: "Compliance Monitoring Workflow", 
+      mode: "Real-time Monitoring",
+      description: "Continuous tracking of regulatory changes and compliance requirements",
       steps: [
-        "Trend identification",
-        "Brand alignment check",
-        "Rapid asset creation",
-        "Fast-track approval",
-        "Immediate publishing"
+        "Source monitoring setup",
+        "Automated change detection",
+        "Impact assessment",
+        "Alert notification",
+        "Compliance update delivery"
       ],
-      timeframe: "1-2 hours",
-      outputCount: "5-10 assets",
-      icon: "lightning"
+      timeframe: "Continuous",
+      outputCount: "Real-time updates",
+      icon: "shield-check"
     }
   ]
 
@@ -114,10 +114,10 @@ const UseCasesPage = () => {
         <section className="py-20 px-6 bg-gradient-warm">
           <div className="container mx-auto max-w-4xl text-center">
             <h1 className="text-5xl lg:text-6xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-              Real Results from Real Agencies
+              Real Results from UAE Legal Professionals
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              See how agencies are transforming their content production with CreateAI
+              See how law firms and legal departments are transforming their research with our platform
             </p>
           </div>
         </section>
@@ -190,10 +190,10 @@ const UseCasesPage = () => {
             <div className="text-center mb-16">
               <Badge variant="outline" className="mb-4">Workflow Examples</Badge>
               <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display">
-                Choose Your Workflow
+                Choose Your Research Approach
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Different use cases require different approaches. Here's how agencies use our three modes.
+                Different legal matters require different research approaches. Here's how professionals use our platform.
               </p>
             </div>
             
@@ -250,14 +250,14 @@ const UseCasesPage = () => {
         <section className="py-20 px-6">
           <div className="container mx-auto max-w-4xl text-center">
             <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display">
-              Ready to Write Your Success Story?
+              Ready to Transform Your Legal Research?
             </h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Join hundreds of agencies already transforming their content production with CreateAI.
+              Join leading UAE law firms already using our platform for faster, more accurate legal research.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="premium" size="lg">
-                Start Free Trial
+                Start Research Trial
               </Button>
               <Button variant="outline" size="lg">
                 Schedule Demo

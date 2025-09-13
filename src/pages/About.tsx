@@ -8,60 +8,60 @@ import { Footer } from "@/components/Footer"
 const About = () => {
   const teamMembers = [
     {
-      name: "Sarah Chen",
+      name: "Dr. Ahmed Al-Rashid",
       role: "CEO & Co-Founder",
-      background: "Ex-Creative Director at Ogilvy, 12 years in agencies",
-      avatar: "👩‍💼"
+      background: "Former Legal Counsel at Emirates NBD, 15 years in UAE legal practice",
+      avatar: "⚖️"
     },
     {
-      name: "Marcus Rodriguez", 
+      name: "Sarah Johnson", 
       role: "CTO & Co-Founder",
-      background: "Former AI Research Lead at Meta, built content systems at scale",
-      avatar: "👨‍💻"
+      background: "Ex-AI Research Lead at Google, specialized in multilingual NLP",
+      avatar: "🤖"
     },
     {
-      name: "Aisha Patel",
-      role: "Head of Product", 
-      background: "Ex-Adobe Creative Cloud, designed tools used by millions",
-      avatar: "👩‍🎨"
+      name: "Dr. Fatima Al-Zahra",
+      role: "Head of Legal Content", 
+      background: "Former Judge at Dubai Courts, expert in UAE legal system",
+      avatar: "👩‍⚖️"
     },
     {
-      name: "Deploy",
-      role: "Chief Happiness Officer",
-      background: "Good dog. Excellent at debugging (by sleeping on keyboards)",
-      avatar: "🐕"
+      name: "Jasper",
+      role: "Chief Security Officer",
+      background: "Very good cat. Excellent at keeping legal documents secure (by sitting on them)",
+      avatar: "🐱"
     }
   ]
 
   const values = [
     {
-      title: "Speed with Control",
-      description: "Fast doesn't mean reckless. We give you velocity without sacrificing quality or brand integrity.",
-      icon: "rocket"
+      title: "Legal Accuracy First",
+      description: "Every citation, every reference, every answer is verified against official legal sources.",
+      icon: "shield-check"
     },
     {
-      title: "Radical Transparency", 
-      description: "No hidden fees, no surprise limitations. What you see is what you get, always.",
-      icon: "eye"
+      title: "Cultural Understanding", 
+      description: "Deep comprehension of UAE legal system, Islamic law principles, and cultural context.",
+      icon: "globe"
     },
     {
-      title: "Agency-First Design",
-      description: "Every feature is built around real agency workflows. We solve real problems, not invented ones.",
-      icon: "users"
+      title: "Professional-Grade Security",
+      description: "Enterprise security standards protecting sensitive legal information and client confidentiality.",
+      icon: "lock"
     },
     {
-      title: "No BS Pricing",
-      description: "Clear pricing, fair usage, no 'contact sales' nonsense. Respect your time and budget.",
+      title: "Transparent Pricing",
+      description: "Clear, fair pricing for legal professionals. No hidden fees, no surprise charges.",
       icon: "dollar-sign"
     }
   ]
 
   const milestones = [
-    { year: "2023", event: "Founded by agency veterans tired of broken tools" },
-    { year: "2023", event: "First AI models trained on agency-quality content" },
-    { year: "2024", event: "Beta launch with 50 select agencies" },
-    { year: "2024", event: "500+ agencies join the platform" },
-    { year: "2025", event: "1M+ assets created, expanding globally" }
+    { year: "2022", event: "Founded by UAE legal practitioners frustrated with research inefficiency" },
+    { year: "2023", event: "First Arabic legal document processing models developed" },
+    { year: "2023", event: "Beta launch with select UAE law firms" },
+    { year: "2024", event: "50K+ legal documents indexed across all UAE jurisdictions" },
+    { year: "2024", event: "Leading law firms adopt platform, 99.8% citation accuracy achieved" }
   ]
 
   return (
@@ -73,10 +73,10 @@ const About = () => {
         <section className="py-20 px-6 bg-gradient-warm">
           <div className="container mx-auto max-w-4xl text-center">
             <h1 className="text-5xl lg:text-6xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-              Built by Agency People, for Agency People
+              Built by Legal Experts, for Legal Professionals
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              We lived the pain. We built the fix.
+              We understand UAE law. We built the solution.
             </p>
           </div>
         </section>
@@ -87,7 +87,7 @@ const About = () => {
             <div className="text-center mb-12">
               <Badge variant="outline" className="mb-4">Our Story</Badge>
               <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display">
-                From Agency Pain to AI Solution
+                From Legal Research Pain to AI Solution
               </h2>
             </div>
             
@@ -95,19 +95,19 @@ const About = () => {
               <Card className="p-8 bg-card">
                 <div className="space-y-6 text-muted-foreground">
                   <p className="text-lg leading-relaxed">
-                    We spent 15 years in agencies. We lived the 2am renders, the broken workflows, 
-                    the endless client revisions. We watched talented creatives burn out producing 
-                    content that was safe, not stellar.
+                    We spent 20 years practicing law in the UAE. We lived the frustration of scattered legal sources, 
+                    inconsistent document formats, and the time-consuming process of manual legal research across 
+                    multiple jurisdictions and languages.
                   </p>
                   <p className="text-lg leading-relaxed">
-                    AI changed everything — except agency creative. Tools were either too robotic 
-                    (templates) or too random (ChatGPT). Nothing understood the unique pressures 
-                    of agency life: tight deadlines, brand guidelines, client expectations.
+                    AI transformed many industries, but legal research remained stuck in the past. Tools were either 
+                    too generic (ChatGPT) or focused on other legal systems. Nothing understood the unique complexity 
+                    of UAE's multi-jurisdictional legal framework.
                   </p>
                   <p className="text-lg leading-relaxed">
-                    CreateAI combines AI intelligence with agency discipline: research + strategy + 
-                    brand guardrails. It's the tool we wished existed when we were drowning in 
-                    production requests.
+                    Our platform combines AI intelligence with legal precision: comprehensive document coverage, 
+                    Arabic language processing, and verified citations. It's the tool we wished existed when we were 
+                    drowning in research requests and tight client deadlines.
                   </p>
                 </div>
               </Card>
@@ -121,10 +121,10 @@ const About = () => {
             <div className="text-center mb-12">
               <Badge variant="outline" className="mb-4">Meet the Team</Badge>
               <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display">
-                Ex-creative directors, AI researchers, engineers from Meta/Google/Adobe
+                Legal experts, AI researchers, UAE law specialists
               </h2>
               <p className="text-lg text-muted-foreground">
-                One good dog named Deploy.
+                One very smart cat named Jasper.
               </p>
             </div>
             
@@ -185,7 +185,7 @@ const About = () => {
             <div className="text-center mb-12">
               <Badge variant="outline" className="mb-4">Our Journey</Badge>
               <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display">
-                Building the Future of Agency Content
+                Building the Future of Legal Research
               </h2>
             </div>
             
@@ -210,14 +210,14 @@ const About = () => {
         <section className="py-20 px-6">
           <div className="container mx-auto max-w-4xl text-center">
             <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display">
-              Join Us in Transforming Agency Work
+              Join Us in Transforming Legal Research
             </h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              We're always looking for talented people who share our mission to make agency life better.
+              We're always looking for talented people who share our mission to make legal research more accessible and efficient.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="premium" size="lg">
-                View Open Positions
+                View Careers
               </Button>
               <Button variant="outline" size="lg">
                 Partner With Us
