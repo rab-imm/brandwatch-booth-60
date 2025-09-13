@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 import { Link } from "react-router-dom"
+import { NotificationCenter } from "@/components/NotificationCenter"
 import { useAuth } from "@/hooks/useAuth"
 import {
   DropdownMenu,
@@ -61,6 +62,7 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-3">
+                <NotificationCenter />
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
