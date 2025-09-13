@@ -205,6 +205,7 @@ export const iconRegistry: Record<string, ComponentType<any>> = {
   'eye': Eye, // Phosphor
   'target': TablerTarget, // Tabler for elegance
   'book': TablerBook, // Tabler for book
+  'scale': TablerScale, // Tabler for legal scale
   'users': TablerUsers, // Tabler for clean lines
   'brain': Brain, // Phosphor
   'lightning': Lightning, // Phosphor
