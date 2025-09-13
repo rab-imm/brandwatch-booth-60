@@ -637,6 +637,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      reset_user_queries: {
+        Args: { target_user_id?: string }
+        Returns: undefined
+      }
       search_documents: {
         Args: {
           match_count: number
