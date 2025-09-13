@@ -82,6 +82,7 @@ export const useChatMessages = () => {
 
   const switchConversation = async (conversationId: string) => {
     setCurrentConversationId(conversationId)
+    setMessages([]) // Clear messages immediately for better UX
     await fetchMessages(conversationId)
   }
 

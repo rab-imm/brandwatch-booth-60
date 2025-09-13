@@ -161,18 +161,30 @@ export const ChatInterface = () => {
               />
             ))}
             {loading && (
-              <MessageBubble
-                message={{
-                  id: 'loading',
-                  role: 'assistant',
-                  content: 'Researching UAE legal sources and analyzing your query...',
-                  created_at: new Date().toISOString(),
-                  user_id: '',
-                  conversation_id: currentConversationId || '',
-                  updated_at: new Date().toISOString()
-                }}
-                isLoading={true}
-              />
+              <div className="flex items-start space-x-4 animate-pulse">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                    <div className="w-4 h-4 bg-primary/40 rounded-full animate-bounce"></div>
+                  </div>
+                </div>
+                <div className="flex-1 bg-secondary/50 rounded-lg p-4">
+                  <div className="text-sm text-muted-foreground mb-2">AI Assistant</div>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                      <span>Searching internal documents...</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span>Fetching real-time research...</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                      <span>Generating response...</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </>
         )}

@@ -109,9 +109,6 @@ serve(async (req) => {
             }
           ],
           max_tokens: 1000,
-          temperature: 0.2,
-          top_p: 0.9,
-          return_citations: true,
           search_domain_filter: ['uaelaws.com', 'government.ae', 'moj.gov.ae', 'mohre.gov.ae'],
           search_recency_filter: 'year'
         }),

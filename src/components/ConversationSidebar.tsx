@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useChatMessages } from "@/hooks/useChatMessages"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
+import { NewChatButton } from "@/components/NewChatButton"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { supabase } from "@/integrations/supabase/client"
 import { formatDistanceToNow } from "date-fns"
@@ -71,14 +72,7 @@ export const ConversationSidebar = () => {
   return (
     <div className="w-80 border-r bg-muted/10 flex flex-col">
       <div className="p-4 border-b">
-        <Button
-          onClick={handleNewConversation}
-          className="w-full"
-          size="sm"
-        >
-          <Icon name="plus" className="w-4 h-4 mr-2" />
-          New Conversation
-        </Button>
+        <NewChatButton onNewChat={handleNewConversation} loading={loading} />
       </div>
 
       <ScrollArea className="flex-1">
