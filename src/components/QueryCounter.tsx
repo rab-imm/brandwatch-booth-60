@@ -5,71 +5,120 @@ import { useNavigate } from "react-router-dom"
 interface QueryCounterProps {
   queriesUsed: number
   subscriptionTier: string
+  maxCredits?: number
+  isCompanyUser?: boolean
+  companyCredits?: { used: number; total: number }
 }
 
-export const QueryCounter = ({ queriesUsed, subscriptionTier }: QueryCounterProps) => {
+export const QueryCounter = ({ 
+  queriesUsed, 
+  subscriptionTier, 
+  maxCredits,
+  isCompanyUser = false,
+  companyCredits 
+}: QueryCounterProps) => {
   const navigate = useNavigate()
-  
-  const getQueryLimit = () => {
-    switch (subscriptionTier) {
+
+  const getQueryLimit = (tier: string) => {
+    if (maxCredits) return maxCredits
+    switch (tier) {
       case 'free':
-        return 5
-      case 'pro':
-        return 100
+        return 10
+      case 'essential':
+        return 50
+      case 'premium':
+        return 200
+      case 'sme':
+        return 999999 // Unlimited
       case 'enterprise':
-        return 1000
+        return 999999 // Unlimited
       default:
-        return 5
+        return 10
     }
   }
 
-  const queryLimit = getQueryLimit()
+  const queryLimit = getQueryLimit(subscriptionTier)
   const usagePercentage = Math.min((queriesUsed / queryLimit) * 100, 100)
-
-  const getStatusColor = () => {
-    if (usagePercentage >= 100) return 'text-destructive'
-    if (usagePercentage >= 80) return 'text-yellow-600'
-    return 'text-green-600'
-  }
+  const isNearLimit = usagePercentage >= 80
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-2">
-          <Icon name="zap" className={`w-4 h-4 ${getStatusColor()}`} />
-          <span className="text-sm font-medium">
-            Query Usage: {queriesUsed} / {queryLimit}
+    <div className="w-full max-w-md mx-auto space-y-4">
+      {/* Individual Usage */}
+      <div>
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-sm font-medium text-muted-foreground">
+            {isCompanyUser ? "Personal Usage" : "Query Usage"}
+          </span>
+          <span className="text-sm text-muted-foreground">
+            {queriesUsed} / {queryLimit === 999999 ? "∞" : queryLimit}
           </span>
         </div>
         
-        <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            className={`h-full transition-all duration-300 ${
-              usagePercentage >= 100
-                ? 'bg-destructive'
-                : usagePercentage >= 80
-                ? 'bg-yellow-500'
-                : 'bg-green-500'
+        <div className="w-full bg-secondary rounded-full h-2.5 mb-2">
+          <div 
+            className={`h-2.5 rounded-full transition-all duration-300 ${
+              isNearLimit 
+                ? 'bg-destructive' 
+                : usagePercentage > 60 
+                  ? 'bg-warning' 
+                  : 'bg-primary'
             }`}
-            style={{ width: `${usagePercentage}%` }}
+            style={{ width: `${Math.min(usagePercentage, 100)}%` }}
           />
         </div>
 
-        <span className="text-xs text-muted-foreground capitalize">
-          {subscriptionTier} Plan
-        </span>
+        <div className="flex justify-between items-center text-xs text-muted-foreground">
+          <span>
+            {queryLimit === 999999 ? "Unlimited" : `${queryLimit - queriesUsed} queries remaining`}
+          </span>
+          {subscriptionTier === 'free' && isNearLimit && (
+            <Button size="sm" variant="outline" className="text-xs" onClick={() => navigate('/pricing')}>
+              Upgrade
+            </Button>
+          )}
+        </div>
       </div>
 
-      {subscriptionTier === 'free' && usagePercentage >= 80 && (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => navigate('/pricing')}
-          className="ml-4"
-        >
-          <Icon name="arrow-up" className="w-4 h-4 mr-1" />
-          Upgrade
-        </Button>
+      {/* Company Pool Usage (if applicable) */}
+      {isCompanyUser && companyCredits && (
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm font-medium text-muted-foreground">
+              Company Pool
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {companyCredits.used} / {companyCredits.total}
+            </span>
+          </div>
+          
+          <div className="w-full bg-secondary rounded-full h-2.5 mb-2">
+            <div 
+              className={`h-2.5 rounded-full transition-all duration-300 ${
+                (companyCredits.used / companyCredits.total) * 100 >= 80
+                  ? 'bg-destructive' 
+                  : (companyCredits.used / companyCredits.total) * 100 > 60 
+                    ? 'bg-warning' 
+                    : 'bg-blue-500'
+              }`}
+              style={{ width: `${Math.min((companyCredits.used / companyCredits.total) * 100, 100)}%` }}
+            />
+          </div>
+
+          <div className="text-xs text-muted-foreground">
+            {companyCredits.total - companyCredits.used} company credits remaining
+          </div>
+        </div>
+      )}
+      
+      {isNearLimit && (
+        <div className="mt-3 p-3 bg-warning/10 border border-warning/20 rounded-lg">
+          <p className="text-xs text-warning-foreground">
+            {subscriptionTier === 'free' 
+              ? "You're running low on queries. Consider upgrading for more capacity."
+              : "You're approaching your query limit for this period."
+            }
+          </p>
+        </div>
       )}
     </div>
   )

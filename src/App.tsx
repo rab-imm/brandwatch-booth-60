@@ -14,6 +14,8 @@ import About from "./pages/About";
 import Resources from "./pages/Resources";
 import UseCasesPage from "./pages/UseCasesPage";
 import NotFound from "./pages/NotFound";
+import { TemplateStore } from "./components/TemplateStore";
+import { SuperAdminDashboard } from "./components/SuperAdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +42,15 @@ const App = () => (
             <Route path="/use-cases" element={<UseCasesPage />} />
             <Route path="/about" element={<About />} />
             <Route path="/resources" element={<Resources />} />
+            <Route path="/templates" element={<TemplateStore />} />
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute>
+                  <SuperAdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

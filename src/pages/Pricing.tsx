@@ -9,74 +9,76 @@ const Pricing = () => {
   const tiers = [
     {
       name: "Free",
-      price: "Free",
+      price: "AED 0",
       period: "",
-      description: "Perfect for individuals trying our platform",
+      description: "Perfect for individuals getting started",
       features: [
-        "3 AI queries per month",
-        "Basic UAE legal questions",
-        "Verified citations included",
-        "All UAE jurisdictions covered",
-        "Community support",
-        "Legal disclaimers included"
+        "10 queries per month",
+        "Basic AI legal assistance",
+        "UAE employment law focus",
+        "Email support",
+        "Single user account"
       ],
-      cta: "Start Free",
+      cta: "Get Started",
       popular: false,
-      highlight: "Most Popular for Individuals"
+      highlight: "Most Popular for Individuals",
+      priceId: null
     },
     {
-      name: "Individual",
-      price: "$19", 
+      name: "Essential",
+      price: "AED 20", 
       period: "/month",
-      description: "Great for individuals and small business owners",
+      description: "For individuals and small businesses",
       features: [
-        "50 AI queries per month",
-        "All legal topics covered",
-        "Employment, business, family law",
-        "Email support",
+        "50 queries per month",
+        "3 free templates per month",
+        "Additional templates at AED 20 each",
+        "Priority support",
         "Document citations",
-        "Mobile-friendly chat",
-        "Query history"
+        "Export capabilities"
       ],
-      cta: "Choose Individual",
+      cta: "Subscribe Now",
+      popular: false,
+      highlight: "",
+      priceId: "price_1S70cyHsYn1ibhUiGg8DGg5g"
+    },
+    {
+      name: "Premium",
+      price: "AED 50",
+      period: "/month", 
+      description: "Ideal for legal professionals and growing firms",
+      features: [
+        "200 queries per month",
+        "10 free templates per month",
+        "Additional templates at AED 15 each",
+        "Priority support",
+        "Multi-user access (up to 5 users)",
+        "Custom document generation",
+        "Advanced search capabilities"
+      ],
+      cta: "Subscribe Now",
       popular: true,
       highlight: "Best Value"
     },
     {
-      name: "Small Business",
-      price: "$49",
-      period: "/month", 
-      description: "For small businesses and startups",
-      features: [
-        "200 AI queries per month",
-        "Business compliance guidance",
-        "Contract and employment help",
-        "Priority email support",
-        "Team member access (3 users)",
-        "Export chat conversations",
-        "UAE business law focus"
-      ],
-      cta: "Choose Business",
-      popular: false,
-      highlight: ""
-    },
-    {
-      name: "Professional",
-      price: "$149",
+      name: "SME",
+      price: "AED 150",
       period: "/month",
-      description: "For legal professionals and larger teams",
+      description: "For small to medium enterprises with extensive needs",
       features: [
-        "1,000 AI queries per month",
-        "Advanced legal research",
-        "All UAE jurisdictions",
-        "Phone & email support",
-        "Team access (10 users)",
-        "API access available",
-        "Custom legal reports"
+        "Unlimited queries",
+        "Unlimited templates",
+        "Custom draft requests",
+        "Dedicated support",
+        "Multi-user access (up to 25 users)",
+        "Custom integrations",
+        "Advanced analytics",
+        "White-label options"
       ],
-      cta: "Choose Professional",
+      cta: "Subscribe Now",
       popular: false,
-      highlight: ""
+      highlight: "",
+      priceId: "price_1S70f5HsYn1ibhUilLkxvekG"
     }
   ]
 
