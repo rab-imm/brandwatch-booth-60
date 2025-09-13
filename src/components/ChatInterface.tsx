@@ -15,6 +15,13 @@ export const ChatInterface = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
 
+  // Debug logging
+  console.log('💬 ChatInterface render:', {
+    messagesCount: messages.length,
+    currentConversationId,
+    loading
+  })
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }

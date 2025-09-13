@@ -61,6 +61,10 @@ export const useChatMessages = () => {
 
   const createNewConversation = async (): Promise<string | null> => {
     try {
+      console.log('🚀 Creating new conversation - clearing messages first')
+      setMessages([]) // Clear messages FIRST
+      setCurrentConversationId(null) // Clear conversation ID temporarily
+      
       const { data, error } = await supabase
         .from('conversations')
         .insert([
@@ -77,8 +81,8 @@ export const useChatMessages = () => {
       if (error) throw error
 
       const newConversationId = data.id
+      console.log('✅ New conversation created:', newConversationId, 'Messages cleared:', messages.length === 0)
       setCurrentConversationId(newConversationId)
-      setMessages([]) // Clear messages immediately when creating new conversation
       return newConversationId
     } catch (error) {
       console.error('Error creating conversation:', error)
@@ -87,8 +91,9 @@ export const useChatMessages = () => {
   }
 
   const switchConversation = async (conversationId: string) => {
-    setCurrentConversationId(conversationId)
+    console.log('🔄 Switching conversation to:', conversationId)
     setMessages([]) // Clear messages immediately for better UX
+    setCurrentConversationId(conversationId)
     await fetchMessages(conversationId)
   }
 
