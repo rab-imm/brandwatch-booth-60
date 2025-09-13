@@ -189,6 +189,7 @@ export const useChatMessages = () => {
       }
 
       console.log('AI service response:', result)
+      console.log('🔍 Sources in response:', result.sources)
       
       if (!result) {
         console.error('No result from AI service')
