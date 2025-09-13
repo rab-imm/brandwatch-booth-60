@@ -118,19 +118,39 @@ serve(async (req) => {
               content: perplexityQuery
             }
           ],
+          temperature: 0.2,
+          top_p: 0.9,
           max_tokens: 1000,
+          return_images: false,
+          return_related_questions: false,
           search_domain_filter: ['uaelaws.com', 'government.ae', 'moj.gov.ae', 'mohre.gov.ae'],
-          search_recency_filter: 'year'
+          search_recency_filter: 'year',
+          frequency_penalty: 1,
+          presence_penalty: 0
         }),
       })
 
       if (perplexityResponse.ok) {
         const perplexityData = await perplexityResponse.json()
-        researchContext = perplexityData.choices[0].message.content
-        researchSources = perplexityData.citations || []
-        console.log(`Perplexity research completed with ${researchSources.length} sources`)
+        console.log('Perplexity response structure:', Object.keys(perplexityData))
+        
+        if (perplexityData.choices && perplexityData.choices[0]) {
+          researchContext = perplexityData.choices[0].message.content
+          
+          // Extract sources from Perplexity response
+          if (perplexityData.citations && perplexityData.citations.length > 0) {
+            researchSources = perplexityData.citations.map((citation: any) => ({
+              title: citation.title || 'UAE Legal Source',
+              url: citation.url || '',
+              text: citation.text || ''
+            }))
+          }
+          
+          console.log(`Perplexity research completed with ${researchSources.length} sources`)
+        }
       } else {
-        console.error('Perplexity API error:', perplexityResponse.status)
+        const errorData = await perplexityResponse.json()
+        console.error('Perplexity API error:', perplexityResponse.status, errorData)
       }
     } catch (error) {
       console.error('Error fetching Perplexity research:', error)
