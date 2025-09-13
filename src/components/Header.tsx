@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export const Header = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, profile } = useAuth();
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-6 py-4">
@@ -64,7 +64,7 @@ export const Header = () => {
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
-                {user && ((user as any).user_role === 'super_admin') && (
+                {profile?.user_role === 'super_admin' && (
                   <Button variant="ghost" size="sm" asChild>
                     <Link to="/admin">Admin</Link>
                   </Button>
