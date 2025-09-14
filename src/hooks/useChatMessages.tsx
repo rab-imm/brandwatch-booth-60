@@ -39,7 +39,7 @@ export const useChatMessages = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
-  const [isNewConversationCreated, setIsNewConversationCreated] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   const fetchMessages = async (conversationId: string) => {
     if (!user || !conversationId) return
@@ -71,15 +71,9 @@ export const useChatMessages = () => {
     try {
       console.log('🚀 Creating new conversation - clearing messages first')
       
-      // Set flag to prevent automatic loading of previous conversation
-      setIsNewConversationCreated(true)
-      
       // Clear everything immediately and synchronously
       setMessages([])
       setCurrentConversationId(null)
-      
-      // Force a re-render by waiting a tick
-      await new Promise(resolve => setTimeout(resolve, 0))
       
       const { data, error } = await supabase
         .from('conversations')
@@ -112,7 +106,6 @@ export const useChatMessages = () => {
 
   const switchConversation = async (conversationId: string) => {
     console.log('🔄 Switching conversation to:', conversationId)
-    // Don't reset flag here - only reset when user sends first message
     setMessages([]) // Clear messages immediately for better UX
     setCurrentConversationId(conversationId)
     await fetchMessages(conversationId)
@@ -173,12 +166,6 @@ export const useChatMessages = () => {
 
       // Update messages state with user message
       setMessages(prev => [...prev, userMessage])
-
-      // Reset the new conversation flag now that user has sent their first message
-      if (isNewConversationCreated) {
-        console.log('🎯 User sent first message - resetting new conversation flag')
-        setIsNewConversationCreated(false)
-      }
 
       // Update conversation title based on first message
       if (messages.length === 0) {
@@ -260,16 +247,22 @@ export const useChatMessages = () => {
     }
   }
 
-  // Initialize with first conversation or create one
+  // Initialize with first conversation only when needed
   useEffect(() => {
     const initializeChat = async () => {
-      if (!user) return
+      if (!user || isInitialized) return
       
-      // Don't auto-load if user just created a new conversation
-      if (isNewConversationCreated) {
-        console.log('🚫 Skipping auto-load - new conversation was just created')
+      // Only auto-load if:
+      // - No current conversation is set
+      // - No messages are loaded
+      // - This is the first initialization
+      if (currentConversationId || messages.length > 0) {
+        console.log('🚫 Skipping auto-load - conversation already active or messages exist')
+        setIsInitialized(true)
         return
       }
+
+      console.log('🔄 Initializing chat - looking for latest conversation')
 
       try {
         const { data: conversations, error } = await supabase
@@ -283,16 +276,21 @@ export const useChatMessages = () => {
 
         if (conversations && conversations.length > 0) {
           const latestConversation = conversations[0]
+          console.log('✅ Found latest conversation:', latestConversation.id)
           setCurrentConversationId(latestConversation.id)
           await fetchMessages(latestConversation.id)
+        } else {
+          console.log('📝 No conversations found - user will start fresh')
         }
       } catch (error) {
         console.error('Error initializing chat:', error)
+      } finally {
+        setIsInitialized(true)
       }
     }
 
     initializeChat()
-  }, [user])
+  }, [user, currentConversationId, messages.length, isInitialized])
 
   return {
     messages,
