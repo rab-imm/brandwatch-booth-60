@@ -16,6 +16,9 @@ import { BulkActionBar } from "./admin/BulkActionBar"
 import { AdminSearchFilter } from "./admin/AdminSearchFilter"
 import { EnhancedDataTable } from "./admin/EnhancedDataTable"
 import { AdminOverviewDashboard } from "./admin/AdminOverviewDashboard"
+import { UserManagement } from "./admin/UserManagement"
+import { DocumentWorkflow } from "./admin/DocumentWorkflow"
+import { AdvancedAnalytics } from "./admin/AdvancedAnalytics"
 
 export const SuperAdminDashboard = () => {
   const { user, profile } = useAuth()
@@ -372,7 +375,7 @@ export const SuperAdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-10">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Icon name="layout-dashboard" className="h-4 w-4" />
               Overview
@@ -385,9 +388,17 @@ export const SuperAdminDashboard = () => {
               <Icon name="building" className="h-4 w-4" />
               Companies
             </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Icon name="users" className="h-4 w-4" />
+              Users
+            </TabsTrigger>
             <TabsTrigger value="requests" className="flex items-center gap-2">
               <Icon name="alert-circle" className="h-4 w-4" />
               Lawyer Requests
+            </TabsTrigger>
+            <TabsTrigger value="workflow" className="flex items-center gap-2">
+              <Icon name="workflow" className="h-4 w-4" />
+              Workflow
             </TabsTrigger>
             <TabsTrigger value="upload" className="flex items-center gap-2">
               <Icon name="upload" className="h-4 w-4" />
@@ -400,6 +411,10 @@ export const SuperAdminDashboard = () => {
             <TabsTrigger value="analytics" className="flex items-center gap-2">
               <Icon name="bar-chart" className="h-4 w-4" />
               Analytics
+            </TabsTrigger>
+            <TabsTrigger value="advanced-analytics" className="flex items-center gap-2">
+              <Icon name="trending-up" className="h-4 w-4" />
+              Advanced
             </TabsTrigger>
             <TabsTrigger value="realtime" className="flex items-center gap-2">
               <Icon name="activity" className="h-4 w-4" />
@@ -433,6 +448,14 @@ export const SuperAdminDashboard = () => {
               onBulkReject={handleBulkRejectDocuments}
               itemType="documents"
             />
+          </TabsContent>
+
+          <TabsContent value="users" className="space-y-6">
+            <UserManagement />
+          </TabsContent>
+
+          <TabsContent value="workflow" className="space-y-6">
+            <DocumentWorkflow documents={filteredDocuments} onRefresh={fetchData} />
           </TabsContent>
 
           <TabsContent value="companies" className="space-y-6">
@@ -495,6 +518,10 @@ export const SuperAdminDashboard = () => {
 
           <TabsContent value="analytics" className="space-y-4">
             <TemplateAnalytics />
+          </TabsContent>
+
+          <TabsContent value="advanced-analytics" className="space-y-4">
+            <AdvancedAnalytics />
           </TabsContent>
 
           <TabsContent value="realtime" className="space-y-4">
