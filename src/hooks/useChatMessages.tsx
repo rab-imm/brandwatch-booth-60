@@ -70,10 +70,14 @@ export const useChatMessages = () => {
   const createNewConversation = async (): Promise<string | null> => {
     try {
       console.log('🚀 Creating new conversation - clearing messages first')
+      console.log('- Before clear: messages.length =', messages.length)
+      console.log('- Before clear: currentConversationId =', currentConversationId)
       
       // Clear everything immediately and synchronously
       setMessages([])
       setCurrentConversationId(null)
+      
+      console.log('✅ State cleared - creating new conversation in database')
       
       const { data, error } = await supabase
         .from('conversations')
@@ -96,6 +100,7 @@ export const useChatMessages = () => {
       
       // Ensure messages stay cleared
       setMessages([])
+      console.log('✅ Final state - messages cleared, new conversation set')
       
       return newConversationId
     } catch (error) {
@@ -250,7 +255,16 @@ export const useChatMessages = () => {
   // Initialize with first conversation only when needed
   useEffect(() => {
     const initializeChat = async () => {
-      if (!user || isInitialized) return
+      console.log('🔍 useEffect triggered - checking initialization conditions:')
+      console.log('- user:', !!user)
+      console.log('- isInitialized:', isInitialized)
+      console.log('- currentConversationId:', currentConversationId)
+      console.log('- messages.length:', messages.length)
+      
+      if (!user || isInitialized) {
+        console.log('🚫 Skipping initialization - user missing or already initialized')
+        return
+      }
       
       // Only auto-load if:
       // - No current conversation is set
@@ -285,6 +299,7 @@ export const useChatMessages = () => {
       } catch (error) {
         console.error('Error initializing chat:', error)
       } finally {
+        console.log('✅ Setting isInitialized to true')
         setIsInitialized(true)
       }
     }

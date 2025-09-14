@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 import { Link } from "react-router-dom"
@@ -14,17 +15,23 @@ import {
 
 export const Header = () => {
   const { user, signOut, profile, refetchProfile } = useAuth();
+  const [resetting, setResetting] = useState(false);
 
   const handleResetQueries = async () => {
+    setResetting(true);
     try {
+      console.log('🔄 Resetting queries for user:', user?.id);
       const { error } = await supabase.rpc('reset_user_queries')
       if (error) throw error
       
       await refetchProfile()
+      console.log('✅ Queries reset successfully');
       toast.success('Queries reset successfully!')
     } catch (error) {
-      console.error('Error resetting queries:', error)
+      console.error('❌ Error resetting queries:', error)
       toast.error('Failed to reset queries')
+    } finally {
+      setResetting(false);
     }
   }
   return (
@@ -94,10 +101,15 @@ export const Header = () => {
                   variant="outline" 
                   size="sm" 
                   onClick={handleResetQueries}
-                  className="bg-yellow-500/10 border-yellow-500/20 text-yellow-700 hover:bg-yellow-500/20"
+                  disabled={resetting}
+                  className="bg-yellow-500/10 border-yellow-500/20 text-yellow-700 hover:bg-yellow-500/20 disabled:opacity-50"
                 >
-                  <Icon name="refresh-cw" size={14} className="mr-1" />
-                  Reset Queries
+                  {resetting ? (
+                    <Icon name="loader" size={14} className="mr-1 animate-spin" />
+                  ) : (
+                    <Icon name="refresh-cw" size={14} className="mr-1" />
+                  )}
+                  {resetting ? 'Resetting...' : 'Reset Queries'}
                 </Button>
                 <span className="text-sm text-muted-foreground hidden sm:block">
                   {user.email}
