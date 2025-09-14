@@ -16,6 +16,7 @@ import UseCasesPage from "./pages/UseCasesPage";
 import NotFound from "./pages/NotFound";
 import { EnhancedTemplateStore } from "./components/EnhancedTemplateStore";
 import { SuperAdminDashboard } from "./components/SuperAdminDashboard";
+import { CompanyAdminDashboard } from "./components/CompanyAdminDashboard";
 import { DocumentUpload } from "./components/DocumentUpload";
 import { SubscriptionManager } from "./components/SubscriptionManager";
 
@@ -63,6 +64,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <SuperAdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/company-admin" 
+              element={
+                <ProtectedRoute>
+                  <CompanyAdminDashboard />
                 </ProtectedRoute>
               } 
             />

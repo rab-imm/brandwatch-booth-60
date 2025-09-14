@@ -91,7 +91,12 @@ export const Header = () => {
                 </Button>
                 {profile?.user_role === 'super_admin' && (
                   <Button variant="ghost" size="sm" asChild>
-                    <Link to="/admin">Admin</Link>
+                    <Link to="/admin">Super Admin</Link>
+                  </Button>
+                )}
+                {profile?.user_role === 'company_admin' && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/company-admin">Company Admin</Link>
                   </Button>
                 )}
                 {/* Temporary Reset Button */}

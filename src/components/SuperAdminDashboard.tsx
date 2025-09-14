@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/hooks/use-toast"
+import { Header } from "@/components/Header"
 import { DocumentUpload } from "./DocumentUpload"
 import { TemplateCreator } from "./TemplateCreator"
 import { TemplateAnalytics } from "./TemplateAnalytics"
@@ -107,37 +108,43 @@ export const SuperAdminDashboard = () => {
   // Check if user is super admin
   if (profile?.user_role !== 'super_admin') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="w-96">
-          <CardHeader>
-            <CardTitle className="text-center text-destructive">Access Denied</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-center text-muted-foreground">
-              You don't have permission to access the super admin dashboard.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-6 py-12">
+          <Card className="max-w-md mx-auto">
+            <CardHeader>
+              <CardTitle className="text-destructive">Access Denied</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>You don't have permission to access the super admin dashboard.</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     )
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-muted-foreground">Loading admin dashboard...</div>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-6 py-12">
+          <div className="flex items-center justify-center">
+            <Icon name="loader" className="h-8 w-8 animate-spin" />
+            <span className="ml-2">Loading admin data...</span>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <Header />
+      <div className="container mx-auto px-6 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Super Admin Dashboard</h1>
-          <p className="text-muted-foreground text-lg">
-            Manage documents, companies, and lawyer requests
-          </p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Super Admin Dashboard</h1>
+          <p className="text-muted-foreground">Manage platform-wide settings and monitor system activity</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
