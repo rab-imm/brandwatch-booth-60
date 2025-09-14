@@ -46,7 +46,6 @@ export const ConversationSidebar = () => {
 
   const handleNewConversation = async () => {
     try {
-      console.log('🎯 Sidebar: Creating new conversation')
       const newConversationId = await createNewConversation()
       
       if (newConversationId) {
@@ -58,7 +57,6 @@ export const ConversationSidebar = () => {
           updated_at: new Date().toISOString()
         }
         setConversations(prev => [newConversation, ...prev])
-        console.log('✅ Sidebar: Added new conversation to local state')
       }
     } catch (error) {
       console.error('Error creating conversation:', error)

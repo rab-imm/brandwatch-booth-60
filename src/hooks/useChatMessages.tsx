@@ -75,7 +75,7 @@ export const useChatMessages = () => {
         userPresent: !!user
       })
       
-      // Clear current state
+      // Clear current state FIRST
       setMessages([])
       setCurrentConversationId(null)
       
@@ -96,7 +96,12 @@ export const useChatMessages = () => {
 
       const newConversationId = data.id
       console.log('✅ New conversation created:', newConversationId)
+      
+      // Set the new conversation ID and ensure messages stay empty
       setCurrentConversationId(newConversationId)
+      setMessages([]) // Double-ensure messages are cleared
+      
+      console.log('✅ createNewConversation completed - Final state should be empty messages')
       
       return newConversationId
     } catch (error) {
@@ -250,8 +255,27 @@ export const useChatMessages = () => {
   // Initialize with first conversation only when needed
   useEffect(() => {
     const initializeChat = async () => {
-      if (!user || isInitialized) return
+      console.log('🔍 useEffect triggered:', {
+        userPresent: !!user,
+        isInitialized,
+        currentConversationId,
+        messagesLength: messages.length
+      })
       
+      if (!user || isInitialized) {
+        console.log('🚫 Skipping initialization - user missing or already initialized')
+        return
+      }
+      
+      // ONLY load a conversation if no conversation is currently set and no messages exist
+      if (currentConversationId !== null || messages.length > 0) {
+        console.log('🚫 Skipping auto-load - conversation already active or messages exist')
+        setIsInitialized(true)
+        return
+      }
+
+      console.log('📋 Looking for latest conversation to auto-load')
+
       try {
         const { data: conversations, error } = await supabase
           .from('conversations')
@@ -264,12 +288,16 @@ export const useChatMessages = () => {
 
         if (conversations && conversations.length > 0) {
           const latestConversation = conversations[0]
+          console.log('✅ Auto-loading latest conversation:', latestConversation.id)
           setCurrentConversationId(latestConversation.id)
           await fetchMessages(latestConversation.id)
+        } else {
+          console.log('📝 No conversations found - starting fresh')
         }
       } catch (error) {
         console.error('Error initializing chat:', error)
       } finally {
+        console.log('✅ Setting isInitialized to true')
         setIsInitialized(true)
       }
     }
