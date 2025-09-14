@@ -69,9 +69,17 @@ export const useChatMessages = () => {
 
   const createNewConversation = async (): Promise<string | null> => {
     try {
+      console.log('🆕 createNewConversation called - Current state:', {
+        messagesLength: messages.length,
+        currentConversationId,
+        userPresent: !!user
+      })
+      
       // Clear current state
       setMessages([])
       setCurrentConversationId(null)
+      
+      console.log('✅ State cleared - creating database record')
       
       const { data, error } = await supabase
         .from('conversations')
@@ -87,11 +95,12 @@ export const useChatMessages = () => {
       if (error) throw error
 
       const newConversationId = data.id
+      console.log('✅ New conversation created:', newConversationId)
       setCurrentConversationId(newConversationId)
       
       return newConversationId
     } catch (error) {
-      console.error('Error creating conversation:', error)
+      console.error('❌ Error creating conversation:', error)
       return null
     }
   }
