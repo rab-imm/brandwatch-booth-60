@@ -177,6 +177,39 @@ export type Database = {
           },
         ]
       }
+      churn_risk_customers: {
+        Row: {
+          created_at: string
+          id: string
+          last_activity: string | null
+          predicted_churn_date: string | null
+          risk_factors: Json
+          risk_score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_activity?: string | null
+          predicted_churn_date?: string | null
+          risk_factors?: Json
+          risk_score: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_activity?: string | null
+          predicted_churn_date?: string | null
+          risk_factors?: Json
+          risk_score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       companies: {
         Row: {
           created_at: string
@@ -570,6 +603,89 @@ export type Database = {
           },
         ]
       }
+      retention_campaign_metrics: {
+        Row: {
+          campaign_id: string
+          clicked_count: number
+          converted_count: number
+          created_at: string
+          date: string
+          id: string
+          opened_count: number
+          sent_count: number
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: string
+          clicked_count?: number
+          converted_count?: number
+          created_at?: string
+          date?: string
+          id?: string
+          opened_count?: number
+          sent_count?: number
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          clicked_count?: number
+          converted_count?: number
+          created_at?: string
+          date?: string
+          id?: string
+          opened_count?: number
+          sent_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "retention_campaign_metrics_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "retention_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      retention_campaigns: {
+        Row: {
+          campaign_type: string
+          created_at: string
+          created_by: string | null
+          id: string
+          message_template: string | null
+          name: string
+          status: string
+          target_segment: string
+          trigger_conditions: Json
+          updated_at: string
+        }
+        Insert: {
+          campaign_type: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message_template?: string | null
+          name: string
+          status?: string
+          target_segment: string
+          trigger_conditions?: Json
+          updated_at?: string
+        }
+        Update: {
+          campaign_type?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message_template?: string | null
+          name?: string
+          status?: string
+          target_segment?: string
+          trigger_conditions?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       revenue_shares: {
         Row: {
           created_at: string
@@ -911,6 +1027,83 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_configurations: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          endpoint_url: string
+          event_type: string
+          id: string
+          secret: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          endpoint_url: string
+          event_type: string
+          id?: string
+          secret: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          endpoint_url?: string
+          event_type?: string
+          id?: string
+          secret?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      webhook_events: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_type: string
+          id: string
+          last_attempt: string | null
+          payload: Json
+          retry_count: number
+          status: string
+          updated_at: string
+          webhook_config_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_type: string
+          id?: string
+          last_attempt?: string | null
+          payload?: Json
+          retry_count?: number
+          status?: string
+          updated_at?: string
+          webhook_config_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          last_attempt?: string | null
+          payload?: Json
+          retry_count?: number
+          status?: string
+          updated_at?: string
+          webhook_config_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_events_webhook_config_id_fkey"
+            columns: ["webhook_config_id"]
+            isOneToOne: false
+            referencedRelation: "webhook_configurations"
             referencedColumns: ["id"]
           },
         ]

@@ -50,41 +50,74 @@ export const RetentionManager = () => {
     try {
       setLoading(true)
 
-      // Fetch retention campaigns
-      const { data: campaignsData, error: campaignsError } = await supabase.functions.invoke('customer-support-api', {
-        body: { action: 'get_retention_campaigns' }
-      })
+      // Fetch retention campaigns with metrics
+      const { data: campaigns, error: campaignsError } = await supabase
+        .from('retention_campaigns')
+        .select(`
+          *,
+          retention_campaign_metrics(
+            sent_count,
+            opened_count,
+            clicked_count,
+            converted_count
+          )
+        `)
+        .order('created_at', { ascending: false })
 
-      if (campaignsError) {
-        console.error('Error fetching campaigns:', campaignsError)
-      } else if (campaignsData?.campaigns) {
-        setCampaigns(campaignsData.campaigns)
-      }
+      if (campaignsError) throw campaignsError
 
-      // Fetch churn risk analysis
-      const { data: churnData, error: churnError } = await supabase.functions.invoke('billing-analytics', {
-        body: { type: 'churn_analysis' }
-      })
+      // Fetch churn risk customers
+      const { data: churnCustomers, error: churnError } = await supabase
+        .from('churn_risk_customers')
+        .select('*')
+        .order('risk_score', { ascending: false })
+        .limit(10)
 
-      if (churnError) {
-        console.error('Error fetching churn data:', churnError)
-      } else if (churnData?.at_risk_customers) {
-        setChurnRiskCustomers(churnData.at_risk_customers)
-      }
+      if (churnError) throw churnError
 
-      // Get automation settings
-      const { data: settingsData, error: settingsError } = await supabase
-        .from('billing_alerts')
-        .select('metadata')
-        .eq('alert_type', 'automation_settings')
-        .maybeSingle()
-
-      if (!settingsError && settingsData?.metadata) {
-        const metadata = settingsData.metadata as any
-        if (metadata?.retention_automation?.enabled) {
-          setAutomationEnabled(metadata.retention_automation.enabled)
+      // Transform campaigns data
+      const transformedCampaigns: RetentionCampaign[] = campaigns?.map(campaign => {
+        const metrics = campaign.retention_campaign_metrics?.[0]
+        return {
+          id: campaign.id,
+          name: campaign.name,
+          type: campaign.campaign_type,
+          status: campaign.status,
+          target_segment: 'All Users',
+          trigger_conditions: campaign.trigger_conditions,
+          created_at: campaign.created_at,
+          metrics: {
+            sent: metrics?.sent_count || 0,
+            opened: metrics?.opened_count || 0,
+            clicked: metrics?.clicked_count || 0,
+            converted: metrics?.converted_count || 0
+          }
         }
+      }) || []
+
+      // Transform churn customers data and fetch profiles separately
+      const transformedChurnCustomers: ChurnRiskCustomer[] = []
+      
+      for (const customer of churnCustomers || []) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('email, full_name')
+          .eq('user_id', customer.user_id)
+          .single()
+        
+        transformedChurnCustomers.push({
+          user_id: customer.user_id,
+          email: profile?.email || 'Unknown',
+          full_name: profile?.full_name || 'Unknown',
+          risk_score: customer.risk_score,
+          predicted_churn_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          last_activity: customer.last_activity || new Date().toISOString(),
+          subscription_tier: 'free'
+        })
       }
+
+      setCampaigns(transformedCampaigns)
+      setChurnRiskCustomers(transformedChurnCustomers)
 
     } catch (error) {
       console.error('Error fetching retention data:', error)
@@ -127,12 +160,16 @@ export const RetentionManager = () => {
 
   const createCampaign = async (campaignType: string) => {
     try {
-      const { error } = await supabase.functions.invoke('customer-support-api', {
-        body: { 
-          action: 'create_retention_campaign',
-          campaign_type: campaignType
-        }
-      })
+      const { error } = await supabase
+        .from('retention_campaigns')
+        .insert({
+          name: `New ${campaignType.charAt(0).toUpperCase() + campaignType.slice(1)} Campaign`,
+          campaign_type: campaignType,
+          status: 'active',
+          target_segment: 'All Users',
+          trigger_conditions: { type: campaignType },
+          created_by: (await supabase.auth.getUser()).data.user?.id
+        })
 
       if (error) throw error
 

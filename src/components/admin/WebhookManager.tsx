@@ -40,47 +40,36 @@ export const WebhookManager = () => {
     try {
       setLoading(true)
 
-      // For now, use mock data since webhook tables don't exist yet
-      // In a real implementation, these would be actual database queries
-      const mockEvents: WebhookEvent[] = [
-        {
-          id: '1',
-          event_type: 'subscription.created',
-          status: 'success',
-          retry_count: 0,
-          last_attempt: new Date().toISOString(),
-          data: {}
-        },
-        {
-          id: '2',
-          event_type: 'payment.failed',
-          status: 'failed',
-          retry_count: 2,
-          last_attempt: new Date().toISOString(),
-          data: {},
-          error_message: 'Connection timeout'
-        }
-      ]
+      // Fetch webhook configurations
+      const { data: configs, error: configError } = await supabase
+        .from('webhook_configurations')
+        .select('*')
+        .order('created_at', { ascending: false })
 
-      const mockConfigs: WebhookConfig[] = [
-        {
-          id: '1',
-          event_type: 'subscription.created',
-          enabled: true,
-          endpoint_url: 'https://api.example.com/webhooks/subscription',
-          secret: 'wh_sec_***'
-        },
-        {
-          id: '2',
-          event_type: 'payment.failed',
-          enabled: true,
-          endpoint_url: 'https://api.example.com/webhooks/payment',
-          secret: 'wh_sec_***'
-        }
-      ]
+      if (configError) throw configError
 
-      setWebhookEvents(mockEvents)
-      setWebhookConfigs(mockConfigs)
+      // Fetch webhook events  
+      const { data: events, error: eventsError } = await supabase
+        .from('webhook_events')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20)
+
+      if (eventsError) throw eventsError
+
+      // Transform events to match interface
+      const transformedEvents: WebhookEvent[] = events?.map(event => ({
+        id: event.id,
+        event_type: event.event_type,
+        status: event.status,
+        retry_count: event.retry_count,
+        last_attempt: event.last_attempt || new Date().toISOString(),
+        data: event.payload,
+        error_message: event.error_message
+      })) || []
+
+      setWebhookEvents(transformedEvents)
+      setWebhookConfigs(configs || [])
 
     } catch (error) {
       console.error('Error fetching webhook data:', error)
@@ -96,7 +85,13 @@ export const WebhookManager = () => {
 
   const toggleWebhook = async (configId: string, enabled: boolean) => {
     try {
-      // Mock implementation - in real app this would update the database
+      const { error } = await supabase
+        .from('webhook_configurations')
+        .update({ enabled })
+        .eq('id', configId)
+
+      if (error) throw error
+
       setWebhookConfigs(configs => 
         configs.map(config => 
           config.id === configId ? { ...config, enabled } : config
