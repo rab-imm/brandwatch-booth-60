@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Icon } from "@/components/ui/Icon"
+import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 
 interface BillingTransaction {
@@ -91,9 +92,42 @@ export const PersonalBillingHistory = ({ onBackToSubscription }: PersonalBilling
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Icon name="loader" className="h-8 w-8 animate-spin mr-2" />
-        <span>Loading billing history...</span>
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-9 w-32" />
+          <div>
+            <Skeleton className="h-7 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+        </div>
+        
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-20 mb-2" />
+                <Skeleton className="h-3 w-32" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-5 w-40 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-20 w-full" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -112,8 +146,8 @@ export const PersonalBillingHistory = ({ onBackToSubscription }: PersonalBilling
         </div>
       </div>
 
-      {/* Billing Summary */}
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* Billing Summary - Mobile Responsive */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Total Paid</CardTitle>
@@ -170,16 +204,16 @@ export const PersonalBillingHistory = ({ onBackToSubscription }: PersonalBilling
           {transactions.length > 0 ? (
             <div className="space-y-4">
               {transactions.map((transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={transaction.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="p-2 rounded-lg bg-muted">
+                    <div className="p-2 rounded-lg bg-muted flex-shrink-0">
                       <Icon 
                         name={getTransactionIcon(transaction.transaction_type)} 
                         className="h-4 w-4" 
                       />
                     </div>
-                    <div>
-                      <p className="font-medium">{transaction.description}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium truncate">{transaction.description}</p>
                       <p className="text-sm text-muted-foreground">
                         {new Date(transaction.created_at).toLocaleDateString('en-US', {
                           year: 'numeric',
@@ -202,7 +236,6 @@ export const PersonalBillingHistory = ({ onBackToSubscription }: PersonalBilling
                         {transaction.status}
                       </Badge>
                     </div>
-                    
                     {transaction.stripe_invoice_id && transaction.status === 'succeeded' && (
                       <Button
                         variant="outline"
@@ -210,7 +243,8 @@ export const PersonalBillingHistory = ({ onBackToSubscription }: PersonalBilling
                         onClick={() => downloadInvoice(transaction.stripe_invoice_id!)}
                       >
                         <Icon name="download" className="h-4 w-4 mr-2" />
-                        Invoice
+                        <span className="hidden sm:inline">Invoice</span>
+                        <span className="sm:hidden">PDF</span>
                       </Button>
                     )}
                   </div>
@@ -218,10 +252,16 @@ export const PersonalBillingHistory = ({ onBackToSubscription }: PersonalBilling
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <Icon name="receipt" className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No billing transactions found</p>
-              <p className="text-sm text-muted-foreground">Your payment history will appear here</p>
+            <div className="text-center py-12">
+              <Icon name="receipt" className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">No billing history yet</h3>
+              <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                Your payment history will appear here once you make your first payment or subscription.
+              </p>
+              <Button variant="outline" onClick={() => window.location.href = '/subscription'}>
+                <Icon name="credit-card" className="h-4 w-4 mr-2" />
+                View Subscription Plans
+              </Button>
             </div>
           )}
         </CardContent>

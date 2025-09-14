@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
+import { Skeleton } from "@/components/ui/skeleton"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts"
 import { toast } from "sonner"
 
@@ -110,9 +111,31 @@ export const CompanyUsageAnalytics = ({ company, companyUsers }: CompanyUsageAna
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Icon name="loader" className="h-8 w-8 animate-spin mr-2" />
-        <span>Loading analytics...</span>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-9 w-24" />
+        </div>
+        
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-5 w-40 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-[300px] w-full" />
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-5 w-40 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-[300px] w-full" />
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -152,7 +175,7 @@ export const CompanyUsageAnalytics = ({ company, companyUsers }: CompanyUsageAna
           <CardDescription>Credit consumption over the last 30 days</CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={350}>
             <LineChart data={dailyUsage}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
@@ -177,7 +200,7 @@ export const CompanyUsageAnalytics = ({ company, companyUsers }: CompanyUsageAna
           <CardDescription>Credit usage by individual team members</CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={350}>
             <BarChart data={userUsage}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
@@ -190,8 +213,8 @@ export const CompanyUsageAnalytics = ({ company, companyUsers }: CompanyUsageAna
         </CardContent>
       </Card>
 
-      {/* Usage Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Usage Summary Cards - Mobile Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Most Active User</CardTitle>

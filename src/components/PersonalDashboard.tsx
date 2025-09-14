@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Icon } from "@/components/ui/Icon"
+import { Skeleton } from "@/components/ui/skeleton"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { toast } from "sonner"
 import { Header } from "@/components/Header"
@@ -163,20 +164,69 @@ export const PersonalDashboard = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-6 py-12">
-          <div className="flex items-center justify-center">
-            <Icon name="loader" className="h-8 w-8 animate-spin mr-2" />
-            <span>Loading your dashboard...</span>
+        <div className="container mx-auto px-4 sm:px-6 py-8">
+          <div className="mb-8">
+            <Skeleton className="h-8 w-64 mb-2" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+          
+          {/* Skeleton Stats Grid */}
+          <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-4 rounded" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-8 w-16 mb-2" />
+                  <Skeleton className="h-2 w-full mb-1" />
+                  <Skeleton className="h-3 w-24" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          {/* Skeleton Charts */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-5 w-32 mb-2" />
+                <Skeleton className="h-4 w-48" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-[200px] w-full" />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-5 w-32 mb-2" />
+                <Skeleton className="h-4 w-48" />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <Skeleton className="h-4 w-4 rounded" />
+                      <div className="flex-1">
+                        <Skeleton className="h-4 w-32 mb-1" />
+                        <Skeleton className="h-3 w-24" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
     )
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <div className="container mx-auto px-6 py-8">
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 sm:px-6 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Personal Dashboard</h1>
           <p className="text-muted-foreground">Track your usage and activity</p>
@@ -199,8 +249,8 @@ export const PersonalDashboard = () => {
           </Card>
         )}
 
-        {/* Stats Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        {/* Stats Grid - Mobile Responsive */}
+        <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">My Credits</CardTitle>
@@ -262,14 +312,14 @@ export const PersonalDashboard = () => {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Usage Trend */}
+          {/* Usage Trend - Mobile Optimized */}
           <Card>
             <CardHeader>
               <CardTitle>Usage Trend</CardTitle>
               <CardDescription>Your query usage over the last 7 days</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={usageTrend}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
@@ -318,9 +368,17 @@ export const PersonalDashboard = () => {
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No recent activity found
-                  </p>
+                  <div className="text-center py-8">
+                    <Icon name="activity" className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-sm font-medium text-muted-foreground mb-2">No recent activity</p>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Start using the platform to see your activity here
+                    </p>
+                    <Button variant="outline" size="sm" onClick={() => window.location.href = '/dashboard'}>
+                      <Icon name="message-square" className="h-4 w-4 mr-2" />
+                      Start New Chat
+                    </Button>
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -334,18 +392,21 @@ export const PersonalDashboard = () => {
             <CardDescription>Frequently used features</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-4">
-              <Button variant="outline" size="sm" onClick={() => window.location.href = '/dashboard'}>
+            <div className="flex flex-wrap gap-2 sm:gap-4">
+              <Button variant="outline" size="sm" onClick={() => window.location.href = '/dashboard'} className="flex-1 sm:flex-none">
                 <Icon name="message-square" className="h-4 w-4 mr-2" />
-                Start New Chat
+                <span className="hidden sm:inline">Start New Chat</span>
+                <span className="sm:hidden">Chat</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={() => window.location.href = '/subscription'}>
+              <Button variant="outline" size="sm" onClick={() => window.location.href = '/subscription'} className="flex-1 sm:flex-none">
                 <Icon name="credit-card" className="h-4 w-4 mr-2" />
-                Manage Subscription
+                <span className="hidden sm:inline">Manage Subscription</span>
+                <span className="sm:hidden">Billing</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={() => window.location.href = '/templates'}>
+              <Button variant="outline" size="sm" onClick={() => window.location.href = '/templates'} className="flex-1 sm:flex-none">
                 <Icon name="file-text" className="h-4 w-4 mr-2" />
-                Browse Templates
+                <span className="hidden sm:inline">Browse Templates</span>
+                <span className="sm:hidden">Templates</span>
               </Button>
             </div>
           </CardContent>
