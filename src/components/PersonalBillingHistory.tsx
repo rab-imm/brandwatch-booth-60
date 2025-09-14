@@ -196,7 +196,7 @@ export const PersonalBillingHistory = ({ onBackToSubscription }: PersonalBilling
                     <div className="text-right">
                       <p className="font-semibold">
                         {transaction.transaction_type === 'refund' ? '-' : ''}
-                        {transaction.currency} {Number(transaction.amount_aed).toFixed(2)}
+                        {transaction.currency || 'AED'} {Number(transaction.amount_aed || 0).toFixed(2)}
                       </p>
                       <Badge className={getStatusColor(transaction.status)}>
                         {transaction.status}

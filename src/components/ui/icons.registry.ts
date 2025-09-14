@@ -276,6 +276,14 @@ export const iconRegistry: Record<string, ComponentType<any>> = {
   'bar-chart-3': BarChartIcon, // From Radix  
   'alert-circle': ExclamationTriangleIcon, // Alias
   'message-circle': ChatBubbleIcon, // Alias
+  
+  // Missing icons from dashboard components
+  'zap': Lightning, // From Phosphor
+  'file-text': TablerBook, // Using book for file-text
+  'credit-card': EnvelopeClosedIcon, // Using envelope for credit-card temporarily
+  'loader': ActivityLogIcon, // Using activity for loader
+  'alert-triangle': ExclamationTriangleIcon, // Alias for alert-triangle
+  'receipt': TablerBook, // Using book for receipt temporarily
 
   // Social & Brands - Tabler for brand consistency
   'brand-google': IconBrandGoogle,

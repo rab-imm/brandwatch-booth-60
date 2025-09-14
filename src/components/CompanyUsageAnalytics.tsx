@@ -51,13 +51,13 @@ export const CompanyUsageAnalytics = ({ company, companyUsers }: CompanyUsageAna
 
       if (error) throw error
 
-      // Process data for charts - use company users data for names
+      // Process data for charts - use company users data for names with null checks
       const processedData = activityData?.map(log => {
-        const user = companyUsers.find(u => u.user_id === log.user_id)
+        const user = companyUsers.find(u => u?.user_id === log.user_id)
         return {
           date: new Date(log.created_at).toLocaleDateString(),
           credits_used: 1, // Each query = 1 credit
-          user_name: user?.profile?.full_name || user?.profile?.email || 'Unknown User',
+          user_name: user?.profile?.full_name || user?.profile?.email || `User ${log.user_id.slice(0, 8)}`,
           user_id: log.user_id
         }
       }) || []
@@ -98,14 +98,14 @@ export const CompanyUsageAnalytics = ({ company, companyUsers }: CompanyUsageAna
     return acc
   }, [] as { date: string; credits_used: number }[])
 
-  // Aggregate data by user for bar chart
-  const userUsage = companyUsers.map(user => ({
-    name: user.profile?.full_name || user.profile?.email || 'Unknown',
-    credits_used: user.used_credits,
-    max_credits: user.max_credits_per_period
-  }))
+  // Aggregate data by user for bar chart with better null handling
+  const userUsage = companyUsers?.map(user => ({
+    name: user?.profile?.full_name || user?.profile?.email || `User ${user?.user_id?.slice(0, 8) || 'Unknown'}`,
+    credits_used: user?.used_credits || 0,
+    max_credits: user?.max_credits_per_period || 0
+  })) || []
 
-  const creditUsagePercentage = (company.used_credits / company.total_credits) * 100
+  const creditUsagePercentage = company?.total_credits ? (company.used_credits / company.total_credits) * 100 : 0
   const isNearLimit = creditUsagePercentage >= 80
 
   if (loading) {
@@ -128,7 +128,7 @@ export const CompanyUsageAnalytics = ({ company, companyUsers }: CompanyUsageAna
               <div>
                 <p className="font-medium text-amber-800">High Usage Alert</p>
                 <p className="text-sm text-amber-700">
-                  Your company has used {company.used_credits} out of {company.total_credits} credits ({creditUsagePercentage.toFixed(1)}%)
+                  Your company has used {company?.used_credits || 0} out of {company?.total_credits || 0} credits ({creditUsagePercentage.toFixed(1)}%)
                 </p>
               </div>
             </div>
@@ -232,7 +232,9 @@ export const CompanyUsageAnalytics = ({ company, companyUsers }: CompanyUsageAna
           </CardHeader>
           <CardContent>
             <div className="text-lg font-bold">
-              {Math.ceil((new Date(company.credits_reset_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
+              {company?.credits_reset_date ? 
+                Math.ceil((new Date(company.credits_reset_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) 
+                : 0}
             </div>
             <p className="text-xs text-muted-foreground">days remaining</p>
           </CardContent>

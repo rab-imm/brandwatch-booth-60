@@ -61,46 +61,46 @@ export const PersonalDashboard = () => {
       const twoWeeksAgo = new Date()
       twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14)
 
-      // Get query counts
-      const { data: totalQueries } = await supabase
+      // Get query counts - fixed count syntax
+      const { count: totalQueries } = await supabase
         .from('activity_logs')
-        .select('id', { count: 'exact' })
+        .select('*', { count: 'exact', head: true })
         .eq('user_id', user!.id)
         .eq('action', 'query_executed')
 
-      const { data: thisWeekQueries } = await supabase
+      const { count: thisWeekQueries } = await supabase
         .from('activity_logs')
-        .select('id', { count: 'exact' })
+        .select('*', { count: 'exact', head: true })
         .eq('user_id', user!.id)
         .eq('action', 'query_executed')
         .gte('created_at', oneWeekAgo.toISOString())
 
-      const { data: lastWeekQueries } = await supabase
+      const { count: lastWeekQueries } = await supabase
         .from('activity_logs')
-        .select('id', { count: 'exact' })
+        .select('*', { count: 'exact', head: true })
         .eq('user_id', user!.id)
         .eq('action', 'query_executed')
         .gte('created_at', twoWeeksAgo.toISOString())
         .lt('created_at', oneWeekAgo.toISOString())
 
       // Get template downloads
-      const { data: templateDownloads } = await supabase
+      const { count: templateDownloads } = await supabase
         .from('template_downloads')
-        .select('id', { count: 'exact' })
+        .select('*', { count: 'exact', head: true })
         .eq('user_id', user!.id)
 
       // Get conversations
-      const { data: conversations } = await supabase
+      const { count: conversations } = await supabase
         .from('conversations')
-        .select('id', { count: 'exact' })
+        .select('*', { count: 'exact', head: true })
         .eq('user_id', user!.id)
 
       setUsageStats({
-        total_queries: totalQueries?.length || 0,
-        queries_this_week: thisWeekQueries?.length || 0,
-        queries_last_week: lastWeekQueries?.length || 0,
-        templates_downloaded: templateDownloads?.length || 0,
-        conversations_started: conversations?.length || 0
+        total_queries: totalQueries || 0,
+        queries_this_week: thisWeekQueries || 0,
+        queries_last_week: lastWeekQueries || 0,
+        templates_downloaded: templateDownloads || 0,
+        conversations_started: conversations || 0
       })
 
       // Generate usage trend for last 7 days
@@ -110,9 +110,9 @@ export const PersonalDashboard = () => {
         date.setDate(date.getDate() - i)
         const dateStr = date.toISOString().split('T')[0]
         
-        const { data: dayQueries } = await supabase
+        const { count: dayQueries } = await supabase
           .from('activity_logs')
-          .select('id', { count: 'exact' })
+          .select('*', { count: 'exact', head: true })
           .eq('user_id', user!.id)
           .eq('action', 'query_executed')
           .gte('created_at', dateStr + 'T00:00:00.000Z')
@@ -120,7 +120,7 @@ export const PersonalDashboard = () => {
 
         trendData.push({
           date: date.toLocaleDateString('en-US', { weekday: 'short' }),
-          queries: dayQueries?.length || 0
+          queries: dayQueries || 0
         })
       }
       
