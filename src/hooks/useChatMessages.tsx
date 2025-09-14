@@ -112,7 +112,7 @@ export const useChatMessages = () => {
 
   const switchConversation = async (conversationId: string) => {
     console.log('🔄 Switching conversation to:', conversationId)
-    setIsNewConversationCreated(false) // Reset flag when switching to existing conversation
+    // Don't reset flag here - only reset when user sends first message
     setMessages([]) // Clear messages immediately for better UX
     setCurrentConversationId(conversationId)
     await fetchMessages(conversationId)
@@ -173,6 +173,12 @@ export const useChatMessages = () => {
 
       // Update messages state with user message
       setMessages(prev => [...prev, userMessage])
+
+      // Reset the new conversation flag now that user has sent their first message
+      if (isNewConversationCreated) {
+        console.log('🎯 User sent first message - resetting new conversation flag')
+        setIsNewConversationCreated(false)
+      }
 
       // Update conversation title based on first message
       if (messages.length === 0) {

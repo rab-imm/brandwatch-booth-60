@@ -46,8 +46,20 @@ export const ConversationSidebar = () => {
 
   const handleNewConversation = async () => {
     try {
-      await createNewConversation()
-      fetchConversations()
+      console.log('🎯 Sidebar: Creating new conversation')
+      const newConversationId = await createNewConversation()
+      
+      if (newConversationId) {
+        // Add the new conversation to local state instead of refetching
+        const newConversation: Conversation = {
+          id: newConversationId,
+          title: 'New Conversation',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+        setConversations(prev => [newConversation, ...prev])
+        console.log('✅ Sidebar: Added new conversation to local state')
+      }
     } catch (error) {
       console.error('Error creating conversation:', error)
     }
