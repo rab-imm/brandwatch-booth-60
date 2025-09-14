@@ -7,7 +7,7 @@ interface AuthContextType {
   session: Session | null
   profile: any | null
   loading: boolean
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>
+  signUp: (email: string, password: string, fullName?: string, signupType?: string, companyName?: string) => Promise<{ error: any }>
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signOut: () => Promise<void>
   refetchProfile: () => Promise<void>
@@ -95,17 +95,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
+  const signUp = async (email: string, password: string, fullName?: string, signupType?: string, companyName?: string) => {
     const redirectUrl = `${window.location.origin}/`
+    
+    const signupData: any = {
+      full_name: fullName || email,
+      signup_type: signupType || 'individual'
+    }
+    
+    if (signupType === 'company' && companyName) {
+      signupData.company_name = companyName
+    }
     
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName || email
-        }
+        data: signupData
       }
     })
     

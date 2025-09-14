@@ -13,6 +13,8 @@ export default function Auth() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
+  const [signupType, setSignupType] = useState<'individual' | 'company'>('individual')
+  const [companyName, setCompanyName] = useState('')
   const [loading, setLoading] = useState(false)
   
   const { user, signIn, signUp } = useAuth()
@@ -47,7 +49,7 @@ export default function Auth() {
           navigate('/')
         }
       } else {
-        const { error } = await signUp(email, password, fullName)
+        const { error } = await signUp(email, password, fullName, signupType, companyName)
         if (error) {
           toast({
             title: "Sign Up Failed",
@@ -57,7 +59,9 @@ export default function Auth() {
         } else {
           toast({
             title: "Account Created!",
-            description: "Please check your email to verify your account."
+            description: signupType === 'company' 
+              ? "Company account created! Please check your email to verify your account."
+              : "Please check your email to verify your account."
           })
           setIsLogin(true)
         }
@@ -88,18 +92,67 @@ export default function Auth() {
         <Card className="p-8 bg-card border-dashboard-border">
           <form onSubmit={handleSubmit} className="space-y-6">
             {!isLogin && (
-              <div>
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required={!isLogin}
-                  className="mt-1"
-                  placeholder="Enter your full name"
-                />
-              </div>
+              <>
+                <div className="space-y-4">
+                  <Label>Account Type</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      type="button"
+                      variant={signupType === 'individual' ? 'premium' : 'outline'}
+                      onClick={() => setSignupType('individual')}
+                      className="h-auto p-4 text-left"
+                    >
+                      <div>
+                        <div className="font-medium">Individual</div>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          Personal legal research
+                        </div>
+                      </div>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={signupType === 'company' ? 'premium' : 'outline'}
+                      onClick={() => setSignupType('company')}
+                      className="h-auto p-4 text-left"
+                    >
+                      <div>
+                        <div className="font-medium">Company</div>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          Team collaboration
+                        </div>
+                      </div>
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required={!isLogin}
+                    className="mt-1"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+
+                {signupType === 'company' && (
+                  <div>
+                    <Label htmlFor="companyName">Company Name</Label>
+                    <Input
+                      id="companyName"
+                      type="text"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      required={signupType === 'company'}
+                      className="mt-1"
+                      placeholder="Enter your company name"
+                    />
+                  </div>
+                )}
+              </>
             )}
             
             <div>

@@ -13,6 +13,13 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth')
+    } else if (!loading && user) {
+      // Auto-redirect based on user role after successful auth
+      const currentPath = window.location.pathname
+      if (currentPath === '/auth' || currentPath === '/') {
+        // Only redirect if they're on auth or home page
+        // Let other protected routes stay as they are
+      }
     }
   }, [user, loading, navigate])
 
