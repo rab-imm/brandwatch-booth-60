@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { toast } from "sonner"
 import { Header } from "@/components/Header"
+import { CompanyUsageAnalytics } from "@/components/CompanyUsageAnalytics"
 
 interface CompanyData {
   id: string
@@ -399,20 +400,7 @@ export const CompanyAdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="usage" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Usage Analytics</CardTitle>
-                <CardDescription>
-                  Detailed analytics and reporting coming soon
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <Icon name="bar-chart" className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">Advanced analytics dashboard under development</p>
-                </div>
-              </CardContent>
-            </Card>
+            <CompanyUsageAnalytics company={company} companyUsers={companyUsers} />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">

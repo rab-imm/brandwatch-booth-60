@@ -19,6 +19,7 @@ import { SuperAdminDashboard } from "./components/SuperAdminDashboard";
 import { CompanyAdminDashboard } from "./components/CompanyAdminDashboard";
 import { DocumentUpload } from "./components/DocumentUpload";
 import { SubscriptionManager } from "./components/SubscriptionManager";
+import { PersonalDashboard } from "./components/PersonalDashboard";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +89,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <SubscriptionManager />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/personal-dashboard" 
+              element={
+                <ProtectedRoute>
+                  <PersonalDashboard />
                 </ProtectedRoute>
               } 
             />

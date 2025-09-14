@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/hooks/use-toast"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { PersonalBillingHistory } from "@/components/PersonalBillingHistory"
 
 const SUBSCRIPTION_TIERS = {
   essential: {
@@ -53,6 +55,7 @@ export const SubscriptionManager = () => {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [subscriptionStatus, setSubscriptionStatus] = useState<any>(null)
+  const [activeTab, setActiveTab] = useState("subscription")
 
   useEffect(() => {
     if (user) {
@@ -142,111 +145,124 @@ export const SubscriptionManager = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Current Subscription Status */}
-      {user && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Icon name="credit-card" className="h-5 w-5" />
-              Current Subscription
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                {currentTier ? (
-                  <>
-                    <h3 className="text-lg font-semibold">{currentTier.name}</h3>
-                    <p className="text-muted-foreground">{currentTier.price}/month</p>
-                    <Badge className="mt-2">Active</Badge>
-                  </>
-                ) : (
-                  <>
-                    <h3 className="text-lg font-semibold">Free Tier</h3>
-                    <p className="text-muted-foreground">10 queries per month</p>
-                    <Badge variant="secondary" className="mt-2">Free</Badge>
-                  </>
-                )}
-              </div>
-              {currentTier && (
-                <Button
-                  onClick={handleManageSubscription}
-                  disabled={isLoading}
-                  variant="outline"
-                >
-                  <Icon name="settings" className="h-4 w-4 mr-2" />
-                  Manage Subscription
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="subscription">Subscription Plans</TabsTrigger>
+          <TabsTrigger value="billing">My Billing</TabsTrigger>
+        </TabsList>
 
-      {/* Available Plans */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {Object.entries(SUBSCRIPTION_TIERS).map(([key, tier]) => {
-          const isCurrentTier = currentTier?.productId === tier.productId
-          
-          return (
-            <Card key={key} className={`relative ${key === 'premium' ? 'border-primary shadow-lg' : ''}`}>
-              {key === 'premium' && (
-                <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary">
-                  Most Popular
-                </Badge>
-              )}
-              
-              <CardHeader className="text-center">
-                <CardTitle>{tier.name}</CardTitle>
-                <div className="text-3xl font-bold">{tier.price}</div>
-                <CardDescription>per month</CardDescription>
+        <TabsContent value="subscription" className="space-y-6">
+          {/* Current Subscription Status */}
+          {user && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="credit-card" className="h-5 w-5" />
+                  Current Subscription
+                </CardTitle>
               </CardHeader>
-              
-              <CardContent className="space-y-4">
-                <ul className="space-y-2">
-                  {tier.features.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm">
-                      <Icon name="check" className="h-4 w-4 text-green-500" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                
-                <Button
-                  onClick={() => handleSubscribe(tier.priceId)}
-                  disabled={isLoading || isCurrentTier}
-                  className="w-full"
-                  variant={isCurrentTier ? "secondary" : key === 'premium' ? "default" : "outline"}
-                >
-                  {isCurrentTier ? (
-                    <>
-                      <Icon name="check" className="h-4 w-4 mr-2" />
-                      Current Plan
-                    </>
-                  ) : (
-                    <>
-                      <Icon name="credit-card" className="h-4 w-4 mr-2" />
-                      Subscribe
-                    </>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    {currentTier ? (
+                      <>
+                        <h3 className="text-lg font-semibold">{currentTier.name}</h3>
+                        <p className="text-muted-foreground">{currentTier.price}/month</p>
+                        <Badge className="mt-2">Active</Badge>
+                      </>
+                    ) : (
+                      <>
+                        <h3 className="text-lg font-semibold">Free Tier</h3>
+                        <p className="text-muted-foreground">10 queries per month</p>
+                        <Badge variant="secondary" className="mt-2">Free</Badge>
+                      </>
+                    )}
+                  </div>
+                  {currentTier && (
+                    <Button
+                      onClick={handleManageSubscription}
+                      disabled={isLoading}
+                      variant="outline"
+                    >
+                      <Icon name="settings" className="h-4 w-4 mr-2" />
+                      Manage Subscription
+                    </Button>
                   )}
-                </Button>
+                </div>
               </CardContent>
             </Card>
-          )
-        })}
-      </div>
+          )}
 
-      {/* Refresh Subscription Status */}
-      <div className="text-center">
-        <Button
-          onClick={checkSubscriptionStatus}
-          variant="ghost"
-          size="sm"
-        >
-          <Icon name="refresh-cw" className="h-4 w-4 mr-2" />
-          Refresh Subscription Status
-        </Button>
-      </div>
+          {/* Available Plans */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {Object.entries(SUBSCRIPTION_TIERS).map(([key, tier]) => {
+              const isCurrentTier = currentTier?.productId === tier.productId
+              
+              return (
+                <Card key={key} className={`relative ${key === 'premium' ? 'border-primary shadow-lg' : ''}`}>
+                  {key === 'premium' && (
+                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary">
+                      Most Popular
+                    </Badge>
+                  )}
+                  
+                  <CardHeader className="text-center">
+                    <CardTitle>{tier.name}</CardTitle>
+                    <div className="text-3xl font-bold">{tier.price}</div>
+                    <CardDescription>per month</CardDescription>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-4">
+                    <ul className="space-y-2">
+                      {tier.features.map((feature, index) => (
+                        <li key={index} className="flex items-center gap-2 text-sm">
+                          <Icon name="check" className="h-4 w-4 text-green-500" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    
+                    <Button
+                      onClick={() => handleSubscribe(tier.priceId)}
+                      disabled={isLoading || isCurrentTier}
+                      className="w-full"
+                      variant={isCurrentTier ? "secondary" : key === 'premium' ? "default" : "outline"}
+                    >
+                      {isCurrentTier ? (
+                        <>
+                          <Icon name="check" className="h-4 w-4 mr-2" />
+                          Current Plan
+                        </>
+                      ) : (
+                        <>
+                          <Icon name="credit-card" className="h-4 w-4 mr-2" />
+                          Subscribe
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+
+          {/* Refresh Subscription Status */}
+          <div className="text-center">
+            <Button
+              onClick={checkSubscriptionStatus}
+              variant="ghost"
+              size="sm"
+            >
+              <Icon name="refresh-cw" className="h-4 w-4 mr-2" />
+              Refresh Subscription Status
+            </Button>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="billing">
+          <PersonalBillingHistory onBackToSubscription={() => setActiveTab("subscription")} />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
