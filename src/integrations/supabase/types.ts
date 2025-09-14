@@ -50,6 +50,133 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_alerts: {
+        Row: {
+          alert_type: string
+          auto_resolve_at: string | null
+          company_id: string | null
+          created_at: string
+          id: string
+          is_resolved: boolean | null
+          message: string
+          metadata: Json | null
+          related_entity_id: string | null
+          related_entity_type: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          alert_type: string
+          auto_resolve_at?: string | null
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          is_resolved?: boolean | null
+          message: string
+          metadata?: Json | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          alert_type?: string
+          auto_resolve_at?: string | null
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          is_resolved?: boolean | null
+          message?: string
+          metadata?: Json | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_alerts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      billing_transactions: {
+        Row: {
+          amount_aed: number
+          company_id: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          processed_at: string | null
+          status: string
+          stripe_invoice_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_subscription_id: string | null
+          transaction_type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount_aed: number
+          company_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          processed_at?: string | null
+          status: string
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_subscription_id?: string | null
+          transaction_type: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount_aed?: number
+          company_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          processed_at?: string | null
+          status?: string
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_subscription_id?: string | null
+          transaction_type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_transactions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           created_at: string
@@ -118,6 +245,71 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      customer_support_tickets: {
+        Row: {
+          assigned_admin_id: string | null
+          billing_context: Json | null
+          category: string
+          company_id: string | null
+          created_at: string
+          customer_satisfaction_rating: number | null
+          description: string
+          id: string
+          priority: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          status: string
+          subject: string
+          ticket_number: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          assigned_admin_id?: string | null
+          billing_context?: Json | null
+          category: string
+          company_id?: string | null
+          created_at?: string
+          customer_satisfaction_rating?: number | null
+          description: string
+          id?: string
+          priority?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string
+          subject: string
+          ticket_number: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          assigned_admin_id?: string | null
+          billing_context?: Json | null
+          category?: string
+          company_id?: string | null
+          created_at?: string
+          customer_satisfaction_rating?: number | null
+          description?: string
+          id?: string
+          priority?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string
+          subject?: string
+          ticket_number?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_support_tickets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       documents: {
         Row: {
@@ -308,14 +500,20 @@ export type Database = {
         Row: {
           created_at: string
           current_company_id: string | null
+          customer_risk_score: number | null
           email: string | null
           full_name: string | null
           id: string
+          last_payment_failure: string | null
           max_credits_per_period: number | null
+          payment_failure_count: number | null
           queries_reset_date: string
           queries_used: number
           subscription_status: string
           subscription_tier: string
+          trial_credits_used: number | null
+          trial_end_date: string | null
+          trial_start_date: string | null
           updated_at: string
           user_id: string
           user_role: Database["public"]["Enums"]["user_role"]
@@ -323,14 +521,20 @@ export type Database = {
         Insert: {
           created_at?: string
           current_company_id?: string | null
+          customer_risk_score?: number | null
           email?: string | null
           full_name?: string | null
           id?: string
+          last_payment_failure?: string | null
           max_credits_per_period?: number | null
+          payment_failure_count?: number | null
           queries_reset_date?: string
           queries_used?: number
           subscription_status?: string
           subscription_tier?: string
+          trial_credits_used?: number | null
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
           user_id: string
           user_role?: Database["public"]["Enums"]["user_role"]
@@ -338,14 +542,20 @@ export type Database = {
         Update: {
           created_at?: string
           current_company_id?: string | null
+          customer_risk_score?: number | null
           email?: string | null
           full_name?: string | null
           id?: string
+          last_payment_failure?: string | null
           max_credits_per_period?: number | null
+          payment_failure_count?: number | null
           queries_reset_date?: string
           queries_used?: number
           subscription_status?: string
           subscription_tier?: string
+          trial_credits_used?: number | null
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
           user_id?: string
           user_role?: Database["public"]["Enums"]["user_role"]
@@ -407,6 +617,71 @@ export type Database = {
             columns: ["template_id"]
             isOneToOne: false
             referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_events: {
+        Row: {
+          admin_user_id: string | null
+          company_id: string | null
+          created_at: string
+          effective_date: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          new_status: string | null
+          new_tier: string | null
+          notes: string | null
+          old_status: string | null
+          old_tier: string | null
+          proration_amount: number | null
+          stripe_subscription_id: string | null
+          triggered_by: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_user_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          effective_date?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          new_status?: string | null
+          new_tier?: string | null
+          notes?: string | null
+          old_status?: string | null
+          old_tier?: string | null
+          proration_amount?: number | null
+          stripe_subscription_id?: string | null
+          triggered_by?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_user_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          effective_date?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          new_status?: string | null
+          new_tier?: string | null
+          notes?: string | null
+          old_status?: string | null
+          old_tier?: string | null
+          proration_amount?: number | null
+          stripe_subscription_id?: string | null
+          triggered_by?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -539,6 +814,63 @@ export type Database = {
         }
         Relationships: []
       }
+      trial_management: {
+        Row: {
+          conversion_completed: boolean | null
+          conversion_date: string | null
+          conversion_target_tier: string | null
+          created_at: string
+          extension_count: number | null
+          extension_reason: string | null
+          id: string
+          metadata: Json | null
+          trial_credits_allocated: number
+          trial_credits_used: number
+          trial_end_date: string
+          trial_start_date: string
+          trial_status: string
+          trial_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conversion_completed?: boolean | null
+          conversion_date?: string | null
+          conversion_target_tier?: string | null
+          created_at?: string
+          extension_count?: number | null
+          extension_reason?: string | null
+          id?: string
+          metadata?: Json | null
+          trial_credits_allocated?: number
+          trial_credits_used?: number
+          trial_end_date: string
+          trial_start_date?: string
+          trial_status?: string
+          trial_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conversion_completed?: boolean | null
+          conversion_date?: string | null
+          conversion_target_tier?: string | null
+          created_at?: string
+          extension_count?: number | null
+          extension_reason?: string | null
+          id?: string
+          metadata?: Json | null
+          trial_credits_allocated?: number
+          trial_credits_used?: number
+          trial_end_date?: string
+          trial_start_date?: string
+          trial_status?: string
+          trial_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_company_roles: {
         Row: {
           company_id: string | null
@@ -620,6 +952,10 @@ export type Database = {
           p_price_aed: number
           p_title: string
         }
+        Returns: string
+      }
+      generate_ticket_number: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       log_activity: {
