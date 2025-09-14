@@ -102,7 +102,6 @@ export const SuperAdminBillingDashboard = () => {
         <span className="ml-2">Loading billing data...</span>
       </div>
     )
-    }
   }
 
   if (showCustomerDetail && selectedCustomerId) {
@@ -115,10 +114,12 @@ export const SuperAdminBillingDashboard = () => {
         }}
       />
     )
+  }
 
   const handleViewCustomer = (customerId: string) => {
     setSelectedCustomerId(customerId)
     setShowCustomerDetail(true)
+  }
 
   return (
     <div className="space-y-6">
