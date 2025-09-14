@@ -19,6 +19,10 @@ import { AdminOverviewDashboard } from "./admin/AdminOverviewDashboard"
 import { UserManagement } from "./admin/UserManagement"
 import { DocumentWorkflow } from "./admin/DocumentWorkflow"
 import { AdvancedAnalytics } from "./admin/AdvancedAnalytics"
+import { NotificationManagement } from './admin/NotificationManagement';
+import { SystemConfiguration } from './admin/SystemConfiguration';
+import { AuditLogs } from './admin/AuditLogs';
+import { SecurityMonitoring } from './admin/SecurityMonitoring';
 
 export const SuperAdminDashboard = () => {
   const { user, profile } = useAuth()
@@ -375,7 +379,7 @@ export const SuperAdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-10">
+          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Icon name="layout-dashboard" className="h-4 w-4" />
               Overview
@@ -419,6 +423,22 @@ export const SuperAdminDashboard = () => {
             <TabsTrigger value="realtime" className="flex items-center gap-2">
               <Icon name="activity" className="h-4 w-4" />
               Real-time
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="flex items-center gap-2">
+              <Icon name="bell" className="h-4 w-4" />
+              Notifications
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Icon name="settings" className="h-4 w-4" />
+              Settings
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="flex items-center gap-2">
+              <Icon name="eye" className="h-4 w-4" />
+              Audit
+            </TabsTrigger>
+            <TabsTrigger value="security" className="flex items-center gap-2">
+              <Icon name="shield" className="h-4 w-4" />
+              Security
             </TabsTrigger>
           </TabsList>
 
@@ -526,6 +546,22 @@ export const SuperAdminDashboard = () => {
 
           <TabsContent value="realtime" className="space-y-4">
             <RealtimeDashboard />
+          </TabsContent>
+
+          <TabsContent value="notifications" className="space-y-4">
+            <NotificationManagement />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-4">
+            <SystemConfiguration />
+          </TabsContent>
+
+          <TabsContent value="audit" className="space-y-4">
+            <AuditLogs />
+          </TabsContent>
+
+          <TabsContent value="security" className="space-y-4">
+            <SecurityMonitoring />
           </TabsContent>
         </Tabs>
       </div>
