@@ -58,10 +58,10 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
                     : message.content
                         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                         .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/(^|\n)### (.*$)/gim, '$1<h3 class="font-semibold text-base mb-2 mt-4">$2</h3>')
+                        .replace(/(^|\n)## (.*$)/gim, '$1<h2 class="font-semibold text-lg mb-2 mt-4">$2</h2>')
+                        .replace(/(^|\n)# (.*$)/gim, '$1<h1 class="font-bold text-xl mb-2 mt-4">$2</h1>')
                         .replace(/\n/g, '<br/>')
-                        .replace(/^### (.*$)/gim, '<h3 class="font-semibold text-base mb-2 mt-4">$1</h3>')
-                        .replace(/^## (.*$)/gim, '<h2 class="font-semibold text-lg mb-2 mt-4">$1</h2>')
-                        .replace(/^# (.*$)/gim, '<h1 class="font-bold text-xl mb-2 mt-4">$1</h1>')
                 }} />
               )}
             </div>

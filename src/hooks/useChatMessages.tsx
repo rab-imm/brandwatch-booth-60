@@ -286,7 +286,7 @@ export const useChatMessages = () => {
     }
 
     initializeChat()
-  }, [user, isNewConversationCreated])
+  }, [user])
 
   return {
     messages,
