@@ -39,6 +39,7 @@ export const useChatMessages = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
+  const [isNewConversationCreated, setIsNewConversationCreated] = useState(false)
 
   const fetchMessages = async (conversationId: string) => {
     if (!user || !conversationId) return
@@ -69,6 +70,9 @@ export const useChatMessages = () => {
   const createNewConversation = async (): Promise<string | null> => {
     try {
       console.log('🚀 Creating new conversation - clearing messages first')
+      
+      // Set flag to prevent automatic loading of previous conversation
+      setIsNewConversationCreated(true)
       
       // Clear everything immediately and synchronously
       setMessages([])
@@ -108,6 +112,7 @@ export const useChatMessages = () => {
 
   const switchConversation = async (conversationId: string) => {
     console.log('🔄 Switching conversation to:', conversationId)
+    setIsNewConversationCreated(false) // Reset flag when switching to existing conversation
     setMessages([]) // Clear messages immediately for better UX
     setCurrentConversationId(conversationId)
     await fetchMessages(conversationId)
@@ -253,6 +258,12 @@ export const useChatMessages = () => {
   useEffect(() => {
     const initializeChat = async () => {
       if (!user) return
+      
+      // Don't auto-load if user just created a new conversation
+      if (isNewConversationCreated) {
+        console.log('🚫 Skipping auto-load - new conversation was just created')
+        return
+      }
 
       try {
         const { data: conversations, error } = await supabase
@@ -275,7 +286,7 @@ export const useChatMessages = () => {
     }
 
     initializeChat()
-  }, [user])
+  }, [user, isNewConversationCreated])
 
   return {
     messages,
