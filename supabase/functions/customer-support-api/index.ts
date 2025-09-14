@@ -58,6 +58,14 @@ serve(async (req) => {
         return await resolveTicket(supabaseClient, req, user.id);
       case 'get_support_stats':
         return await getSupportStats(supabaseClient, req, user.id);
+      case 'get_retention_campaigns':
+        return await getRetentionCampaigns(supabaseClient, user.id);
+      case 'create_retention_campaign':
+        return await createRetentionCampaign(supabaseClient, req, user.id);
+      case 'update_automation_settings':
+        return await updateAutomationSettings(supabaseClient, req, user.id);
+      case 'send_personalized_outreach':
+        return await sendPersonalizedOutreach(supabaseClient, req, user.id);
       default:
         throw new Error(`Unknown action: ${action}`);
     }
@@ -466,25 +474,151 @@ async function getBillingContext(supabaseClient: any, userId: string) {
   };
 }
 
-async function createAdminNotification(supabaseClient: any, notification: any) {
-  // Get all super admins
-  const { data: admins } = await supabaseClient
-    .from('profiles')
-    .select('user_id')
-    .eq('user_role', 'super_admin');
-
-  // Create notifications for all admins
-  if (admins && admins.length > 0) {
-    const notifications = admins.map(admin => ({
-      user_id: admin.user_id,
-      title: notification.title,
-      message: notification.message,
-      type: 'support_ticket',
-      metadata: notification.metadata
-    }));
-
-    await supabaseClient
-      .from('notifications')
-      .insert(notifications);
+// Retention management functions
+async function getRetentionCampaigns(supabaseClient: any, userId: string) {
+  const isAdmin = await checkAdminAccess(supabaseClient, userId);
+  if (!isAdmin) {
+    throw new Error("Unauthorized: Admin access required");
   }
+
+  // Mock retention campaigns data
+  const campaigns = [
+    {
+      id: '1',
+      name: 'Win-back Campaign Q4',
+      type: 'winback',
+      status: 'active',
+      target_segment: 'Churned Premium Users',
+      trigger_conditions: { days_since_cancel: 7 },
+      created_at: new Date().toISOString(),
+      metrics: {
+        sent: 150,
+        opened: 68,
+        clicked: 23,
+        converted: 12
+      }
+    },
+    {
+      id: '2',
+      name: 'Upgrade Promotion',
+      type: 'upgrade',
+      status: 'active',
+      target_segment: 'Basic Plan Heavy Users',
+      trigger_conditions: { usage_threshold: 80 },
+      created_at: new Date().toISOString(),
+      metrics: {
+        sent: 89,
+        opened: 45,
+        clicked: 18,
+        converted: 8
+      }
+    }
+  ];
+
+  return new Response(JSON.stringify({ campaigns }), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    status: 200,
+  });
+}
+
+async function createRetentionCampaign(supabaseClient: any, req: Request, userId: string) {
+  const isAdmin = await checkAdminAccess(supabaseClient, userId);
+  if (!isAdmin) {
+    throw new Error("Unauthorized: Admin access required");
+  }
+
+  const { campaign_type } = await req.json();
+  
+  // Mock campaign creation
+  const newCampaign = {
+    id: Date.now().toString(),
+    name: `${campaign_type} Campaign`,
+    type: campaign_type,
+    status: 'active',
+    created_at: new Date().toISOString()
+  };
+
+  return new Response(JSON.stringify({ 
+    success: true, 
+    campaign: newCampaign,
+    message: 'Retention campaign created successfully' 
+  }), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    status: 200,
+  });
+}
+
+async function updateAutomationSettings(supabaseClient: any, req: Request, userId: string) {
+  const isAdmin = await checkAdminAccess(supabaseClient, userId);
+  if (!isAdmin) {
+    throw new Error("Unauthorized: Admin access required");
+  }
+
+  const { settings } = await req.json();
+  
+  // Store automation settings in billing_alerts table as metadata
+  const { error } = await supabaseClient
+    .from('billing_alerts')
+    .upsert({
+      alert_type: 'automation_settings',
+      title: 'System Automation Settings',
+      message: 'Automated system configuration',
+      metadata: settings,
+      severity: 'info',
+      is_resolved: true
+    });
+
+  if (error) {
+    throw new Error(`Failed to update automation settings: ${error.message}`);
+  }
+
+  return new Response(JSON.stringify({ 
+    success: true,
+    message: 'Automation settings updated successfully' 
+  }), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    status: 200,
+  });
+}
+
+async function sendPersonalizedOutreach(supabaseClient: any, req: Request, userId: string) {
+  const isAdmin = await checkAdminAccess(supabaseClient, userId);
+  if (!isAdmin) {
+    throw new Error("Unauthorized: Admin access required");
+  }
+
+  const { customer_id } = await req.json();
+  
+  // Get customer details
+  const { data: customer } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('user_id', customer_id)
+    .single();
+
+  if (!customer) {
+    throw new Error("Customer not found");
+  }
+
+  // Create notification for the customer
+  await supabaseClient
+    .from('notifications')
+    .insert({
+      user_id: customer_id,
+      title: 'We value your feedback',
+      message: 'We noticed you might be experiencing some challenges. Let us help!',
+      type: 'retention',
+      metadata: {
+        campaign_type: 'personalized_outreach',
+        sent_by: userId
+      }
+    });
+
+  return new Response(JSON.stringify({ 
+    success: true,
+    message: 'Personalized outreach sent successfully' 
+  }), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    status: 200,
+  });
 }
