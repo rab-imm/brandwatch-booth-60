@@ -127,6 +127,7 @@ export const AdminSearchFilter = ({
                     selected={filters[config.key]}
                     onSelect={(date) => handleFilterChange(config.key, date)}
                     initialFocus
+                    className="p-3 pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>

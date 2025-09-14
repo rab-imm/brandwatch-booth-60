@@ -12,21 +12,37 @@ import { DocumentUpload } from "./DocumentUpload"
 import { TemplateCreator } from "./TemplateCreator"
 import { TemplateAnalytics } from "./TemplateAnalytics"
 import { RealtimeDashboard } from "./RealtimeDashboard"
+import { BulkActionBar } from "./admin/BulkActionBar"
+import { AdminSearchFilter } from "./admin/AdminSearchFilter"
+import { EnhancedDataTable } from "./admin/EnhancedDataTable"
+import { AdminOverviewDashboard } from "./admin/AdminOverviewDashboard"
 
 export const SuperAdminDashboard = () => {
   const { user, profile } = useAuth()
   const { toast } = useToast()
-  const [activeTab, setActiveTab] = useState("documents")
+  const [activeTab, setActiveTab] = useState("overview")
   const [documents, setDocuments] = useState([])
   const [companies, setCompanies] = useState([])
   const [lawyerRequests, setLawyerRequests] = useState([])
   const [loading, setLoading] = useState(true)
+  const [selectedDocuments, setSelectedDocuments] = useState<string[]>([])
+  const [selectedCompanies, setSelectedCompanies] = useState<string[]>([])
+  const [filteredDocuments, setFilteredDocuments] = useState([])
+  const [filteredCompanies, setFilteredCompanies] = useState([])
 
   useEffect(() => {
     if (profile?.user_role === 'super_admin') {
       fetchData()
     }
   }, [profile])
+
+  useEffect(() => {
+    setFilteredDocuments(documents)
+  }, [documents])
+
+  useEffect(() => {
+    setFilteredCompanies(companies)
+  }, [companies])
 
   const fetchData = async () => {
     try {
@@ -105,6 +121,214 @@ export const SuperAdminDashboard = () => {
     }
   }
 
+  // Bulk operations
+  const handleBulkApproveDocuments = async () => {
+    const { error } = await supabase
+      .from('documents')
+      .update({ 
+        status: 'approved', 
+        approved_by: user?.id,
+        approved_at: new Date().toISOString()
+      })
+      .in('id', selectedDocuments)
+
+    if (error) throw error
+    fetchData()
+  }
+
+  const handleBulkRejectDocuments = async () => {
+    const { error } = await supabase
+      .from('documents')
+      .update({ status: 'rejected' })
+      .in('id', selectedDocuments)
+
+    if (error) throw error
+    fetchData()
+  }
+
+  const handleDocumentFilter = (filters: Record<string, any>) => {
+    let filtered = [...documents]
+    
+    if (filters.search) {
+      filtered = filtered.filter((doc: any) => 
+        doc.title?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        doc.content?.toLowerCase().includes(filters.search.toLowerCase())
+      )
+    }
+    
+    if (filters.status) {
+      filtered = filtered.filter((doc: any) => doc.status === filters.status)
+    }
+    
+    if (filters.category) {
+      filtered = filtered.filter((doc: any) => doc.category === filters.category)
+    }
+    
+    setFilteredDocuments(filtered)
+  }
+
+  const handleCompanyFilter = (filters: Record<string, any>) => {
+    let filtered = [...companies]
+    
+    if (filters.search) {
+      filtered = filtered.filter((company: any) => 
+        company.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        company.email?.toLowerCase().includes(filters.search.toLowerCase())
+      )
+    }
+    
+    if (filters.subscription_tier) {
+      filtered = filtered.filter((company: any) => company.subscription_tier === filters.subscription_tier)
+    }
+    
+    setFilteredCompanies(filtered)
+  }
+
+  // Document table columns
+  const documentColumns = [
+    {
+      key: 'title',
+      label: 'Title',
+      sortable: true,
+      render: (value: string, item: any) => (
+        <div>
+          <div className="font-medium">{value}</div>
+          <div className="text-sm text-muted-foreground">{item.category}</div>
+        </div>
+      )
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (value: string) => (
+        <Badge variant={
+          value === 'approved' ? 'default' : 
+          value === 'rejected' ? 'destructive' : 'secondary'
+        }>
+          {value}
+        </Badge>
+      )
+    },
+    {
+      key: 'created_at',
+      label: 'Created',
+      sortable: true,
+      render: (value: string) => new Date(value).toLocaleDateString()
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (value: any, item: any) => (
+        <div className="flex gap-2">
+          {item.status === 'pending' && (
+            <>
+              <Button 
+                size="sm" 
+                onClick={() => approveDocument(item.id)}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Icon name="check-circle" className="h-4 w-4" />
+              </Button>
+              <Button 
+                size="sm" 
+                variant="destructive"
+                onClick={() => rejectDocument(item.id)}
+              >
+                <Icon name="x-circle" className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+        </div>
+      )
+    }
+  ]
+
+  // Company table columns
+  const companyColumns = [
+    {
+      key: 'name',
+      label: 'Company',
+      sortable: true,
+      render: (value: string, item: any) => (
+        <div>
+          <div className="font-medium">{value}</div>
+          <div className="text-sm text-muted-foreground">{item.email}</div>
+        </div>
+      )
+    },
+    {
+      key: 'subscription_tier',
+      label: 'Tier',
+      render: (value: string) => (
+        <Badge variant="outline">{value}</Badge>
+      )
+    },
+    {
+      key: 'credits',
+      label: 'Credits',
+      render: (value: any, item: any) => (
+        <div className="text-sm">
+          {item.used_credits} / {item.total_credits}
+        </div>
+      )
+    },
+    {
+      key: 'subscription_status',
+      label: 'Status',
+      render: (value: string) => (
+        <Badge variant={value === 'active' ? 'default' : 'secondary'}>
+          {value}
+        </Badge>
+      )
+    },
+    {
+      key: 'created_at',
+      label: 'Created',
+      sortable: true,
+      render: (value: string) => new Date(value).toLocaleDateString()
+    }
+  ]
+
+  // Filter configurations
+  const documentFilterConfigs = [
+    {
+      key: 'status',
+      label: 'Status',
+      type: 'select' as const,
+      options: [
+        { value: 'pending', label: 'Pending' },
+        { value: 'approved', label: 'Approved' },
+        { value: 'rejected', label: 'Rejected' }
+      ]
+    },
+    {
+      key: 'category',
+      label: 'Category',
+      type: 'select' as const,
+      options: [
+        { value: 'employment', label: 'Employment' },
+        { value: 'contracts', label: 'Contracts' },
+        { value: 'corporate', label: 'Corporate' },
+        { value: 'real_estate', label: 'Real Estate' },
+        { value: 'intellectual_property', label: 'IP' }
+      ]
+    }
+  ]
+
+  const companyFilterConfigs = [
+    {
+      key: 'subscription_tier',
+      label: 'Tier',
+      type: 'select' as const,
+      options: [
+        { value: 'free', label: 'Free' },
+        { value: 'essential', label: 'Essential' },
+        { value: 'premium', label: 'Premium' },
+        { value: 'sme', label: 'SME' }
+      ]
+    }
+  ]
+
   // Check if user is super admin
   if (profile?.user_role !== 'super_admin') {
     return (
@@ -148,7 +372,11 @@ export const SuperAdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <Icon name="layout-dashboard" className="h-4 w-4" />
+              Overview
+            </TabsTrigger>
             <TabsTrigger value="documents" className="flex items-center gap-2">
               <Icon name="file-text" className="h-4 w-4" />
               Documents
@@ -179,91 +407,48 @@ export const SuperAdminDashboard = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="documents" className="space-y-4">
-            <div className="grid gap-4">
-              {documents.map((doc: any) => (
-                <Card key={doc.id}>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle>{doc.title}</CardTitle>
-                        <CardDescription>Category: {doc.category}</CardDescription>
-                      </div>
-                      <Badge variant={
-                        doc.status === 'approved' ? 'default' : 
-                        doc.status === 'rejected' ? 'destructive' : 'secondary'
-                      }>
-                        {doc.status}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      {doc.content?.substring(0, 200)}...
-                    </p>
-                    {doc.status === 'pending' && (
-                      <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
-                          onClick={() => approveDocument(doc.id)}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          <Icon name="check-circle" className="h-4 w-4 mr-2" />
-                          Approve
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive"
-                          onClick={() => rejectDocument(doc.id)}
-                        >
-                          <Icon name="x-circle" className="h-4 w-4 mr-2" />
-                          Reject
-                        </Button>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          <TabsContent value="overview" className="space-y-6">
+            <AdminOverviewDashboard />
           </TabsContent>
 
-          <TabsContent value="companies" className="space-y-4">
-            <div className="grid gap-4">
-              {companies.map((company: any) => (
-                <Card key={company.id}>
-                  <CardHeader>
-                    <CardTitle>{company.name}</CardTitle>
-                    <CardDescription>{company.email}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <span className="font-medium">Tier:</span>
-                        <br />
-                        <Badge variant="outline">{company.subscription_tier}</Badge>
-                      </div>
-                      <div>
-                        <span className="font-medium">Credits:</span>
-                        <br />
-                        {company.used_credits} / {company.total_credits}
-                      </div>
-                      <div>
-                        <span className="font-medium">Status:</span>
-                        <br />
-                        <Badge variant={company.subscription_status === 'active' ? 'default' : 'secondary'}>
-                          {company.subscription_status}
-                        </Badge>
-                      </div>
-                      <div>
-                        <span className="font-medium">Created:</span>
-                        <br />
-                        {new Date(company.created_at).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          <TabsContent value="documents" className="space-y-6">
+            <AdminSearchFilter
+              onFilterChange={handleDocumentFilter}
+              filterConfigs={documentFilterConfigs}
+            />
+            
+            <EnhancedDataTable
+              data={filteredDocuments}
+              columns={documentColumns}
+              onSelectionChange={setSelectedDocuments}
+              selectedItems={selectedDocuments}
+              loading={loading}
+              emptyMessage="No documents found"
+            />
+            
+            <BulkActionBar
+              selectedItems={selectedDocuments}
+              onClearSelection={() => setSelectedDocuments([])}
+              onBulkApprove={handleBulkApproveDocuments}
+              onBulkReject={handleBulkRejectDocuments}
+              itemType="documents"
+            />
+          </TabsContent>
+
+          <TabsContent value="companies" className="space-y-6">
+            <AdminSearchFilter
+              onFilterChange={handleCompanyFilter}
+              filterConfigs={companyFilterConfigs}
+            />
+            
+            <EnhancedDataTable
+              data={filteredCompanies}
+              columns={companyColumns}
+              onSelectionChange={setSelectedCompanies}
+              selectedItems={selectedCompanies}
+              loading={loading}
+              emptyMessage="No companies found"
+            />
           </TabsContent>
 
           <TabsContent value="requests" className="space-y-4">
