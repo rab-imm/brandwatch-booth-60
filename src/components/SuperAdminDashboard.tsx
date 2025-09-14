@@ -23,6 +23,7 @@ import { NotificationManagement } from './admin/NotificationManagement';
 import { SystemConfiguration } from './admin/SystemConfiguration';
 import { AuditLogs } from './admin/AuditLogs';
 import { SecurityMonitoring } from './admin/SecurityMonitoring';
+import { SuperAdminBillingDashboard } from './admin/SuperAdminBillingDashboard';
 
 export const SuperAdminDashboard = () => {
   const { user, profile } = useAuth()
@@ -379,7 +380,7 @@ export const SuperAdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12">
+          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-13">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Icon name="layout-dashboard" className="h-4 w-4" />
               Overview
@@ -395,6 +396,10 @@ export const SuperAdminDashboard = () => {
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Icon name="users" className="h-4 w-4" />
               Users
+            </TabsTrigger>
+            <TabsTrigger value="billing" className="flex items-center gap-2">
+              <Icon name="credit-card" className="h-4 w-4" />
+              Billing
             </TabsTrigger>
             <TabsTrigger value="requests" className="flex items-center gap-2">
               <Icon name="alert-circle" className="h-4 w-4" />
@@ -526,6 +531,10 @@ export const SuperAdminDashboard = () => {
                 </Card>
               ))}
             </div>
+          </TabsContent>
+
+          <TabsContent value="billing" className="space-y-6">
+            <SuperAdminBillingDashboard />
           </TabsContent>
 
           <TabsContent value="upload" className="space-y-4">

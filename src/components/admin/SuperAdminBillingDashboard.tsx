@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/hooks/use-toast"
+import { CustomerDetailView } from "./CustomerDetailView"
+import { PaymentFailureManager } from "./PaymentFailureManager"
+import { TrialManagement } from "./TrialManagement"
 
 interface BillingStats {
   totalRevenue: number
@@ -32,6 +35,8 @@ export const SuperAdminBillingDashboard = () => {
   const [billingStats, setBillingStats] = useState<BillingStats | null>(null)
   const [customers, setCustomers] = useState<Customer[]>([])
   const [billingAlerts, setBillingAlerts] = useState<any[]>([])
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
+  const [showCustomerDetail, setShowCustomerDetail] = useState(false)
 
   useEffect(() => {
     fetchBillingData()
@@ -97,7 +102,23 @@ export const SuperAdminBillingDashboard = () => {
         <span className="ml-2">Loading billing data...</span>
       </div>
     )
+    }
   }
+
+  if (showCustomerDetail && selectedCustomerId) {
+    return (
+      <CustomerDetailView
+        customerId={selectedCustomerId}
+        onClose={() => {
+          setShowCustomerDetail(false)
+          setSelectedCustomerId(null)
+        }}
+      />
+    )
+
+  const handleViewCustomer = (customerId: string) => {
+    setSelectedCustomerId(customerId)
+    setShowCustomerDetail(true)
 
   return (
     <div className="space-y-6">
@@ -165,6 +186,8 @@ export const SuperAdminBillingDashboard = () => {
       <Tabs defaultValue="customers" className="space-y-4">
         <TabsList>
           <TabsTrigger value="customers">Customers</TabsTrigger>
+          <TabsTrigger value="payment-failures">Payment Failures</TabsTrigger>
+          <TabsTrigger value="trials">Trial Management</TabsTrigger>
           <TabsTrigger value="alerts">Billing Alerts</TabsTrigger>
           <TabsTrigger value="analytics">Revenue Analytics</TabsTrigger>
         </TabsList>
@@ -195,7 +218,7 @@ export const SuperAdminBillingDashboard = () => {
                       {customer.payment_failure_count > 0 && (
                         <Badge variant="outline">{customer.payment_failure_count} failures</Badge>
                       )}
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={() => handleViewCustomer(customer.user_id)}>
                         <Icon name="external-link" className="h-4 w-4" />
                       </Button>
                     </div>
