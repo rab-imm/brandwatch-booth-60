@@ -20,15 +20,13 @@ export const Header = () => {
   const handleResetQueries = async () => {
     setResetting(true);
     try {
-      console.log('🔄 Resetting queries for user:', user?.id);
       const { error } = await supabase.rpc('reset_user_queries')
       if (error) throw error
       
       await refetchProfile()
-      console.log('✅ Queries reset successfully');
       toast.success('Queries reset successfully!')
     } catch (error) {
-      console.error('❌ Error resetting queries:', error)
+      console.error('Error resetting queries:', error)
       toast.error('Failed to reset queries')
     } finally {
       setResetting(false);
