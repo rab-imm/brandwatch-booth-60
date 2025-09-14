@@ -3,6 +3,8 @@ import { Icon } from "@/components/ui/Icon"
 import { Link } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { NotificationCenter } from "@/components/NotificationCenter"
+import { supabase } from "@/integrations/supabase/client"
+import { toast } from "sonner"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +13,20 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export const Header = () => {
-  const { user, signOut, profile } = useAuth();
+  const { user, signOut, profile, refetchProfile } = useAuth();
+
+  const handleResetQueries = async () => {
+    try {
+      const { error } = await supabase.rpc('reset_user_queries')
+      if (error) throw error
+      
+      await refetchProfile()
+      toast.success('Queries reset successfully!')
+    } catch (error) {
+      console.error('Error resetting queries:', error)
+      toast.error('Failed to reset queries')
+    }
+  }
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-6 py-4">
@@ -74,6 +89,16 @@ export const Header = () => {
                     <Link to="/admin">Admin</Link>
                   </Button>
                 )}
+                {/* Temporary Reset Button */}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleResetQueries}
+                  className="bg-yellow-500/10 border-yellow-500/20 text-yellow-700 hover:bg-yellow-500/20"
+                >
+                  <Icon name="refresh-cw" size={14} className="mr-1" />
+                  Reset Queries
+                </Button>
                 <span className="text-sm text-muted-foreground hidden sm:block">
                   {user.email}
                 </span>
