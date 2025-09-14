@@ -103,7 +103,7 @@ export const UserManagement = () => {
       const { error } = await supabase
         .from('profiles')
         .update({
-          user_role: updatedUser.user_role as any,
+          user_role: updatedUser.user_role as "individual" | "company_admin" | "super_admin" | "company_manager" | "company_staff",
           subscription_tier: updatedUser.subscription_tier,
           subscription_status: updatedUser.subscription_status,
           max_credits_per_period: updatedUser.max_credits_per_period,

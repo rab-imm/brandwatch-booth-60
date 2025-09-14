@@ -81,7 +81,15 @@ import {
   IconEdit as TablerEdit,
   IconTrash as TablerTrash,
   IconCopy as TablerCopy,
-  IconExternalLink as TablerExternalLink
+  IconExternalLink as TablerExternalLink,
+  IconUserPlus,
+  IconUserCheck,
+  IconCrown,
+  IconBuilding,
+  IconUpload,
+  IconFilePlus,
+  IconLayout2,
+  IconNetwork
 } from '@tabler/icons-react'
 
 // Iconoir (elegant, modern)
@@ -285,6 +293,16 @@ export const iconRegistry: Record<string, ComponentType<any>> = {
   'database': IconDatabase,
   'cloud': IconCloud,
   'device-analytics': IconDeviceAnalytics,
+
+  // Admin & Business - Tabler for consistency
+  'workflow': IconNetwork, // Using network icon for workflow
+  'layout-dashboard': IconLayout2, // Using layout icon for dashboard layout
+  'building': IconBuilding,
+  'upload': IconUpload,
+  'file-plus': IconFilePlus,
+  'user-plus': IconUserPlus,
+  'user-check': IconUserCheck,
+  'crown': IconCrown,
 }
 
 // Icon collections for easy access
