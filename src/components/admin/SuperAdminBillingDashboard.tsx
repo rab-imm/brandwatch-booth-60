@@ -9,6 +9,9 @@ import { useToast } from "@/hooks/use-toast"
 import { CustomerDetailView } from "./CustomerDetailView"
 import { PaymentFailureManager } from "./PaymentFailureManager"
 import { TrialManagement } from "./TrialManagement"
+import { BillingAnalytics } from "./BillingAnalytics"
+import { WebhookManager } from "./WebhookManager"
+import { RetentionManager } from "./RetentionManager"
 
 interface BillingStats {
   totalRevenue: number
@@ -191,6 +194,8 @@ export const SuperAdminBillingDashboard = () => {
           <TabsTrigger value="trials">Trial Management</TabsTrigger>
           <TabsTrigger value="alerts">Billing Alerts</TabsTrigger>
           <TabsTrigger value="analytics">Revenue Analytics</TabsTrigger>
+          <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
+          <TabsTrigger value="retention">Retention</TabsTrigger>
         </TabsList>
 
         <TabsContent value="customers" className="space-y-4">
@@ -273,21 +278,23 @@ export const SuperAdminBillingDashboard = () => {
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Revenue Analytics</CardTitle>
-              <CardDescription>Detailed financial reporting and insights</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12">
-                <Icon name="bar-chart" className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Advanced analytics dashboard coming soon</p>
-                <Button className="mt-4" onClick={() => fetchBillingData()}>
-                  Generate Report
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <BillingAnalytics />
+        </TabsContent>
+
+        <TabsContent value="webhooks" className="space-y-4">
+          <WebhookManager />
+        </TabsContent>
+
+        <TabsContent value="retention" className="space-y-4">
+          <RetentionManager />
+        </TabsContent>
+
+        <TabsContent value="payment-failures" className="space-y-4">
+          <PaymentFailureManager />
+        </TabsContent>
+
+        <TabsContent value="trials" className="space-y-4">
+          <TrialManagement />
         </TabsContent>
       </Tabs>
     </div>
