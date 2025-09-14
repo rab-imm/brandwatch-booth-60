@@ -284,15 +284,8 @@ export const iconRegistry: Record<string, ComponentType<any>> = {
   'loader': ActivityLogIcon, // Using activity for loader
   'alert-triangle': ExclamationTriangleIcon, // Alias for alert-triangle
   'receipt': TablerBook, // Using book for receipt temporarily
-
-  // Social & Brands - Tabler for brand consistency
-  'brand-google': IconBrandGoogle,
-  'brand-twitter': IconBrandTwitter,
-  'brand-linkedin': IconBrandLinkedin,
-  'brand-facebook': IconBrandFacebook,
-
-  // Feedback & Ratings - Phosphor for weight variations
-  'star': Star,
+  'pause': TablerClock, // Using clock for pause temporarily
+  'refresh-cw': TablerSettings, // Using settings for refresh temporarily
   'heart': Heart,
   'play': Play,
   'download': Download,

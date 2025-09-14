@@ -56,8 +56,19 @@ export const PersonalBillingHistory = ({ onBackToSubscription }: PersonalBilling
 
   const downloadInvoice = async (invoiceId: string) => {
     try {
-      // In a real implementation, this would call a Stripe function to get the invoice PDF
-      toast.success('Invoice download feature coming soon')
+      const { data, error } = await supabase.functions.invoke('download-invoice', {
+        body: { invoiceId }
+      })
+      
+      if (error) throw error
+      
+      if (data?.download_url) {
+        // Open the invoice PDF in a new tab
+        window.open(data.download_url, '_blank')
+        toast.success('Invoice downloaded successfully')
+      } else {
+        throw new Error('No download URL received')
+      }
     } catch (error) {
       console.error('Error downloading invoice:', error)
       toast.error('Failed to download invoice')

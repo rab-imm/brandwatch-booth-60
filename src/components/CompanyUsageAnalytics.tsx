@@ -24,10 +24,21 @@ export const CompanyUsageAnalytics = ({ company, companyUsers }: CompanyUsageAna
   const { user } = useAuth()
   const [usageData, setUsageData] = useState<UsageData[]>([])
   const [loading, setLoading] = useState(true)
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true)
 
   useEffect(() => {
     fetchUsageData()
-  }, [company?.id])
+    
+    // Auto-refresh every 2 minutes if enabled
+    const interval = setInterval(() => {
+      if (autoRefreshEnabled && !document.hidden) {
+        fetchUsageData()
+      }
+    }, 120000) // 2 minutes
+    
+    return () => clearInterval(interval)
+  }, [company?.id, autoRefreshEnabled])
 
   const fetchUsageData = async () => {
     if (!company?.id) return
@@ -64,6 +75,7 @@ export const CompanyUsageAnalytics = ({ company, companyUsers }: CompanyUsageAna
       }) || []
 
       setUsageData(processedData)
+      setLastRefresh(new Date())
     } catch (error) {
       console.error('Error fetching usage data:', error)
       toast.error('Failed to load usage analytics')
@@ -159,13 +171,33 @@ export const CompanyUsageAnalytics = ({ company, companyUsers }: CompanyUsageAna
         </Card>
       )}
 
-      {/* Export Button */}
-      <div className="flex justify-between items-center">
-        <h3 className="text-xl font-semibold">Usage Analytics</h3>
-        <Button onClick={exportData} variant="outline" size="sm">
-          <Icon name="download" className="h-4 w-4 mr-2" />
-          Export CSV
-        </Button>
+      {/* Export and Refresh Controls */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h3 className="text-xl font-semibold">Usage Analytics</h3>
+          <p className="text-sm text-muted-foreground">
+            Last updated: {lastRefresh.toLocaleTimeString()}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
+            className={autoRefreshEnabled ? 'border-green-500 text-green-600' : ''}
+          >
+            <Icon name={autoRefreshEnabled ? "pause" : "play"} className="h-4 w-4 mr-2" />
+            Auto-refresh {autoRefreshEnabled ? 'ON' : 'OFF'}
+          </Button>
+          <Button onClick={fetchUsageData} variant="outline" size="sm" disabled={loading}>
+            <Icon name={loading ? "loader" : "refresh-cw"} className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button onClick={exportData} variant="outline" size="sm">
+            <Icon name="download" className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* Daily Usage Trend */}

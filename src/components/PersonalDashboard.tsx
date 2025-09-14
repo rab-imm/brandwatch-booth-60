@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { toast } from "sonner"
 import { Header } from "@/components/Header"
+import { useAutoRefresh } from "@/hooks/useAutoRefresh"
 
 interface PersonalActivity {
   id: string
@@ -157,6 +158,13 @@ export const PersonalDashboard = () => {
     }
   }
 
+  // Auto-refresh functionality  
+  const { isActive: autoRefreshActive, lastRefresh, toggle: toggleAutoRefresh, manualRefresh } = useAutoRefresh({
+    interval: 30000, // 30 seconds
+    enabled: !!user,
+    onRefresh: fetchPersonalData
+  })
+
   const creditUsagePercentage = profile ? (profile.queries_used / (profile.max_credits_per_period || 10)) * 100 : 0
   const isNearLimit = creditUsagePercentage >= 80
 
@@ -227,9 +235,30 @@ export const PersonalDashboard = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Personal Dashboard</h1>
-          <p className="text-muted-foreground">Track your usage and activity</p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Personal Dashboard</h1>
+            <p className="text-muted-foreground">Track your usage and activity</p>
+          </div>
+          
+          {/* Auto-refresh controls */}
+          <div className="flex items-center gap-2">
+            <div className="text-sm text-muted-foreground">
+              Last updated: {lastRefresh.toLocaleTimeString()}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleAutoRefresh}
+              className={autoRefreshActive ? 'border-green-500 text-green-600' : ''}
+            >
+              <Icon name={autoRefreshActive ? "pause" : "play"} className="h-4 w-4 mr-2" />
+              Auto-refresh {autoRefreshActive ? 'ON' : 'OFF'}
+            </Button>
+            <Button variant="outline" size="sm" onClick={manualRefresh}>
+              <Icon name="refresh-cw" className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Usage Alert */}
