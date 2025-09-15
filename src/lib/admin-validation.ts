@@ -3,7 +3,7 @@ import { z } from "zod";
 export const createUserSchema = z.object({
   email: z.string().email("Invalid email address"),
   full_name: z.string().min(1, "Full name is required").max(100, "Full name too long"),
-  user_role: z.enum(['individual', 'company_admin', 'super_admin']),
+  user_role: z.enum(['individual', 'company_admin', 'super_admin', 'company_manager', 'company_staff']),
   subscription_tier: z.string().min(1, "Subscription tier is required"),
   max_credits_per_period: z.number().min(0, "Credits must be non-negative").max(100000, "Credits too high"),
   company_id: z.string().uuid("Invalid company ID").optional(),
@@ -21,7 +21,7 @@ export const createUserSchema = z.object({
 export const updateUserSchema = z.object({
   user_id: z.string().uuid("Invalid user ID"),
   full_name: z.string().min(1, "Full name is required").max(100, "Full name too long").optional(),
-  user_role: z.enum(['individual', 'company_admin', 'super_admin']).optional(),
+  user_role: z.enum(['individual', 'company_admin', 'super_admin', 'company_manager', 'company_staff']).optional(),
   subscription_tier: z.string().min(1, "Subscription tier is required").optional(),
   max_credits_per_period: z.number().min(0, "Credits must be non-negative").max(100000, "Credits too high").optional(),
   subscription_status: z.enum(['active', 'inactive', 'suspended']).optional(),
