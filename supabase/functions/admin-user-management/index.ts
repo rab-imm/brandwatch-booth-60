@@ -71,53 +71,105 @@ serve(async (req) => {
       case 'create_user': {
         const { email, full_name, user_role, subscription_tier, max_credits_per_period, company_id } = requestData as CreateUserRequest;
         
-        // Create auth user
-        const { data: authUser, error: createError } = await supabaseClient.auth.admin.createUser({
-          email,
-          email_confirm: true,
-          user_metadata: { full_name }
-        });
-
-        if (createError || !authUser.user) {
-          throw new Error(`Failed to create user: ${createError?.message}`);
-        }
-
-        // Create profile
-        const { error: profileError } = await supabaseClient
-          .from('profiles')
-          .insert({
-            user_id: authUser.user.id,
+        let authUserId: string | null = null;
+        
+        try {
+          // Create auth user
+          const { data: authUser, error: createError } = await supabaseClient.auth.admin.createUser({
             email,
-            full_name,
-            user_role,
-            subscription_tier,
-            max_credits_per_period,
-            current_company_id: company_id || null
+            email_confirm: true,
+            user_metadata: { full_name }
           });
 
-        if (profileError) {
-          // Rollback auth user creation
-          await supabaseClient.auth.admin.deleteUser(authUser.user.id);
-          throw new Error(`Failed to create profile: ${profileError.message}`);
-        }
+          if (createError || !authUser.user) {
+            console.error('Auth user creation failed:', createError);
+            return new Response(
+              JSON.stringify({ error: `Failed to create user: ${createError?.message || 'Unknown error'}` }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
 
-        // If company_id provided, create company role
-        if (company_id) {
-          const { error: roleError } = await supabaseClient
-            .from('user_company_roles')
+          authUserId = authUser.user.id;
+
+          // Create profile
+          const { error: profileError } = await supabaseClient
+            .from('profiles')
             .insert({
               user_id: authUser.user.id,
-              company_id,
-              role: user_role,
-              max_credits_per_period
+              email,
+              full_name,
+              user_role,
+              subscription_tier,
+              max_credits_per_period,
+              current_company_id: company_id || null
             });
 
-          if (roleError) {
-            console.error('Failed to create company role:', roleError);
+          if (profileError) {
+            console.error('Profile creation failed:', profileError);
+            // Rollback auth user creation
+            try {
+              await supabaseClient.auth.admin.deleteUser(authUser.user.id);
+            } catch (rollbackError) {
+              console.error('Failed to rollback auth user:', rollbackError);
+            }
+            return new Response(
+              JSON.stringify({ error: `Failed to create profile: ${profileError.message}` }),
+              { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
           }
-        }
 
-        // Log activity
+          // If company_id provided, create company role
+          if (company_id) {
+            const { error: roleError } = await supabaseClient
+              .from('user_company_roles')
+              .insert({
+                user_id: authUser.user.id,
+                company_id,
+                role: user_role,
+                max_credits_per_period
+              });
+
+            if (roleError) {
+              console.error('Failed to create company role:', roleError);
+              // Don't fail the whole operation for role creation failure
+              // The user is still created successfully
+            }
+          }
+
+          // Log activity
+          await supabaseClient.functions.invoke('log-activity', {
+            body: {
+              user_id: user.id,
+              action: 'create_user',
+              resource_type: 'user',
+              resource_id: authUser.user.id,
+              metadata: { created_user_email: email, user_role }
+            }
+          });
+
+          return new Response(
+            JSON.stringify({ success: true, user_id: authUser.user.id }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+
+        } catch (error) {
+          console.error('Unexpected error in create_user:', error);
+          
+          // Attempt rollback if we have an authUserId
+          if (authUserId) {
+            try {
+              await supabaseClient.auth.admin.deleteUser(authUserId);
+            } catch (rollbackError) {
+              console.error('Failed to rollback auth user in catch block:', rollbackError);
+            }
+          }
+          
+          return new Response(
+            JSON.stringify({ error: `Failed to create user: ${error.message}` }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      }
         await supabaseClient
           .from('activity_logs')
           .insert({

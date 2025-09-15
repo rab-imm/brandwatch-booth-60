@@ -248,8 +248,15 @@ export const UserManagement = () => {
         body: { action: 'create_user', ...validatedData }
       });
 
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      if (error) {
+        console.error('Function invocation error:', error);
+        throw new Error(`Function error: ${error.message}`);
+      }
+      
+      if (data?.error) {
+        console.error('Function returned error:', data.error);
+        throw new Error(data.error);
+      }
 
       toast.success('User created successfully')
       fetchUsers()
@@ -269,7 +276,12 @@ export const UserManagement = () => {
         toast.error(`Validation error: ${error.issues[0].message}`)
       } else {
         console.error('Error creating user:', error)
-        toast.error(`Failed to create user: ${error.message}`)
+        const errorMessage = error.message || 'Unknown error occurred';
+        if (errorMessage.includes('already been registered')) {
+          toast.error('A user with this email already exists. Please use a different email address.');
+        } else {
+          toast.error(`Failed to create user: ${errorMessage}`);
+        }
       }
     }
   }
