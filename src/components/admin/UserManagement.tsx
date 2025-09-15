@@ -231,6 +231,30 @@ export const UserManagement = () => {
     }
   }
 
+  const handleCleanupOrphanedUsers = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('cleanup-orphaned-users');
+      
+      if (error) {
+        console.error('Cleanup function error:', error);
+        toast.error(`Cleanup failed: ${error.message}`);
+        return;
+      }
+      
+      if (data?.error) {
+        console.error('Cleanup returned error:', data.error);
+        toast.error(`Cleanup failed: ${data.error}`);
+        return;
+      }
+      
+      console.log('Cleanup result:', data);
+      toast.success(`Successfully cleaned up ${data.cleanedUsers?.length || 0} orphaned users`);
+      
+    } catch (error) {
+      console.error('Error during cleanup:', error);
+      toast.error('Failed to cleanup orphaned users');
+    }
+  }
   const handleCreateUser = async () => {
     try {
       // Validate input
@@ -700,6 +724,10 @@ export const UserManagement = () => {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={handleCleanupOrphanedUsers}>
+            <Icon name="trash" className="h-4 w-4 mr-2" />
+            Cleanup Orphaned Users
+          </Button>
           <Button variant="outline">
             <Icon name="download" className="h-4 w-4 mr-2" />
             Export Data
