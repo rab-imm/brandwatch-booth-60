@@ -202,10 +202,9 @@ serve(async (req) => {
           authUserId = authUser.user.id;
           console.log('Auth user created successfully:', authUserId);
 
-          // Step 4: Create Profile with Enhanced Error Handling
-          console.log('=== CREATING PROFILE ===');
+          // Step 4: Update Profile (since trigger already created basic profile)
+          console.log('=== UPDATING PROFILE ===');
           const profileData = {
-            user_id: authUser.user.id,
             email,
             full_name,
             user_role,
@@ -214,11 +213,12 @@ serve(async (req) => {
             current_company_id: company_id || null
           };
           
-          console.log('Creating profile with data:', profileData);
+          console.log('Updating profile with data:', profileData);
           
           const { error: profileError } = await supabaseClient
             .from('profiles')
-            .insert(profileData);
+            .update(profileData)
+            .eq('user_id', authUser.user.id);
 
           if (profileError) {
             console.error('Profile creation failed:', {
