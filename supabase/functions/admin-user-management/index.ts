@@ -74,11 +74,19 @@ serve(async (req) => {
         let authUserId: string | null = null;
         
         try {
+          console.log('Attempting to create user with email:', email);
+          
           // Create auth user
           const { data: authUser, error: createError } = await supabaseClient.auth.admin.createUser({
             email,
             email_confirm: true,
             user_metadata: { full_name }
+          });
+
+          console.log('Auth user creation result:', { 
+            success: !!authUser.user, 
+            error: createError?.message,
+            userId: authUser.user?.id 
           });
 
           if (createError || !authUser.user) {
