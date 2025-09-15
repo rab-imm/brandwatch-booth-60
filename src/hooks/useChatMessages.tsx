@@ -89,12 +89,24 @@ export const useChatMessages = () => {
 
       console.log('✅ Conversation verified:', conversation.title)
 
+      // Debug: Let's see what messages exist for this user across ALL conversations
+      const { data: debugAllMessages } = await supabase
+        .from('messages')
+        .select('id, conversation_id, role, content')
+        .eq('user_id', user.id)
+        .limit(5)
+
+      console.log('🔍 DEBUG: User has these messages across all conversations:', debugAllMessages)
+
+      // Now get messages for this specific conversation
       const { data, error } = await supabase
         .from('messages')
         .select('*')
         .eq('conversation_id', conversationId)
         .eq('user_id', user.id)
         .order('created_at', { ascending: true })
+
+      console.log('🔍 DEBUG: Raw query result:', { data, error, conversationId })
 
       if (error) {
         console.error('❌ Database error fetching messages:', error)
@@ -107,8 +119,18 @@ export const useChatMessages = () => {
         sources: msg.metadata?.sources || undefined
       }))
       
+      console.log('🔍 DEBUG: Formatted messages:', formattedMessages)
+      
       if (formattedMessages.length === 0) {
         console.log('ℹ️ Conversation is empty - this is normal for new conversations:', conversation.title)
+        
+        // Debug: Check if there are messages for this conversation without user_id filter
+        const { data: debugNoUserFilter } = await supabase
+          .from('messages')
+          .select('id, user_id, conversation_id, role')
+          .eq('conversation_id', conversationId)
+          
+        console.log('🔍 DEBUG: Messages in conversation without user filter:', debugNoUserFilter)
       } else {
         console.log('✅ Messages loaded successfully:', { count: formattedMessages.length, conversation: conversation.title })
       }
@@ -353,6 +375,37 @@ export const useChatMessages = () => {
           return
         }
 
+        // First, get all conversation IDs that have messages
+        const { data: conversationIds } = await supabase
+          .from('messages')
+          .select('conversation_id')
+          .eq('user_id', user.id)
+          
+        console.log('🔍 DEBUG: Conversation IDs with messages:', conversationIds)
+
+        // Get unique conversation IDs
+        const uniqueConversationIds = [...new Set(conversationIds?.map(m => m.conversation_id) || [])]
+        
+        if (uniqueConversationIds.length > 0) {
+          // Find the most recent conversation that has messages
+          const { data: conversationsWithMessages, error: convError } = await supabase
+            .from('conversations')
+            .select('*')
+            .in('id', uniqueConversationIds)
+            .eq('user_id', user.id)
+            .order('updated_at', { ascending: false })
+            .limit(1)
+            
+          if (!convError && conversationsWithMessages && conversationsWithMessages.length > 0) {
+            const latestWithMessages = conversationsWithMessages[0]
+            console.log('✅ Loading conversation with messages:', latestWithMessages.id)
+            setCurrentConversationId(latestWithMessages.id)
+            await fetchMessages(latestWithMessages.id)
+            return
+          }
+        }
+
+        // Fallback to latest conversation (might be empty)
         const { data: conversations, error } = await supabase
           .from('conversations')
           .select('*')
