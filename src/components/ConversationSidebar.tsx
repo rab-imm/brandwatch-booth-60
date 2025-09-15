@@ -7,6 +7,7 @@ import { ConversationHeader } from "@/components/ConversationHeader"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { supabase } from "@/integrations/supabase/client"
 import { formatDistanceToNow } from "date-fns"
+import { toast } from "sonner"
 
 interface Conversation {
   id: string
@@ -80,6 +81,41 @@ export const ConversationSidebar = () => {
     }
   }
 
+  const handleDeleteConversation = async (conversationId: string, e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent selecting the conversation when clicking delete
+    
+    try {
+      // Delete all messages first, then the conversation
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', conversationId)
+
+      if (messagesError) throw messagesError
+
+      const { error: conversationError } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId)
+        .eq('user_id', user?.id) // Extra security check
+
+      if (conversationError) throw conversationError
+
+      // Update local state
+      setConversations(conversations.filter(conv => conv.id !== conversationId))
+
+      // If we deleted the current conversation, create a new one
+      if (currentConversationId === conversationId) {
+        await createNewConversation()
+      }
+
+      toast.success('Conversation deleted successfully')
+    } catch (error) {
+      console.error('Error deleting conversation:', error)
+      toast.error('Failed to delete conversation')
+    }
+  }
+
   if (loading) {
     return (
       <div className="w-80 border-r bg-muted/10 p-4">
@@ -104,23 +140,39 @@ export const ConversationSidebar = () => {
             </div>
           ) : (
             conversations.map((conversation) => (
-              <Button
+              <div
                 key={conversation.id}
-                variant={currentConversationId === conversation.id ? "secondary" : "ghost"}
-                className="w-full justify-start h-auto p-3 text-left"
-                onClick={() => handleSelectConversation(conversation.id)}
+                className={`group relative flex items-center rounded-md transition-colors ${
+                  currentConversationId === conversation.id 
+                    ? "bg-secondary" 
+                    : "hover:bg-muted/50"
+                }`}
               >
-                <div className="space-y-1 overflow-hidden">
-                  <div className="font-medium truncate">
-                    {conversation.title}
+                <Button
+                  variant="ghost"
+                  className="flex-1 justify-start h-auto p-3 text-left hover:bg-transparent"
+                  onClick={() => handleSelectConversation(conversation.id)}
+                >
+                  <div className="space-y-1 overflow-hidden">
+                    <div className="font-medium truncate">
+                      {conversation.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(conversation.updated_at), {
+                        addSuffix: true
+                      })}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(conversation.updated_at), {
-                      addSuffix: true
-                    })}
-                  </div>
-                </div>
-              </Button>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-2 mr-2 hover:bg-destructive/10 hover:text-destructive"
+                  onClick={(e) => handleDeleteConversation(conversation.id, e)}
+                >
+                  <Icon name="trash-2" className="h-4 w-4" />
+                </Button>
+              </div>
             ))
           )}
         </div>
