@@ -4,6 +4,7 @@ import { useChatContext, Message } from "@/contexts/ChatContext"
 import { MessageBubble } from "@/components/MessageBubble"
 import { ChatInput } from "@/components/ChatInput"
 import { LawyerRequestButton } from "@/components/LawyerRequestButton"
+import { DeleteConversationButton } from "@/components/DeleteConversationButton"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/components/ui/use-toast"
@@ -213,8 +214,9 @@ export const ChatInterface = () => {
       </div>
       
       <div className="border-t p-4 space-y-3">
-        <div className="flex justify-center">
+        <div className="flex justify-center items-center gap-3">
           <LawyerRequestButton conversationId={currentConversationId} />
+          <DeleteConversationButton conversationId={currentConversationId} />
         </div>
         <ChatInput
           value={inputValue}

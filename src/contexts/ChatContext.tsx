@@ -42,6 +42,7 @@ interface ChatContextValue {
   sendMessage: (content: string) => Promise<void>
   createNewConversation: () => Promise<string | null>
   switchConversation: (conversationId: string) => Promise<void>
+  deleteConversation: (conversationId: string) => Promise<void>
 }
 
 const ChatContext = createContext<ChatContextValue | undefined>(undefined)
@@ -436,13 +437,45 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     initializeChat()
   }, [user, isInitialized])
 
+  const deleteConversation = useCallback(async (conversationId: string) => {
+    if (!user) return
+
+    try {
+      // Delete all messages first, then the conversation
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', conversationId)
+        .eq('user_id', user.id)
+
+      if (messagesError) throw messagesError
+
+      const { error: conversationError } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId)
+        .eq('user_id', user.id)
+
+      if (conversationError) throw conversationError
+
+      // If we deleted the current conversation, create a new one
+      if (currentConversationId === conversationId) {
+        await createNewConversation()
+      }
+    } catch (error) {
+      console.error('Error deleting conversation:', error)
+      throw error
+    }
+  }, [user, currentConversationId, createNewConversation])
+
   const value: ChatContextValue = {
     messages,
     loading,
     currentConversationId,
     sendMessage,
     createNewConversation,
-    switchConversation
+    switchConversation,
+    deleteConversation
   }
 
   return (

@@ -81,40 +81,6 @@ export const ConversationSidebar = () => {
     }
   }
 
-  const handleDeleteConversation = async (conversationId: string, e: React.MouseEvent) => {
-    e.stopPropagation() // Prevent selecting the conversation when clicking delete
-    
-    try {
-      // Delete all messages first, then the conversation
-      const { error: messagesError } = await supabase
-        .from('messages')
-        .delete()
-        .eq('conversation_id', conversationId)
-
-      if (messagesError) throw messagesError
-
-      const { error: conversationError } = await supabase
-        .from('conversations')
-        .delete()
-        .eq('id', conversationId)
-        .eq('user_id', user?.id) // Extra security check
-
-      if (conversationError) throw conversationError
-
-      // Update local state
-      setConversations(conversations.filter(conv => conv.id !== conversationId))
-
-      // If we deleted the current conversation, create a new one
-      if (currentConversationId === conversationId) {
-        await createNewConversation()
-      }
-
-      toast.success('Conversation deleted successfully')
-    } catch (error) {
-      console.error('Error deleting conversation:', error)
-      toast.error('Failed to delete conversation')
-    }
-  }
 
   if (loading) {
     return (
@@ -140,39 +106,27 @@ export const ConversationSidebar = () => {
             </div>
           ) : (
             conversations.map((conversation) => (
-              <div
+              <Button
                 key={conversation.id}
-                className={`group relative flex items-center rounded-md transition-colors ${
+                variant="ghost"
+                className={`w-full justify-start h-auto p-3 text-left rounded-md transition-colors ${
                   currentConversationId === conversation.id 
                     ? "bg-secondary" 
                     : "hover:bg-muted/50"
                 }`}
+                onClick={() => handleSelectConversation(conversation.id)}
               >
-                <Button
-                  variant="ghost"
-                  className="flex-1 justify-start h-auto p-3 text-left hover:bg-transparent"
-                  onClick={() => handleSelectConversation(conversation.id)}
-                >
-                  <div className="space-y-1 overflow-hidden">
-                    <div className="font-medium truncate">
-                      {conversation.title}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(conversation.updated_at), {
-                        addSuffix: true
-                      })}
-                    </div>
+                <div className="space-y-1 overflow-hidden">
+                  <div className="font-medium truncate">
+                    {conversation.title}
                   </div>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="opacity-60 hover:opacity-100 transition-opacity p-2 mr-2 hover:bg-destructive/10 hover:text-destructive"
-                  onClick={(e) => handleDeleteConversation(conversation.id, e)}
-                >
-                  <Icon name="trash" className="h-4 w-4" />
-                </Button>
-              </div>
+                  <div className="text-xs text-muted-foreground">
+                    {formatDistanceToNow(new Date(conversation.updated_at), {
+                      addSuffix: true
+                    })}
+                  </div>
+                </div>
+              </Button>
             ))
           )}
         </div>
