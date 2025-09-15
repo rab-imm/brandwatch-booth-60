@@ -9,7 +9,7 @@ const corsHeaders = {
 interface CreateUserRequest {
   email: string;
   full_name: string;
-  user_role: 'individual' | 'company_admin' | 'super_admin';
+  user_role: 'individual' | 'company_admin' | 'super_admin' | 'company_manager' | 'company_staff';
   subscription_tier: string;
   max_credits_per_period: number;
   company_id?: string;
@@ -18,7 +18,7 @@ interface CreateUserRequest {
 interface UpdateUserRequest {
   user_id: string;
   full_name?: string;
-  user_role?: 'individual' | 'company_admin' | 'super_admin';
+  user_role?: 'individual' | 'company_admin' | 'super_admin' | 'company_manager' | 'company_staff';
   subscription_tier?: string;
   max_credits_per_period?: number;
   subscription_status?: string;
@@ -87,7 +87,7 @@ serve(async (req) => {
           }
 
           // Validate user_role enum
-          const validRoles = ['individual', 'company_admin', 'super_admin'];
+          const validRoles = ['individual', 'company_admin', 'super_admin', 'company_manager', 'company_staff'];
           if (!validRoles.includes(user_role)) {
             console.error('Invalid user_role:', user_role);
             return new Response(
