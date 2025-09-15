@@ -96,19 +96,22 @@ export const ChatInterface = () => {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 ? (
+        {messages.length === 0 && !loading ? (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
             <Icon name="scale" className="w-16 h-16 text-primary" />
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold text-foreground">
-                Welcome to UAE Legal Research
+                {currentConversationId ? "No messages yet" : "Welcome to UAE Legal Research"}
               </h2>
               <p className="text-muted-foreground max-w-md">
-                Get instant answers backed by real-time UAE legal research, verified citations, 
-                and comprehensive legal analysis from the latest sources.
+                {currentConversationId 
+                  ? "Start asking your legal questions in this conversation" 
+                  : "Get instant answers backed by real-time UAE legal research, verified citations, and comprehensive legal analysis from the latest sources."
+                }
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
+            {!currentConversationId && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
               <Button
                 variant="outline"
                 className="h-auto p-4 text-left"
@@ -157,7 +160,8 @@ export const ChatInterface = () => {
                   </div>
                 </div>
               </Button>
-            </div>
+              </div>
+            )}
           </div>
         ) : (
           <>
