@@ -31,29 +31,81 @@ interface User {
   current_company_id?: string
 }
 
+interface Company {
+  id: string
+  name: string
+  email: string
+  subscription_tier: string
+  subscription_status: string
+  total_credits: number
+  used_credits: number
+  created_at: string
+}
+
 interface UserEditDialog {
   open: boolean
   user: User | null
 }
 
+interface CreateUserDialog {
+  open: boolean
+}
+
+interface CompanyDialog {
+  open: boolean
+  company: Company | null
+  mode: 'create' | 'edit'
+}
+
 export const UserManagement = () => {
   const { profile } = useAuth()
   const [users, setUsers] = useState<User[]>([])
+  const [companies, setCompanies] = useState<Company[]>([])
   const [filteredUsers, setFilteredUsers] = useState<User[]>([])
+  const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
+  const [selectedCompanies, setSelectedCompanies] = useState<string[]>([])
   const [editDialog, setEditDialog] = useState<UserEditDialog>({ open: false, user: null })
+  const [createUserDialog, setCreateUserDialog] = useState<CreateUserDialog>({ open: false })
+  const [companyDialog, setCompanyDialog] = useState<CompanyDialog>({ open: false, company: null, mode: 'create' })
+  const [activeTab, setActiveTab] = useState('users')
   const [bulkAction, setBulkAction] = useState<string>("")
+  
+  // Form states for new user creation
+  const [newUser, setNewUser] = useState({
+    email: '',
+    full_name: '',
+    password: '',
+    user_role: 'individual' as const,
+    subscription_tier: 'free',
+    subscription_status: 'active',
+    max_credits_per_period: 10
+  })
+  
+  // Form states for company creation/editing
+  const [companyForm, setCompanyForm] = useState({
+    name: '',
+    email: '',
+    subscription_tier: 'free',
+    subscription_status: 'active',
+    total_credits: 1000
+  })
 
   useEffect(() => {
     if (profile?.user_role === 'super_admin') {
       fetchUsers()
+      fetchCompanies()
     }
   }, [profile])
 
   useEffect(() => {
     setFilteredUsers(users)
   }, [users])
+
+  useEffect(() => {
+    setFilteredCompanies(companies)
+  }, [companies])
 
   const fetchUsers = async () => {
     try {
@@ -70,6 +122,21 @@ export const UserManagement = () => {
       toast.error('Failed to load users')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchCompanies = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('companies')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setCompanies(data || [])
+    } catch (error) {
+      console.error('Error fetching companies:', error)
+      toast.error('Failed to load companies')
     }
   }
 
@@ -98,6 +165,27 @@ export const UserManagement = () => {
     setFilteredUsers(filtered)
   }
 
+  const handleCompanyFilter = (filters: Record<string, any>) => {
+    let filtered = [...companies]
+    
+    if (filters.search) {
+      filtered = filtered.filter((company) => 
+        company.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        company.email?.toLowerCase().includes(filters.search.toLowerCase())
+      )
+    }
+    
+    if (filters.subscription_tier) {
+      filtered = filtered.filter((company) => company.subscription_tier === filters.subscription_tier)
+    }
+    
+    if (filters.subscription_status) {
+      filtered = filtered.filter((company) => company.subscription_status === filters.subscription_status)
+    }
+    
+    setFilteredCompanies(filtered)
+  }
+
   const handleEditUser = async (updatedUser: User) => {
     try {
       const { error } = await supabase
@@ -119,6 +207,166 @@ export const UserManagement = () => {
     } catch (error) {
       console.error('Error updating user:', error)
       toast.error('Failed to update user')
+    }
+  }
+
+  const handleCreateUser = async () => {
+    try {
+      // First create the auth user
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email: newUser.email,
+        password: newUser.password,
+        email_confirm: true,
+        user_metadata: {
+          full_name: newUser.full_name
+        }
+      })
+
+      if (authError) throw authError
+
+      // Then update the profile with role and subscription details
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          user_role: newUser.user_role as "individual" | "company_admin" | "super_admin" | "company_manager" | "company_staff",
+          subscription_tier: newUser.subscription_tier,
+          subscription_status: newUser.subscription_status,
+          max_credits_per_period: newUser.max_credits_per_period,
+          full_name: newUser.full_name
+        })
+        .eq('user_id', authData.user.id)
+
+      if (profileError) throw profileError
+
+      toast.success('User created successfully')
+      fetchUsers()
+      setCreateUserDialog({ open: false })
+      setNewUser({
+        email: '',
+        full_name: '',
+        password: '',
+        user_role: 'individual',
+        subscription_tier: 'free',
+        subscription_status: 'active',
+        max_credits_per_period: 10
+      })
+    } catch (error) {
+      console.error('Error creating user:', error)
+      toast.error('Failed to create user')
+    }
+  }
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      // Delete the auth user (this will cascade to profile due to foreign key)
+      const { error } = await supabase.auth.admin.deleteUser(userId)
+
+      if (error) throw error
+
+      toast.success('User deleted successfully')
+      fetchUsers()
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      toast.error('Failed to delete user')
+    }
+  }
+
+  const handleCreateCompany = async () => {
+    try {
+      const { error } = await supabase
+        .from('companies')
+        .insert({
+          name: companyForm.name,
+          email: companyForm.email,
+          subscription_tier: companyForm.subscription_tier as "free" | "essential" | "premium" | "sme",
+          subscription_status: companyForm.subscription_status,
+          total_credits: companyForm.total_credits,
+          used_credits: 0
+        })
+
+      if (error) throw error
+
+      toast.success('Company created successfully')
+      fetchCompanies()
+      setCompanyDialog({ open: false, company: null, mode: 'create' })
+      setCompanyForm({
+        name: '',
+        email: '',
+        subscription_tier: 'free',
+        subscription_status: 'active',
+        total_credits: 1000
+      })
+    } catch (error) {
+      console.error('Error creating company:', error)
+      toast.error('Failed to create company')
+    }
+  }
+
+  const handleEditCompany = async () => {
+    if (!companyDialog.company) return
+
+    try {
+      const { error } = await supabase
+        .from('companies')
+        .update({
+          name: companyForm.name,
+          email: companyForm.email,
+          subscription_tier: companyForm.subscription_tier as "free" | "essential" | "premium" | "sme",
+          subscription_status: companyForm.subscription_status,
+          total_credits: companyForm.total_credits
+        })
+        .eq('id', companyDialog.company.id)
+
+      if (error) throw error
+
+      toast.success('Company updated successfully')
+      fetchCompanies()
+      setCompanyDialog({ open: false, company: null, mode: 'create' })
+    } catch (error) {
+      console.error('Error updating company:', error)
+      toast.error('Failed to update company')
+    }
+  }
+
+  const handleDeleteCompany = async (companyId: string) => {
+    if (!confirm('Are you sure you want to delete this company? This will affect all associated users.')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('companies')
+        .delete()
+        .eq('id', companyId)
+
+      if (error) throw error
+
+      toast.success('Company deleted successfully')
+      fetchCompanies()
+    } catch (error) {
+      console.error('Error deleting company:', error)
+      toast.error('Failed to delete company')
+    }
+  }
+
+  const handlePauseCompany = async (companyId: string) => {
+    try {
+      const { error } = await supabase
+        .from('companies')
+        .update({ subscription_status: 'suspended' })
+        .eq('id', companyId)
+
+      if (error) throw error
+
+      toast.success('Company paused successfully')
+      fetchCompanies()
+    } catch (error) {
+      console.error('Error pausing company:', error)
+      toast.error('Failed to pause company')
     }
   }
 
@@ -233,12 +481,116 @@ export const UserManagement = () => {
           <Button
             size="sm"
             variant="ghost"
+            className="text-destructive hover:text-destructive"
+            onClick={() => handleDeleteUser(item.user_id)}
+          >
+            <Icon name="trash" className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
             onClick={() => {
               // Log user activity or impersonate
               toast.info('User activity feature coming soon')
             }}
           >
             <Icon name="user" className="h-4 w-4" />
+          </Button>
+        </div>
+      )
+    }
+  ]
+
+  const companyColumns = [
+    {
+      key: 'company',
+      label: 'Company',
+      sortable: true,
+      render: (value: any, item: Company) => (
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Icon name="building" className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <div className="font-medium">{item.name}</div>
+            <div className="text-sm text-muted-foreground">{item.email}</div>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'subscription_tier',
+      label: 'Tier',
+      render: (value: string) => (
+        <Badge variant="outline" className="capitalize">
+          {value}
+        </Badge>
+      )
+    },
+    {
+      key: 'subscription_status',
+      label: 'Status',
+      render: (value: string) => (
+        <Badge variant={
+          value === 'active' ? 'default' : 
+          value === 'suspended' ? 'destructive' : 'secondary'
+        }>
+          {value}
+        </Badge>
+      )
+    },
+    {
+      key: 'credits',
+      label: 'Credits',
+      render: (value: any, item: Company) => (
+        <div className="text-sm">
+          <div>{item.used_credits} / {item.total_credits}</div>
+          <div className="text-muted-foreground">used</div>
+        </div>
+      )
+    },
+    {
+      key: 'created_at',
+      label: 'Created',
+      sortable: true,
+      render: (value: string) => new Date(value).toLocaleDateString()
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (value: any, item: Company) => (
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              setCompanyForm({
+                name: item.name,
+                email: item.email,
+                subscription_tier: item.subscription_tier,
+                subscription_status: item.subscription_status,
+                total_credits: item.total_credits
+              })
+              setCompanyDialog({ open: true, company: item, mode: 'edit' })
+            }}
+          >
+            <Icon name="edit" className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-orange-600 hover:text-orange-600"
+            onClick={() => handlePauseCompany(item.id)}
+          >
+            <Icon name="pause" className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-destructive hover:text-destructive"
+            onClick={() => handleDeleteCompany(item.id)}
+          >
+            <Icon name="trash" className="h-4 w-4" />
           </Button>
         </div>
       )
@@ -296,97 +648,289 @@ export const UserManagement = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">User Management</h2>
+          <h2 className="text-2xl font-bold">User & Company Management</h2>
           <p className="text-muted-foreground">
-            Manage user accounts, roles, and permissions
+            Manage user accounts, roles, permissions, and companies
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
             <Icon name="download" className="h-4 w-4 mr-2" />
-            Export Users
+            Export Data
           </Button>
-          <Button>
-            <Icon name="user-plus" className="h-4 w-4 mr-2" />
-            Invite User
-          </Button>
+          {activeTab === 'users' ? (
+            <Button onClick={() => setCreateUserDialog({ open: true })}>
+              <Icon name="user-plus" className="h-4 w-4 mr-2" />
+              Create User
+            </Button>
+          ) : (
+            <Button onClick={() => {
+              setCompanyForm({
+                name: '',
+                email: '',
+                subscription_tier: 'free',
+                subscription_status: 'active',
+                total_credits: 1000
+              })
+              setCompanyDialog({ open: true, company: null, mode: 'create' })
+            }}>
+              <Icon name="building" className="h-4 w-4 mr-2" />
+              Add Company
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* User Statistics */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Icon name="users" className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{users.length}</div>
-          </CardContent>
-        </Card>
+      {/* Main Navigation Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="companies">Companies</TabsTrigger>
+        </TabsList>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Icon name="user-check" className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {users.filter(u => u.subscription_status === 'active').length}
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Company Admins</CardTitle>
-            <Icon name="shield" className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {users.filter(u => u.user_role === 'company_admin').length}
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Premium Users</CardTitle>
-            <Icon name="crown" className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {users.filter(u => u.subscription_tier === 'premium').length}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="users" className="space-y-6">
+          {/* User Statistics */}
+          <div className="grid gap-4 md:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                <Icon name="users" className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{users.length}</div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                <Icon name="user-check" className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {users.filter(u => u.subscription_status === 'active').length}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Company Admins</CardTitle>
+                <Icon name="shield" className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {users.filter(u => u.user_role === 'company_admin').length}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Premium Users</CardTitle>
+                <Icon name="crown" className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {users.filter(u => u.subscription_tier === 'premium').length}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-      {/* Filters and Search */}
-      <AdminSearchFilter
-        onFilterChange={handleUserFilter}
-        filterConfigs={filterConfigs}
-      />
+          {/* Filters and Search */}
+          <AdminSearchFilter
+            onFilterChange={handleUserFilter}
+            filterConfigs={filterConfigs}
+          />
 
-      {/* Users Table */}
-      <EnhancedDataTable
-        data={filteredUsers}
-        columns={userColumns}
-        onSelectionChange={setSelectedUsers}
-        selectedItems={selectedUsers}
-        loading={loading}
-        emptyMessage="No users found"
-        itemIdKey="user_id"
-      />
+          {/* Users Table */}
+          <EnhancedDataTable
+            data={filteredUsers}
+            columns={userColumns}
+            onSelectionChange={setSelectedUsers}
+            selectedItems={selectedUsers}
+            loading={loading}
+            emptyMessage="No users found"
+            itemIdKey="user_id"
+          />
 
-      {/* Bulk Actions */}
-      <BulkActionBar
-        selectedItems={selectedUsers}
-        onClearSelection={() => setSelectedUsers([])}
-        itemType="users"
-        onBulkApprove={handleBulkActivate}
-        onBulkReject={handleBulkSuspend}
-      />
+          {/* Bulk Actions */}
+          <BulkActionBar
+            selectedItems={selectedUsers}
+            onClearSelection={() => setSelectedUsers([])}
+            itemType="users"
+            onBulkApprove={handleBulkActivate}
+            onBulkReject={handleBulkSuspend}
+          />
+        </TabsContent>
+
+        <TabsContent value="companies" className="space-y-6">
+          {/* Company Statistics */}
+          <div className="grid gap-4 md:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Companies</CardTitle>
+                <Icon name="building" className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{companies.length}</div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Companies</CardTitle>
+                <Icon name="check-circle" className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {companies.filter(c => c.subscription_status === 'active').length}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Premium Companies</CardTitle>
+                <Icon name="star" className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {companies.filter(c => c.subscription_tier === 'premium').length}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Credits</CardTitle>
+                <Icon name="coins" className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {companies.reduce((sum, c) => sum + c.total_credits, 0).toLocaleString()}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Companies Table */}
+          <EnhancedDataTable
+            data={filteredCompanies}
+            columns={companyColumns}
+            onSelectionChange={setSelectedCompanies}
+            selectedItems={selectedCompanies}
+            loading={loading}
+            emptyMessage="No companies found"
+            itemIdKey="id"
+          />
+        </TabsContent>
+      </Tabs>
+
+      {/* Create User Dialog */}
+      <Dialog open={createUserDialog.open} onOpenChange={(open) => setCreateUserDialog({ open })}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Create New User</DialogTitle>
+            <DialogDescription>
+              Create a new user account with specified role and permissions
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="create_email">Email</Label>
+                <Input
+                  id="create_email"
+                  type="email"
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                  placeholder="user@example.com"
+                />
+              </div>
+              <div>
+                <Label htmlFor="create_full_name">Full Name</Label>
+                <Input
+                  id="create_full_name"
+                  value={newUser.full_name}
+                  onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
+                  placeholder="John Doe"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="create_password">Password</Label>
+              <Input
+                id="create_password"
+                type="password"
+                value={newUser.password}
+                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                placeholder="Minimum 6 characters"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="create_role">User Role</Label>
+                <Select
+                  value={newUser.user_role}
+                  onValueChange={(value: any) => setNewUser({ ...newUser, user_role: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual">Individual</SelectItem>
+                    <SelectItem value="company_admin">Company Admin</SelectItem>
+                    <SelectItem value="company_manager">Company Manager</SelectItem>
+                    <SelectItem value="company_staff">Company Staff</SelectItem>
+                    <SelectItem value="super_admin">Super Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="create_tier">Subscription Tier</Label>
+                <Select
+                  value={newUser.subscription_tier}
+                  onValueChange={(value) => setNewUser({ ...newUser, subscription_tier: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="free">Free</SelectItem>
+                    <SelectItem value="essential">Essential</SelectItem>
+                    <SelectItem value="premium">Premium</SelectItem>
+                    <SelectItem value="sme">SME</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="create_credits">Credit Limit</Label>
+              <Input
+                id="create_credits"
+                type="number"
+                value={newUser.max_credits_per_period}
+                onChange={(e) => setNewUser({ ...newUser, max_credits_per_period: Number(e.target.value) })}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateUserDialog({ open: false })}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateUser}>
+              Create User
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit User Dialog */}
       <Dialog open={editDialog.open} onOpenChange={(open) => setEditDialog({ open, user: null })}>
@@ -503,6 +1047,8 @@ export const UserManagement = () => {
                     <SelectContent>
                       <SelectItem value="individual">Individual</SelectItem>
                       <SelectItem value="company_admin">Company Admin</SelectItem>
+                      <SelectItem value="company_manager">Company Manager</SelectItem>
+                      <SelectItem value="company_staff">Company Staff</SelectItem>
                       <SelectItem value="super_admin">Super Admin</SelectItem>
                     </SelectContent>
                   </Select>
@@ -517,6 +1063,98 @@ export const UserManagement = () => {
             </Button>
             <Button onClick={() => editDialog.user && handleEditUser(editDialog.user)}>
               Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Company Dialog */}
+      <Dialog open={companyDialog.open} onOpenChange={(open) => setCompanyDialog({ ...companyDialog, open })}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {companyDialog.mode === 'create' ? 'Create New Company' : 'Edit Company'}
+            </DialogTitle>
+            <DialogDescription>
+              {companyDialog.mode === 'create' 
+                ? 'Add a new company to the system'
+                : 'Update company information and settings'
+              }
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4">
+            <div>
+              <Label htmlFor="company_name">Company Name</Label>
+              <Input
+                id="company_name"
+                value={companyForm.name}
+                onChange={(e) => setCompanyForm({ ...companyForm, name: e.target.value })}
+                placeholder="Acme Corporation"
+              />
+            </div>
+            <div>
+              <Label htmlFor="company_email">Company Email</Label>
+              <Input
+                id="company_email"
+                type="email"
+                value={companyForm.email}
+                onChange={(e) => setCompanyForm({ ...companyForm, email: e.target.value })}
+                placeholder="contact@acme.com"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="company_tier">Subscription Tier</Label>
+                <Select
+                  value={companyForm.subscription_tier}
+                  onValueChange={(value) => setCompanyForm({ ...companyForm, subscription_tier: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="free">Free</SelectItem>
+                    <SelectItem value="essential">Essential</SelectItem>
+                    <SelectItem value="premium">Premium</SelectItem>
+                    <SelectItem value="sme">SME</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="company_status">Status</Label>
+                <Select
+                  value={companyForm.subscription_status}
+                  onValueChange={(value) => setCompanyForm({ ...companyForm, subscription_status: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="company_credits">Total Credits</Label>
+              <Input
+                id="company_credits"
+                type="number"
+                value={companyForm.total_credits}
+                onChange={(e) => setCompanyForm({ ...companyForm, total_credits: Number(e.target.value) })}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCompanyDialog({ ...companyDialog, open: false })}>
+              Cancel
+            </Button>
+            <Button onClick={companyDialog.mode === 'create' ? handleCreateCompany : handleEditCompany}>
+              {companyDialog.mode === 'create' ? 'Create Company' : 'Save Changes'}
             </Button>
           </DialogFooter>
         </DialogContent>
