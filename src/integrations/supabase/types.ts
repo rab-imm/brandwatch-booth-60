@@ -1125,6 +1125,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: number
       }
+      cleanup_orphaned_profiles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          action: string
+          cleaned_user_id: string
+          email: string
+        }[]
+      }
       create_notification: {
         Args: {
           p_action_url?: string
