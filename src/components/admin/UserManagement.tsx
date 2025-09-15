@@ -16,6 +16,18 @@ import { toast } from "sonner"
 import { AdminSearchFilter } from "./AdminSearchFilter"
 import { EnhancedDataTable } from "./EnhancedDataTable"
 import { BulkActionBar } from "./BulkActionBar"
+import { AdminErrorBoundary } from "./AdminErrorBoundary"
+import { 
+  createUserSchema, 
+  updateUserSchema, 
+  createCompanySchema, 
+  updateCompanySchema,
+  type CreateUserData,
+  type UpdateUserData,
+  type CreateCompanyData,
+  type UpdateCompanyData
+} from "@/lib/admin-validation"
+import { z } from "zod"
 
 interface User {
   id: string
@@ -188,55 +200,53 @@ export const UserManagement = () => {
 
   const handleEditUser = async (updatedUser: User) => {
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          user_role: updatedUser.user_role as "individual" | "company_admin" | "super_admin" | "company_manager" | "company_staff",
-          subscription_tier: updatedUser.subscription_tier,
-          subscription_status: updatedUser.subscription_status,
-          max_credits_per_period: updatedUser.max_credits_per_period,
-          full_name: updatedUser.full_name
-        })
-        .eq('user_id', updatedUser.user_id)
+      // Validate input
+      const validatedData = updateUserSchema.parse({
+        user_id: updatedUser.user_id,
+        full_name: updatedUser.full_name,
+        user_role: updatedUser.user_role,
+        subscription_tier: updatedUser.subscription_tier,
+        subscription_status: updatedUser.subscription_status,
+        max_credits_per_period: updatedUser.max_credits_per_period
+      });
 
-      if (error) throw error
+      const { data, error } = await supabase.functions.invoke('admin-user-management', {
+        body: { action: 'update_user', ...validatedData }
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success('User updated successfully')
       fetchUsers()
       setEditDialog({ open: false, user: null })
     } catch (error) {
-      console.error('Error updating user:', error)
-      toast.error('Failed to update user')
+      if (error instanceof z.ZodError) {
+        toast.error(`Validation error: ${error.issues[0].message}`)
+      } else {
+        console.error('Error updating user:', error)
+        toast.error(`Failed to update user: ${error.message}`)
+      }
     }
   }
 
   const handleCreateUser = async () => {
     try {
-      // First create the auth user
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      // Validate input
+      const validatedData = createUserSchema.parse({
         email: newUser.email,
-        password: newUser.password,
-        email_confirm: true,
-        user_metadata: {
-          full_name: newUser.full_name
-        }
-      })
+        full_name: newUser.full_name,
+        user_role: newUser.user_role,
+        subscription_tier: newUser.subscription_tier,
+        max_credits_per_period: newUser.max_credits_per_period
+      });
 
-      if (authError) throw authError
+      const { data, error } = await supabase.functions.invoke('admin-user-management', {
+        body: { action: 'create_user', ...validatedData }
+      });
 
-      // Then update the profile with role and subscription details
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          user_role: newUser.user_role as "individual" | "company_admin" | "super_admin" | "company_manager" | "company_staff",
-          subscription_tier: newUser.subscription_tier,
-          subscription_status: newUser.subscription_status,
-          max_credits_per_period: newUser.max_credits_per_period,
-          full_name: newUser.full_name
-        })
-        .eq('user_id', authData.user.id)
-
-      if (profileError) throw profileError
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success('User created successfully')
       fetchUsers()
@@ -251,8 +261,12 @@ export const UserManagement = () => {
         max_credits_per_period: 10
       })
     } catch (error) {
-      console.error('Error creating user:', error)
-      toast.error('Failed to create user')
+      if (error instanceof z.ZodError) {
+        toast.error(`Validation error: ${error.issues[0].message}`)
+      } else {
+        console.error('Error creating user:', error)
+        toast.error(`Failed to create user: ${error.message}`)
+      }
     }
   }
 
@@ -262,33 +276,37 @@ export const UserManagement = () => {
     }
 
     try {
-      // Delete the auth user (this will cascade to profile due to foreign key)
-      const { error } = await supabase.auth.admin.deleteUser(userId)
+      const { data, error } = await supabase.functions.invoke('admin-user-management', {
+        body: { action: 'delete_user', user_id: userId }
+      });
 
-      if (error) throw error
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success('User deleted successfully')
       fetchUsers()
     } catch (error) {
       console.error('Error deleting user:', error)
-      toast.error('Failed to delete user')
+      toast.error(`Failed to delete user: ${error.message}`)
     }
   }
 
   const handleCreateCompany = async () => {
     try {
-      const { error } = await supabase
-        .from('companies')
-        .insert({
-          name: companyForm.name,
-          email: companyForm.email,
-          subscription_tier: companyForm.subscription_tier as "free" | "essential" | "premium" | "sme",
-          subscription_status: companyForm.subscription_status,
-          total_credits: companyForm.total_credits,
-          used_credits: 0
-        })
+      // Validate input
+      const validatedData = createCompanySchema.parse({
+        name: companyForm.name,
+        email: companyForm.email,
+        subscription_tier: companyForm.subscription_tier,
+        total_credits: companyForm.total_credits
+      });
 
-      if (error) throw error
+      const { data, error } = await supabase.functions.invoke('admin-user-management', {
+        body: { action: 'create_company', ...validatedData }
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success('Company created successfully')
       fetchCompanies()
@@ -301,8 +319,12 @@ export const UserManagement = () => {
         total_credits: 1000
       })
     } catch (error) {
-      console.error('Error creating company:', error)
-      toast.error('Failed to create company')
+      if (error instanceof z.ZodError) {
+        toast.error(`Validation error: ${error.issues[0].message}`)
+      } else {
+        console.error('Error creating company:', error)
+        toast.error(`Failed to create company: ${error.message}`)
+      }
     }
   }
 
@@ -310,25 +332,33 @@ export const UserManagement = () => {
     if (!companyDialog.company) return
 
     try {
-      const { error } = await supabase
-        .from('companies')
-        .update({
-          name: companyForm.name,
-          email: companyForm.email,
-          subscription_tier: companyForm.subscription_tier as "free" | "essential" | "premium" | "sme",
-          subscription_status: companyForm.subscription_status,
-          total_credits: companyForm.total_credits
-        })
-        .eq('id', companyDialog.company.id)
+      // Validate input
+      const validatedData = updateCompanySchema.parse({
+        company_id: companyDialog.company.id,
+        name: companyForm.name,
+        email: companyForm.email,
+        subscription_tier: companyForm.subscription_tier,
+        subscription_status: companyForm.subscription_status,
+        total_credits: companyForm.total_credits
+      });
 
-      if (error) throw error
+      const { data, error } = await supabase.functions.invoke('admin-user-management', {
+        body: { action: 'update_company', ...validatedData }
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success('Company updated successfully')
       fetchCompanies()
       setCompanyDialog({ open: false, company: null, mode: 'create' })
     } catch (error) {
-      console.error('Error updating company:', error)
-      toast.error('Failed to update company')
+      if (error instanceof z.ZodError) {
+        toast.error(`Validation error: ${error.issues[0].message}`)
+      } else {
+        console.error('Error updating company:', error)
+        toast.error(`Failed to update company: ${error.message}`)
+      }
     }
   }
 
@@ -338,35 +368,35 @@ export const UserManagement = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('companies')
-        .delete()
-        .eq('id', companyId)
+      const { data, error } = await supabase.functions.invoke('admin-user-management', {
+        body: { action: 'delete_company', company_id: companyId }
+      });
 
-      if (error) throw error
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success('Company deleted successfully')
       fetchCompanies()
     } catch (error) {
       console.error('Error deleting company:', error)
-      toast.error('Failed to delete company')
+      toast.error(`Failed to delete company: ${error.message}`)
     }
   }
 
   const handlePauseCompany = async (companyId: string) => {
     try {
-      const { error } = await supabase
-        .from('companies')
-        .update({ subscription_status: 'suspended' })
-        .eq('id', companyId)
+      const { data, error } = await supabase.functions.invoke('admin-user-management', {
+        body: { action: 'pause_company', company_id: companyId }
+      });
 
-      if (error) throw error
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success('Company paused successfully')
       fetchCompanies()
     } catch (error) {
       console.error('Error pausing company:', error)
-      toast.error('Failed to pause company')
+      toast.error(`Failed to pause company: ${error.message}`)
     }
   }
 
@@ -1160,5 +1190,13 @@ export const UserManagement = () => {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+export default function UserManagementWithErrorBoundary() {
+  return (
+    <AdminErrorBoundary>
+      <UserManagement />
+    </AdminErrorBoundary>
   )
 }
