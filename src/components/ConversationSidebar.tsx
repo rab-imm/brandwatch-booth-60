@@ -45,6 +45,32 @@ export const ConversationSidebar = () => {
     fetchConversations()
   }, [user])
 
+  // Listen for realtime changes to conversations
+  useEffect(() => {
+    if (!user) return
+
+    const channel = supabase
+      .channel('conversations-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'conversations',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Realtime conversation change:', payload)
+          fetchConversations()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user])
+
   // Refresh conversations when a new conversation is created - FIXED: removed conversations dependency
   useEffect(() => {
     if (currentConversationId && user) {
