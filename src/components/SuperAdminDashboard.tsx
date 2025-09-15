@@ -557,30 +557,28 @@ export const SuperAdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <SidebarProvider defaultOpen={true}>
-        <div className="flex min-h-screen w-full">
-          <AdminSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+    <SidebarProvider defaultOpen={true}>
+      <div className="min-h-screen w-full bg-background">
+        <AdminSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+        
+        <SidebarInset className="flex-1">
+          <Header />
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+            <SidebarTrigger className="-ml-1" />
+            <div className="h-4 w-px bg-border" />
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-semibold">Super Admin Dashboard</h1>
+              <span className="text-sm text-muted-foreground">
+                • {activeSection.charAt(0).toUpperCase() + activeSection.slice(1).replace('-', ' ')}
+              </span>
+            </div>
+          </header>
           
-          <SidebarInset className="flex-1">
-            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-              <SidebarTrigger className="-ml-1" />
-              <div className="h-4 w-px bg-border" />
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg font-semibold">Super Admin Dashboard</h1>
-                <span className="text-sm text-muted-foreground">
-                  • {activeSection.charAt(0).toUpperCase() + activeSection.slice(1).replace('-', ' ')}
-                </span>
-              </div>
-            </header>
-            
-            <main className="flex-1 p-6">
-              {renderActiveSection()}
-            </main>
-          </SidebarInset>
-        </div>
-      </SidebarProvider>
-    </div>
+          <main className="flex-1 p-6">
+            {renderActiveSection()}
+          </main>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   )
 }
