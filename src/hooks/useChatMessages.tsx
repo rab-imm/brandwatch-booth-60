@@ -71,7 +71,24 @@ export const useChatMessages = () => {
     }
 
     try {
-      console.log('📡 Fetching messages from database...')
+      console.log('📡 Fetching messages from database...', { conversationId, userId: user.id })
+      
+      // First verify the conversation exists and belongs to user
+      const { data: conversation, error: convError } = await supabase
+        .from('conversations')
+        .select('id, title')
+        .eq('id', conversationId)
+        .eq('user_id', user.id)
+        .single()
+
+      if (convError || !conversation) {
+        console.error('❌ Conversation not found or access denied:', { convError, conversationId })
+        setMessages([])
+        return
+      }
+
+      console.log('✅ Conversation verified:', conversation.title)
+
       const { data, error } = await supabase
         .from('messages')
         .select('*')
@@ -79,7 +96,10 @@ export const useChatMessages = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: true })
 
-      if (error) throw error
+      if (error) {
+        console.error('❌ Database error fetching messages:', error)
+        throw error
+      }
       
       const formattedMessages: Message[] = (data || []).map((msg: any) => ({
         ...msg,
@@ -87,7 +107,12 @@ export const useChatMessages = () => {
         sources: msg.metadata?.sources || undefined
       }))
       
-      console.log('✅ Messages loaded successfully:', formattedMessages.length)
+      if (formattedMessages.length === 0) {
+        console.log('ℹ️ Conversation is empty - this is normal for new conversations:', conversation.title)
+      } else {
+        console.log('✅ Messages loaded successfully:', { count: formattedMessages.length, conversation: conversation.title })
+      }
+      
       setMessages(formattedMessages)
     } catch (error) {
       console.error('❌ Error fetching messages:', error)
