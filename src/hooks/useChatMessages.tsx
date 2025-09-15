@@ -46,10 +46,32 @@ export const useChatMessages = () => {
   const executionCountRef = useRef(0)
   const isNewConversationRef = useRef(false)
 
-  const fetchMessages = async (conversationId: string) => {
-    if (!user || !conversationId) return
+  const fetchMessages = async (conversationId: string, retryCount = 0) => {
+    console.log('🔍 fetchMessages called:', { conversationId, user: !!user, retryCount })
+    
+    if (!conversationId) {
+      console.error('❌ fetchMessages: No conversationId provided')
+      return
+    }
+
+    if (!user) {
+      console.warn('⚠️ fetchMessages: User not available, retrying...', { retryCount })
+      
+      // Retry up to 3 times with increasing delay if user is not available
+      if (retryCount < 3) {
+        setTimeout(() => {
+          fetchMessages(conversationId, retryCount + 1)
+        }, 100 * (retryCount + 1))
+        return
+      } else {
+        console.error('❌ fetchMessages: User not available after retries')
+        setMessages([])
+        return
+      }
+    }
 
     try {
+      console.log('📡 Fetching messages from database...')
       const { data, error } = await supabase
         .from('messages')
         .select('*')
@@ -65,9 +87,10 @@ export const useChatMessages = () => {
         sources: msg.metadata?.sources || undefined
       }))
       
+      console.log('✅ Messages loaded successfully:', formattedMessages.length)
       setMessages(formattedMessages)
     } catch (error) {
-      console.error('Error fetching messages:', error)
+      console.error('❌ Error fetching messages:', error)
       setMessages([])
     }
   }
@@ -89,15 +112,18 @@ export const useChatMessages = () => {
   }, [])
 
   const switchConversation = useCallback(async (conversationId: string) => {
+    console.log('🔄 switchConversation called:', { conversationId, currentUser: !!user })
+    
     // Use flushSync for immediate state clearing
     flushSync(() => {
       setMessages([])
       setCurrentConversationId(conversationId)
     })
     
+    console.log('✅ State cleared, fetching messages...')
     isNewConversationRef.current = false
     await fetchMessages(conversationId)
-  }, [user])
+  }, [])
 
   const updateConversationTitle = async (conversationId: string, title: string) => {
     try {
