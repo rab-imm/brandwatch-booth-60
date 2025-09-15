@@ -5,21 +5,43 @@ import type { CreateUserData, UpdateUserData, CreateCompanyData, UpdateCompanyDa
 export const useAdminActions = () => {
   const callAdminFunction = async (action: string, data: any) => {
     try {
+      console.log(`=== CALLING ADMIN FUNCTION: ${action} ===`);
+      console.log('Request data:', data);
+      
       const { data: result, error } = await supabase.functions.invoke('admin-user-management', {
         body: { action, ...data }
       });
 
+      console.log('Function response:', { result, error });
+
       if (error) {
-        throw new Error(error.message);
+        console.error('Supabase function error:', error);
+        // Try to extract more detailed error information
+        let errorMessage = error.message;
+        
+        // If it's a generic function error, try to get more details
+        if (errorMessage.includes('Edge Function returned a non-2xx status code')) {
+          errorMessage = `Edge Function Error: ${error.message}. Check the function logs for more details.`;
+        }
+        
+        throw new Error(errorMessage);
       }
 
       if (result?.error) {
+        console.error('Function returned error:', result.error);
+        // The edge function returned an error in the response body
         throw new Error(result.error);
       }
 
+      console.log(`=== ${action} COMPLETED SUCCESSFULLY ===`);
       return result;
     } catch (error) {
-      console.error(`Admin action ${action} failed:`, error);
+      console.error(`=== ADMIN ACTION ${action} FAILED ===`);
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
       throw error;
     }
   };
