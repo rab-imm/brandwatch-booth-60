@@ -169,6 +169,7 @@ serve(async (req) => {
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
+      }
 
       case 'update_user': {
         const { user_id, ...updates } = requestData as UpdateUserRequest;
