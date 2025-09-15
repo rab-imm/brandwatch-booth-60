@@ -74,9 +74,111 @@ serve(async (req) => {
         let authUserId: string | null = null;
         
         try {
-          console.log('Attempting to create user with email:', email);
+          // Step 1: Comprehensive Input Validation
+          console.log('=== STARTING USER CREATION ===');
+          console.log('Input data:', { email, full_name, user_role, subscription_tier, max_credits_per_period, company_id });
           
-          // Create auth user
+          if (!email || !full_name || !user_role || !subscription_tier || max_credits_per_period === undefined) {
+            console.error('Missing required fields');
+            return new Response(
+              JSON.stringify({ error: 'Missing required fields: email, full_name, user_role, subscription_tier, max_credits_per_period' }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          // Validate user_role enum
+          const validRoles = ['individual', 'company_admin', 'super_admin'];
+          if (!validRoles.includes(user_role)) {
+            console.error('Invalid user_role:', user_role);
+            return new Response(
+              JSON.stringify({ error: `Invalid user_role. Must be one of: ${validRoles.join(', ')}` }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          // Validate company_id if provided
+          if (company_id) {
+            console.log('Validating company_id:', company_id);
+            const { data: company, error: companyCheckError } = await supabaseClient
+              .from('companies')
+              .select('id')
+              .eq('id', company_id)
+              .maybeSingle();
+              
+            if (companyCheckError) {
+              console.error('Company validation error:', companyCheckError);
+              return new Response(
+                JSON.stringify({ error: `Error validating company: ${companyCheckError.message}` }),
+                { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              );
+            }
+            
+            if (!company) {
+              console.error('Company not found:', company_id);
+              return new Response(
+                JSON.stringify({ error: 'Company not found' }),
+                { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              );
+            }
+          }
+
+          // Step 2: Pre-flight Cleanup - Check for existing users and orphaned records
+          console.log('=== PRE-FLIGHT CLEANUP ===');
+          
+          // Check auth users
+          const { data: existingUsers, error: listError } = await supabaseClient.auth.admin.listUsers();
+          if (listError) {
+            console.error('Failed to list existing users:', listError);
+            return new Response(
+              JSON.stringify({ error: `Failed to check existing users: ${listError.message}` }),
+              { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          const existingAuthUser = existingUsers.users.find(u => u.email === email);
+          if (existingAuthUser) {
+            console.log('Found existing auth user:', existingAuthUser.id);
+            
+            // Check if they have a profile
+            const { data: existingProfile, error: profileCheckError } = await supabaseClient
+              .from('profiles')
+              .select('*')
+              .eq('user_id', existingAuthUser.id)
+              .maybeSingle();
+              
+            if (profileCheckError) {
+              console.error('Error checking existing profile:', profileCheckError);
+              return new Response(
+                JSON.stringify({ error: `Error checking existing profile: ${profileCheckError.message}` }),
+                { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              );
+            }
+            
+            if (existingProfile) {
+              console.log('User already has complete profile');
+              return new Response(
+                JSON.stringify({ error: 'A user with this email already exists and has a complete profile' }),
+                { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              );
+            } else {
+              // Orphaned auth user - clean it up
+              console.log('Cleaning up orphaned auth user:', existingAuthUser.id);
+              const { error: cleanupError } = await supabaseClient.auth.admin.deleteUser(existingAuthUser.id);
+              if (cleanupError) {
+                console.error('Failed to cleanup orphaned user:', cleanupError);
+                return new Response(
+                  JSON.stringify({ error: `Failed to cleanup orphaned user: ${cleanupError.message}` }),
+                  { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                );
+              }
+              console.log('Successfully cleaned up orphaned auth user');
+            }
+          }
+
+          // Step 3: Create Auth User
+          console.log('=== CREATING AUTH USER ===');
+          console.log('Attempting to create auth user with email:', email);
+          
           const { data: authUser, error: createError } = await supabaseClient.auth.admin.createUser({
             email,
             email_confirm: true,
@@ -92,42 +194,81 @@ serve(async (req) => {
           if (createError || !authUser.user) {
             console.error('Auth user creation failed:', createError);
             return new Response(
-              JSON.stringify({ error: `Failed to create user: ${createError?.message || 'Unknown error'}` }),
+              JSON.stringify({ error: `Failed to create auth user: ${createError?.message || 'Unknown error'}` }),
               { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
           }
 
           authUserId = authUser.user.id;
+          console.log('Auth user created successfully:', authUserId);
 
-          // Create profile
+          // Step 4: Create Profile with Enhanced Error Handling
+          console.log('=== CREATING PROFILE ===');
+          const profileData = {
+            user_id: authUser.user.id,
+            email,
+            full_name,
+            user_role,
+            subscription_tier,
+            max_credits_per_period,
+            current_company_id: company_id || null
+          };
+          
+          console.log('Creating profile with data:', profileData);
+          
           const { error: profileError } = await supabaseClient
             .from('profiles')
-            .insert({
-              user_id: authUser.user.id,
-              email,
-              full_name,
-              user_role,
-              subscription_tier,
-              max_credits_per_period,
-              current_company_id: company_id || null
-            });
+            .insert(profileData);
 
           if (profileError) {
-            console.error('Profile creation failed:', profileError);
-            // Rollback auth user creation
-            try {
-              await supabaseClient.auth.admin.deleteUser(authUser.user.id);
-            } catch (rollbackError) {
-              console.error('Failed to rollback auth user:', rollbackError);
+            console.error('Profile creation failed:', {
+              code: profileError.code,
+              message: profileError.message,
+              details: profileError.details,
+              hint: profileError.hint
+            });
+            
+            // Enhanced rollback with retry
+            console.log('=== STARTING ROLLBACK ===');
+            let rollbackSuccess = false;
+            for (let attempt = 1; attempt <= 3; attempt++) {
+              try {
+                console.log(`Rollback attempt ${attempt}/3`);
+                const { error: rollbackError } = await supabaseClient.auth.admin.deleteUser(authUser.user.id);
+                if (rollbackError) {
+                  console.error(`Rollback attempt ${attempt} failed:`, rollbackError);
+                  if (attempt < 3) {
+                    await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+                  }
+                } else {
+                  console.log(`Rollback successful on attempt ${attempt}`);
+                  rollbackSuccess = true;
+                  break;
+                }
+              } catch (rollbackException) {
+                console.error(`Rollback attempt ${attempt} exception:`, rollbackException);
+              }
             }
+            
+            if (!rollbackSuccess) {
+              console.error('All rollback attempts failed - orphaned auth user may exist');
+            }
+            
             return new Response(
-              JSON.stringify({ error: `Failed to create profile: ${profileError.message}` }),
+              JSON.stringify({ 
+                error: `Failed to create profile: ${profileError.message}`,
+                code: profileError.code,
+                details: profileError.details 
+              }),
               { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
           }
 
-          // If company_id provided, create company role
+          console.log('Profile created successfully');
+
+          // Step 5: Create Company Role (if needed)
           if (company_id) {
+            console.log('=== CREATING COMPANY ROLE ===');
             const { error: roleError } = await supabaseClient
               .from('user_company_roles')
               .insert({
@@ -141,39 +282,69 @@ serve(async (req) => {
               console.error('Failed to create company role:', roleError);
               // Don't fail the whole operation for role creation failure
               // The user is still created successfully
+            } else {
+              console.log('Company role created successfully');
             }
           }
 
-          // Log activity
-          await supabaseClient.functions.invoke('log-activity', {
-            body: {
-              user_id: user.id,
-              action: 'create_user',
-              resource_type: 'user',
-              resource_id: authUser.user.id,
-              metadata: { created_user_email: email, user_role }
-            }
-          });
+          // Step 6: Log Activity
+          console.log('=== LOGGING ACTIVITY ===');
+          try {
+            await supabaseClient
+              .from('activity_logs')
+              .insert({
+                user_id: user.id,
+                action: 'create_user',
+                resource_type: 'user',
+                resource_id: authUser.user.id,
+                metadata: { created_user_email: email, user_role }
+              });
+            console.log('Activity logged successfully');
+          } catch (logError) {
+            console.error('Failed to log activity (non-critical):', logError);
+          }
 
+          console.log('=== USER CREATION COMPLETED SUCCESSFULLY ===');
           return new Response(
             JSON.stringify({ success: true, user_id: authUser.user.id }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
 
         } catch (error) {
-          console.error('Unexpected error in create_user:', error);
+          console.error('=== UNEXPECTED ERROR IN CREATE_USER ===');
+          console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+          });
           
-          // Attempt rollback if we have an authUserId
+          // Enhanced rollback with retry in catch block
           if (authUserId) {
-            try {
-              await supabaseClient.auth.admin.deleteUser(authUserId);
-            } catch (rollbackError) {
-              console.error('Failed to rollback auth user in catch block:', rollbackError);
+            console.log('=== EMERGENCY ROLLBACK ===');
+            for (let attempt = 1; attempt <= 3; attempt++) {
+              try {
+                console.log(`Emergency rollback attempt ${attempt}/3`);
+                const { error: rollbackError } = await supabaseClient.auth.admin.deleteUser(authUserId);
+                if (rollbackError) {
+                  console.error(`Emergency rollback attempt ${attempt} failed:`, rollbackError);
+                  if (attempt < 3) {
+                    await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                  }
+                } else {
+                  console.log(`Emergency rollback successful on attempt ${attempt}`);
+                  break;
+                }
+              } catch (rollbackException) {
+                console.error(`Emergency rollback attempt ${attempt} exception:`, rollbackException);
+              }
             }
           }
           
           return new Response(
-            JSON.stringify({ error: `Failed to create user: ${error.message}` }),
+            JSON.stringify({ 
+              error: `Unexpected error during user creation: ${error.message}`,
+              type: error.name
+            }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
