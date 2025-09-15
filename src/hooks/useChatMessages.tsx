@@ -40,6 +40,7 @@ export const useChatMessages = () => {
   const [loading, setLoading] = useState(false)
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [isNewConversation, setIsNewConversation] = useState(false)
 
   const fetchMessages = async (conversationId: string) => {
     if (!user || !conversationId) return
@@ -68,46 +69,15 @@ export const useChatMessages = () => {
   }
 
   const createNewConversation = async (): Promise<string | null> => {
-    try {
-      console.log('🆕 createNewConversation called - Current state:', {
-        messagesLength: messages.length,
-        currentConversationId,
-        userPresent: !!user
-      })
-      
-      // Clear current state FIRST
-      setMessages([])
-      setCurrentConversationId(null)
-      
-      console.log('✅ State cleared - creating database record')
-      
-      const { data, error } = await supabase
-        .from('conversations')
-        .insert([
-          { 
-            user_id: user.id,
-            title: 'New Conversation'
-          }
-        ])
-        .select()
-        .single()
-
-      if (error) throw error
-
-      const newConversationId = data.id
-      console.log('✅ New conversation created:', newConversationId)
-      
-      // Set the new conversation ID and ensure messages stay empty
-      setCurrentConversationId(newConversationId)
-      setMessages([]) // Double-ensure messages are cleared
-      
-      console.log('✅ createNewConversation completed - Final state should be empty messages')
-      
-      return newConversationId
-    } catch (error) {
-      console.error('❌ Error creating conversation:', error)
-      return null
-    }
+    console.log('🆕 createNewConversation called - UI clear mode')
+    
+    // Phase 1: Immediately clear UI state - no database operations
+    setMessages([])
+    setCurrentConversationId(null)
+    setIsNewConversation(true)
+    
+    console.log('✅ UI state cleared - ready for new conversation')
+    return null // Don't create DB record yet
   }
 
   const switchConversation = async (conversationId: string) => {
@@ -135,9 +105,33 @@ export const useChatMessages = () => {
 
     let conversationId = currentConversationId
 
-    // Create new conversation if none exists
-    if (!conversationId) {
-      conversationId = await createNewConversation()
+    // Phase 2: Create database conversation if needed (new conversation or no current conversation)
+    if (!conversationId || isNewConversation) {
+      console.log('🔨 Creating database conversation record')
+      
+      try {
+        const { data, error } = await supabase
+          .from('conversations')
+          .insert([
+            { 
+              user_id: user.id,
+              title: 'New Conversation'
+            }
+          ])
+          .select()
+          .single()
+
+        if (error) throw error
+
+        conversationId = data.id
+        setCurrentConversationId(conversationId)
+        setIsNewConversation(false)
+        
+        console.log('✅ Database conversation created:', conversationId)
+      } catch (error) {
+        console.error('❌ Error creating conversation in database:', error)
+        return
+      }
     }
 
     if (!conversationId) return
@@ -267,9 +261,9 @@ export const useChatMessages = () => {
         return
       }
       
-      // ONLY load a conversation if no conversation is currently set and no messages exist
-      if (currentConversationId !== null || messages.length > 0) {
-        console.log('🚫 Skipping auto-load - conversation already active or messages exist')
+      // ONLY load a conversation if no conversation is currently set, no messages exist, and not in new conversation mode
+      if (currentConversationId !== null || messages.length > 0 || isNewConversation) {
+        console.log('🚫 Skipping auto-load - conversation already active, messages exist, or in new conversation mode')
         setIsInitialized(true)
         return
       }
@@ -303,7 +297,7 @@ export const useChatMessages = () => {
     }
 
     initializeChat()
-  }, [user, isInitialized])
+  }, [user, isInitialized, isNewConversation])
 
   return {
     messages,
