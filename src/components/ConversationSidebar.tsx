@@ -167,10 +167,10 @@ export const ConversationSidebar = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity p-2 mr-2 hover:bg-destructive/10 hover:text-destructive"
+                  className="opacity-60 hover:opacity-100 transition-opacity p-2 mr-2 hover:bg-destructive/10 hover:text-destructive"
                   onClick={(e) => handleDeleteConversation(conversation.id, e)}
                 >
-                  <Icon name="trash-2" className="h-4 w-4" />
+                  <Icon name="trash" className="h-4 w-4" />
                 </Button>
               </div>
             ))
