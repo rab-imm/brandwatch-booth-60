@@ -44,20 +44,24 @@ export const ConversationSidebar = () => {
     fetchConversations()
   }, [user])
 
+  // Refresh conversations when a new conversation is created (detected by currentConversationId change)
+  useEffect(() => {
+    if (currentConversationId && user) {
+      // Check if this conversation ID is not in our current list
+      const existsInList = conversations.some(conv => conv.id === currentConversationId)
+      if (!existsInList) {
+        console.log('🔄 New conversation detected, refreshing list')
+        fetchConversations()
+      }
+    }
+  }, [currentConversationId, conversations, user])
+
   const handleNewConversation = async () => {
     try {
-      const newConversationId = await createNewConversation()
-      
-      if (newConversationId) {
-        // Add the new conversation to local state instead of refetching
-        const newConversation: Conversation = {
-          id: newConversationId,
-          title: 'New Conversation',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-        setConversations(prev => [newConversation, ...prev])
-      }
+      // Just trigger the UI clearing - no need to add to local state
+      // The conversation will be created when the first message is sent
+      await createNewConversation()
+      console.log('✅ New conversation UI cleared')
     } catch (error) {
       console.error('Error creating conversation:', error)
     }
