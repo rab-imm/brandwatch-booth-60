@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useAuth } from "@/hooks/useAuth"
-import { useChatMessages, Message } from "@/hooks/useChatMessages"
+import { useChatContext, Message } from "@/contexts/ChatContext"
 import { MessageBubble } from "@/components/MessageBubble"
 import { ChatInput } from "@/components/ChatInput"
 import { LawyerRequestButton } from "@/components/LawyerRequestButton"
@@ -10,7 +10,7 @@ import { useToast } from "@/components/ui/use-toast"
 
 export const ChatInterface = () => {
   const { user, profile } = useAuth()
-  const { messages, sendMessage, loading, currentConversationId, createNewConversation } = useChatMessages()
+  const { messages, sendMessage, loading, currentConversationId, createNewConversation } = useChatContext()
   const [inputValue, setInputValue] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()

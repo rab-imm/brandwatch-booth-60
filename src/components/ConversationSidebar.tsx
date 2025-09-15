@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/hooks/useAuth"
-import { useChatMessages } from "@/hooks/useChatMessages"
+import { useChatContext } from "@/contexts/ChatContext"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 import { ConversationHeader } from "@/components/ConversationHeader"
@@ -17,7 +17,7 @@ interface Conversation {
 
 export const ConversationSidebar = () => {
   const { user } = useAuth()
-  const { currentConversationId, switchConversation, createNewConversation } = useChatMessages()
+  const { currentConversationId, switchConversation, createNewConversation } = useChatContext()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
 
