@@ -44,17 +44,22 @@ export const ConversationSidebar = () => {
     fetchConversations()
   }, [user])
 
-  // Refresh conversations when a new conversation is created (detected by currentConversationId change)
+  // Refresh conversations when a new conversation is created - FIXED: removed conversations dependency
   useEffect(() => {
     if (currentConversationId && user) {
       // Check if this conversation ID is not in our current list
       const existsInList = conversations.some(conv => conv.id === currentConversationId)
       if (!existsInList) {
         console.log('🔄 New conversation detected, refreshing list')
-        fetchConversations()
+        // Use timeout to debounce rapid calls
+        const timeoutId = setTimeout(() => {
+          fetchConversations()
+        }, 100)
+        
+        return () => clearTimeout(timeoutId)
       }
     }
-  }, [currentConversationId, conversations, user])
+  }, [currentConversationId, user]) // CRITICAL: removed conversations to prevent infinite refresh loop
 
   const handleNewConversation = async () => {
     try {

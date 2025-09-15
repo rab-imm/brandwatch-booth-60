@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
+import { flushSync } from "react-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/integrations/supabase/client"
 
@@ -40,7 +41,10 @@ export const useChatMessages = () => {
   const [loading, setLoading] = useState(false)
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
-  const [isNewConversation, setIsNewConversation] = useState(false)
+  
+  // StrictMode execution guard
+  const executionCountRef = useRef(0)
+  const isNewConversationRef = useRef(false)
 
   const fetchMessages = async (conversationId: string) => {
     if (!user || !conversationId) return
@@ -68,23 +72,32 @@ export const useChatMessages = () => {
     }
   }
 
-  const createNewConversation = async (): Promise<string | null> => {
+  const createNewConversation = useCallback(async (): Promise<string | null> => {
     console.log('🆕 createNewConversation called - UI clear mode')
     
-    // Phase 1: Immediately clear UI state - no database operations
-    setMessages([])
-    setCurrentConversationId(null)
-    setIsNewConversation(true)
+    // Use flushSync for immediate synchronous state clearing
+    flushSync(() => {
+      setMessages([])
+      setCurrentConversationId(null)
+    })
     
-    console.log('✅ UI state cleared - ready for new conversation')
+    // Set new conversation flag
+    isNewConversationRef.current = true
+    
+    console.log('✅ UI state cleared synchronously - ready for new conversation')
     return null // Don't create DB record yet
-  }
+  }, [])
 
-  const switchConversation = async (conversationId: string) => {
-    setMessages([])
-    setCurrentConversationId(conversationId)
+  const switchConversation = useCallback(async (conversationId: string) => {
+    // Use flushSync for immediate state clearing
+    flushSync(() => {
+      setMessages([])
+      setCurrentConversationId(conversationId)
+    })
+    
+    isNewConversationRef.current = false
     await fetchMessages(conversationId)
-  }
+  }, [user])
 
   const updateConversationTitle = async (conversationId: string, title: string) => {
     try {
@@ -106,7 +119,7 @@ export const useChatMessages = () => {
     let conversationId = currentConversationId
 
     // Phase 2: Create database conversation if needed (new conversation or no current conversation)
-    if (!conversationId || isNewConversation) {
+    if (!conversationId || isNewConversationRef.current) {
       console.log('🔨 Creating database conversation record')
       
       try {
@@ -125,7 +138,7 @@ export const useChatMessages = () => {
 
         conversationId = data.id
         setCurrentConversationId(conversationId)
-        setIsNewConversation(false)
+        isNewConversationRef.current = false
         
         console.log('✅ Database conversation created:', conversationId)
       } catch (error) {
@@ -163,11 +176,18 @@ export const useChatMessages = () => {
 
       if (userError) throw userError
 
-      // Update messages state with user message
-      setMessages(prev => [...prev, userMessage])
+      // Update messages state with user message - use functional update with state guard
+      setMessages(prev => {
+        // Guard against stale state - ensure we're starting clean for new conversations
+        if (isNewConversationRef.current && prev.length > 0) {
+          console.log('🔧 Clearing stale messages due to new conversation state')
+          return [userMessage]
+        }
+        return [...prev, userMessage]
+      })
 
-      // Update conversation title based on first message
-      if (messages.length === 0) {
+      // Update conversation title based on first message - check after state update
+      if (isNewConversationRef.current || messages.length === 0) {
         const title = content.slice(0, 50) + (content.length > 50 ? '...' : '')
         await updateConversationTitle(conversationId, title)
       }
@@ -246,14 +266,19 @@ export const useChatMessages = () => {
     }
   }
 
-  // Initialize with first conversation only when needed
+  // Initialize with first conversation only when needed - FIXED: removed isNewConversation dependency
   useEffect(() => {
     const initializeChat = async () => {
-      console.log('🔍 useEffect triggered:', {
+      // StrictMode guard - increment execution counter
+      executionCountRef.current += 1
+      const currentExecution = executionCountRef.current
+      
+      console.log('🔍 useEffect triggered (execution #' + currentExecution + '):', {
         userPresent: !!user,
         isInitialized,
         currentConversationId,
-        messagesLength: messages.length
+        messagesLength: messages.length,
+        isNewConversation: isNewConversationRef.current
       })
       
       if (!user || isInitialized) {
@@ -262,7 +287,7 @@ export const useChatMessages = () => {
       }
       
       // ONLY load a conversation if no conversation is currently set, no messages exist, and not in new conversation mode
-      if (currentConversationId !== null || messages.length > 0 || isNewConversation) {
+      if (currentConversationId !== null || messages.length > 0 || isNewConversationRef.current) {
         console.log('🚫 Skipping auto-load - conversation already active, messages exist, or in new conversation mode')
         setIsInitialized(true)
         return
@@ -271,6 +296,12 @@ export const useChatMessages = () => {
       console.log('📋 Looking for latest conversation to auto-load')
 
       try {
+        // StrictMode guard - check if execution is still current
+        if (executionCountRef.current !== currentExecution) {
+          console.log('🚫 Aborting stale execution #' + currentExecution)
+          return
+        }
+
         const { data: conversations, error } = await supabase
           .from('conversations')
           .select('*')
@@ -279,6 +310,12 @@ export const useChatMessages = () => {
           .limit(1)
 
         if (error) throw error
+
+        // StrictMode guard - check again after async operation
+        if (executionCountRef.current !== currentExecution) {
+          console.log('🚫 Aborting stale execution #' + currentExecution + ' after fetch')
+          return
+        }
 
         if (conversations && conversations.length > 0) {
           const latestConversation = conversations[0]
@@ -291,13 +328,13 @@ export const useChatMessages = () => {
       } catch (error) {
         console.error('Error initializing chat:', error)
       } finally {
-        console.log('✅ Setting isInitialized to true')
+        console.log('✅ Setting isInitialized to true (execution #' + currentExecution + ')')
         setIsInitialized(true)
       }
     }
 
     initializeChat()
-  }, [user, isInitialized, isNewConversation])
+  }, [user, isInitialized]) // CRITICAL: removed isNewConversation to prevent circular dependencies
 
   return {
     messages,
