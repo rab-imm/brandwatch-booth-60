@@ -169,21 +169,6 @@ serve(async (req) => {
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
-      }
-        await supabaseClient
-          .from('activity_logs')
-          .insert({
-            user_id: user.id,
-            action: 'create_user',
-            resource_type: 'user',
-            resource_id: authUser.user.id,
-            metadata: { created_user_email: email, user_role }
-          });
-
-        return new Response(JSON.stringify({ success: true, user_id: authUser.user.id }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
 
       case 'update_user': {
         const { user_id, ...updates } = requestData as UpdateUserRequest;
