@@ -7,6 +7,15 @@ export const createUserSchema = z.object({
   subscription_tier: z.string().min(1, "Subscription tier is required"),
   max_credits_per_period: z.number().min(0, "Credits must be non-negative").max(100000, "Credits too high"),
   company_id: z.string().uuid("Invalid company ID").optional(),
+}).refine((data) => {
+  // Make company_id required for company_admin role
+  if (data.user_role === 'company_admin' && !data.company_id) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Company is required for company admin role",
+  path: ["company_id"],
 });
 
 export const updateUserSchema = z.object({

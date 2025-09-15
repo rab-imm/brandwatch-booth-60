@@ -92,7 +92,8 @@ export const UserManagement = () => {
     user_role: 'individual' as const,
     subscription_tier: 'free',
     subscription_status: 'active',
-    max_credits_per_period: 10
+    max_credits_per_period: 10,
+    company_id: ''
   })
   
   // Form states for company creation/editing
@@ -233,13 +234,15 @@ export const UserManagement = () => {
   const handleCreateUser = async () => {
     try {
       // Validate input
-      const validatedData = createUserSchema.parse({
+      const userData = {
         email: newUser.email,
         full_name: newUser.full_name,
         user_role: newUser.user_role,
         subscription_tier: newUser.subscription_tier,
-        max_credits_per_period: newUser.max_credits_per_period
-      });
+        max_credits_per_period: newUser.max_credits_per_period,
+        company_id: newUser.company_id || undefined
+      };
+      const validatedData = createUserSchema.parse(userData);
 
       const { data, error } = await supabase.functions.invoke('admin-user-management', {
         body: { action: 'create_user', ...validatedData }
@@ -258,7 +261,8 @@ export const UserManagement = () => {
         user_role: 'individual',
         subscription_tier: 'free',
         subscription_status: 'active',
-        max_credits_per_period: 10
+        max_credits_per_period: 10,
+        company_id: ''
       })
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -907,7 +911,7 @@ export const UserManagement = () => {
                 <Label htmlFor="create_role">User Role</Label>
                 <Select
                   value={newUser.user_role}
-                  onValueChange={(value: any) => setNewUser({ ...newUser, user_role: value })}
+                  onValueChange={(value: any) => setNewUser({ ...newUser, user_role: value, company_id: value === 'company_admin' ? newUser.company_id : '' })}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -939,6 +943,27 @@ export const UserManagement = () => {
                 </Select>
               </div>
             </div>
+            
+            {(newUser.user_role as string) === 'company_admin' && (
+              <div>
+                <Label htmlFor="create_company">Company *</Label>
+                <Select
+                  value={newUser.company_id}
+                  onValueChange={(value) => setNewUser({ ...newUser, company_id: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select company" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {companies.map((company) => (
+                      <SelectItem key={company.id} value={company.id}>
+                        {company.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             
             <div>
               <Label htmlFor="create_credits">Credit Limit</Label>
