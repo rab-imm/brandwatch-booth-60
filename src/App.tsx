@@ -20,6 +20,7 @@ import { CompanyAdminDashboard } from "./components/CompanyAdminDashboard";
 import { DocumentUpload } from "./components/DocumentUpload";
 import { SubscriptionManager } from "./components/SubscriptionManager";
 import { PersonalDashboard } from "./components/PersonalDashboard";
+import { Header } from "./components/Header";
 
 const queryClient = new QueryClient();
 
@@ -49,12 +50,11 @@ const App = () => (
             <Route path="/templates" element={
               <ProtectedRoute>
                 <div className="min-h-screen bg-background">
-                  <header className="border-b">
-                    <div className="container mx-auto px-4 py-4">
+                  <Header />
+                  <main className="container mx-auto px-4 py-8">
+                    <div className="mb-8">
                       <h1 className="text-3xl font-bold">Legal Template Store</h1>
                     </div>
-                  </header>
-                  <main className="container mx-auto px-4 py-8">
                     <EnhancedTemplateStore />
                   </main>
                 </div>
