@@ -19,7 +19,8 @@ export const ChatInterface = () => {
   console.log('💬 ChatInterface render:', {
     messagesCount: messages.length,
     currentConversationId,
-    loading
+    loading,
+    messagesPreview: messages.map(m => ({ id: m.id, role: m.role, content: m.content.slice(0, 30) + '...' }))
   })
 
   const scrollToBottom = () => {
@@ -96,7 +97,16 @@ export const ChatInterface = () => {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 && !loading ? (
+        {(() => {
+          const shouldShowEmpty = messages.length === 0 && !loading;
+          console.log('🎨 UI Decision:', { 
+            messagesLength: messages.length, 
+            loading, 
+            shouldShowEmpty,
+            currentConversationId 
+          });
+          return shouldShowEmpty;
+        })() ? (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
             <Icon name="scale" className="w-16 h-16 text-primary" />
             <div className="space-y-2">
