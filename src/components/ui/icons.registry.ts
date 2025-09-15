@@ -289,6 +289,12 @@ export const iconRegistry: Record<string, ComponentType<any>> = {
   'heart': Heart,
   'play': Play,
   'download': Download,
+  
+  // Admin dashboard missing icons
+  'dollar-sign': EnvelopeClosedIcon, // Using envelope for dollar-sign temporarily
+  'shield-check': TablerShield, // Using shield for shield-check
+  'inbox': TablerMessage, // Using message for inbox
+  'bar-chart': IconChartBar, // Using chart-bar for bar-chart
 
   // Data & Storage - Tabler for technical icons
   'database': IconDatabase,

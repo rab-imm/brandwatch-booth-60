@@ -77,14 +77,14 @@ export const AdminSearchFilter = ({
             
             {config.type === 'select' && (
               <Select
-                value={filters[config.key] || ""}
-                onValueChange={(value) => handleFilterChange(config.key, value)}
+                value={filters[config.key] || "all"}
+                onValueChange={(value) => handleFilterChange(config.key, value === "all" ? "" : value)}
               >
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder={`Select ${config.label.toLowerCase()}`} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
                   {config.options?.map(option => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}

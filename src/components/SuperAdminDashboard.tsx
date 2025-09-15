@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/hooks/use-toast"
 import { Header } from "@/components/Header"
+import { AdminErrorBoundary } from "./admin/AdminErrorBoundary"
 import { DocumentUpload } from "./DocumentUpload"
 import { TemplateCreator } from "./TemplateCreator"
 import { TemplateAnalytics } from "./TemplateAnalytics"
@@ -534,43 +535,63 @@ export const SuperAdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="billing" className="space-y-6">
-            <SuperAdminBillingDashboard />
+            <AdminErrorBoundary>
+              <SuperAdminBillingDashboard />
+            </AdminErrorBoundary>
           </TabsContent>
 
           <TabsContent value="upload" className="space-y-4">
-            <DocumentUpload />
+            <AdminErrorBoundary>
+              <DocumentUpload />
+            </AdminErrorBoundary>
           </TabsContent>
 
           <TabsContent value="templates" className="space-y-4">
-            <TemplateCreator />
+            <AdminErrorBoundary>
+              <TemplateCreator />
+            </AdminErrorBoundary>
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-4">
-            <TemplateAnalytics />
+            <AdminErrorBoundary>
+              <TemplateAnalytics />
+            </AdminErrorBoundary>
           </TabsContent>
 
           <TabsContent value="advanced-analytics" className="space-y-4">
-            <AdvancedAnalytics />
+            <AdminErrorBoundary>
+              <AdvancedAnalytics />
+            </AdminErrorBoundary>
           </TabsContent>
 
           <TabsContent value="realtime" className="space-y-4">
-            <RealtimeDashboard />
+            <AdminErrorBoundary>
+              <RealtimeDashboard />
+            </AdminErrorBoundary>
           </TabsContent>
 
           <TabsContent value="notifications" className="space-y-4">
-            <NotificationManagement />
+            <AdminErrorBoundary>
+              <NotificationManagement />
+            </AdminErrorBoundary>
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
-            <SystemConfiguration />
+            <AdminErrorBoundary>
+              <SystemConfiguration />
+            </AdminErrorBoundary>
           </TabsContent>
 
           <TabsContent value="audit" className="space-y-4">
-            <AuditLogs />
+            <AdminErrorBoundary>
+              <AuditLogs />
+            </AdminErrorBoundary>
           </TabsContent>
 
           <TabsContent value="security" className="space-y-4">
-            <SecurityMonitoring />
+            <AdminErrorBoundary>
+              <SecurityMonitoring />
+            </AdminErrorBoundary>
           </TabsContent>
         </Tabs>
       </div>
