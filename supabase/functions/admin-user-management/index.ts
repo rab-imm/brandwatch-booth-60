@@ -266,24 +266,58 @@ serve(async (req) => {
 
           console.log('Profile created successfully');
 
-          // Step 5: Create Company Role (if needed)
+          // Step 5: Create Company Role (if needed) with UPSERT logic
           if (company_id) {
-            console.log('=== CREATING COMPANY ROLE ===');
-            const { error: roleError } = await supabaseClient
+            console.log('=== CREATING/UPDATING COMPANY ROLE ===');
+            
+            // Check if user already has a role in this company
+            const { data: existingRole, error: roleCheckError } = await supabaseClient
               .from('user_company_roles')
-              .insert({
-                user_id: authUser.user.id,
-                company_id,
-                role: user_role,
-                max_credits_per_period
-              });
-
-            if (roleError) {
-              console.error('Failed to create company role:', roleError);
-              // Don't fail the whole operation for role creation failure
-              // The user is still created successfully
+              .select('id, role')
+              .eq('user_id', authUser.user.id)
+              .eq('company_id', company_id)
+              .maybeSingle();
+              
+            if (roleCheckError) {
+              console.error('Error checking existing company role:', roleCheckError);
+              // Don't fail the whole operation for role check failure
+            } else if (existingRole) {
+              console.log('User already has role in company, updating...', existingRole);
+              const { error: roleUpdateError } = await supabaseClient
+                .from('user_company_roles')
+                .update({
+                  role: user_role,
+                  max_credits_per_period
+                })
+                .eq('id', existingRole.id);
+                
+              if (roleUpdateError) {
+                console.error('Failed to update company role:', roleUpdateError);
+              } else {
+                console.log('Company role updated successfully');
+              }
             } else {
-              console.log('Company role created successfully');
+              console.log('Creating new company role...');
+              const { error: roleError } = await supabaseClient
+                .from('user_company_roles')
+                .insert({
+                  user_id: authUser.user.id,
+                  company_id,
+                  role: user_role,
+                  max_credits_per_period
+                });
+
+              if (roleError) {
+                console.error('Failed to create company role:', {
+                  code: roleError.code,
+                  message: roleError.message,
+                  details: roleError.details,
+                  hint: roleError.hint
+                });
+                // Don't fail the whole operation for role creation failure
+              } else {
+                console.log('Company role created successfully');
+              }
             }
           }
 
@@ -351,7 +385,9 @@ serve(async (req) => {
       }
 
       case 'update_user': {
+        console.log('=== STARTING USER UPDATE ===');
         const { user_id, ...updates } = requestData as UpdateUserRequest;
+        console.log('Update user request:', { user_id, updates });
         
         const { error: updateError } = await supabaseClient
           .from('profiles')
@@ -359,20 +395,41 @@ serve(async (req) => {
           .eq('user_id', user_id);
 
         if (updateError) {
-          throw new Error(`Failed to update user: ${updateError.message}`);
+          console.error('User update failed:', {
+            code: updateError.code,
+            message: updateError.message,
+            details: updateError.details,
+            hint: updateError.hint
+          });
+          return new Response(
+            JSON.stringify({ 
+              error: `Failed to update user: ${updateError.message}`,
+              code: updateError.code,
+              details: updateError.details 
+            }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
-        // Log activity
-        await supabaseClient
-          .from('activity_logs')
-          .insert({
-            user_id: user.id,
-            action: 'update_user',
-            resource_type: 'user',
-            resource_id: user_id,
-            metadata: { updates }
-          });
+        console.log('User updated successfully');
 
+        // Log activity
+        try {
+          await supabaseClient
+            .from('activity_logs')
+            .insert({
+              user_id: user.id,
+              action: 'update_user',
+              resource_type: 'user',
+              resource_id: user_id,
+              metadata: { updates }
+            });
+          console.log('Activity logged successfully');
+        } catch (logError) {
+          console.error('Failed to log activity (non-critical):', logError);
+        }
+
+        console.log('=== USER UPDATE COMPLETED SUCCESSFULLY ===');
         return new Response(JSON.stringify({ success: true }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -405,7 +462,34 @@ serve(async (req) => {
       }
 
       case 'create_company': {
+        console.log('=== STARTING COMPANY CREATION ===');
         const { name, email, subscription_tier = 'free', total_credits = 1000 } = requestData as CompanyRequest;
+        console.log('Company data:', { name, email, subscription_tier, total_credits });
+        
+        // Check for existing company with same name or email
+        const { data: existingCompany, error: checkError } = await supabaseClient
+          .from('companies')
+          .select('id, name, email')
+          .or(`name.eq.${name},email.eq.${email}`)
+          .maybeSingle();
+          
+        if (checkError) {
+          console.error('Error checking existing company:', checkError);
+          return new Response(
+            JSON.stringify({ error: `Error checking existing company: ${checkError.message}` }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        if (existingCompany) {
+          console.error('Company already exists:', existingCompany);
+          return new Response(
+            JSON.stringify({ 
+              error: `Company already exists with ${existingCompany.name === name ? 'name' : 'email'}: ${existingCompany.name === name ? name : email}` 
+            }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
         
         const { data: company, error: companyError } = await supabaseClient
           .from('companies')
@@ -419,20 +503,41 @@ serve(async (req) => {
           .single();
 
         if (companyError) {
-          throw new Error(`Failed to create company: ${companyError.message}`);
+          console.error('Company creation failed:', {
+            code: companyError.code,
+            message: companyError.message,
+            details: companyError.details,
+            hint: companyError.hint
+          });
+          return new Response(
+            JSON.stringify({ 
+              error: `Failed to create company: ${companyError.message}`,
+              code: companyError.code,
+              details: companyError.details 
+            }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
-        // Log activity
-        await supabaseClient
-          .from('activity_logs')
-          .insert({
-            user_id: user.id,
-            action: 'create_company',
-            resource_type: 'company',
-            resource_id: company.id,
-            metadata: { company_name: name }
-          });
+        console.log('Company created successfully:', company.id);
 
+        // Log activity
+        try {
+          await supabaseClient
+            .from('activity_logs')
+            .insert({
+              user_id: user.id,
+              action: 'create_company',
+              resource_type: 'company',
+              resource_id: company.id,
+              metadata: { company_name: name }
+            });
+          console.log('Activity logged successfully');
+        } catch (logError) {
+          console.error('Failed to log activity (non-critical):', logError);
+        }
+
+        console.log('=== COMPANY CREATION COMPLETED SUCCESSFULLY ===');
         return new Response(JSON.stringify({ success: true, company }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
