@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/hooks/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PersonalBillingHistory } from "@/components/PersonalBillingHistory"
+import { Header } from "@/components/Header"
 
 const SUBSCRIPTION_TIERS = {
   essential: {
@@ -144,7 +145,9 @@ export const SubscriptionManager = () => {
   const currentTier = getCurrentTier()
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <>
+      <Header />
+      <div className="max-w-4xl mx-auto space-y-6 p-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="subscription">Subscription Plans</TabsTrigger>
@@ -264,5 +267,6 @@ export const SubscriptionManager = () => {
         </TabsContent>
       </Tabs>
     </div>
+    </>
   )
 }
