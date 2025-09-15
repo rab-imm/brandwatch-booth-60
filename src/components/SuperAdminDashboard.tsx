@@ -562,15 +562,26 @@ export const SuperAdminDashboard = () => {
         <AdminSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
         
         <SidebarInset className="flex-1 flex flex-col">
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-            <SidebarTrigger className="-ml-1" />
-            <div className="h-4 w-px bg-border" />
+          <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-semibold">Super Admin Dashboard</h1>
-              <span className="text-sm text-muted-foreground">
-                • {activeSection.charAt(0).toUpperCase() + activeSection.slice(1).replace('-', ' ')}
-              </span>
+              <SidebarTrigger className="-ml-1" />
+              <div className="h-4 w-px bg-border" />
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-semibold">Super Admin Dashboard</h1>
+                <span className="text-sm text-muted-foreground">
+                  • {activeSection.charAt(0).toUpperCase() + activeSection.slice(1).replace('-', ' ')}
+                </span>
+              </div>
             </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => window.location.href = '/'}
+              className="flex items-center gap-2"
+            >
+              <Icon name="arrow-left" className="h-4 w-4" />
+              Back to Website
+            </Button>
           </header>
           
           <main className="flex-1 p-6 overflow-auto">
