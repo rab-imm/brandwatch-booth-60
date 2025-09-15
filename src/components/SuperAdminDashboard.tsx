@@ -4,11 +4,12 @@ import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/hooks/use-toast"
 import { Header } from "@/components/Header"
 import { AdminErrorBoundary } from "./admin/AdminErrorBoundary"
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
+import { AdminSidebar } from "./admin/AdminSidebar"
 import { DocumentUpload } from "./DocumentUpload"
 import { TemplateCreator } from "./TemplateCreator"
 import { TemplateAnalytics } from "./TemplateAnalytics"
@@ -29,7 +30,7 @@ import { SuperAdminBillingDashboard } from './admin/SuperAdminBillingDashboard';
 export const SuperAdminDashboard = () => {
   const { user, profile } = useAuth()
   const { toast } = useToast()
-  const [activeTab, setActiveTab] = useState("overview")
+  const [activeSection, setActiveSection] = useState("overview")
   const [documents, setDocuments] = useState([])
   const [companies, setCompanies] = useState([])
   const [lawyerRequests, setLawyerRequests] = useState([])
@@ -371,230 +372,215 @@ export const SuperAdminDashboard = () => {
     )
   }
 
+  const renderActiveSection = () => {
+    switch (activeSection) {
+      case "overview":
+        return (
+          <AdminErrorBoundary>
+            <AdminOverviewDashboard />
+          </AdminErrorBoundary>
+        )
+      
+      case "documents":
+        return (
+          <AdminErrorBoundary>
+            <div className="space-y-6">
+              <AdminSearchFilter
+                onFilterChange={handleDocumentFilter}
+                filterConfigs={documentFilterConfigs}
+              />
+              
+              <EnhancedDataTable
+                data={filteredDocuments}
+                columns={documentColumns}
+                onSelectionChange={setSelectedDocuments}
+                selectedItems={selectedDocuments}
+                loading={loading}
+                emptyMessage="No documents found"
+              />
+              
+              <BulkActionBar
+                selectedItems={selectedDocuments}
+                onClearSelection={() => setSelectedDocuments([])}
+                onBulkApprove={handleBulkApproveDocuments}
+                onBulkReject={handleBulkRejectDocuments}
+                itemType="documents"
+              />
+            </div>
+          </AdminErrorBoundary>
+        )
+      
+      case "users":
+        return (
+          <AdminErrorBoundary>
+            <UserManagement />
+          </AdminErrorBoundary>
+        )
+      
+      case "workflow":
+        return (
+          <AdminErrorBoundary>
+            <DocumentWorkflow documents={filteredDocuments} onRefresh={fetchData} />
+          </AdminErrorBoundary>
+        )
+      
+      case "companies":
+        return (
+          <AdminErrorBoundary>
+            <div className="space-y-6">
+              <AdminSearchFilter
+                onFilterChange={handleCompanyFilter}
+                filterConfigs={companyFilterConfigs}
+              />
+              
+              <EnhancedDataTable
+                data={filteredCompanies}
+                columns={companyColumns}
+                onSelectionChange={setSelectedCompanies}
+                selectedItems={selectedCompanies}
+                loading={loading}
+                emptyMessage="No companies found"
+              />
+            </div>
+          </AdminErrorBoundary>
+        )
+      
+      case "billing":
+        return (
+          <AdminErrorBoundary>
+            <SuperAdminBillingDashboard />
+          </AdminErrorBoundary>
+        )
+      
+      case "requests":
+        return (
+          <AdminErrorBoundary>
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Lawyer Requests</h2>
+              <div className="grid gap-6">
+                {lawyerRequests.map((request: any) => (
+                  <Card key={request.id}>
+                    <CardHeader>
+                      <CardTitle>{request.subject}</CardTitle>
+                      <CardDescription>
+                        From: {request.name} ({request.email})
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="mb-4">{request.message}</p>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={request.status === 'pending' ? 'secondary' : 'default'}>
+                          {request.status}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(request.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </AdminErrorBoundary>
+        )
+      
+      case "upload":
+        return (
+          <AdminErrorBoundary>
+            <DocumentUpload />
+          </AdminErrorBoundary>
+        )
+      
+      case "templates":
+        return (
+          <AdminErrorBoundary>
+            <TemplateCreator />
+          </AdminErrorBoundary>
+        )
+      
+      case "analytics":
+        return (
+          <AdminErrorBoundary>
+            <TemplateAnalytics />
+          </AdminErrorBoundary>
+        )
+      
+      case "advanced-analytics":
+        return (
+          <AdminErrorBoundary>
+            <AdvancedAnalytics />
+          </AdminErrorBoundary>
+        )
+      
+      case "realtime":
+        return (
+          <AdminErrorBoundary>
+            <RealtimeDashboard />
+          </AdminErrorBoundary>
+        )
+      
+      case "notifications":
+        return (
+          <AdminErrorBoundary>
+            <NotificationManagement />
+          </AdminErrorBoundary>
+        )
+      
+      case "settings":
+        return (
+          <AdminErrorBoundary>
+            <SystemConfiguration />
+          </AdminErrorBoundary>
+        )
+      
+      case "audit":
+        return (
+          <AdminErrorBoundary>
+            <AuditLogs />
+          </AdminErrorBoundary>
+        )
+      
+      case "security":
+        return (
+          <AdminErrorBoundary>
+            <SecurityMonitoring />
+          </AdminErrorBoundary>
+        )
+      
+      default:
+        return (
+          <AdminErrorBoundary>
+            <AdminOverviewDashboard />
+          </AdminErrorBoundary>
+        )
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Super Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage platform-wide settings and monitor system activity</p>
+      <SidebarProvider defaultOpen={true}>
+        <div className="flex min-h-screen w-full">
+          <AdminSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+          
+          <SidebarInset className="flex-1">
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+              <SidebarTrigger className="-ml-1" />
+              <div className="h-4 w-px bg-border" />
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-semibold">Super Admin Dashboard</h1>
+                <span className="text-sm text-muted-foreground">
+                  • {activeSection.charAt(0).toUpperCase() + activeSection.slice(1).replace('-', ' ')}
+                </span>
+              </div>
+            </header>
+            
+            <main className="flex-1 p-6">
+              {renderActiveSection()}
+            </main>
+          </SidebarInset>
         </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-13">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <Icon name="layout-dashboard" className="h-4 w-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="documents" className="flex items-center gap-2">
-              <Icon name="file-text" className="h-4 w-4" />
-              Documents
-            </TabsTrigger>
-            <TabsTrigger value="companies" className="flex items-center gap-2">
-              <Icon name="building" className="h-4 w-4" />
-              Companies
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Icon name="users" className="h-4 w-4" />
-              Users
-            </TabsTrigger>
-            <TabsTrigger value="billing" className="flex items-center gap-2">
-              <Icon name="credit-card" className="h-4 w-4" />
-              Billing
-            </TabsTrigger>
-            <TabsTrigger value="requests" className="flex items-center gap-2">
-              <Icon name="alert-circle" className="h-4 w-4" />
-              Lawyer Requests
-            </TabsTrigger>
-            <TabsTrigger value="workflow" className="flex items-center gap-2">
-              <Icon name="workflow" className="h-4 w-4" />
-              Workflow
-            </TabsTrigger>
-            <TabsTrigger value="upload" className="flex items-center gap-2">
-              <Icon name="upload" className="h-4 w-4" />
-              Upload Document
-            </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
-              <Icon name="file-plus" className="h-4 w-4" />
-              Create Template
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <Icon name="bar-chart" className="h-4 w-4" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="advanced-analytics" className="flex items-center gap-2">
-              <Icon name="trending-up" className="h-4 w-4" />
-              Advanced
-            </TabsTrigger>
-            <TabsTrigger value="realtime" className="flex items-center gap-2">
-              <Icon name="activity" className="h-4 w-4" />
-              Real-time
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
-              <Icon name="bell" className="h-4 w-4" />
-              Notifications
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Icon name="settings" className="h-4 w-4" />
-              Settings
-            </TabsTrigger>
-            <TabsTrigger value="audit" className="flex items-center gap-2">
-              <Icon name="eye" className="h-4 w-4" />
-              Audit
-            </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2">
-              <Icon name="shield" className="h-4 w-4" />
-              Security
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
-            <AdminOverviewDashboard />
-          </TabsContent>
-
-          <TabsContent value="documents" className="space-y-6">
-            <AdminSearchFilter
-              onFilterChange={handleDocumentFilter}
-              filterConfigs={documentFilterConfigs}
-            />
-            
-            <EnhancedDataTable
-              data={filteredDocuments}
-              columns={documentColumns}
-              onSelectionChange={setSelectedDocuments}
-              selectedItems={selectedDocuments}
-              loading={loading}
-              emptyMessage="No documents found"
-            />
-            
-            <BulkActionBar
-              selectedItems={selectedDocuments}
-              onClearSelection={() => setSelectedDocuments([])}
-              onBulkApprove={handleBulkApproveDocuments}
-              onBulkReject={handleBulkRejectDocuments}
-              itemType="documents"
-            />
-          </TabsContent>
-
-          <TabsContent value="users" className="space-y-6">
-            <UserManagement />
-          </TabsContent>
-
-          <TabsContent value="workflow" className="space-y-6">
-            <DocumentWorkflow documents={filteredDocuments} onRefresh={fetchData} />
-          </TabsContent>
-
-          <TabsContent value="companies" className="space-y-6">
-            <AdminSearchFilter
-              onFilterChange={handleCompanyFilter}
-              filterConfigs={companyFilterConfigs}
-            />
-            
-            <EnhancedDataTable
-              data={filteredCompanies}
-              columns={companyColumns}
-              onSelectionChange={setSelectedCompanies}
-              selectedItems={selectedCompanies}
-              loading={loading}
-              emptyMessage="No companies found"
-            />
-          </TabsContent>
-
-          <TabsContent value="requests" className="space-y-4">
-            <div className="grid gap-4">
-              {lawyerRequests.map((request: any) => (
-                <Card key={request.id}>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle>{request.subject}</CardTitle>
-                        <CardDescription>
-                          Specialization: {request.specialization || 'General'}
-                        </CardDescription>
-                      </div>
-                      <Badge variant={
-                        request.status === 'assigned' ? 'default' :
-                        request.status === 'pending' ? 'secondary' : 'outline'
-                      }>
-                        {request.status}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      {request.description}
-                    </p>
-                    <div className="flex justify-between items-center text-sm">
-                      <span>Priority: {request.priority}</span>
-                      <span>Created: {new Date(request.created_at).toLocaleDateString()}</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="billing" className="space-y-6">
-            <AdminErrorBoundary>
-              <SuperAdminBillingDashboard />
-            </AdminErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="upload" className="space-y-4">
-            <AdminErrorBoundary>
-              <DocumentUpload />
-            </AdminErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="templates" className="space-y-4">
-            <AdminErrorBoundary>
-              <TemplateCreator />
-            </AdminErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="analytics" className="space-y-4">
-            <AdminErrorBoundary>
-              <TemplateAnalytics />
-            </AdminErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="advanced-analytics" className="space-y-4">
-            <AdminErrorBoundary>
-              <AdvancedAnalytics />
-            </AdminErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="realtime" className="space-y-4">
-            <AdminErrorBoundary>
-              <RealtimeDashboard />
-            </AdminErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="notifications" className="space-y-4">
-            <AdminErrorBoundary>
-              <NotificationManagement />
-            </AdminErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-4">
-            <AdminErrorBoundary>
-              <SystemConfiguration />
-            </AdminErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="audit" className="space-y-4">
-            <AdminErrorBoundary>
-              <AuditLogs />
-            </AdminErrorBoundary>
-          </TabsContent>
-
-          <TabsContent value="security" className="space-y-4">
-            <AdminErrorBoundary>
-              <SecurityMonitoring />
-            </AdminErrorBoundary>
-          </TabsContent>
-        </Tabs>
-      </div>
+      </SidebarProvider>
     </div>
   )
 }
