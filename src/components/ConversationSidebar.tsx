@@ -26,6 +26,7 @@ export const ConversationSidebar = () => {
     if (!user) return
 
     try {
+      console.log('🔄 Fetching conversations for user:', user.id)
       const { data, error } = await supabase
         .from('conversations')
         .select('*')
@@ -33,6 +34,7 @@ export const ConversationSidebar = () => {
         .order('updated_at', { ascending: false })
 
       if (error) throw error
+      console.log('📋 Conversations fetched:', data?.length || 0)
       setConversations(data || [])
     } catch (error) {
       console.error('Error fetching conversations:', error)
