@@ -76,29 +76,6 @@ serve(async (req) => {
         try {
           console.log('Attempting to create user with email:', email);
           
-          // First check if user already exists in auth
-          const { data: existingUsers } = await supabaseClient.auth.admin.listUsers();
-          const existingUser = existingUsers.users.find(u => u.email === email);
-          
-          if (existingUser) {
-            console.log('Found existing auth user, checking profile:', existingUser.id);
-            const { data: existingProfile } = await supabaseClient
-              .from('profiles')
-              .select('*')
-              .eq('user_id', existingUser.id)
-              .maybeSingle();
-              
-            if (!existingProfile) {
-              console.log('Auth user exists but no profile - cleaning up orphaned auth user');
-              await supabaseClient.auth.admin.deleteUser(existingUser.id);
-            } else {
-              return new Response(
-                JSON.stringify({ error: 'A user with this email already exists and has a complete profile' }),
-                { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-              );
-            }
-          }
-          
           // Create auth user
           const { data: authUser, error: createError } = await supabaseClient.auth.admin.createUser({
             email,
