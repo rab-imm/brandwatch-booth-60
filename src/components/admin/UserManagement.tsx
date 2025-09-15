@@ -12,6 +12,7 @@ import { Icon } from "@/components/ui/Icon"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
+import { useAdminActions } from "@/hooks/useAdminActions"
 import { toast } from "sonner"
 import { AdminSearchFilter } from "./AdminSearchFilter"
 import { EnhancedDataTable } from "./EnhancedDataTable"
@@ -71,6 +72,15 @@ interface CompanyDialog {
 
 export const UserManagement = () => {
   const { profile } = useAuth()
+  const { 
+    createUser, 
+    updateUser, 
+    deleteUser, 
+    createCompany, 
+    updateCompany, 
+    deleteCompany, 
+    pauseCompany 
+  } = useAdminActions()
   const [users, setUsers] = useState<User[]>([])
   const [companies, setCompanies] = useState<Company[]>([])
   const [filteredUsers, setFilteredUsers] = useState<User[]>([])
@@ -268,44 +278,30 @@ export const UserManagement = () => {
       };
       const validatedData = createUserSchema.parse(userData);
 
-      const { data, error } = await supabase.functions.invoke('admin-user-management', {
-        body: { action: 'create_user', ...validatedData }
-      });
-
-      if (error) {
-        console.error('Function invocation error:', error);
-        throw new Error(`Function error: ${error.message}`);
-      }
+      // Use the useAdminActions hook instead of direct supabase call
+      const success = await createUser(validatedData);
       
-      if (data?.error) {
-        console.error('Function returned error:', data.error);
-        throw new Error(data.error);
+      if (success) {
+        fetchUsers()
+        setCreateUserDialog({ open: false })
+        setNewUser({
+          email: '',
+          full_name: '',
+          password: '',
+          user_role: 'individual',
+          subscription_tier: 'free',
+          subscription_status: 'active',
+          max_credits_per_period: 10,
+          company_id: ''
+        })
       }
-
-      toast.success('User created successfully')
-      fetchUsers()
-      setCreateUserDialog({ open: false })
-      setNewUser({
-        email: '',
-        full_name: '',
-        password: '',
-        user_role: 'individual',
-        subscription_tier: 'free',
-        subscription_status: 'active',
-        max_credits_per_period: 10,
-        company_id: ''
-      })
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast.error(`Validation error: ${error.issues[0].message}`)
       } else {
         console.error('Error creating user:', error)
-        const errorMessage = error.message || 'Unknown error occurred';
-        if (errorMessage.includes('already been registered')) {
-          toast.error('A user with this email already exists. Please use a different email address.');
-        } else {
-          toast.error(`Failed to create user: ${errorMessage}`);
-        }
+        // The useAdminActions hook already shows appropriate toast messages
+        // No need to show additional error toast here
       }
     }
   }
