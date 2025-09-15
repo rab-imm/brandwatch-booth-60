@@ -49,6 +49,8 @@ export const ConversationSidebar = () => {
   useEffect(() => {
     if (!user) return
 
+    console.log('Setting up realtime subscription for conversations')
+    
     const channel = supabase
       .channel('conversations-changes')
       .on(
@@ -56,17 +58,20 @@ export const ConversationSidebar = () => {
         {
           event: '*',
           schema: 'public',
-          table: 'conversations',
-          filter: `user_id=eq.${user.id}`
+          table: 'conversations'
         },
         (payload) => {
           console.log('Realtime conversation change:', payload)
+          // Only refresh if the change is for the current user (RLS handles access)
           fetchConversations()
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        console.log('Realtime subscription status:', status)
+      })
 
     return () => {
+      console.log('Cleaning up realtime subscription')
       supabase.removeChannel(channel)
     }
   }, [user])
