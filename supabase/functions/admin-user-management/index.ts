@@ -86,7 +86,7 @@ serve(async (req) => {
               .from('profiles')
               .select('*')
               .eq('user_id', existingUser.id)
-              .single();
+              .maybeSingle();
               
             if (!existingProfile) {
               console.log('Auth user exists but no profile - cleaning up orphaned auth user');
@@ -98,8 +98,6 @@ serve(async (req) => {
               );
             }
           }
-          
-          // Create auth user
           
           // Create auth user
           const { data: authUser, error: createError } = await supabaseClient.auth.admin.createUser({
