@@ -7,21 +7,26 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth()
+  const { user, loading, profile } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth')
     } else if (!loading && user) {
-      // Auto-redirect based on user role after successful auth
       const currentPath = window.location.pathname
       if (currentPath === '/auth' || currentPath === '/') {
-        // Only redirect if they're on auth or home page
-        // Let other protected routes stay as they are
+        // Auto-redirect based on user role after successful auth
+        if (profile?.role === 'super_admin') {
+          navigate('/admin')
+        } else if (profile?.role === 'company_admin') {
+          navigate('/company-admin')
+        } else {
+          navigate('/dashboard')
+        }
       }
     }
-  }, [user, loading, navigate])
+  }, [user, loading, profile, navigate])
 
   if (loading) {
     return (
