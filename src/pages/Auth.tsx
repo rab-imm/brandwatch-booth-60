@@ -7,6 +7,15 @@ import { Label } from '@/components/ui/label'
 import { Icon } from '@/components/ui/Icon'
 import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/hooks/use-toast'
+import { supabase } from '@/integrations/supabase/client'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true)
@@ -16,6 +25,9 @@ export default function Auth() {
   const [signupType, setSignupType] = useState<'individual' | 'company'>('individual')
   const [companyName, setCompanyName] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetLoading, setResetLoading] = useState(false)
   
   const { user, signIn, signUp } = useAuth()
   const { toast } = useToast()
@@ -74,6 +86,47 @@ export default function Auth() {
       })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleForgotPassword = async () => {
+    if (!resetEmail) {
+      toast({
+        title: "Email Required",
+        description: "Please enter your email address.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setResetLoading(true)
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/auth`,
+      })
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        })
+      } else {
+        toast({
+          title: "Password Reset Email Sent",
+          description: "Check your email for a link to reset your password."
+        })
+        setShowForgotPassword(false)
+        setResetEmail('')
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setResetLoading(false)
     }
   }
 
@@ -169,7 +222,21 @@ export default function Auth() {
             </div>
             
             <div>
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                {isLogin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setResetEmail(email)
+                      setShowForgotPassword(true)
+                    }}
+                    className="text-xs text-brand-accent hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
               <Input
                 id="password"
                 type="password"
@@ -224,6 +291,45 @@ export default function Auth() {
             </div>
           )}
         </Card>
+
+        <AlertDialog open={showForgotPassword} onOpenChange={setShowForgotPassword}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reset Password</AlertDialogTitle>
+              <AlertDialogDescription>
+                Enter your email address and we'll send you a link to reset your password.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="py-4">
+              <Label htmlFor="resetEmail">Email</Label>
+              <Input
+                id="resetEmail"
+                type="email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="mt-1"
+              />
+            </div>
+            <AlertDialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowForgotPassword(false)}
+                disabled={resetLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="premium"
+                onClick={handleForgotPassword}
+                disabled={resetLoading}
+              >
+                {resetLoading && <Icon name="loader-2" size={16} className="animate-spin mr-2" />}
+                Send Reset Link
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   )
