@@ -26,12 +26,7 @@ export default function Auth() {
   const [companyName, setCompanyName] = useState('')
   const [loading, setLoading] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
-  const [showCodeVerification, setShowCodeVerification] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
   const [resetEmail, setResetEmail] = useState('')
-  const [resetCode, setResetCode] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [resetLoading, setResetLoading] = useState(false)
   
   const { user, signIn, signUp } = useAuth()
@@ -94,7 +89,7 @@ export default function Auth() {
     }
   }
 
-  const handleSendResetCode = async () => {
+  const handleForgotPassword = async () => {
     if (!resetEmail) {
       toast({
         title: "Email Required",
@@ -106,8 +101,8 @@ export default function Auth() {
 
     setResetLoading(true)
     try {
-      const { data, error } = await supabase.functions.invoke('send-password-reset-code', {
-        body: { email: resetEmail }
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/auth`,
       })
 
       if (error) {
@@ -118,112 +113,11 @@ export default function Auth() {
         })
       } else {
         toast({
-          title: "Code Sent",
-          description: "Check your email for the 6-digit reset code."
+          title: "Password Reset Email Sent",
+          description: "Check your email for a link to reset your password."
         })
         setShowForgotPassword(false)
-        setShowCodeVerification(true)
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      })
-    } finally {
-      setResetLoading(false)
-    }
-  }
-
-  const handleVerifyCode = async () => {
-    if (!resetCode || resetCode.length !== 6) {
-      toast({
-        title: "Invalid Code",
-        description: "Please enter the 6-digit code sent to your email.",
-        variant: "destructive"
-      })
-      return
-    }
-
-    setResetLoading(true)
-    try {
-      const { data, error } = await supabase.functions.invoke(
-        'verify-reset-code-and-update-password',
-        {
-          body: { email: resetEmail, code: resetCode }
-        }
-      )
-
-      if (error || data?.error) {
-        toast({
-          title: "Invalid Code",
-          description: data?.error || error.message,
-          variant: "destructive"
-        })
-      } else {
-        toast({
-          title: "Code Verified",
-          description: "Enter your new password."
-        })
-        setShowCodeVerification(false)
-        setShowNewPassword(true)
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      })
-    } finally {
-      setResetLoading(false)
-    }
-  }
-
-  const handleResetPassword = async () => {
-    if (!newPassword || newPassword.length < 6) {
-      toast({
-        title: "Invalid Password",
-        description: "Password must be at least 6 characters.",
-        variant: "destructive"
-      })
-      return
-    }
-
-    if (newPassword !== confirmPassword) {
-      toast({
-        title: "Passwords Don't Match",
-        description: "Please make sure both passwords match.",
-        variant: "destructive"
-      })
-      return
-    }
-
-    setResetLoading(true)
-    try {
-      const { data, error } = await supabase.functions.invoke(
-        'verify-reset-code-and-update-password?action=reset',
-        {
-          body: { email: resetEmail, code: resetCode, newPassword }
-        }
-      )
-
-      if (error || data?.error) {
-        toast({
-          title: "Error",
-          description: data?.error || error.message,
-          variant: "destructive"
-        })
-      } else {
-        toast({
-          title: "Password Reset Successful",
-          description: "You can now log in with your new password."
-        })
-        setShowNewPassword(false)
         setResetEmail('')
-        setResetCode('')
-        setNewPassword('')
-        setConfirmPassword('')
-        setIsLogin(true)
       }
     } catch (error) {
       toast({
@@ -362,7 +256,7 @@ export default function Auth() {
               disabled={loading}
             >
               {loading ? (
-                <Icon name="loader" size={16} className="animate-spin mr-2" />
+                <Icon name="loader-2" size={16} className="animate-spin mr-2" />
               ) : null}
               {isLogin ? 'Sign In' : 'Create Account'}
             </Button>
@@ -398,13 +292,12 @@ export default function Auth() {
           )}
         </Card>
 
-        {/* Step 1: Enter Email */}
         <AlertDialog open={showForgotPassword} onOpenChange={setShowForgotPassword}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Reset Password</AlertDialogTitle>
               <AlertDialogDescription>
-                Enter your email address and we'll send you a 6-digit code to reset your password.
+                Enter your email address and we'll send you a link to reset your password.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="py-4">
@@ -428,114 +321,11 @@ export default function Auth() {
               </Button>
               <Button
                 variant="premium"
-                onClick={handleSendResetCode}
-                disabled={resetLoading}
-              >
-                {resetLoading && <Icon name="loader" size={16} className="animate-spin mr-2" />}
-                Send Code
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        {/* Step 2: Verify Code */}
-        <AlertDialog open={showCodeVerification} onOpenChange={setShowCodeVerification}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Enter Verification Code</AlertDialogTitle>
-              <AlertDialogDescription>
-                Enter the 6-digit code sent to {resetEmail}. The code expires in 3 hours.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="py-4">
-              <Label htmlFor="resetCode">Verification Code</Label>
-              <Input
-                id="resetCode"
-                type="text"
-                value={resetCode}
-                onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                placeholder="000000"
-                className="mt-1 text-center text-2xl tracking-widest"
-                maxLength={6}
-              />
-            </div>
-            <AlertDialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowCodeVerification(false)
-                  setResetCode('')
-                }}
-                disabled={resetLoading}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="premium"
-                onClick={handleVerifyCode}
-                disabled={resetLoading}
-              >
-                {resetLoading && <Icon name="loader" size={16} className="animate-spin mr-2" />}
-                Verify Code
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        {/* Step 3: New Password */}
-        <AlertDialog open={showNewPassword} onOpenChange={setShowNewPassword}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Create New Password</AlertDialogTitle>
-              <AlertDialogDescription>
-                Enter your new password. It must be at least 6 characters long.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="py-4 space-y-4">
-              <div>
-                <Label htmlFor="newPassword">New Password</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter new password"
-                  className="mt-1"
-                  minLength={6}
-                />
-              </div>
-              <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter new password"
-                  className="mt-1"
-                  minLength={6}
-                />
-              </div>
-            </div>
-            <AlertDialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowNewPassword(false)
-                  setNewPassword('')
-                  setConfirmPassword('')
-                }}
-                disabled={resetLoading}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="premium"
-                onClick={handleResetPassword}
+                onClick={handleForgotPassword}
                 disabled={resetLoading}
               >
                 {resetLoading && <Icon name="loader-2" size={16} className="animate-spin mr-2" />}
-                Reset Password
+                Send Reset Link
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
