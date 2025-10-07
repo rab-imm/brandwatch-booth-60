@@ -362,7 +362,7 @@ export default function Auth() {
               disabled={loading}
             >
               {loading ? (
-                <Icon name="loader-2" size={16} className="animate-spin mr-2" />
+                <Icon name="loader" size={16} className="animate-spin mr-2" />
               ) : null}
               {isLogin ? 'Sign In' : 'Create Account'}
             </Button>
@@ -431,7 +431,7 @@ export default function Auth() {
                 onClick={handleSendResetCode}
                 disabled={resetLoading}
               >
-                {resetLoading && <Icon name="loader-2" size={16} className="animate-spin mr-2" />}
+                {resetLoading && <Icon name="loader" size={16} className="animate-spin mr-2" />}
                 Send Code
               </Button>
             </AlertDialogFooter>
@@ -475,7 +475,7 @@ export default function Auth() {
                 onClick={handleVerifyCode}
                 disabled={resetLoading}
               >
-                {resetLoading && <Icon name="loader-2" size={16} className="animate-spin mr-2" />}
+                {resetLoading && <Icon name="loader" size={16} className="animate-spin mr-2" />}
                 Verify Code
               </Button>
             </AlertDialogFooter>
