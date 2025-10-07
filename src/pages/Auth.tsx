@@ -45,36 +45,19 @@ export default function Auth() {
 
   // Check for password reset token
   useEffect(() => {
-    const checkResetToken = async () => {
-      // Check hash parameters
-      const hashParams = new URLSearchParams(window.location.hash.substring(1))
-      const type = hashParams.get('type')
+    // Set up auth state listener for recovery
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', { event, session: !!session })
       
-      console.log('Checking for reset token:', { hash: window.location.hash, type })
-      
-      if (type === 'recovery') {
-        console.log('Recovery type detected, showing reset dialog')
+      if (event === 'PASSWORD_RECOVERY') {
+        console.log('Password recovery event detected')
         setShowResetPassword(true)
-        return
       }
+    })
 
-      // Also check if there's an active recovery session
-      const { data: { session } } = await supabase.auth.getSession()
-      console.log('Current session:', session)
-      
-      if (session?.user) {
-        // Check if this is a password recovery session by looking at the auth state
-        const { data: { user } } = await supabase.auth.getUser()
-        console.log('Current user recovery status:', user)
-        
-        // If we have a session right after page load and the hash had recovery info, show dialog
-        if (type === 'recovery' || hashParams.get('access_token')) {
-          setShowResetPassword(true)
-        }
-      }
+    return () => {
+      subscription.unsubscribe()
     }
-    
-    checkResetToken()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
