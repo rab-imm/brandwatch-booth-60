@@ -21,6 +21,7 @@ export const ConversationSidebar = () => {
   const { currentConversationId, switchConversation, createNewConversation } = useChatContext()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
   const fetchConversations = async () => {
     if (!user) return
@@ -114,6 +115,18 @@ export const ConversationSidebar = () => {
     }
   }
 
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    try {
+      await fetchConversations()
+      toast.success('Conversations refreshed')
+    } catch (error) {
+      toast.error('Failed to refresh conversations')
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
 
   if (loading) {
     return (
@@ -164,6 +177,19 @@ export const ConversationSidebar = () => {
           )}
         </div>
       </ScrollArea>
+      
+      <div className="border-t p-3">
+        <Button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          variant="outline"
+          size="sm"
+          className="w-full gap-2"
+        >
+          <Icon name="refresh-cw" className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          {refreshing ? 'Refreshing...' : 'Refresh'}
+        </Button>
+      </div>
     </div>
   )
 }
