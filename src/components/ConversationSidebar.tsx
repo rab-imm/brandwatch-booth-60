@@ -17,11 +17,11 @@ interface Conversation {
 }
 
 export const ConversationSidebar = () => {
-  const { user } = useAuth()
+  const { user, refetchProfile } = useAuth()
   const { currentConversationId, switchConversation, createNewConversation } = useChatContext()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
+  const [resetting, setResetting] = useState(false)
 
   const fetchConversations = async () => {
     if (!user) return
@@ -115,15 +115,19 @@ export const ConversationSidebar = () => {
     }
   }
 
-  const handleRefresh = async () => {
-    setRefreshing(true)
+  const handleResetQueries = async () => {
+    setResetting(true)
     try {
-      await fetchConversations()
-      toast.success('Conversations refreshed')
+      const { error } = await supabase.rpc('reset_user_queries')
+      if (error) throw error
+      
+      await refetchProfile()
+      toast.success('Queries reset successfully!')
     } catch (error) {
-      toast.error('Failed to refresh conversations')
+      console.error('Error resetting queries:', error)
+      toast.error('Failed to reset queries')
     } finally {
-      setRefreshing(false)
+      setResetting(false)
     }
   }
 
@@ -180,14 +184,14 @@ export const ConversationSidebar = () => {
       
       <div className="border-t p-3">
         <Button
-          onClick={handleRefresh}
-          disabled={refreshing}
+          onClick={handleResetQueries}
+          disabled={resetting}
           variant="outline"
           size="sm"
           className="w-full gap-2"
         >
-          <Icon name="refresh-cw" className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-          {refreshing ? 'Refreshing...' : 'Refresh'}
+          <Icon name="refresh-cw" className={`h-4 w-4 ${resetting ? 'animate-spin' : ''}`} />
+          {resetting ? 'Resetting...' : 'Reset Queries'}
         </Button>
       </div>
     </div>
