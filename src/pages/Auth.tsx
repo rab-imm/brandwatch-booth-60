@@ -28,6 +28,9 @@ export default function Auth() {
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [resetEmail, setResetEmail] = useState('')
   const [resetLoading, setResetLoading] = useState(false)
+  const [showResetPassword, setShowResetPassword] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [updatePasswordLoading, setUpdatePasswordLoading] = useState(false)
   
   const { user, signIn, signUp } = useAuth()
   const { toast } = useToast()
@@ -39,6 +42,20 @@ export default function Auth() {
       navigate('/')
     }
   }, [user, navigate])
+
+  // Check for password reset token
+  useEffect(() => {
+    const checkResetToken = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1))
+      const type = hashParams.get('type')
+      
+      if (type === 'recovery') {
+        setShowResetPassword(true)
+      }
+    }
+    
+    checkResetToken()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -127,6 +144,48 @@ export default function Auth() {
       })
     } finally {
       setResetLoading(false)
+    }
+  }
+
+  const handleUpdatePassword = async () => {
+    if (!newPassword || newPassword.length < 6) {
+      toast({
+        title: "Invalid Password",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setUpdatePasswordLoading(true)
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      })
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        })
+      } else {
+        toast({
+          title: "Password Updated",
+          description: "Your password has been successfully updated."
+        })
+        setShowResetPassword(false)
+        setNewPassword('')
+        navigate('/')
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setUpdatePasswordLoading(false)
     }
   }
 
@@ -256,7 +315,7 @@ export default function Auth() {
               disabled={loading}
             >
               {loading ? (
-                <Icon name="loader-2" size={16} className="animate-spin mr-2" />
+                <Icon name="loader" size={16} className="animate-spin mr-2" />
               ) : null}
               {isLogin ? 'Sign In' : 'Create Account'}
             </Button>
@@ -324,8 +383,48 @@ export default function Auth() {
                 onClick={handleForgotPassword}
                 disabled={resetLoading}
               >
-                {resetLoading && <Icon name="loader-2" size={16} className="animate-spin mr-2" />}
+                {resetLoading && <Icon name="loader" size={16} className="animate-spin mr-2" />}
                 Send Reset Link
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={showResetPassword} onOpenChange={setShowResetPassword}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Set New Password</AlertDialogTitle>
+              <AlertDialogDescription>
+                Enter your new password below.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="py-4">
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+                className="mt-1"
+                minLength={6}
+              />
+            </div>
+            <AlertDialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowResetPassword(false)}
+                disabled={updatePasswordLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="premium"
+                onClick={handleUpdatePassword}
+                disabled={updatePasswordLoading}
+              >
+                {updatePasswordLoading && <Icon name="loader" size={16} className="animate-spin mr-2" />}
+                Update Password
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
