@@ -1,95 +1,95 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import Stripe from 'https://esm.sh/stripe@14.21.0'
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import Stripe from "https://esm.sh/stripe@18.5.0";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const logStep = (step: string, details?: any) => {
+  console.log(`[STRIPE-CONNECT] ${step}${details ? ` - ${JSON.stringify(details)}` : ''}`);
+};
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-      apiVersion: '2023-10-16',
-    })
+    logStep("Function started");
+
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+      apiVersion: "2025-08-27.basil",
+    });
 
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
-    )
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
 
-    const { data: { user } } = await supabaseClient.auth.getUser()
-    if (!user) {
-      throw new Error('Unauthorized')
-    }
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) throw new Error("No authorization header");
 
-    // Get or create creator profile
-    let { data: creator } = await supabaseClient
-      .from('template_creators')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    if (userError) throw new Error(`Auth error: ${userError.message}`);
+    const user = userData.user;
+    if (!user?.email) throw new Error("User not authenticated");
+    logStep("User authenticated", { userId: user.id });
 
-    if (!creator) {
-      // Create creator profile
-      const { data: newCreator } = await supabaseClient
-        .from('template_creators')
-        .insert({
-          user_id: user.id,
-          display_name: user.email?.split('@')[0] || 'Creator'
-        })
-        .select()
-        .single()
-      
-      creator = newCreator
-    }
+    let { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("stripe_connect_account_id, metadata")
+      .eq("user_id", user.id)
+      .single();
 
-    // Create or retrieve Stripe Connect account
-    let accountId = creator.stripe_connect_account_id
+    let accountId = profile?.metadata?.stripe_connect_account_id;
 
     if (!accountId) {
       const account = await stripe.accounts.create({
-        type: 'express',
-        country: 'AE',
+        type: "express",
+        country: "AE",
         email: user.email,
         capabilities: {
           transfers: { requested: true },
         },
-      })
+      });
 
-      accountId = account.id
+      accountId = account.id;
+      logStep("Created Stripe Connect account", { accountId });
 
       await supabaseClient
-        .from('template_creators')
-        .update({ stripe_connect_account_id: accountId })
-        .eq('id', creator.id)
+        .from("profiles")
+        .update({ 
+          metadata: { 
+            ...profile?.metadata,
+            stripe_connect_account_id: accountId 
+          } 
+        })
+        .eq("user_id", user.id);
     }
 
-    // Create account link for onboarding
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
-      refresh_url: `${req.headers.get('origin')}/creator-portal`,
-      return_url: `${req.headers.get('origin')}/creator-portal?success=true`,
-      type: 'account_onboarding',
-    })
+      refresh_url: `${req.headers.get("origin")}/creator-portal`,
+      return_url: `${req.headers.get("origin")}/creator-portal?success=true`,
+      type: "account_onboarding",
+    });
 
-    return new Response(
-      JSON.stringify({ success: true, url: accountLink.url }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    logStep("Account link created", { url: accountLink.url });
+
+    return new Response(JSON.stringify({ success: true, url: accountLink.url }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-    )
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("ERROR", { message: errorMessage });
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+    });
   }
-})
+});

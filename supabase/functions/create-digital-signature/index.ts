@@ -1,59 +1,62 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { crypto } from "https://deno.land/std@0.168.0/crypto/mod.ts"
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const logStep = (step: string, details?: any) => {
+  console.log(`[CREATE-SIGNATURE] ${step}${details ? ` - ${JSON.stringify(details)}` : ''}`);
+};
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    logStep("Function started");
+
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
-    )
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
 
-    const { data: { user } } = await supabaseClient.auth.getUser()
-    if (!user) {
-      throw new Error('Unauthorized')
-    }
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) throw new Error("No authorization header");
 
-    const { letter_id, signature_data } = await req.json()
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    if (userError) throw new Error(`Auth error: ${userError.message}`);
+    const user = userData.user;
+    if (!user) throw new Error("User not authenticated");
+    logStep("User authenticated", { userId: user.id });
 
-    // Verify user has access to the letter
+    const { letter_id, signature_data } = await req.json();
+
     const { data: letter } = await supabaseClient
-      .from('legal_letters')
-      .select('*')
-      .eq('id', letter_id)
-      .eq('user_id', user.id)
-      .single()
+      .from("legal_letters")
+      .select("*")
+      .eq("id", letter_id)
+      .eq("user_id", user.id)
+      .single();
 
-    if (!letter) throw new Error('Letter not found or access denied')
+    if (!letter) throw new Error("Letter not found or access denied");
+    logStep("Letter verified", { letterId: letter_id });
 
-    // Generate SHA-256 hash for verification (UAE law compliance)
-    const encoder = new TextEncoder()
-    const data = encoder.encode(signature_data + letter_id + user.id + Date.now())
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-    const hashArray = Array.from(new Uint8Array(hashBuffer))
-    const signature_hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+    const encoder = new TextEncoder();
+    const data = encoder.encode(signature_data + letter_id + user.id + Date.now());
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const signature_hash = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 
-    // Get client IP and user agent for audit trail
-    const ip_address = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip')
-    const user_agent = req.headers.get('user-agent')
+    const ip_address = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip");
+    const user_agent = req.headers.get("user-agent");
 
-    // Create signature record
     const { data: signature, error } = await supabaseClient
-      .from('document_signatures')
+      .from("document_signatures")
       .insert({
         letter_id,
         signer_user_id: user.id,
@@ -62,29 +65,32 @@ serve(async (req) => {
         ip_address,
         user_agent,
         metadata: {
-          compliance: 'UAE Federal Law Decree No. 46/2021',
-          timestamp: new Date().toISOString()
-        }
+          compliance: "UAE Federal Law Decree No. 46/2021",
+          timestamp: new Date().toISOString(),
+        },
       })
       .select()
-      .single()
+      .single();
 
-    if (error) throw error
+    if (error) throw error;
 
-    // Update letter status to signed
     await supabaseClient
-      .from('legal_letters')
-      .update({ status: 'signed' })
-      .eq('id', letter_id)
+      .from("legal_letters")
+      .update({ status: "signed", signed_at: new Date().toISOString() })
+      .eq("id", letter_id);
 
-    return new Response(
-      JSON.stringify({ success: true, signature }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    logStep("Signature created", { signatureId: signature.id });
+
+    return new Response(JSON.stringify({ success: true, signature }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-    )
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("ERROR", { message: errorMessage });
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+    });
   }
-})
+});

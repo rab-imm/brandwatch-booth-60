@@ -1,69 +1,77 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+
+const logStep = (step: string, details?: any) => {
+  console.log(`[CREDIT-ROLLOVER] ${step}${details ? ` - ${JSON.stringify(details)}` : ''}`);
+};
 
 serve(async (req) => {
   try {
+    logStep("Function started");
+
     const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
 
-    // Get rollover policy
     const { data: config } = await supabaseAdmin
-      .from('system_config')
-      .select('config_value')
-      .eq('config_key', 'credit_rollover_policy')
-      .single()
+      .from("system_config")
+      .select("config_value")
+      .eq("config_key", "credit_rollover_policy")
+      .single();
 
-    const policy = config?.config_value as any
+    const policy = config?.config_value as any;
     if (!policy?.enabled) {
-      return new Response(
-        JSON.stringify({ message: 'Rollover disabled' }),
-        { headers: { 'Content-Type': 'application/json' } }
-      )
+      logStep("Rollover disabled");
+      return new Response(JSON.stringify({ message: "Rollover disabled" }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
-    // Get all users with remaining credits
-    const { data: profiles } = await supabaseAdmin
-      .from('profiles')
-      .select('id, queries_remaining, subscription_tier')
-      .gt('queries_remaining', 0)
+    logStep("Rollover policy retrieved", { policy });
 
-    let rolledOver = 0
-    const maxRolloverPercentage = policy.max_rollover_percentage / 100
+    const { data: profiles } = await supabaseAdmin
+      .from("profiles")
+      .select("user_id, queries_used, queries_limit")
+      .gt("queries_used", 0);
+
+    let rolledOver = 0;
+    const maxRolloverPercentage = policy.max_rollover_percentage / 100;
 
     for (const profile of profiles || []) {
-      const currentCredits = profile.queries_remaining
-      const rolloverAmount = Math.floor(currentCredits * maxRolloverPercentage)
+      const remainingCredits = profile.queries_limit - profile.queries_used;
+      const rolloverAmount = Math.floor(remainingCredits * maxRolloverPercentage);
 
       if (rolloverAmount > 0) {
-        // Create rollover transaction
-        await supabaseAdmin
-          .from('credit_transactions')
-          .insert({
-            user_id: profile.id,
-            transaction_type: 'rollover',
-            credits_amount: rolloverAmount,
-            balance_before: currentCredits,
-            balance_after: currentCredits + rolloverAmount,
-            metadata: {
-              expiry_months: policy.rollover_expiry_months,
-              expires_at: new Date(Date.now() + policy.rollover_expiry_months * 30 * 24 * 60 * 60 * 1000)
-            }
-          })
+        await supabaseAdmin.from("credit_transactions").insert({
+          user_id: profile.user_id,
+          amount: rolloverAmount,
+          transaction_type: "rollover",
+          description: `Monthly credit rollover (${maxRolloverPercentage * 100}%)`,
+          metadata: {
+            expiry_months: policy.rollover_expiry_months,
+            expires_at: new Date(Date.now() + policy.rollover_expiry_months * 30 * 24 * 60 * 60 * 1000).toISOString(),
+          },
+        });
 
-        rolledOver++
+        rolledOver++;
       }
     }
 
-    return new Response(
-      JSON.stringify({ success: true, users_processed: rolledOver }),
-      { headers: { 'Content-Type': 'application/json' } }
-    )
+    logStep("Rollover completed", { users_processed: rolledOver });
+
+    return new Response(JSON.stringify({ success: true, users_processed: rolledOver }), {
+      headers: { "Content-Type": "application/json" },
+      status: 200,
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { 'Content-Type': 'application/json' }, status: 500 }
-    )
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("ERROR", { message: errorMessage });
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      headers: { "Content-Type": "application/json" },
+      status: 500,
+    });
   }
-})
+});
