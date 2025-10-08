@@ -1074,6 +1074,7 @@ export type Database = {
           credits_reset_date: string
           id: string
           max_credits_per_period: number | null
+          permissions: Json | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
           used_credits: number
@@ -1085,6 +1086,7 @@ export type Database = {
           credits_reset_date?: string
           id?: string
           max_credits_per_period?: number | null
+          permissions?: Json | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           used_credits?: number
@@ -1096,6 +1098,7 @@ export type Database = {
           credits_reset_date?: string
           id?: string
           max_credits_per_period?: number | null
+          permissions?: Json | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           used_credits?: number
@@ -1274,6 +1277,10 @@ export type Database = {
       get_user_primary_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      has_permission: {
+        Args: { _company_id: string; _permission: string; _user_id: string }
+        Returns: boolean
       }
       has_role: {
         Args: {

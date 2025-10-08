@@ -17,6 +17,10 @@ import { Header } from "@/components/Header"
 import { CompanyUsageAnalytics } from "@/components/CompanyUsageAnalytics"
 import { CompanyInviteManager } from "@/components/CompanyInviteManager"
 import { CompanyInvitationList } from "@/components/CompanyInvitationList"
+import { ChatProvider } from "@/contexts/ChatContext"
+import { ChatInterface } from "@/components/ChatInterface"
+import { ConversationSidebar } from "@/components/ConversationSidebar"
+import { CompanyTeamConversations } from "@/components/CompanyTeamConversations"
 
 interface CompanyData {
   id: string
@@ -243,21 +247,24 @@ export const CompanyAdminDashboard = () => {
   const creditUsagePercentage = (company.used_credits / company.total_credits) * 100
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <div className="container mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Company Dashboard</h1>
-          <p className="text-muted-foreground">Manage your company settings and team members</p>
-        </div>
+    <ChatProvider>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-6 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-foreground mb-2">Company Dashboard</h1>
+            <p className="text-muted-foreground">Manage your company settings and team members</p>
+          </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="users">Team Members</TabsTrigger>
-            <TabsTrigger value="usage">Usage Analytics</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="users">Team Members</TabsTrigger>
+              <TabsTrigger value="usage">Usage Analytics</TabsTrigger>
+              <TabsTrigger value="chat">Legal Assistant</TabsTrigger>
+              <TabsTrigger value="conversations">Team Chats</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+            </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -411,6 +418,44 @@ export const CompanyAdminDashboard = () => {
             </div>
           </TabsContent>
 
+          <TabsContent value="chat" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Legal AI Assistant</CardTitle>
+                <CardDescription>
+                  Ask questions and get instant legal research assistance
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-muted p-4 rounded-lg mb-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">Company Credits</p>
+                      <p className="text-xs text-muted-foreground">
+                        {company.used_credits} / {company.total_credits} used
+                      </p>
+                    </div>
+                    <Progress 
+                      value={(company.used_credits / company.total_credits) * 100} 
+                      className="w-32 h-2"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <div className="flex h-[600px] border rounded-lg overflow-hidden">
+              <ConversationSidebar />
+              <div className="flex-1">
+                <ChatInterface />
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="conversations" className="space-y-6">
+            <CompanyTeamConversations />
+          </TabsContent>
+
           <TabsContent value="settings" className="space-y-6">
             <Card>
               <CardHeader>
@@ -509,7 +554,8 @@ export const CompanyAdminDashboard = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
-    </div>
+    </ChatProvider>
   )
 }

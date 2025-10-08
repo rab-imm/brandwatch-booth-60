@@ -10,6 +10,9 @@ import { NotificationCenter } from "@/components/NotificationCenter"
 import { ChatProvider } from "@/contexts/ChatContext"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ManagerTeamOverview } from "@/components/ManagerTeamOverview"
+import { ManagerRequestsPanel } from "@/components/ManagerRequestsPanel"
 
 export default function CompanyUserDashboard() {
   const { user, profile, loading } = useAuth()
@@ -66,6 +69,7 @@ export default function CompanyUserDashboard() {
   const creditsUsed = companyRole?.used_credits || 0
   const creditsTotal = companyRole?.max_credits_per_period || 50
   const creditsPercentage = (creditsUsed / creditsTotal) * 100
+  const isManager = companyRole?.role === 'company_manager'
 
   return (
     <div className="min-h-screen bg-background">
@@ -90,50 +94,117 @@ export default function CompanyUserDashboard() {
             </div>
 
             <div className="p-6 space-y-6 overflow-auto">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Your Credit Allocation</CardTitle>
-                  <CardDescription>
-                    Monthly credits for legal AI queries
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Credits Used</span>
-                      <span className="font-medium">
-                        {creditsUsed} / {creditsTotal}
-                      </span>
-                    </div>
-                    <Progress value={creditsPercentage} className="h-2" />
-                  </div>
+              {isManager ? (
+                <Tabs defaultValue="chat" className="space-y-6">
+                  <TabsList>
+                    <TabsTrigger value="chat">Legal Assistant</TabsTrigger>
+                    <TabsTrigger value="team">Team Overview</TabsTrigger>
+                    <TabsTrigger value="requests">Pending Requests</TabsTrigger>
+                  </TabsList>
 
-                  <div className="bg-muted p-4 rounded-lg space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Role</span>
-                      <span className="font-medium capitalize">
-                        {profile.user_role?.replace('_', ' ')}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Credits Remaining</span>
-                      <span className="font-medium">
-                        {creditsTotal - creditsUsed}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Resets On</span>
-                      <span className="font-medium">
-                        {new Date(companyRole?.credits_reset_date).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  <TabsContent value="chat" className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Your Credit Allocation</CardTitle>
+                        <CardDescription>
+                          Monthly credits for legal AI queries
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Credits Used</span>
+                            <span className="font-medium">
+                              {creditsUsed} / {creditsTotal}
+                            </span>
+                          </div>
+                          <Progress value={creditsPercentage} className="h-2" />
+                        </div>
 
-              <div className="flex-1">
-                <ChatInterface />
-              </div>
+                        <div className="bg-muted p-4 rounded-lg space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Role</span>
+                            <span className="font-medium capitalize">
+                              {profile.user_role?.replace('_', ' ')}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Credits Remaining</span>
+                            <span className="font-medium">
+                              {creditsTotal - creditsUsed}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Resets On</span>
+                            <span className="font-medium">
+                              {new Date(companyRole?.credits_reset_date).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <div className="flex-1">
+                      <ChatInterface />
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="team">
+                    <ManagerTeamOverview />
+                  </TabsContent>
+
+                  <TabsContent value="requests">
+                    <ManagerRequestsPanel />
+                  </TabsContent>
+                </Tabs>
+              ) : (
+                <>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Your Credit Allocation</CardTitle>
+                      <CardDescription>
+                        Monthly credits for legal AI queries
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Credits Used</span>
+                          <span className="font-medium">
+                            {creditsUsed} / {creditsTotal}
+                          </span>
+                        </div>
+                        <Progress value={creditsPercentage} className="h-2" />
+                      </div>
+
+                      <div className="bg-muted p-4 rounded-lg space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Role</span>
+                          <span className="font-medium capitalize">
+                            {profile.user_role?.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Credits Remaining</span>
+                          <span className="font-medium">
+                            {creditsTotal - creditsUsed}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Resets On</span>
+                          <span className="font-medium">
+                            {new Date(companyRole?.credits_reset_date).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <div className="flex-1">
+                    <ChatInterface />
+                  </div>
+                </>
+              )}
             </div>
           </main>
         </div>
