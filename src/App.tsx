@@ -29,19 +29,6 @@ import { SubscriptionManager } from "./components/SubscriptionManager";
 import { PersonalDashboard } from "./components/PersonalDashboard";
 import { Header } from "./components/Header";
 
-// Dev-only imports - lazy loaded
-let DevUserSwitcher: any = null;
-let DevModeBanner: any = null;
-
-if (import.meta.env.DEV) {
-  const devComponents = await Promise.all([
-    import("./components/dev/DevUserSwitcher"),
-    import("./components/dev/DevModeBanner")
-  ]);
-  DevUserSwitcher = devComponents[0].DevUserSwitcher;
-  DevModeBanner = devComponents[1].DevModeBanner;
-}
-
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -49,10 +36,8 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      {DevModeBanner && <DevModeBanner />}
       <BrowserRouter>
-        <div className={import.meta.env.DEV ? "min-h-screen ring-2 ring-orange-500" : ""}>
-          <AuthProvider>
+        <AuthProvider>
             <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
@@ -183,9 +168,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          {DevUserSwitcher && <DevUserSwitcher />}
         </AuthProvider>
-      </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
