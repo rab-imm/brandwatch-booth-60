@@ -45,6 +45,7 @@ const LETTER_TYPE_LABELS: { [key: string]: string } = {
   settlement_agreement: "Settlement Agreement",
   power_of_attorney: "Power of Attorney",
   general_legal: "General Legal",
+  workplace_complaint: "Workplace Complaint",
 }
 
 export default function LetterDetailPage() {

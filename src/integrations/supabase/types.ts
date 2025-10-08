@@ -2201,6 +2201,7 @@ export type Database = {
         | "settlement_agreement"
         | "power_of_attorney"
         | "general_legal"
+        | "workplace_complaint"
       subscription_tier: "free" | "essential" | "premium" | "sme" | "enterprise"
       template_category:
         | "employment"
@@ -2364,6 +2365,7 @@ export const Constants = {
         "settlement_agreement",
         "power_of_attorney",
         "general_legal",
+        "workplace_complaint",
       ],
       subscription_tier: ["free", "essential", "premium", "sme", "enterprise"],
       template_category: [

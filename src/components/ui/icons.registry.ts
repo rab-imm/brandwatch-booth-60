@@ -89,7 +89,16 @@ import {
   IconUpload,
   IconFilePlus,
   IconLayout2,
-  IconNetwork
+  IconNetwork,
+  IconBriefcase,
+  IconHome,
+  IconKey,
+  IconLock,
+  IconWand,
+  IconDeviceFloppy,
+  IconPencil,
+  IconTag,
+  IconInbox
 } from '@tabler/icons-react'
 
 // Iconoir (elegant, modern)
@@ -293,7 +302,7 @@ export const iconRegistry: Record<string, ComponentType<any>> = {
   // Admin dashboard missing icons
   'dollar-sign': EnvelopeClosedIcon, // Using envelope for dollar-sign temporarily
   'shield-check': TablerShield, // Using shield for shield-check
-  'inbox': TablerMessage, // Using message for inbox
+  'inbox': IconInbox,
   'bar-chart': IconChartBar, // Using chart-bar for bar-chart
 
   // Data & Storage - Tabler for technical icons
@@ -310,6 +319,17 @@ export const iconRegistry: Record<string, ComponentType<any>> = {
   'user-plus': IconUserPlus,
   'user-check': IconUserCheck,
   'crown': IconCrown,
+  
+  // Letter-specific icons
+  'briefcase': IconBriefcase,
+  'home': IconHome,
+  'key': IconKey,
+  'lock': IconLock,
+  'handshake': TablerUsers, // Using users icon for handshake
+  'wand': IconWand,
+  'save': IconDeviceFloppy,
+  'pen-tool': IconPencil,
+  'tag': IconTag,
 }
 
 // Icon collections for easy access

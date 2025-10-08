@@ -46,6 +46,9 @@ export const Header = () => {
                   <Link to="/dashboard" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
                     Dashboard
                   </Link>
+                  <Link to="/letters" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                    My Letters
+                  </Link>
                   <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
                     Templates
                   </Link>
