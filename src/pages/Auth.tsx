@@ -39,7 +39,11 @@ export default function Auth() {
   // Redirect if already logged in - let ProtectedRoute handle role-based routing
   useEffect(() => {
     if (user) {
-      navigate('/dashboard')
+      // Small delay to ensure profile is loaded
+      const timer = setTimeout(() => {
+        navigate('/dashboard')
+      }, 100)
+      return () => clearTimeout(timer)
     }
   }, [user, navigate])
 
@@ -73,12 +77,14 @@ export default function Auth() {
             description: error.message,
             variant: "destructive"
           })
+          setLoading(false)
         } else {
           toast({
             title: "Welcome back!",
             description: "You've been successfully logged in."
           })
-          navigate('/dashboard')
+          // Don't set loading to false or navigate here
+          // Let the useEffect handle the redirect when user state updates
         }
       } else {
         const { error } = await signUp(email, password, fullName, signupType, companyName)
