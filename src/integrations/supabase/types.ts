@@ -505,6 +505,104 @@ export type Database = {
           },
         ]
       }
+      legal_letters: {
+        Row: {
+          company_id: string | null
+          content: string
+          created_at: string
+          credits_used: number
+          finalized_at: string | null
+          id: string
+          letter_type: Database["public"]["Enums"]["letter_type"]
+          metadata: Json | null
+          sent_at: string | null
+          signed_at: string | null
+          status: Database["public"]["Enums"]["letter_status"]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          content: string
+          created_at?: string
+          credits_used?: number
+          finalized_at?: string | null
+          id?: string
+          letter_type: Database["public"]["Enums"]["letter_type"]
+          metadata?: Json | null
+          sent_at?: string | null
+          signed_at?: string | null
+          status?: Database["public"]["Enums"]["letter_status"]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          content?: string
+          created_at?: string
+          credits_used?: number
+          finalized_at?: string | null
+          id?: string
+          letter_type?: Database["public"]["Enums"]["letter_type"]
+          metadata?: Json | null
+          sent_at?: string | null
+          signed_at?: string | null
+          status?: Database["public"]["Enums"]["letter_status"]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_letters_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      letter_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          letter_type: Database["public"]["Enums"]["letter_type"]
+          required_fields: Json | null
+          template_content: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          letter_type: Database["public"]["Enums"]["letter_type"]
+          required_fields?: Json | null
+          template_content: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          letter_type?: Database["public"]["Enums"]["letter_type"]
+          required_fields?: Json | null
+          template_content?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -1344,6 +1442,17 @@ export type Database = {
         | "corporate"
         | "intellectual_property"
       document_status: "pending" | "approved" | "rejected"
+      letter_status: "draft" | "finalized" | "sent" | "signed"
+      letter_type:
+        | "employment_termination"
+        | "employment_contract"
+        | "lease_agreement"
+        | "lease_termination"
+        | "demand_letter"
+        | "nda"
+        | "settlement_agreement"
+        | "power_of_attorney"
+        | "general_legal"
       subscription_tier: "free" | "essential" | "premium" | "sme" | "enterprise"
       template_category:
         | "employment"
@@ -1496,6 +1605,18 @@ export const Constants = {
         "intellectual_property",
       ],
       document_status: ["pending", "approved", "rejected"],
+      letter_status: ["draft", "finalized", "sent", "signed"],
+      letter_type: [
+        "employment_termination",
+        "employment_contract",
+        "lease_agreement",
+        "lease_termination",
+        "demand_letter",
+        "nda",
+        "settlement_agreement",
+        "power_of_attorney",
+        "general_legal",
+      ],
       subscription_tier: ["free", "essential", "premium", "sme", "enterprise"],
       template_category: [
         "employment",
