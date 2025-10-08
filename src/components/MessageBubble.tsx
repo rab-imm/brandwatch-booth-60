@@ -2,7 +2,9 @@ import { formatDistanceToNow } from "date-fns"
 import { Icon } from "@/components/ui/Icon"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Message } from "@/hooks/useChatMessages"
+import { useNavigate } from "react-router-dom"
 
 interface MessageBubbleProps {
   message: Message
@@ -11,6 +13,19 @@ interface MessageBubbleProps {
 
 export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps) => {
   const isUser = message.role === 'user'
+  const navigate = useNavigate()
+
+  const handleCreateLetter = () => {
+    if (message.suggestedLetter) {
+      navigate('/letters/create', {
+        state: {
+          letterType: message.suggestedLetter.letterType,
+          suggestedTitle: message.suggestedLetter.suggestedTitle,
+          conversationContext: message.content
+        }
+      })
+    }
+  }
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
@@ -136,6 +151,40 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {!isUser && !isLoading && message.suggestedLetter && message.suggestedLetter.confidence > 60 && (
+              <div className="mt-4 pt-4 border-t border-border/20">
+                <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <Icon name="file-text" className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-semibold text-sm">Generate Legal Letter</h4>
+                        <Badge variant="secondary" className="text-xs">
+                          {message.suggestedLetter.confidence}% match
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        {message.suggestedLetter.reasoning}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          size="sm" 
+                          onClick={handleCreateLetter}
+                          className="gap-2"
+                        >
+                          <Icon name="file-plus" className="w-4 h-4" />
+                          Create {message.suggestedLetter.letterType.replace(/_/g, ' ')}
+                        </Button>
+                        <span className="text-xs text-muted-foreground">5 credits</span>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
               </div>
             )}
           </div>

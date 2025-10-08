@@ -25,6 +25,12 @@ export interface Message {
       similarity: number
     }>
   }
+  suggestedLetter?: {
+    letterType: string
+    confidence: number
+    reasoning: string
+    suggestedTitle: string
+  }
 }
 
 interface Conversation {
@@ -297,7 +303,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
         throw new Error('Empty response from AI service')
       }
 
-      // Create AI message with sources
+      // Create AI message with sources and letter suggestion
       const aiMessage: Message = {
         id: crypto.randomUUID(),
         content: result.response,
@@ -309,7 +315,8 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
         sources: result.sources ? {
           research: result.sources.research || [],
           documents: result.sources.documents || []
-        } : undefined
+        } : undefined,
+        suggestedLetter: result.suggestedLetter || undefined
       }
 
       const { error: aiMessageError } = await supabase
@@ -321,7 +328,10 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
           conversation_id: aiMessage.conversation_id,
           created_at: aiMessage.created_at,
           updated_at: aiMessage.updated_at,
-          metadata: aiMessage.sources ? { sources: aiMessage.sources } : null
+          metadata: { 
+            sources: aiMessage.sources || null,
+            suggestedLetter: aiMessage.suggestedLetter || null
+          }
         }])
 
       if (aiMessageError) throw aiMessageError

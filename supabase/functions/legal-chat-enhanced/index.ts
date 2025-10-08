@@ -300,11 +300,49 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
       }))
     }
 
+    // Step 8: Analyze message for letter generation opportunity
+    let letterSuggestion = null
+    try {
+      console.log('Analyzing message for letter opportunities...')
+      
+      // Get conversation history for context
+      const { data: recentMessages } = await supabase
+        .from('messages')
+        .select('role, content')
+        .eq('conversation_id', conversationId)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      const conversationHistory = recentMessages?.reverse() || []
+
+      const analysisResponse = await supabase.functions.invoke('analyze-message-for-letter', {
+        body: { 
+          message,
+          conversationHistory 
+        }
+      })
+
+      if (analysisResponse.data && analysisResponse.data.shouldSuggestLetter) {
+        letterSuggestion = {
+          letterType: analysisResponse.data.letterType,
+          confidence: analysisResponse.data.confidence,
+          reasoning: analysisResponse.data.reasoning,
+          suggestedTitle: analysisResponse.data.suggestedTitle
+        }
+        console.log('Letter opportunity detected:', letterSuggestion)
+      }
+    } catch (error) {
+      console.error('Error analyzing for letter opportunity:', error)
+      // Don't fail the entire request if letter analysis fails
+    }
+
     console.log('Legal chat response generated successfully')
 
     console.log('Final sources being returned:', {
       researchSourcesLength: researchSources.length,
-      documentSourcesLength: documentSources.length
+      documentSourcesLength: documentSources.length,
+      hasLetterSuggestion: !!letterSuggestion
     })
 
     return new Response(JSON.stringify({ 
@@ -317,6 +355,7 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
         })),
         documents: documentSources
       },
+      suggestedLetter: letterSuggestion,
       timestamp: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

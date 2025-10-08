@@ -25,6 +25,12 @@ export interface Message {
       similarity: number
     }>
   }
+  suggestedLetter?: {
+    letterType: string
+    confidence: number
+    reasoning: string
+    suggestedTitle: string
+  }
 }
 
 interface Conversation {
