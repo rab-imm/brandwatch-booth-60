@@ -50,6 +50,102 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_custom_reports: {
+        Row: {
+          chart_type: string | null
+          created_at: string
+          created_by: string | null
+          date_range: string | null
+          description: string | null
+          filters: Json | null
+          id: string
+          is_active: boolean
+          is_scheduled: boolean | null
+          last_run_at: string | null
+          metrics: Json
+          name: string
+          recipients: Json | null
+          report_type: string
+          schedule_frequency: string | null
+          updated_at: string
+        }
+        Insert: {
+          chart_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_range?: string | null
+          description?: string | null
+          filters?: Json | null
+          id?: string
+          is_active?: boolean
+          is_scheduled?: boolean | null
+          last_run_at?: string | null
+          metrics?: Json
+          name: string
+          recipients?: Json | null
+          report_type: string
+          schedule_frequency?: string | null
+          updated_at?: string
+        }
+        Update: {
+          chart_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_range?: string | null
+          description?: string | null
+          filters?: Json | null
+          id?: string
+          is_active?: boolean
+          is_scheduled?: boolean | null
+          last_run_at?: string | null
+          metrics?: Json
+          name?: string
+          recipients?: Json | null
+          report_type?: string
+          schedule_frequency?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      admin_impersonation_logs: {
+        Row: {
+          actions_performed: Json | null
+          admin_user_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          ip_address: string | null
+          reason: string
+          started_at: string
+          target_user_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          actions_performed?: Json | null
+          admin_user_id: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          ip_address?: string | null
+          reason: string
+          started_at?: string
+          target_user_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          actions_performed?: Json | null
+          admin_user_id?: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          ip_address?: string | null
+          reason?: string
+          started_at?: string
+          target_user_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       billing_alerts: {
         Row: {
           alert_type: string
@@ -278,6 +374,107 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      creator_payouts: {
+        Row: {
+          created_at: string
+          creator_share_aed: number
+          creator_user_id: string
+          failed_reason: string | null
+          id: string
+          metadata: Json | null
+          payout_period_end: string
+          payout_period_start: string
+          platform_fee_aed: number
+          processed_at: string | null
+          status: string
+          stripe_payout_id: string | null
+          stripe_transfer_id: string | null
+          total_revenue_aed: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator_share_aed?: number
+          creator_user_id: string
+          failed_reason?: string | null
+          id?: string
+          metadata?: Json | null
+          payout_period_end: string
+          payout_period_start: string
+          platform_fee_aed?: number
+          processed_at?: string | null
+          status?: string
+          stripe_payout_id?: string | null
+          stripe_transfer_id?: string | null
+          total_revenue_aed?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator_share_aed?: number
+          creator_user_id?: string
+          failed_reason?: string | null
+          id?: string
+          metadata?: Json | null
+          payout_period_end?: string
+          payout_period_start?: string
+          platform_fee_aed?: number
+          processed_at?: string | null
+          status?: string
+          stripe_payout_id?: string | null
+          stripe_transfer_id?: string | null
+          total_revenue_aed?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      credit_transactions: {
+        Row: {
+          amount: number
+          company_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          stripe_payment_intent_id: string | null
+          transaction_type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          company_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          stripe_payment_intent_id?: string | null
+          transaction_type: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          company_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          stripe_payment_intent_id?: string | null
+          transaction_type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       customer_support_tickets: {
         Row: {
@@ -1209,6 +1406,60 @@ export type Database = {
           },
         ]
       }
+      subscription_tiers: {
+        Row: {
+          created_at: string
+          credits_per_month: number
+          description: string | null
+          display_name: string
+          features: Json | null
+          id: string
+          is_active: boolean
+          name: string
+          price_monthly_aed: number
+          price_yearly_aed: number
+          sort_order: number | null
+          stripe_price_id_monthly: string | null
+          stripe_price_id_yearly: string | null
+          stripe_product_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credits_per_month?: number
+          description?: string | null
+          display_name: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price_monthly_aed?: number
+          price_yearly_aed?: number
+          sort_order?: number | null
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credits_per_month?: number
+          description?: string | null
+          display_name?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_monthly_aed?: number
+          price_yearly_aed?: number
+          sort_order?: number | null
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       system_config: {
         Row: {
           config_key: string
@@ -1506,6 +1757,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "template_reviews_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_versions: {
+        Row: {
+          change_summary: string | null
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_published: boolean
+          published_at: string | null
+          template_id: string
+          version_number: number
+        }
+        Insert: {
+          change_summary?: string | null
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          template_id: string
+          version_number: number
+        }
+        Update: {
+          change_summary?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          template_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_versions_template_id_fkey"
             columns: ["template_id"]
             isOneToOne: false
             referencedRelation: "templates"
