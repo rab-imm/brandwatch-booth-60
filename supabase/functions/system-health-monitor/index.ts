@@ -1,101 +1,133 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+
+const logStep = (step: string, details?: any) => {
+  console.log(`[SYSTEM-HEALTH] ${step}${details ? ` - ${JSON.stringify(details)}` : ''}`);
+};
 
 serve(async (req) => {
   try {
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    logStep("Health check started");
 
-    const healthChecks = []
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+
+    const healthChecks = [];
 
     // Check Database
-    const dbStart = Date.now()
+    const dbStart = Date.now();
     try {
-      await supabaseAdmin.from('profiles').select('count').limit(1)
+      const { error } = await supabaseAdmin.from("profiles").select("user_id").limit(1);
+      const responseTime = Date.now() - dbStart;
+      
       healthChecks.push({
-        service_name: 'database',
-        status: 'healthy',
-        response_time_ms: Date.now() - dbStart,
-        error_count: 0
-      })
+        service_name: "database",
+        status: error ? "degraded" : "healthy",
+        response_time_ms: responseTime,
+        error_rate: error ? 1 : 0,
+      });
+      
+      logStep("Database check", { status: error ? "degraded" : "healthy", responseTime });
     } catch (error) {
       healthChecks.push({
-        service_name: 'database',
-        status: 'down',
+        service_name: "database",
+        status: "down",
         response_time_ms: Date.now() - dbStart,
-        error_count: 1,
-        metadata: { error: error.message }
-      })
+        error_rate: 1,
+      });
+      logStep("Database check failed", { error: error instanceof Error ? error.message : String(error) });
     }
 
     // Check API
-    const apiStart = Date.now()
+    const apiStart = Date.now();
     try {
-      const response = await fetch(`${Deno.env.get('SUPABASE_URL')}/rest/v1/`)
+      const response = await fetch(`${Deno.env.get("SUPABASE_URL")}/rest/v1/`, {
+        headers: {
+          apikey: Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+        },
+      });
+      const responseTime = Date.now() - apiStart;
+      
       healthChecks.push({
-        service_name: 'api',
-        status: response.ok ? 'healthy' : 'degraded',
-        response_time_ms: Date.now() - apiStart,
-        error_count: response.ok ? 0 : 1
-      })
+        service_name: "api",
+        status: response.ok ? "healthy" : "degraded",
+        response_time_ms: responseTime,
+        error_rate: response.ok ? 0 : 0.5,
+      });
+      
+      logStep("API check", { status: response.ok ? "healthy" : "degraded", responseTime });
     } catch (error) {
       healthChecks.push({
-        service_name: 'api',
-        status: 'down',
+        service_name: "api",
+        status: "down",
         response_time_ms: Date.now() - apiStart,
-        error_count: 1,
-        metadata: { error: error.message }
-      })
+        error_rate: 1,
+      });
+      logStep("API check failed", { error: error instanceof Error ? error.message : String(error) });
     }
 
-    // Check Edge Functions
-    const edgeFunctionStart = Date.now()
+    // Check Auth Service
+    const authStart = Date.now();
     try {
-      const response = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/`, {
+      const response = await fetch(`${Deno.env.get("SUPABASE_URL")}/auth/v1/health`, {
         headers: {
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
-        }
-      })
+          apikey: Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+        },
+      });
+      const responseTime = Date.now() - authStart;
+      
       healthChecks.push({
-        service_name: 'edge_functions',
-        status: 'healthy',
-        response_time_ms: Date.now() - edgeFunctionStart,
-        error_count: 0
-      })
+        service_name: "auth",
+        status: response.ok ? "healthy" : "degraded",
+        response_time_ms: responseTime,
+        error_rate: response.ok ? 0 : 0.5,
+      });
+      
+      logStep("Auth check", { status: response.ok ? "healthy" : "degraded", responseTime });
     } catch (error) {
       healthChecks.push({
-        service_name: 'edge_functions',
-        status: 'degraded',
-        response_time_ms: Date.now() - edgeFunctionStart,
-        error_count: 1,
-        metadata: { error: error.message }
-      })
+        service_name: "auth",
+        status: "degraded",
+        response_time_ms: Date.now() - authStart,
+        error_rate: 0.5,
+      });
+      logStep("Auth check warning", { error: error instanceof Error ? error.message : String(error) });
     }
 
     // Store health check results
     for (const check of healthChecks) {
-      await supabaseAdmin
-        .from('system_health_logs')
-        .insert(check)
+      await supabaseAdmin.from("system_health_logs").insert(check);
     }
 
-    const overallStatus = healthChecks.every(c => c.status === 'healthy') ? 'healthy' : 
-                         healthChecks.some(c => c.status === 'down') ? 'down' : 'degraded'
+    const overallStatus = healthChecks.every((c) => c.status === "healthy")
+      ? "healthy"
+      : healthChecks.some((c) => c.status === "down")
+      ? "down"
+      : "degraded";
+
+    logStep("Health check completed", { overallStatus, checks: healthChecks.length });
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         overall_status: overallStatus,
-        checks: healthChecks 
+        checks: healthChecks,
+        timestamp: new Date().toISOString(),
       }),
-      { headers: { 'Content-Type': 'application/json' } }
-    )
+      {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      }
+    );
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { 'Content-Type': 'application/json' }, status: 500 }
-    )
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("ERROR", { message: errorMessage });
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      headers: { "Content-Type": "application/json" },
+      status: 500,
+    });
   }
-})
+});
