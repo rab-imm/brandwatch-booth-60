@@ -3,6 +3,15 @@ project_id = "icsttnftxcfgnwhifsdm"
 [functions.legal-updates-monitor]
 verify_jwt = false
 
+[functions.analyze-message-for-letter]
+verify_jwt = false
+
+[functions.generate-legal-letter]
+verify_jwt = true
+
+[functions.export-letter-pdf]
+verify_jwt = true
+
 [functions.create-company-admin]
 verify_jwt = false
 
