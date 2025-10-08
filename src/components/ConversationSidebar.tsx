@@ -148,41 +148,43 @@ export const ConversationSidebar = () => {
         loading={loading}
       />
 
-      <ScrollArea className="flex-1 min-h-0">
-        <div className="p-2 space-y-1">
-          {conversations.length === 0 ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">
-              No conversations yet
-            </div>
-          ) : (
-            conversations.map((conversation) => (
-              <Button
-                key={conversation.id}
-                variant="ghost"
-                className={`w-full justify-start h-auto p-3 text-left rounded-md transition-colors ${
-                  currentConversationId === conversation.id 
-                    ? "bg-secondary" 
-                    : "hover:bg-muted/50"
-                }`}
-                onClick={() => handleSelectConversation(conversation.id)}
-              >
-                <div className="space-y-1 overflow-hidden">
-                  <div className="font-medium truncate">
-                    {conversation.title}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="p-2 space-y-1">
+            {conversations.length === 0 ? (
+              <div className="p-4 text-center text-sm text-muted-foreground">
+                No conversations yet
+              </div>
+            ) : (
+              conversations.map((conversation) => (
+                <Button
+                  key={conversation.id}
+                  variant="ghost"
+                  className={`w-full justify-start h-auto p-3 text-left rounded-md transition-colors ${
+                    currentConversationId === conversation.id 
+                      ? "bg-secondary" 
+                      : "hover:bg-muted/50"
+                  }`}
+                  onClick={() => handleSelectConversation(conversation.id)}
+                >
+                  <div className="space-y-1 overflow-hidden">
+                    <div className="font-medium truncate">
+                      {conversation.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(conversation.updated_at), {
+                        addSuffix: true
+                      })}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(conversation.updated_at), {
-                      addSuffix: true
-                    })}
-                  </div>
-                </div>
-              </Button>
-            ))
-          )}
-        </div>
-      </ScrollArea>
+                </Button>
+              ))
+            )}
+          </div>
+        </ScrollArea>
+      </div>
       
-      <div className="border-t p-3 mt-auto">
+      <div className="border-t p-3 shrink-0">
         <Button
           onClick={handleResetQueries}
           disabled={resetting}
