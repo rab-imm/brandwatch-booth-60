@@ -18,6 +18,14 @@ serve(async (req) => {
       throw new Error('Token, password, and full name are required')
     }
 
+    if (password.length < 8) {
+      throw new Error('Password must be at least 8 characters long')
+    }
+
+    if (fullName.trim().length < 2) {
+      throw new Error('Please enter a valid full name')
+    }
+
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -46,12 +54,18 @@ serve(async (req) => {
       throw new Error('Invitation has expired')
     }
 
-    // Check if user already exists
-    const { data: existingUser } = await supabaseAdmin.auth.admin.listUsers()
-    const userExists = existingUser.users.some(u => u.email === invitation.email)
+    // Check if user already exists with this email
+    const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers()
+    
+    if (listError) {
+      console.error('Error checking existing users:', listError)
+      throw new Error('Failed to verify user status')
+    }
+
+    const userExists = users.some(u => u.email?.toLowerCase() === invitation.email.toLowerCase())
 
     if (userExists) {
-      throw new Error('User with this email already exists')
+      throw new Error('An account with this email already exists. Please sign in instead.')
     }
 
     // Create the user
@@ -71,19 +85,48 @@ serve(async (req) => {
 
     console.log('User created:', userData.user.id)
 
-    // Update profile with company role
-    const { error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .update({
-        full_name: fullName,
-        user_role: invitation.role,
-        current_company_id: invitation.company_id,
-      })
-      .eq('user_id', userData.user.id)
+    // Wait for profile to be created by trigger
+    await new Promise(resolve => setTimeout(resolve, 1500))
 
-    if (profileError) {
-      console.error('Error updating profile:', profileError)
-      throw profileError
+    // Verify profile exists
+    const { data: existingProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('user_id', userData.user.id)
+      .maybeSingle()
+
+    if (!existingProfile) {
+      console.error('Profile not created by trigger, creating manually')
+      // Manually create profile if trigger failed
+      const { error: profileCreateError } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+          user_id: userData.user.id,
+          email: invitation.email,
+          full_name: fullName,
+          user_role: invitation.role,
+          current_company_id: invitation.company_id,
+        })
+
+      if (profileCreateError) {
+        console.error('Error creating profile:', profileCreateError)
+        throw new Error('Failed to create user profile')
+      }
+    } else {
+      // Update existing profile with company role
+      const { error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .update({
+          full_name: fullName,
+          user_role: invitation.role,
+          current_company_id: invitation.company_id,
+        })
+        .eq('user_id', userData.user.id)
+
+      if (profileError) {
+        console.error('Error updating profile:', profileError)
+        throw profileError
+      }
     }
 
     // Create user-company role relationship

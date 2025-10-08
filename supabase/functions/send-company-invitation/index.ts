@@ -41,6 +41,36 @@ serve(async (req) => {
       throw new Error('Email, role, and company ID are required')
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      throw new Error('Invalid email format')
+    }
+
+    // Check for existing invitation
+    const { data: existingInvite } = await supabase
+      .from('invitation_tokens')
+      .select('id, accepted_at')
+      .eq('email', email)
+      .eq('company_id', companyId)
+      .is('accepted_at', null)
+      .maybeSingle()
+
+    if (existingInvite) {
+      throw new Error('An active invitation already exists for this email')
+    }
+
+    // Check if user already exists in this company
+    const { data: existingUserRole } = await supabase
+      .from('user_company_roles')
+      .select('id, profiles!inner(email)')
+      .eq('company_id', companyId)
+      .maybeSingle()
+
+    if (existingUserRole) {
+      throw new Error('A user with this email is already part of this company')
+    }
+
     // Verify the user is a company admin for this company
     const { data: profile } = await supabase
       .from('profiles')
@@ -95,7 +125,11 @@ serve(async (req) => {
       email,
       token,
       inviteUrl,
+      companyName: company?.name,
     })
+
+    // TODO: Send email notification here using Resend or similar service
+    // For now, we just return the invite URL
 
     return new Response(
       JSON.stringify({
@@ -107,6 +141,7 @@ serve(async (req) => {
           role,
           inviteUrl,
           expiresAt,
+          companyName: company?.name || 'Unknown Company',
         }
       }),
       { 

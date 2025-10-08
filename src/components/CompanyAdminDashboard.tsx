@@ -16,6 +16,7 @@ import { toast } from "sonner"
 import { Header } from "@/components/Header"
 import { CompanyUsageAnalytics } from "@/components/CompanyUsageAnalytics"
 import { CompanyInviteManager } from "@/components/CompanyInviteManager"
+import { CompanyInvitationList } from "@/components/CompanyInvitationList"
 
 interface CompanyData {
   id: string
@@ -401,11 +402,12 @@ export const CompanyAdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="usage" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              <CompanyInviteManager />
-              <div className="md:col-span-2">
-                <CompanyUsageAnalytics company={company} companyUsers={companyUsers} />
+            <div className="grid gap-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <CompanyInviteManager />
+                <CompanyInvitationList />
               </div>
+              <CompanyUsageAnalytics company={company} companyUsers={companyUsers} />
             </div>
           </TabsContent>
 

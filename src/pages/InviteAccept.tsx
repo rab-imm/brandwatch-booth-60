@@ -14,6 +14,9 @@ interface InvitationData {
   max_credits_per_period: number
   expires_at: string
   accepted_at: string | null
+  companies?: {
+    name: string
+  }
 }
 
 export default function InviteAccept() {
@@ -39,7 +42,12 @@ export default function InviteAccept() {
       try {
         const { data, error } = await supabase
           .from("invitation_tokens")
-          .select("*")
+          .select(`
+            *,
+            companies:company_id (
+              name
+            )
+          `)
           .eq("token", token)
           .is("accepted_at", null)
           .single()
@@ -83,8 +91,8 @@ export default function InviteAccept() {
       return
     }
 
-    if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters")
+    if (formData.password.length < 8) {
+      toast.error("Password must be at least 8 characters")
       return
     }
 
@@ -133,7 +141,7 @@ export default function InviteAccept() {
         <CardHeader>
           <CardTitle>Accept Company Invitation</CardTitle>
           <CardDescription>
-            You've been invited to join as a {invitation.role.replace('_', ' ')}
+            You've been invited to join {invitation.companies?.name || 'a company'} as a {invitation.role.replace('_', ' ')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -166,11 +174,11 @@ export default function InviteAccept() {
               <Input
                 id="password"
                 type="password"
-                placeholder="Choose a password (min 6 characters)"
+                placeholder="Choose a password (min 8 characters)"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
-                minLength={6}
+                minLength={8}
               />
             </div>
 
@@ -183,7 +191,7 @@ export default function InviteAccept() {
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 required
-                minLength={6}
+                minLength={8}
               />
             </div>
 
