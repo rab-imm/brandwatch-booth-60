@@ -640,6 +640,113 @@ serve(async (req) => {
         });
       }
 
+      case 'reset_user_password': {
+        console.log('=== STARTING PASSWORD RESET ===');
+        const { user_id, new_password } = requestData;
+        console.log('Reset password for user:', user_id, 'Manual password:', !!new_password);
+        
+        if (!user_id) {
+          return new Response(
+            JSON.stringify({ error: 'User ID is required' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        try {
+          if (new_password) {
+            // Manual password reset - admin sets temporary password
+            if (new_password.length < 8) {
+              return new Response(
+                JSON.stringify({ error: 'Password must be at least 8 characters' }),
+                { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              );
+            }
+
+            console.log('Setting manual password...');
+            const { data: updateData, error: updateError } = await supabaseClient.auth.admin.updateUserById(
+              user_id,
+              { password: new_password }
+            );
+
+            if (updateError) {
+              console.error('Failed to update password:', updateError);
+              return new Response(
+                JSON.stringify({ error: `Failed to reset password: ${updateError.message}` }),
+                { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              );
+            }
+
+            console.log('Password updated successfully');
+          } else {
+            // Email-based reset - trigger Supabase password reset email
+            console.log('Sending password reset email...');
+            
+            // Get user email first
+            const { data: userData, error: userError } = await supabaseClient.auth.admin.getUserById(user_id);
+            
+            if (userError || !userData.user?.email) {
+              console.error('Failed to get user email:', userError);
+              return new Response(
+                JSON.stringify({ error: 'Failed to retrieve user email' }),
+                { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              );
+            }
+
+            // Generate password reset link
+            const { data: resetData, error: resetError } = await supabaseClient.auth.admin.generateLink({
+              type: 'recovery',
+              email: userData.user.email
+            });
+
+            if (resetError) {
+              console.error('Failed to generate reset link:', resetError);
+              return new Response(
+                JSON.stringify({ error: `Failed to send reset email: ${resetError.message}` }),
+                { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              );
+            }
+
+            console.log('Password reset email sent successfully');
+          }
+
+          // Log activity
+          try {
+            await supabaseClient
+              .from('activity_logs')
+              .insert({
+                user_id: user.id,
+                action: 'reset_user_password',
+                resource_type: 'user',
+                resource_id: user_id,
+                metadata: { 
+                  reset_method: new_password ? 'manual' : 'email',
+                  admin_user_id: user.id
+                }
+              });
+            console.log('Activity logged successfully');
+          } catch (logError) {
+            console.error('Failed to log activity (non-critical):', logError);
+          }
+
+          console.log('=== PASSWORD RESET COMPLETED SUCCESSFULLY ===');
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              method: new_password ? 'manual' : 'email' 
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+
+        } catch (error) {
+          console.error('=== PASSWORD RESET FAILED ===');
+          console.error('Error details:', error);
+          return new Response(
+            JSON.stringify({ error: `Password reset failed: ${error.message}` }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      }
+
       default:
         throw new Error('Invalid action');
     }

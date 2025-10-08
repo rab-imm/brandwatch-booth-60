@@ -123,6 +123,23 @@ export const useAdminActions = () => {
     }
   };
 
+  const resetUserPassword = async (user_id: string, new_password?: string) => {
+    try {
+      const result = await callAdminFunction('reset_user_password', { user_id, new_password });
+      
+      if (new_password) {
+        toast.success('Password reset successfully. User can now log in with the new password.');
+      } else {
+        toast.success('Password reset email sent successfully');
+      }
+      
+      return result;
+    } catch (error) {
+      toast.error(`Failed to reset password: ${error.message}`);
+      return null;
+    }
+  };
+
   return {
     createUser,
     updateUser,
@@ -130,6 +147,7 @@ export const useAdminActions = () => {
     createCompany,
     updateCompany,
     deleteCompany,
-    pauseCompany
+    pauseCompany,
+    resetUserPassword
   };
 };

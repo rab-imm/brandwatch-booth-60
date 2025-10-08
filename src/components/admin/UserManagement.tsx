@@ -79,7 +79,8 @@ export const UserManagement = () => {
     createCompany, 
     updateCompany, 
     deleteCompany, 
-    pauseCompany 
+    pauseCompany,
+    resetUserPassword 
   } = useAdminActions()
   const [users, setUsers] = useState<User[]>([])
   const [companies, setCompanies] = useState<Company[]>([])
@@ -93,6 +94,12 @@ export const UserManagement = () => {
   const [companyDialog, setCompanyDialog] = useState<CompanyDialog>({ open: false, company: null, mode: 'create' })
   const [activeTab, setActiveTab] = useState('users')
   const [bulkAction, setBulkAction] = useState<string>("")
+  const [resetPasswordDialog, setResetPasswordDialog] = useState<{ open: boolean; user: User | null; method: 'email' | 'manual' }>({ 
+    open: false, 
+    user: null, 
+    method: 'email' 
+  })
+  const [tempPassword, setTempPassword] = useState('')
   
   // Form states for new user creation
   const [newUser, setNewUser] = useState({
@@ -464,6 +471,27 @@ export const UserManagement = () => {
     fetchUsers()
   }
 
+  const handlePasswordReset = async () => {
+    if (!resetPasswordDialog.user) return
+
+    try {
+      if (resetPasswordDialog.method === 'manual') {
+        if (tempPassword.length < 8) {
+          toast.error('Password must be at least 8 characters')
+          return
+        }
+        await resetUserPassword(resetPasswordDialog.user.user_id, tempPassword)
+      } else {
+        await resetUserPassword(resetPasswordDialog.user.user_id)
+      }
+      
+      setResetPasswordDialog({ open: false, user: null, method: 'email' })
+      setTempPassword('')
+    } catch (error) {
+      console.error('Password reset error:', error)
+    }
+  }
+
   const userColumns = [
     {
       key: 'user',
@@ -547,20 +575,19 @@ export const UserManagement = () => {
           <Button
             size="sm"
             variant="ghost"
-            className="text-destructive hover:text-destructive"
-            onClick={() => handleDeleteUser(item.user_id)}
+            className="text-amber-600 hover:text-amber-600"
+            onClick={() => setResetPasswordDialog({ open: true, user: item, method: 'email' })}
+            title="Reset Password"
           >
-            <Icon name="trash" className="h-4 w-4" />
+            <Icon name="lock" className="h-4 w-4" />
           </Button>
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => {
-              // Log user activity or impersonate
-              toast.info('User activity feature coming soon')
-            }}
+            className="text-destructive hover:text-destructive"
+            onClick={() => handleDeleteUser(item.user_id)}
           >
-            <Icon name="user" className="h-4 w-4" />
+            <Icon name="trash" className="h-4 w-4" />
           </Button>
         </div>
       )
@@ -1246,6 +1273,106 @@ export const UserManagement = () => {
             </Button>
             <Button onClick={companyDialog.mode === 'create' ? handleCreateCompany : handleEditCompany}>
               {companyDialog.mode === 'create' ? 'Create Company' : 'Save Changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Password Reset Dialog */}
+      <Dialog open={resetPasswordDialog.open} onOpenChange={(open) => setResetPasswordDialog({ ...resetPasswordDialog, open })}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="lock" className="h-5 w-5 text-amber-600" />
+              Reset Password
+            </DialogTitle>
+            <DialogDescription>
+              Reset password for <strong>{resetPasswordDialog.user?.full_name || resetPasswordDialog.user?.email}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex gap-2">
+                <Icon name="alert-triangle" className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-amber-800">
+                  <p className="font-medium mb-1">Security Notice</p>
+                  <p>This action will allow the user to access their account with a new password. All activity will be logged.</p>
+                </div>
+              </div>
+            </div>
+
+            <Tabs value={resetPasswordDialog.method} onValueChange={(value: any) => setResetPasswordDialog({ ...resetPasswordDialog, method: value })}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="email">Send Reset Email</TabsTrigger>
+                <TabsTrigger value="manual">Set Password</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="email" className="space-y-3 mt-4">
+                <div className="flex items-start gap-3 p-3 bg-muted rounded-lg">
+                  <Icon name="mail" className="h-5 w-5 text-primary mt-0.5" />
+                  <div className="text-sm">
+                    <p className="font-medium mb-1">Email Reset Flow</p>
+                    <p className="text-muted-foreground">
+                      User will receive a password reset email at <strong>{resetPasswordDialog.user?.email}</strong> with instructions to set a new password.
+                    </p>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="manual" className="space-y-3 mt-4">
+                <div className="flex items-start gap-3 p-3 bg-muted rounded-lg mb-3">
+                  <Icon name="key" className="h-5 w-5 text-primary mt-0.5" />
+                  <div className="text-sm">
+                    <p className="font-medium mb-1">Manual Password</p>
+                    <p className="text-muted-foreground">
+                      Set a temporary password for immediate access. Recommend the user changes it after login.
+                    </p>
+                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="temp_password">Temporary Password</Label>
+                  <Input
+                    id="temp_password"
+                    type="text"
+                    value={tempPassword}
+                    onChange={(e) => setTempPassword(e.target.value)}
+                    placeholder="Minimum 8 characters"
+                    className="font-mono"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Password strength: {tempPassword.length < 8 ? 'Too short' : tempPassword.length < 12 ? 'Good' : 'Strong'}
+                  </p>
+                </div>
+
+                {tempPassword && tempPassword.length >= 8 && (
+                  <div className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded text-sm text-green-800">
+                    <Icon name="check" className="h-4 w-4" />
+                    <span>Password will be set to: <code className="font-mono font-semibold">{tempPassword}</code></span>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setResetPasswordDialog({ open: false, user: null, method: 'email' })
+                setTempPassword('')
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handlePasswordReset}
+              className="bg-amber-600 hover:bg-amber-700"
+              disabled={resetPasswordDialog.method === 'manual' && tempPassword.length < 8}
+            >
+              <Icon name="lock" className="h-4 w-4 mr-2" />
+              {resetPasswordDialog.method === 'email' ? 'Send Reset Email' : 'Set Password'}
             </Button>
           </DialogFooter>
         </DialogContent>

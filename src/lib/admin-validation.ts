@@ -43,7 +43,13 @@ export const updateCompanySchema = z.object({
   subscription_status: z.enum(['active', 'inactive', 'suspended', 'paused']).optional(),
 });
 
+export const resetPasswordSchema = z.object({
+  user_id: z.string().uuid("Invalid user ID"),
+  new_password: z.string().min(8, "Password must be at least 8 characters").optional(),
+});
+
 export type CreateUserData = z.infer<typeof createUserSchema>;
 export type UpdateUserData = z.infer<typeof updateUserSchema>;
 export type CreateCompanyData = z.infer<typeof createCompanySchema>;
 export type UpdateCompanyData = z.infer<typeof updateCompanySchema>;
+export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
