@@ -122,57 +122,40 @@ serve(async (req) => {
             }
           }
 
-          // Step 2: Pre-flight Cleanup - Check for existing users and orphaned records
+          // Validate company_id for company roles
+          if (['company_admin', 'company_manager', 'company_staff'].includes(user_role) && !company_id) {
+            console.error(`Company ID required for role: ${user_role}`);
+            return new Response(
+              JSON.stringify({ error: `Company ID is required for role: ${user_role}` }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          // Step 2: Pre-flight Cleanup - Check for existing users
           console.log('=== PRE-FLIGHT CLEANUP ===');
           
-          // Check auth users
-          const { data: existingUsers, error: listError } = await supabaseClient.auth.admin.listUsers();
-          if (listError) {
-            console.error('Failed to list existing users:', listError);
+          // Check profiles table (instead of auth.users to avoid API errors)
+          const { data: existingProfile, error: profileCheckError } = await supabaseClient
+            .from('profiles')
+            .select('user_id, email, user_role')
+            .eq('email', email)
+            .maybeSingle();
+          
+          if (profileCheckError) {
+            console.error('Failed to check existing profile:', profileCheckError);
             return new Response(
-              JSON.stringify({ error: `Failed to check existing users: ${listError.message}` }),
+              JSON.stringify({ error: `Failed to check existing users: ${profileCheckError.message}` }),
               { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
           }
 
-          const existingAuthUser = existingUsers.users.find(u => u.email === email);
-          if (existingAuthUser) {
-            console.log('Found existing auth user:', existingAuthUser.id);
-            
-            // Check if they have a profile
-            const { data: existingProfile, error: profileCheckError } = await supabaseClient
-              .from('profiles')
-              .select('*')
-              .eq('user_id', existingAuthUser.id)
-              .maybeSingle();
-              
-            if (profileCheckError) {
-              console.error('Error checking existing profile:', profileCheckError);
-              return new Response(
-                JSON.stringify({ error: `Error checking existing profile: ${profileCheckError.message}` }),
-                { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-              );
-            }
-            
-            if (existingProfile) {
-              console.log('User already has complete profile');
-              return new Response(
-                JSON.stringify({ error: 'A user with this email already exists and has a complete profile' }),
-                { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-              );
-            } else {
-              // Orphaned auth user - clean it up
-              console.log('Cleaning up orphaned auth user:', existingAuthUser.id);
-              const { error: cleanupError } = await supabaseClient.auth.admin.deleteUser(existingAuthUser.id);
-              if (cleanupError) {
-                console.error('Failed to cleanup orphaned user:', cleanupError);
-                return new Response(
-                  JSON.stringify({ error: `Failed to cleanup orphaned user: ${cleanupError.message}` }),
-                  { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-                );
-              }
-              console.log('Successfully cleaned up orphaned auth user');
-            }
+          if (existingProfile) {
+            console.log('Found existing user profile:', existingProfile.user_id);
+            console.log('User already has complete profile');
+            return new Response(
+              JSON.stringify({ error: 'A user with this email already exists and has a complete profile' }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
           }
 
           // Step 3: Create Auth User
@@ -266,7 +249,27 @@ serve(async (req) => {
 
           console.log('Profile created successfully');
 
-          // Step 5: Create Company Role (if needed) with UPSERT logic
+          // Step 5: Insert into user_roles table
+          console.log('=== CREATING USER ROLE ===');
+          const { error: roleInsertError } = await supabaseClient
+            .from('user_roles')
+            .insert({
+              user_id: authUser.user.id,
+              role: user_role
+            });
+
+          if (roleInsertError) {
+            console.error('Failed to create user role:', {
+              code: roleInsertError.code,
+              message: roleInsertError.message,
+              details: roleInsertError.details,
+            });
+            // Continue anyway - role might already exist or will sync via trigger
+          } else {
+            console.log('User role created successfully');
+          }
+
+          // Step 6: Create Company Role (if needed) with UPSERT logic
           if (company_id) {
             console.log('=== CREATING/UPDATING COMPANY ROLE ===');
             
@@ -321,7 +324,7 @@ serve(async (req) => {
             }
           }
 
-          // Step 6: Log Activity
+          // Step 7: Log Activity
           console.log('=== LOGGING ACTIVITY ===');
           try {
             await supabaseClient

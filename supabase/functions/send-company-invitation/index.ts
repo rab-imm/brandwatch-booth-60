@@ -60,11 +60,12 @@ serve(async (req) => {
       throw new Error('An active invitation already exists for this email')
     }
 
-    // Check if user already exists in this company
+    // Check if user already exists in this company - FIXED: filter by email
     const { data: existingUserRole } = await supabase
       .from('user_company_roles')
-      .select('id, profiles!inner(email)')
+      .select('id, user_id, profiles!inner(email)')
       .eq('company_id', companyId)
+      .eq('profiles.email', email)
       .maybeSingle()
 
     if (existingUserRole) {

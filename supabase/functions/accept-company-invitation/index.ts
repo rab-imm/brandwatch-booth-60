@@ -54,17 +54,19 @@ serve(async (req) => {
       throw new Error('Invitation has expired')
     }
 
-    // Check if user already exists with this email
-    const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers()
+    // Check if user already exists with this email - use profiles table
+    const { data: existingProfile, error: profileCheckError } = await supabaseAdmin
+      .from('profiles')
+      .select('user_id, email')
+      .eq('email', invitation.email.toLowerCase())
+      .maybeSingle()
     
-    if (listError) {
-      console.error('Error checking existing users:', listError)
+    if (profileCheckError) {
+      console.error('Error checking existing users:', profileCheckError)
       throw new Error('Failed to verify user status')
     }
 
-    const userExists = users.some(u => u.email?.toLowerCase() === invitation.email.toLowerCase())
-
-    if (userExists) {
+    if (existingProfile) {
       throw new Error('An account with this email already exists. Please sign in instead.')
     }
 
@@ -85,17 +87,37 @@ serve(async (req) => {
 
     console.log('User created:', userData.user.id)
 
-    // Wait for profile to be created by trigger
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    // Wait for profile to be created by trigger - increased to 2 seconds
+    console.log('Waiting for profile creation by trigger...')
+    await new Promise(resolve => setTimeout(resolve, 2000))
 
-    // Verify profile exists
-    const { data: existingProfile } = await supabaseAdmin
-      .from('profiles')
-      .select('id')
-      .eq('user_id', userData.user.id)
-      .maybeSingle()
+    // Verify profile exists with retry logic
+    let profileFound = false
+    let retryCount = 0
+    const maxRetries = 3
+    let profileData = null
 
-    if (!existingProfile) {
+    while (!profileFound && retryCount < maxRetries) {
+      const { data: checkProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('id, user_id')
+        .eq('user_id', userData.user.id)
+        .maybeSingle()
+
+      if (checkProfile) {
+        profileFound = true
+        profileData = checkProfile
+        console.log(`Profile found on attempt ${retryCount + 1}`)
+      } else {
+        retryCount++
+        if (retryCount < maxRetries) {
+          console.log(`Profile not found, retry ${retryCount}/${maxRetries}...`)
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)) // Exponential backoff
+        }
+      }
+    }
+
+    if (!profileData) {
       console.error('Profile not created by trigger, creating manually')
       // Manually create profile if trigger failed
       const { error: profileCreateError } = await supabaseAdmin
@@ -114,6 +136,7 @@ serve(async (req) => {
       }
     } else {
       // Update existing profile with company role
+      console.log('Updating existing profile...')
       const { error: profileError } = await supabaseAdmin
         .from('profiles')
         .update({
@@ -127,9 +150,27 @@ serve(async (req) => {
         console.error('Error updating profile:', profileError)
         throw profileError
       }
+      console.log('Profile updated successfully')
+    }
+
+    // Insert into user_roles table
+    console.log('Creating user role entry...')
+    const { error: userRoleError } = await supabaseAdmin
+      .from('user_roles')
+      .insert({
+        user_id: userData.user.id,
+        role: invitation.role
+      })
+
+    if (userRoleError) {
+      console.error('Error creating user role:', userRoleError)
+      // Continue anyway - might already exist or will sync via trigger
+    } else {
+      console.log('User role created successfully')
     }
 
     // Create user-company role relationship
+    console.log('Creating user-company role...')
     const { error: roleError } = await supabaseAdmin
       .from('user_company_roles')
       .insert({
@@ -143,6 +184,7 @@ serve(async (req) => {
       console.error('Error creating user-company role:', roleError)
       throw roleError
     }
+    console.log('User-company role created successfully')
 
     // Mark invitation as accepted
     const { error: updateError } = await supabaseAdmin
