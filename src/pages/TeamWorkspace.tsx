@@ -42,7 +42,7 @@ export default function TeamWorkspace() {
 
       // Fetch assignments
       const { data: assignmentsData } = await supabase
-        .from('letter_assignments' as any)
+        .from('letter_assignments')
         .select('*, legal_letters(title), profiles!letter_assignments_assigned_to_fkey(full_name)')
         .order('created_at', { ascending: false })
 

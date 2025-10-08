@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,7 +56,7 @@ export const TemplateCreatorWizard = () => {
     const { error } = await supabase.from("letter_templates").insert({
       title: formData.title,
       description: formData.description,
-      letter_type: formData.category as any,
+      letter_type: formData.category as Database["public"]["Enums"]["letter_type"],
       template_content: formData.content,
       is_active: !asDraft,
       created_by: profile?.user_id,

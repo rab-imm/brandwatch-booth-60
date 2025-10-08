@@ -260,7 +260,7 @@ export const AdvancedAnalytics = () => {
                 <Calendar
                   mode="range"
                   selected={customDateRange}
-                  onSelect={setCustomDateRange as any}
+                  onSelect={(range) => setCustomDateRange(range as { from: Date; to: Date } | undefined)}
                   numberOfMonths={2}
                 />
               </PopoverContent>

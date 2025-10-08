@@ -106,7 +106,7 @@ export const CompanyAdminDashboard = () => {
       }
 
       if (userRole?.companies) {
-        setCompany(userRole.companies as any)
+        setCompany(userRole.companies)
         
         // Fetch company users
         const { data: users, error: usersError } = await supabase

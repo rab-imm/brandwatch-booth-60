@@ -119,11 +119,12 @@ export const EnhancedDataTable = ({
                 checked={isAllSelected}
                 onCheckedChange={handleSelectAll}
                 aria-label="Select all"
-                {...(isIndeterminate && { 
-                  ref: (el: any) => {
-                    if (el) (el as any).indeterminate = isIndeterminate
+                ref={(el) => {
+                  if (el && isIndeterminate) {
+                    const input = el.querySelector('input');
+                    if (input) input.indeterminate = true;
                   }
-                })}
+                }}
               />
             </TableHead>
             

@@ -291,7 +291,7 @@ export function SecurityMonitoring() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge variant={getAlertColor(alert.type) as any}>
+                          <Badge variant={getAlertColor(alert.type)}>
                             {alert.type.toUpperCase()}
                           </Badge>
                           {alert.resolved && (

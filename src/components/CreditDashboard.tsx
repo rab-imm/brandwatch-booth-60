@@ -28,7 +28,7 @@ export const CreditDashboard = () => {
 
   const fetchTransactions = async () => {
     const { data } = await supabase
-      .from('credit_transactions' as any)
+      .from('credit_transactions')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(10)

@@ -44,7 +44,7 @@ const LETTER_TYPE_LABELS: { [key: string]: string } = {
   general_legal: "General Legal",
 }
 
-const STATUS_COLORS: { [key: string]: string } = {
+const STATUS_COLORS: { [key: string]: "default" | "secondary" | "outline" | "destructive" } = {
   draft: "secondary",
   finalized: "default",
   sent: "outline",
@@ -315,7 +315,7 @@ export default function LettersListPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="font-semibold text-lg">{letter.title}</h3>
-                      <Badge variant={STATUS_COLORS[letter.status] as any}>
+                      <Badge variant={STATUS_COLORS[letter.status]}>
                         {letter.status}
                       </Badge>
                     </div>

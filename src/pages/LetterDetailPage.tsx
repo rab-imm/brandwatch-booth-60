@@ -146,7 +146,7 @@ export default function LetterDetailPage() {
       const { error } = await supabase
         .from('legal_letters')
         .update({
-          status: 'finalized' as any,
+          status: 'finalized',
           finalized_at: new Date().toISOString()
         })
         .eq('id', letter.id)

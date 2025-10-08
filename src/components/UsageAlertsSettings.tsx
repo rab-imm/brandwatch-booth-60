@@ -38,9 +38,9 @@ export const UsageAlertsSettings = () => {
       .single();
 
     if (!error && data?.metadata) {
-      const metadata = data.metadata as any;
+      const metadata = data.metadata as Record<string, unknown>;
       if (metadata.alertSettings) {
-        setSettings(metadata.alertSettings);
+        setSettings(metadata.alertSettings as typeof settings);
       }
     }
   };
@@ -49,14 +49,14 @@ export const UsageAlertsSettings = () => {
     if (!profile) return;
 
     setLoading(true);
-    const currentMetadata = (profile.metadata as any) || {};
+    const currentMetadata = (profile.metadata as Record<string, unknown>) || {};
     const { error } = await supabase
       .from("profiles")
       .update({
-        metadata: {
+        metadata: JSON.parse(JSON.stringify({
           ...currentMetadata,
           alertSettings: settings,
-        },
+        })),
       })
       .eq("user_id", profile.user_id);
 

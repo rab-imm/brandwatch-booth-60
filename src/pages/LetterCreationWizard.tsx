@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/integrations/supabase/client"
+import type { Database } from "@/integrations/supabase/types"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -210,10 +211,10 @@ export default function LetterCreationWizard() {
         .from('legal_letters')
         .insert([{
           user_id: user.id,
-          letter_type: letterType as any,
+          letter_type: letterType as Database["public"]["Enums"]["letter_type"],
           title,
           content: generatedContent,
-          status: 'draft' as any,
+          status: 'draft' as Database["public"]["Enums"]["letter_status"],
           metadata: details,
           credits_used: 5
         }])
@@ -273,7 +274,7 @@ export default function LetterCreationWizard() {
                     className="justify-start h-auto py-4"
                     onClick={() => handleTypeSelect(type.value)}
                   >
-                    <Icon name={type.icon as any} className="w-5 h-5 mr-3" />
+                    <Icon name={type.icon} className="w-5 h-5 mr-3" />
                     <span>{type.label}</span>
                   </Button>
                 ))}

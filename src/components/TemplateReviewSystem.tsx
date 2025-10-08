@@ -42,12 +42,29 @@ export const TemplateReviewSystem = ({ templateId }: TemplateReviewSystemProps) 
   const loadReviews = async () => {
     const { data, error } = await supabase
       .from("template_reviews")
-      .select("*, profiles(full_name)")
+      .select("*")
       .eq("template_id", templateId)
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      setReviews(data as any);
+      // Fetch profiles separately to avoid relation issues
+      const reviewsWithProfiles = await Promise.all(
+        data.map(async (review) => {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("full_name")
+            .eq("user_id", review.user_id)
+            .single();
+          
+          return {
+            ...review,
+            profiles: {
+              full_name: profileData?.full_name || "Anonymous"
+            }
+          };
+        })
+      );
+      setReviews(reviewsWithProfiles as Review[]);
     }
   };
 

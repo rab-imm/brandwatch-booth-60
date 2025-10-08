@@ -20,9 +20,9 @@ export default function CreatorPortal() {
 
   const fetchCreatorData = async () => {
     try {
-      // Fetch creator profile
+      // Fetch creator profile from profiles with metadata
       const { data: creatorData } = await supabase
-        .from('template_creators' as any)
+        .from('profiles')
         .select('*')
         .eq('user_id', user?.id)
         .single()

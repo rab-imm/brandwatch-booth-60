@@ -272,7 +272,7 @@ export function AuditLogs() {
                       </TableCell>
                       <TableCell>
                         <Badge 
-                          variant={getActionColor(log.action) as any}
+                          variant={getActionColor(log.action)}
                           className="flex items-center gap-1 w-fit"
                         >
                           {getActionIcon(log.action)}

@@ -18,7 +18,7 @@ export const EnhancedSubscriptionManager = () => {
 
   const fetchTiers = async () => {
     const { data } = await supabase
-      .from('subscription_tiers' as any)
+      .from('subscription_tiers')
       .select('*')
       .eq('is_active', true)
       .order('monthly_price_aed')

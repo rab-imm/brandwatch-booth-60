@@ -86,15 +86,15 @@ export const RealtimeDashboard = () => {
           const eventType = payload.eventType
           const doc = payload.new || payload.old
           
-          if (doc && typeof doc === 'object' && 'id' in doc) {
-            const documentData = doc as any
+          if (doc && typeof doc === 'object' && 'id' in doc && 'title' in doc && 'type' in doc) {
+            const documentData = doc as { id: string; title: unknown; type: unknown; [key: string]: unknown }
             const newUpdate: RealtimeUpdate = {
               id: documentData.id,
               type: 'document',
               title: `Document ${eventType.toLowerCase()}`,
               description: `Document "${documentData.title || 'Unknown'}" was ${eventType.toLowerCase()}`,
               timestamp: new Date().toISOString(),
-              user_id: documentData.uploaded_by
+              user_id: (documentData.uploaded_by as string | undefined) || undefined
             }
             setRealtimeUpdates(prev => [newUpdate, ...prev.slice(0, 49)])
           }
