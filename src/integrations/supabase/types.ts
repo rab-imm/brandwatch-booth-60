@@ -1209,6 +1209,33 @@ export type Database = {
           },
         ]
       }
+      system_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          created_at: string
+          description: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          config_key: string
+          config_value?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       system_health_logs: {
         Row: {
           created_at: string
@@ -1271,6 +1298,78 @@ export type Database = {
           },
         ]
       }
+      template_bundle_items: {
+        Row: {
+          bundle_id: string
+          created_at: string
+          id: string
+          template_id: string
+        }
+        Insert: {
+          bundle_id: string
+          created_at?: string
+          id?: string
+          template_id: string
+        }
+        Update: {
+          bundle_id?: string
+          created_at?: string
+          id?: string
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_bundle_items_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "template_bundles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "template_bundle_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_bundles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          discount_percentage: number | null
+          id: string
+          is_active: boolean
+          name: string
+          price_aed: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price_aed?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_aed?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       template_downloads: {
         Row: {
           company_id: string | null
@@ -1309,6 +1408,63 @@ export type Database = {
           },
           {
             foreignKeyName: "template_downloads_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_promotions: {
+        Row: {
+          badge_color: string | null
+          badge_text: string | null
+          bundle_id: string | null
+          created_at: string
+          discount_percentage: number | null
+          ends_at: string | null
+          id: string
+          is_featured: boolean | null
+          promotion_type: string
+          starts_at: string
+          template_id: string | null
+        }
+        Insert: {
+          badge_color?: string | null
+          badge_text?: string | null
+          bundle_id?: string | null
+          created_at?: string
+          discount_percentage?: number | null
+          ends_at?: string | null
+          id?: string
+          is_featured?: boolean | null
+          promotion_type: string
+          starts_at?: string
+          template_id?: string | null
+        }
+        Update: {
+          badge_color?: string | null
+          badge_text?: string | null
+          bundle_id?: string | null
+          created_at?: string
+          discount_percentage?: number | null
+          ends_at?: string | null
+          id?: string
+          is_featured?: boolean | null
+          promotion_type?: string
+          starts_at?: string
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_promotions_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "template_bundles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "template_promotions_template_id_fkey"
             columns: ["template_id"]
             isOneToOne: false
             referencedRelation: "templates"

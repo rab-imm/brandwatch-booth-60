@@ -19,6 +19,21 @@ interface Template {
   download_count: number
   created_at: string
   created_by: string | null
+  promotion?: {
+    badge_text: string
+    badge_color: string
+    discount_percentage: number
+    is_featured: boolean
+  }
+}
+
+interface Bundle {
+  id: string
+  name: string
+  description: string
+  price_aed: number
+  discount_percentage: number
+  template_count: number
 }
 
 interface RecommendedTemplate extends Template {
@@ -30,10 +45,14 @@ export const EnhancedTemplateStore = () => {
   const { user } = useAuth()
   const { toast } = useToast()
   const [templates, setTemplates] = useState<Template[]>([])
+  const [bundles, setBundles] = useState<Bundle[]>([])
+  const [featuredTemplates, setFeaturedTemplates] = useState<Template[]>([])
   const [recommendedTemplates, setRecommendedTemplates] = useState<RecommendedTemplate[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("all")
+  const [priceFilter, setPriceFilter] = useState<[number, number]>([0, 1000])
+  const [ratingFilter, setRatingFilter] = useState(0)
   const [sortBy, setSortBy] = useState("newest")
   const [processingDownload, setProcessingDownload] = useState<string | null>(null)
 
@@ -50,6 +69,8 @@ export const EnhancedTemplateStore = () => {
 
   useEffect(() => {
     fetchTemplates()
+    fetchBundles()
+    fetchFeatured()
     if (user) {
       fetchRecommendations()
     }
@@ -59,7 +80,15 @@ export const EnhancedTemplateStore = () => {
     try {
       let query = supabase
         .from('templates')
-        .select('*')
+        .select(`
+          *,
+          template_promotions (
+            badge_text,
+            badge_color,
+            discount_percentage,
+            is_featured
+          )
+        `)
         .eq('is_active', true)
 
       // Apply sorting
@@ -73,6 +102,10 @@ export const EnhancedTemplateStore = () => {
         case 'price_high':
           query = query.order('price_aed', { ascending: false })
           break
+        case 'rating':
+          // Would need to join with reviews and avg rating
+          query = query.order('created_at', { ascending: false })
+          break
         default:
           query = query.order('created_at', { ascending: false })
       }
@@ -80,7 +113,13 @@ export const EnhancedTemplateStore = () => {
       const { data, error } = await query
 
       if (error) throw error
-      setTemplates(data || [])
+      
+      const templatesWithPromo = (data || []).map(t => ({
+        ...t,
+        promotion: t.template_promotions?.[0] || undefined
+      }))
+      
+      setTemplates(templatesWithPromo)
     } catch (error) {
       console.error('Error fetching templates:', error)
       toast({
@@ -90,6 +129,59 @@ export const EnhancedTemplateStore = () => {
       })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchBundles = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('template_bundles')
+        .select(`
+          *,
+          template_bundle_items (count)
+        `)
+        .eq('is_active', true)
+
+      if (error) throw error
+      
+      const bundlesWithCount = (data || []).map(b => ({
+        ...b,
+        template_count: b.template_bundle_items?.[0]?.count || 0
+      }))
+      
+      setBundles(bundlesWithCount)
+    } catch (error) {
+      console.error('Error fetching bundles:', error)
+    }
+  }
+
+  const fetchFeatured = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('templates')
+        .select(`
+          *,
+          template_promotions!inner (
+            badge_text,
+            badge_color,
+            discount_percentage,
+            is_featured
+          )
+        `)
+        .eq('template_promotions.is_featured', true)
+        .eq('is_active', true)
+        .limit(6)
+
+      if (error) throw error
+      
+      const featured = (data || []).map(t => ({
+        ...t,
+        promotion: t.template_promotions?.[0]
+      }))
+      
+      setFeaturedTemplates(featured)
+    } catch (error) {
+      console.error('Error fetching featured:', error)
     }
   }
 
@@ -195,7 +287,8 @@ export const EnhancedTemplateStore = () => {
     const matchesSearch = template.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          template.description?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = categoryFilter === "all" || template.category === categoryFilter
-    return matchesSearch && matchesCategory
+    const matchesPrice = template.price_aed >= priceFilter[0] && template.price_aed <= priceFilter[1]
+    return matchesSearch && matchesCategory && matchesPrice
   })
 
   if (loading) {
@@ -208,6 +301,87 @@ export const EnhancedTemplateStore = () => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      {/* Featured Section */}
+      {featuredTemplates.length > 0 && (
+        <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="star" className="h-5 w-5 text-primary" />
+              Featured Templates
+            </CardTitle>
+            <CardDescription>Hand-picked templates for your legal needs</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {featuredTemplates.slice(0, 3).map((template) => (
+                <div key={template.id} className="relative p-4 border rounded-lg bg-background">
+                  {template.promotion && (
+                    <Badge className="absolute top-2 right-2" variant="default">
+                      {template.promotion.badge_text}
+                    </Badge>
+                  )}
+                  <h4 className="font-semibold mb-1">{template.title}</h4>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{template.description}</p>
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="font-bold">
+                      {template.promotion?.discount_percentage ? (
+                        <>
+                          <span className="line-through text-muted-foreground text-sm">
+                            AED {template.price_aed}
+                          </span>
+                          {' '}
+                          <span className="text-primary">
+                            AED {(template.price_aed * (1 - template.promotion.discount_percentage / 100)).toFixed(2)}
+                          </span>
+                        </>
+                      ) : (
+                        `AED ${template.price_aed}`
+                      )}
+                    </span>
+                    <Button size="sm" variant="secondary" onClick={() => handleDownload(template)}>
+                      View
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Bundles Section */}
+      {bundles.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="package" className="h-5 w-5" />
+              Template Bundles
+            </CardTitle>
+            <CardDescription>Save more with bundled templates</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {bundles.map((bundle) => (
+                <div key={bundle.id} className="p-4 border rounded-lg hover:border-primary transition-colors">
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="font-semibold">{bundle.name}</h4>
+                    <Badge variant="secondary">{bundle.discount_percentage}% OFF</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">{bundle.description}</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-lg font-bold">AED {bundle.price_aed}</div>
+                      <div className="text-xs text-muted-foreground">{bundle.template_count} templates</div>
+                    </div>
+                    <Button size="sm">View Bundle</Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex-1">
           <Input
@@ -238,6 +412,7 @@ export const EnhancedTemplateStore = () => {
             <SelectContent>
               <SelectItem value="newest">Newest</SelectItem>
               <SelectItem value="popular">Most Popular</SelectItem>
+              <SelectItem value="rating">Highest Rated</SelectItem>
               <SelectItem value="price_low">Price: Low to High</SelectItem>
               <SelectItem value="price_high">Price: High to Low</SelectItem>
             </SelectContent>
@@ -255,10 +430,18 @@ export const EnhancedTemplateStore = () => {
         <TabsContent value="all" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTemplates.map((template) => (
-              <Card key={template.id} className="flex flex-col">
+              <Card key={template.id} className="flex flex-col relative">
+                {template.promotion && (
+                  <Badge 
+                    className="absolute top-3 right-3 z-10" 
+                    variant={template.promotion.badge_color === 'destructive' ? 'destructive' : 'default'}
+                  >
+                    {template.promotion.badge_text}
+                  </Badge>
+                )}
                 <CardHeader>
                   <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg leading-tight">{template.title}</CardTitle>
+                    <CardTitle className="text-lg leading-tight pr-20">{template.title}</CardTitle>
                     <Badge variant="outline" className="ml-2">
                       {template.category.replace('_', ' ')}
                     </Badge>
@@ -286,6 +469,15 @@ export const EnhancedTemplateStore = () => {
                     <div className="text-lg font-bold">
                       {template.price_aed === 0 ? (
                         <Badge variant="secondary">Free</Badge>
+                      ) : template.promotion?.discount_percentage ? (
+                        <div className="flex flex-col">
+                          <span className="line-through text-sm text-muted-foreground">
+                            AED {template.price_aed}
+                          </span>
+                          <span className="text-primary">
+                            AED {(template.price_aed * (1 - template.promotion.discount_percentage / 100)).toFixed(2)}
+                          </span>
+                        </div>
                       ) : (
                         `AED ${template.price_aed}`
                       )}

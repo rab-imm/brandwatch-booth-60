@@ -14,6 +14,8 @@ export const SystemConfigurationPanel = () => {
   const [creditPricing, setCreditPricing] = useState<any>({})
   const [revenueSharing, setRevenueSharing] = useState<any>({})
   const [rolloverPolicy, setRolloverPolicy] = useState<any>({})
+  const [subscriptionTiers, setSubscriptionTiers] = useState<any>({})
+  const [systemLimits, setSystemLimits] = useState<any>({})
 
   useEffect(() => {
     fetchConfigurations()
@@ -21,7 +23,7 @@ export const SystemConfigurationPanel = () => {
 
   const fetchConfigurations = async () => {
     const { data } = await supabase
-      .from('system_config' as any)
+      .from('system_config')
       .select('*')
     
     data?.forEach((config: any) => {
@@ -31,6 +33,10 @@ export const SystemConfigurationPanel = () => {
         setRevenueSharing(config.config_value)
       } else if (config.config_key === 'credit_rollover_policy') {
         setRolloverPolicy(config.config_value)
+      } else if (config.config_key === 'subscription_tiers') {
+        setSubscriptionTiers(config.config_value)
+      } else if (config.config_key === 'system_limits') {
+        setSystemLimits(config.config_value)
       }
     })
   }
@@ -39,7 +45,7 @@ export const SystemConfigurationPanel = () => {
     setLoading(true)
     try {
       const { error } = await supabase
-        .from('system_config' as any)
+        .from('system_config')
         .update({ config_value: configValue, updated_at: new Date().toISOString() })
         .eq('config_key', configKey)
 
@@ -74,10 +80,12 @@ export const SystemConfigurationPanel = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="credits">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="credits">Credit Pricing</TabsTrigger>
               <TabsTrigger value="revenue">Revenue Sharing</TabsTrigger>
               <TabsTrigger value="rollover">Credit Rollover</TabsTrigger>
+              <TabsTrigger value="tiers">Subscription Tiers</TabsTrigger>
+              <TabsTrigger value="limits">System Limits</TabsTrigger>
             </TabsList>
 
             <TabsContent value="credits" className="space-y-4 mt-4">
@@ -222,6 +230,82 @@ export const SystemConfigurationPanel = () => {
               <Button onClick={() => saveConfiguration('credit_rollover_policy', rolloverPolicy)} disabled={loading}>
                 <IconDeviceFloppy className="h-4 w-4 mr-2" />
                 Save Rollover Policy
+              </Button>
+            </TabsContent>
+
+            <TabsContent value="tiers" className="space-y-4 mt-4">
+              <div className="space-y-6">
+                {Object.keys(subscriptionTiers).map((tier) => (
+                  <div key={tier} className="border rounded-lg p-4">
+                    <h3 className="font-semibold text-lg mb-3 capitalize">{tier} Tier</h3>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor={`${tier}_credits`}>Max Credits</Label>
+                        <Input
+                          id={`${tier}_credits`}
+                          type="number"
+                          value={subscriptionTiers[tier]?.max_credits || 0}
+                          onChange={(e) => setSubscriptionTiers({
+                            ...subscriptionTiers,
+                            [tier]: { ...subscriptionTiers[tier], max_credits: parseInt(e.target.value) }
+                          })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`${tier}_price`}>Price (AED)</Label>
+                        <Input
+                          id={`${tier}_price`}
+                          type="number"
+                          value={subscriptionTiers[tier]?.price_aed || 0}
+                          onChange={(e) => setSubscriptionTiers({
+                            ...subscriptionTiers,
+                            [tier]: { ...subscriptionTiers[tier], price_aed: parseInt(e.target.value) }
+                          })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button onClick={() => saveConfiguration('subscription_tiers', subscriptionTiers)} disabled={loading}>
+                <IconDeviceFloppy className="h-4 w-4 mr-2" />
+                Save Subscription Tiers
+              </Button>
+            </TabsContent>
+
+            <TabsContent value="limits" className="space-y-4 mt-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="rate_limit">Rate Limit (requests/minute)</Label>
+                  <Input
+                    id="rate_limit"
+                    type="number"
+                    value={systemLimits.rate_limit_per_minute || 60}
+                    onChange={(e) => setSystemLimits({ ...systemLimits, rate_limit_per_minute: parseInt(e.target.value) })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="max_file_size">Max File Size (MB)</Label>
+                  <Input
+                    id="max_file_size"
+                    type="number"
+                    value={systemLimits.max_file_size_mb || 10}
+                    onChange={(e) => setSystemLimits({ ...systemLimits, max_file_size_mb: parseInt(e.target.value) })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="max_concurrent">Max Concurrent Requests</Label>
+                  <Input
+                    id="max_concurrent"
+                    type="number"
+                    value={systemLimits.max_concurrent_requests || 5}
+                    onChange={(e) => setSystemLimits({ ...systemLimits, max_concurrent_requests: parseInt(e.target.value) })}
+                  />
+                </div>
+              </div>
+              <Button onClick={() => saveConfiguration('system_limits', systemLimits)} disabled={loading}>
+                <IconDeviceFloppy className="h-4 w-4 mr-2" />
+                Save System Limits
               </Button>
             </TabsContent>
           </Tabs>
