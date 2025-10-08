@@ -92,11 +92,7 @@ export function CompanySidebar({
   }
 
   const handleSectionClick = (sectionId: string) => {
-    if (sectionId === "letters") {
-      navigate("/letters")
-    } else {
-      onSectionChange(sectionId)
-    }
+    onSectionChange(sectionId)
   }
 
   const shouldShowSection = (section: SidebarSection) => {

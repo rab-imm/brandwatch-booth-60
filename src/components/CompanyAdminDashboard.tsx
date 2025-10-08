@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/integrations/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,6 +25,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { CompanySidebar } from "@/components/CompanySidebar"
 import { CompanyDashboardOverview } from "@/components/CompanyDashboardOverview"
 import { NotificationCenter } from "@/components/NotificationCenter"
+import { LettersList } from "@/components/LettersList"
+import { LetterDetail } from "@/components/LetterDetail"
 
 interface CompanyData {
   id: string
@@ -58,11 +61,13 @@ interface InviteDialogState {
 }
 
 export const CompanyAdminDashboard = () => {
+  const navigate = useNavigate()
   const { user, profile } = useAuth()
   const [loading, setLoading] = useState(true)
   const [company, setCompany] = useState<CompanyData | null>(null)
   const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([])
   const [activeSection, setActiveSection] = useState("dashboard")
+  const [selectedLetterId, setSelectedLetterId] = useState<string | null>(null)
   const [inviteDialog, setInviteDialog] = useState<InviteDialogState>({
     open: false,
     email: '',
@@ -386,49 +391,43 @@ export const CompanyAdminDashboard = () => {
 
       case "conversations":
         return <CompanyTeamConversations />
-
+      
+      case "letters":
+        return selectedLetterId ? (
+          <LetterDetail
+            letterId={selectedLetterId}
+            onBack={() => setSelectedLetterId(null)}
+          />
+        ) : (
+          <LettersList
+            onLetterClick={(id) => setSelectedLetterId(id)}
+            onCreateClick={() => navigate('/letters/create')}
+          />
+        )
+      
       case "settings":
         return (
           <Card>
             <CardHeader>
               <CardTitle>Company Settings</CardTitle>
-              <CardDescription>
-                Manage your company information and preferences
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4">
-                <div>
-                  <Label htmlFor="company-name">Company Name</Label>
-                  <Input
-                    id="company-name"
-                    value={company.name}
-                    disabled
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="company-email">Company Email</Label>
-                  <Input
-                    id="company-email"
-                    value={company.email}
-                    disabled
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label>Subscription Tier</Label>
-                  <Input
-                    value={company.subscription_tier}
-                    disabled
-                    className="mt-1 capitalize"
-                  />
-                </div>
+              <div>
+                <label className="text-sm font-medium">Company Name</label>
+                <p className="text-lg">{company?.name}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Email</label>
+                <p className="text-lg">{company?.email}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Subscription Tier</label>
+                <p className="text-lg capitalize">{company?.subscription_tier}</p>
               </div>
             </CardContent>
           </Card>
         )
-
+      
       default:
         return null
     }

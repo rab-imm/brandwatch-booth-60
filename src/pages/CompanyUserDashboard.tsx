@@ -13,6 +13,8 @@ import { ManagerRequestsPanel } from "@/components/ManagerRequestsPanel"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { CompanySidebar } from "@/components/CompanySidebar"
 import { CompanyDashboardOverview } from "@/components/CompanyDashboardOverview"
+import { LettersList } from "@/components/LettersList"
+import { LetterDetail } from "@/components/LetterDetail"
 
 export default function CompanyUserDashboard() {
   const { user, profile, loading } = useAuth()
@@ -21,6 +23,7 @@ export default function CompanyUserDashboard() {
   const [companyName, setCompanyName] = useState<string>("")
   const [companyData, setCompanyData] = useState<any>(null)
   const [activeSection, setActiveSection] = useState("dashboard")
+  const [selectedLetterId, setSelectedLetterId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -91,6 +94,19 @@ export default function CompanyUserDashboard() {
               <ChatInterface />
             </div>
           </div>
+        )
+      
+      case "letters":
+        return selectedLetterId ? (
+          <LetterDetail
+            letterId={selectedLetterId}
+            onBack={() => setSelectedLetterId(null)}
+          />
+        ) : (
+          <LettersList
+            onLetterClick={(id) => setSelectedLetterId(id)}
+            onCreateClick={() => navigate('/letters/create')}
+          />
         )
       
       case "team":
