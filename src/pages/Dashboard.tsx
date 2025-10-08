@@ -6,6 +6,7 @@ import { ConversationSidebar } from "@/components/ConversationSidebar"
 import { QueryCounter } from "@/components/QueryCounter"
 import { Header } from "@/components/Header"
 import { ChatProvider } from "@/contexts/ChatContext"
+import { UpsellModal } from "@/components/UpsellModal"
 
 const Dashboard = () => {
   const { user, profile, loading } = useAuth()
@@ -29,6 +30,15 @@ const Dashboard = () => {
     return null
   }
 
+  const getQueryLimit = (tier: string) => {
+    switch (tier) {
+      case 'essential': return 100
+      case 'premium': return 500
+      case 'sme': return 1000
+      default: return 10
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -48,6 +58,12 @@ const Dashboard = () => {
           </div>
         </ChatProvider>
       </div>
+      
+      <UpsellModal 
+        queriesUsed={profile?.queries_used || 0}
+        subscriptionTier={profile?.subscription_tier || 'free'}
+        maxQueries={getQueryLimit(profile?.subscription_tier || 'free')}
+      />
     </div>
   )
 }
