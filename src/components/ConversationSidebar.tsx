@@ -141,14 +141,14 @@ export const ConversationSidebar = () => {
   }
 
   return (
-    <div className="w-80 border-r bg-muted/10 flex flex-col">
+    <div className="w-80 border-r bg-muted/10 flex flex-col h-full">
       <ConversationHeader 
         currentConversationId={currentConversationId}
         onNewChat={handleNewConversation}
         loading={loading}
       />
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="p-2 space-y-1">
           {conversations.length === 0 ? (
             <div className="p-4 text-center text-sm text-muted-foreground">
@@ -182,7 +182,7 @@ export const ConversationSidebar = () => {
         </div>
       </ScrollArea>
       
-      <div className="border-t p-3">
+      <div className="border-t p-3 mt-auto">
         <Button
           onClick={handleResetQueries}
           disabled={resetting}
