@@ -41,8 +41,16 @@ export const Header = () => {
                     About
                   </Link>
                 </>
+              ) : profile?.current_company_id ? (
+                <>
+                  {/* Company users - no personal navigation in header, use sidebar instead */}
+                  <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                    Templates
+                  </Link>
+                </>
               ) : (
                 <>
+                  {/* Personal users - show personal navigation */}
                   <Link to="/dashboard" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
                     Dashboard
                   </Link>
