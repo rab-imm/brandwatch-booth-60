@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
-import { Coins, TrendingDown, Calendar, ShoppingCart } from "lucide-react"
+import { IconCoins, IconTrendingDown, IconCalendar, IconShoppingCart } from "@tabler/icons-react"
 import {
   Table,
   TableBody,
@@ -28,7 +28,7 @@ export const CreditDashboard = () => {
 
   const fetchTransactions = async () => {
     const { data } = await supabase
-      .from('credit_transactions')
+      .from('credit_transactions' as any)
       .select('*')
       .order('created_at', { ascending: false })
       .limit(10)
@@ -89,7 +89,7 @@ export const CreditDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Credits Remaining</CardTitle>
-            <Coins className="h-4 w-4 text-muted-foreground" />
+            <IconCoins className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{creditsRemaining}</div>
@@ -103,7 +103,7 @@ export const CreditDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Usage This Month</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
+            <IconTrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{maxCredits - creditsRemaining}</div>
@@ -116,7 +116,7 @@ export const CreditDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Next Renewal</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <IconCalendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -145,7 +145,7 @@ export const CreditDashboard = () => {
                 onClick={() => handlePurchaseCredits(amount)}
                 disabled={loading}
               >
-                <ShoppingCart className="h-4 w-4 mr-2" />
+                <IconShoppingCart className="h-4 w-4 mr-2" />
                 {amount} Credits - {amount} AED
               </Button>
             ))}

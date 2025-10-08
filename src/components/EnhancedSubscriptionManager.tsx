@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
-import { Loader2, CreditCard, Pause, Play, TrendingUp, Zap } from "lucide-react"
+import { IconLoader2, IconCreditCard, IconPlayerPause, IconTrendingUp, IconBolt } from "@tabler/icons-react"
 
 export const EnhancedSubscriptionManager = () => {
   const { profile, refetchProfile } = useAuth()
@@ -18,7 +18,7 @@ export const EnhancedSubscriptionManager = () => {
 
   const fetchTiers = async () => {
     const { data } = await supabase
-      .from('subscription_tiers')
+      .from('subscription_tiers' as any)
       .select('*')
       .eq('is_active', true)
       .order('monthly_price_aed')
@@ -92,7 +92,7 @@ export const EnhancedSubscriptionManager = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
+            <IconCreditCard className="h-5 w-5" />
             Current Plan
           </CardTitle>
           <CardDescription>
@@ -119,10 +119,10 @@ export const EnhancedSubscriptionManager = () => {
             className="w-full"
           >
             {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <IconLoader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <Pause className="h-4 w-4 mr-2" />
+                <IconPlayerPause className="h-4 w-4 mr-2" />
                 Pause Subscription
               </>
             )}
@@ -152,12 +152,12 @@ export const EnhancedSubscriptionManager = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-primary" />
+                    <IconBolt className="h-4 w-4 text-primary" />
                     <span>{tier.credits_per_month} credits/month</span>
                   </div>
                   {tier.max_team_members && (
                     <div className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4 text-primary" />
+                      <IconTrendingUp className="h-4 w-4 text-primary" />
                       <span>Up to {tier.max_team_members} team members</span>
                     </div>
                   )}
@@ -170,7 +170,7 @@ export const EnhancedSubscriptionManager = () => {
                   variant={isCurrentTier ? "outline" : "default"}
                 >
                   {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <IconLoader2 className="h-4 w-4 animate-spin" />
                   ) : isCurrentTier ? (
                     "Current Plan"
                   ) : (
