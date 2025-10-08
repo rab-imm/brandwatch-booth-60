@@ -1,83 +1,104 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import Stripe from 'https://esm.sh/stripe@14.21.0'
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const logStep = (step: string, details?: any) => {
+  console.log(`[PURCHASE-CREDITS] ${step}${details ? ` - ${JSON.stringify(details)}` : ''}`);
+};
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-      apiVersion: '2023-10-16',
-    })
+    logStep("Function started");
 
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
-    )
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
 
-    const { data: { user } } = await supabaseClient.auth.getUser()
-    if (!user) {
-      throw new Error('Unauthorized')
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) throw new Error("No authorization header");
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    if (userError) throw new Error(`Auth error: ${userError.message}`);
+    const user = userData.user;
+    if (!user?.email) throw new Error("User not authenticated");
+    logStep("User authenticated", { userId: user.id });
+
+    const { credits, price_aed } = await req.json();
+    if (!credits || !price_aed) {
+      throw new Error("Credits and price_aed are required");
+    }
+    logStep("Purchase request", { credits, price_aed });
+
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+      apiVersion: "2025-08-27.basil",
+    });
+
+    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    let customerId = customers.data.length > 0 ? customers.data[0].id : null;
+
+    if (!customerId) {
+      const customer = await stripe.customers.create({ email: user.email });
+      customerId = customer.id;
+      logStep("Created new customer", { customerId });
     }
 
-    const { credits_amount } = await req.json()
-    
-    // Calculate price (example: 1 AED per credit)
-    const price_aed = credits_amount * 1
-
-    // Create purchase record
-    const { data: purchase } = await supabaseClient
-      .from('credit_purchases')
-      .insert({
-        user_id: user.id,
-        credits_amount,
-        price_aed,
-        status: 'pending'
-      })
-      .select()
-      .single()
-
-    // Create Stripe payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(price_aed * 100), // Convert to fils
-      currency: 'aed',
+    const session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      line_items: [
+        {
+          price_data: {
+            currency: "aed",
+            product_data: {
+              name: `${credits} Credits`,
+              description: `Purchase ${credits} credits for your account`,
+            },
+            unit_amount: Math.round(price_aed * 100),
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${req.headers.get("origin")}/dashboard?credits=success&amount=${credits}`,
+      cancel_url: `${req.headers.get("origin")}/dashboard?credits=cancelled`,
       metadata: {
         user_id: user.id,
-        purchase_id: purchase.id,
-        credits_amount: credits_amount.toString()
-      }
-    })
+        credits: credits.toString(),
+      },
+    });
 
-    // Update purchase with stripe payment intent ID
-    await supabaseClient
-      .from('credit_purchases')
-      .update({ stripe_payment_intent_id: paymentIntent.id })
-      .eq('id', purchase.id)
+    logStep("Created checkout session", { sessionId: session.id });
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        client_secret: paymentIntent.client_secret,
-        purchase_id: purchase.id
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    await supabaseClient.from("credit_transactions").insert({
+      user_id: user.id,
+      amount: credits,
+      transaction_type: "purchase",
+      description: `Purchase of ${credits} credits`,
+      stripe_payment_intent_id: session.payment_intent as string,
+      metadata: { session_id: session.id },
+    });
+
+    return new Response(JSON.stringify({ url: session.url, session_id: session.id }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-    )
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("ERROR", { message: errorMessage });
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+    });
   }
-})
+});

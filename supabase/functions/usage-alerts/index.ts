@@ -1,80 +1,101 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const logStep = (step: string, details?: any) => {
+  console.log(`[USAGE-ALERTS] ${step}${details ? ` - ${JSON.stringify(details)}` : ''}`);
+};
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
-    )
+    logStep("Function started");
 
-    const { data: { user } } = await supabaseClient.auth.getUser()
-    if (!user) {
-      throw new Error('Unauthorized')
-    }
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) throw new Error("No authorization header");
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    if (userError) throw new Error(`Auth error: ${userError.message}`);
+    const user = userData.user;
+    if (!user) throw new Error("User not authenticated");
+    logStep("User authenticated", { userId: user.id });
 
     const { data: profile } = await supabaseClient
-      .from('profiles')
-      .select('queries_remaining, subscription_tier')
-      .eq('id', user.id)
-      .single()
+      .from("profiles")
+      .select("queries_used, queries_limit")
+      .eq("user_id", user.id)
+      .single();
 
-    if (!profile) throw new Error('Profile not found')
+    if (!profile) throw new Error("Profile not found");
 
-    // Get credit pricing config
-    const { data: pricingConfig } = await supabaseClient
-      .from('system_config')
-      .select('config_value')
-      .eq('config_key', 'credit_pricing')
-      .single()
+    const usagePercentage = (profile.queries_used / profile.queries_limit) * 100;
+    logStep("Usage calculated", { 
+      used: profile.queries_used, 
+      limit: profile.queries_limit, 
+      percentage: usagePercentage 
+    });
 
-    const tierLimits: { [key: string]: number } = {
-      'free': 50,
-      'basic': 500,
-      'professional': 2000,
-      'enterprise': 10000
-    }
+    const alerts = [];
 
-    const maxCredits = tierLimits[profile.subscription_tier] || 50
-    const usagePercentage = ((maxCredits - profile.queries_remaining) / maxCredits) * 100
-
-    const alerts = []
-    
     if (usagePercentage >= 90) {
-      alerts.push({ level: 'critical', message: '90% of credits used', percentage: usagePercentage })
+      const { error: alertError } = await supabaseClient.from("notifications").insert({
+        user_id: user.id,
+        title: "Credit Limit Warning",
+        message: `You've used ${usagePercentage.toFixed(0)}% of your monthly credits. Consider upgrading your plan.`,
+        type: "warning",
+        action_url: "/pricing",
+      });
+
+      if (!alertError) {
+        alerts.push({ threshold: 90, triggered: true });
+        logStep("Created 90% alert");
+      }
     } else if (usagePercentage >= 75) {
-      alerts.push({ level: 'warning', message: '75% of credits used', percentage: usagePercentage })
-    } else if (usagePercentage >= 50) {
-      alerts.push({ level: 'info', message: '50% of credits used', percentage: usagePercentage })
+      const { error: alertError } = await supabaseClient.from("notifications").insert({
+        user_id: user.id,
+        title: "Credit Usage Notice",
+        message: `You've used ${usagePercentage.toFixed(0)}% of your monthly credits.`,
+        type: "info",
+        action_url: "/dashboard",
+      });
+
+      if (!alertError) {
+        alerts.push({ threshold: 75, triggered: true });
+        logStep("Created 75% alert");
+      }
     }
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
+        usage_percentage: usagePercentage,
+        alerts_created: alerts.length,
         alerts,
-        credits_remaining: profile.queries_remaining,
-        total_credits: maxCredits,
-        usage_percentage: usagePercentage
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      }
+    );
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-    )
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("ERROR", { message: errorMessage });
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+    });
   }
-})
+});
