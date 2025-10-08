@@ -392,6 +392,59 @@ export type Database = {
         }
         Relationships: []
       }
+      invitation_tokens: {
+        Row: {
+          accepted_at: string | null
+          company_id: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          max_credits_per_period: number
+          metadata: Json | null
+          role: Database["public"]["Enums"]["user_role"]
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          company_id: string
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          invited_by: string
+          max_credits_per_period?: number
+          metadata?: Json | null
+          role?: Database["public"]["Enums"]["user_role"]
+          token: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          company_id?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          max_credits_per_period?: number
+          metadata?: Json | null
+          role?: Database["public"]["Enums"]["user_role"]
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitation_tokens_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lawyer_requests: {
         Row: {
           assigned_lawyer_email: string | null
@@ -526,6 +579,33 @@ export type Database = {
           title?: string
           type?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      password_reset_codes: {
+        Row: {
+          code: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          used: boolean
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          used?: boolean
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          used?: boolean
         }
         Relationships: []
       }
@@ -1122,6 +1202,10 @@ export type Database = {
         Returns: string
       }
       cleanup_expired_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      cleanup_expired_reset_codes: {
         Args: Record<PropertyKey, never>
         Returns: number
       }

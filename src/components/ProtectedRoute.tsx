@@ -17,10 +17,12 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       const currentPath = window.location.pathname
       if (currentPath === '/auth' || currentPath === '/') {
         // Auto-redirect based on user role after successful auth
-        if (profile?.role === 'super_admin') {
+        if (profile?.user_role === 'super_admin') {
           navigate('/admin')
-        } else if (profile?.role === 'company_admin') {
+        } else if (profile?.user_role === 'company_admin') {
           navigate('/company-admin')
+        } else if (profile?.user_role === 'company_staff' || profile?.user_role === 'company_manager') {
+          navigate('/company-user')
         } else {
           navigate('/dashboard')
         }

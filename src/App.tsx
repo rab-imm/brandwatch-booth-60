@@ -13,6 +13,8 @@ import Features from "./pages/Features";
 import About from "./pages/About";
 import Resources from "./pages/Resources";
 import UseCasesPage from "./pages/UseCasesPage";
+import CompanyUserDashboard from "./pages/CompanyUserDashboard";
+import InviteAccept from "./pages/InviteAccept";
 import NotFound from "./pages/NotFound";
 import { EnhancedTemplateStore } from "./components/EnhancedTemplateStore";
 import { SuperAdminDashboard } from "./components/SuperAdminDashboard";
@@ -34,7 +36,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route 
+            <Route path="/invite/:token" element={<InviteAccept />} />
+            <Route
               path="/dashboard" 
               element={
                 <ProtectedRoute>
@@ -77,6 +80,14 @@ const App = () => (
               } 
             />
             <Route 
+              path="/company-user" 
+              element={
+                <ProtectedRoute>
+                  <CompanyUserDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route
               path="/upload" 
               element={
                 <ProtectedRoute>
