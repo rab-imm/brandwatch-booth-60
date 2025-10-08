@@ -19,6 +19,8 @@ import NotFound from "./pages/NotFound";
 import LettersListPage from "./pages/LettersListPage";
 import LetterDetailPage from "./pages/LetterDetailPage";
 import LetterCreationWizard from "./pages/LetterCreationWizard";
+import TeamWorkspace from "./pages/TeamWorkspace";
+import CreatorPortal from "./pages/CreatorPortal";
 import { EnhancedTemplateStore } from "./components/EnhancedTemplateStore";
 import { SuperAdminDashboard } from "./components/SuperAdminDashboard";
 import { CompanyAdminDashboard } from "./components/CompanyAdminDashboard";
@@ -144,6 +146,22 @@ const App = () => (
                     <Header />
                     <LetterDetailPage />
                   </div>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/team-workspace" 
+              element={
+                <ProtectedRoute>
+                  <TeamWorkspace />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/creator-portal" 
+              element={
+                <ProtectedRoute>
+                  <CreatorPortal />
                 </ProtectedRoute>
               } 
             />

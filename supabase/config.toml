@@ -18,6 +18,48 @@ verify_jwt = false
 [functions.accept-company-invitation]
 verify_jwt = false
 
+[functions.manage-subscription]
+verify_jwt = true
+
+[functions.purchase-credits]
+verify_jwt = true
+
+[functions.process-credit-rollover]
+verify_jwt = false
+
+[functions.dunning-management]
+verify_jwt = false
+
+[functions.usage-alerts]
+verify_jwt = true
+
+[functions.create-digital-signature]
+verify_jwt = true
+
+[functions.verify-signature]
+verify_jwt = true
+
+[functions.document-expiry-monitor]
+verify_jwt = false
+
+[functions.bulk-document-operations]
+verify_jwt = true
+
+[functions.stripe-connect-onboarding]
+verify_jwt = true
+
+[functions.process-creator-payouts]
+verify_jwt = false
+
+[functions.marketplace-analytics]
+verify_jwt = true
+
+[functions.system-health-monitor]
+verify_jwt = false
+
+[functions.bulk-user-operations]
+verify_jwt = true
+
 [api]
 enabled = true
 port = 54321
