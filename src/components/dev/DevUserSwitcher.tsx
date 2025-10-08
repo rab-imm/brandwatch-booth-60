@@ -3,6 +3,8 @@ import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { ChevronDownIcon, ChevronUpIcon, PersonIcon, ReloadIcon } from "@radix-ui/react-icons"
 
@@ -14,7 +16,6 @@ if (!import.meta.env.DEV) {
 interface TestUser {
   name: string
   email: string
-  password: string
   role: 'super_admin' | 'company_admin' | 'company_manager' | 'company_staff' | 'individual'
   company: string | null
 }
@@ -23,35 +24,30 @@ const TEST_USERS: TestUser[] = [
   {
     name: 'Jawad (Super Admin)',
     email: 'janoon@gmail.com',
-    password: 'Test@1234',
     role: 'super_admin',
     company: 'Acme Legal Corp'
   },
   {
     name: 'NX (Super Admin)',
     email: 'nxblochain@gmail.com',
-    password: 'Test@1234',
     role: 'super_admin',
     company: null
   },
   {
     name: 'Jawad (Company Admin)',
     email: 'janoondxb@gmail.com',
-    password: 'Test@1234',
     role: 'company_admin',
     company: 'Acme Legal Corp'
   },
   {
     name: 'Test User',
     email: 'nxgaymz@gmail.com',
-    password: 'Test@1234',
     role: 'individual',
     company: null
   },
   {
     name: 'Raffay (Individual)',
     email: 'raffay.ansari@bigimmersive.com',
-    password: 'Test@1234',
     role: 'individual',
     company: null
   }
@@ -78,6 +74,7 @@ export const DevUserSwitcher = () => {
   const { toast } = useToast()
   const [isExpanded, setIsExpanded] = useState(false)
   const [isSwitching, setIsSwitching] = useState(false)
+  const [password, setPassword] = useState('')
 
   // Load expanded state from sessionStorage
   useEffect(() => {
@@ -103,7 +100,16 @@ export const DevUserSwitcher = () => {
   }, [])
 
   const handleSwitchUser = async (testUser: TestUser) => {
-    if (isSwitching) return
+    if (isSwitching || !password) {
+      if (!password) {
+        toast({
+          title: "Password required",
+          description: "Please enter the test user password first",
+          variant: "destructive"
+        })
+      }
+      return
+    }
     
     setIsSwitching(true)
     toast({
@@ -119,7 +125,7 @@ export const DevUserSwitcher = () => {
       await new Promise(resolve => setTimeout(resolve, 500))
       
       // Sign in as new user
-      const { error } = await signIn(testUser.email, testUser.password)
+      const { error } = await signIn(testUser.email, password)
       
       if (error) {
         toast({
@@ -132,6 +138,7 @@ export const DevUserSwitcher = () => {
           title: "Switched successfully",
           description: `Now signed in as ${testUser.name}`,
         })
+        setPassword('') // Clear password after successful switch
       }
     } catch (error) {
       toast({
@@ -148,70 +155,92 @@ export const DevUserSwitcher = () => {
   const currentUserEmail = user?.email || 'Not signed in'
 
   return (
-    <div className="fixed bottom-4 right-4 z-[9999]">
+    <div className="fixed bottom-6 right-6 z-[9999]">
       {!isExpanded ? (
         <Button
           onClick={() => setIsExpanded(true)}
-          className={`${ROLE_COLORS[currentRole as keyof typeof ROLE_COLORS]} text-white shadow-lg`}
+          className={`${ROLE_COLORS[currentRole as keyof typeof ROLE_COLORS]} text-white shadow-xl hover:shadow-2xl transition-all`}
           size="lg"
         >
-          <PersonIcon className="mr-2 h-4 w-4" />
-          {ROLE_LABELS[currentRole as keyof typeof ROLE_LABELS]}
-          <ChevronUpIcon className="ml-2 h-4 w-4" />
+          <PersonIcon className="mr-2 h-5 w-5" />
+          <span className="font-semibold">{ROLE_LABELS[currentRole as keyof typeof ROLE_LABELS]}</span>
+          <ChevronUpIcon className="ml-2 h-5 w-5" />
         </Button>
       ) : (
-        <Card className="w-80 shadow-2xl border-2 border-orange-500">
-          <CardHeader className="bg-orange-100 dark:bg-orange-950 pb-3">
-            <CardTitle className="flex items-center justify-between text-sm">
+        <Card className="w-96 shadow-2xl border-4 border-orange-500 bg-background">
+          <CardHeader className="bg-orange-100 dark:bg-orange-950/50 pb-4 border-b border-orange-200 dark:border-orange-900">
+            <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <PersonIcon className="h-4 w-4" />
+                <PersonIcon className="h-5 w-5" />
                 <span className="font-bold text-orange-600 dark:text-orange-400">DEV USER SWITCHER</span>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsExpanded(false)}
-                className="h-6 w-6 p-0"
+                className="h-8 w-8 p-0 hover:bg-orange-200 dark:hover:bg-orange-900"
               >
-                <ChevronDownIcon className="h-4 w-4" />
+                <ChevronDownIcon className="h-5 w-5" />
               </Button>
             </CardTitle>
-            <div className="text-xs mt-2">
-              <div className="font-semibold">Current User:</div>
-              <div className="text-muted-foreground truncate">{currentUserEmail}</div>
-              <Badge variant="outline" className="mt-1">
-                {ROLE_LABELS[currentRole as keyof typeof ROLE_LABELS]}
-              </Badge>
+            <div className="text-sm mt-3 space-y-2">
+              <div>
+                <div className="font-semibold text-xs text-muted-foreground mb-1">Current User:</div>
+                <div className="text-foreground truncate font-medium">{currentUserEmail}</div>
+                <Badge variant="outline" className="mt-2">
+                  {ROLE_LABELS[currentRole as keyof typeof ROLE_LABELS]}
+                </Badge>
+              </div>
             </div>
           </CardHeader>
-          <CardContent className="p-3 space-y-2 max-h-96 overflow-y-auto">
-            <div className="text-xs font-semibold text-muted-foreground mb-2">
-              Switch to:
+          <CardContent className="p-4 space-y-4 bg-background">
+            <div className="space-y-2">
+              <Label htmlFor="dev-password" className="text-sm font-semibold">
+                Test User Password
+              </Label>
+              <Input
+                id="dev-password"
+                type="password"
+                placeholder="Enter password for test users"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-background border-2"
+              />
+              <p className="text-xs text-muted-foreground">
+                💡 Use the same password for all test accounts
+              </p>
             </div>
-            {TEST_USERS.map((testUser) => (
-              <Button
-                key={testUser.email}
-                onClick={() => handleSwitchUser(testUser)}
-                disabled={isSwitching || user?.email === testUser.email}
-                className={`w-full justify-start text-left ${ROLE_COLORS[testUser.role]} text-white disabled:opacity-50`}
-                size="sm"
-              >
-                {isSwitching && user?.email === testUser.email ? (
-                  <ReloadIcon className="mr-2 h-3 w-3 animate-spin" />
-                ) : (
-                  <span className="mr-2 text-lg">{ROLE_LABELS[testUser.role].split(' ')[0]}</span>
-                )}
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-xs truncate">{testUser.name}</div>
-                  <div className="text-xs opacity-90 truncate">{testUser.email}</div>
-                  {testUser.company && (
-                    <div className="text-xs opacity-75 truncate">{testUser.company}</div>
+            
+            <div className="space-y-2 max-h-80 overflow-y-auto">
+              <div className="text-sm font-semibold text-muted-foreground mb-2">
+                Switch to:
+              </div>
+              {TEST_USERS.map((testUser) => (
+                <Button
+                  key={testUser.email}
+                  onClick={() => handleSwitchUser(testUser)}
+                  disabled={isSwitching || user?.email === testUser.email || !password}
+                  className={`w-full justify-start text-left ${ROLE_COLORS[testUser.role]} text-white disabled:opacity-50 disabled:cursor-not-allowed h-auto py-3`}
+                  size="sm"
+                >
+                  {isSwitching && user?.email === testUser.email ? (
+                    <ReloadIcon className="mr-3 h-4 w-4 animate-spin flex-shrink-0" />
+                  ) : (
+                    <span className="mr-3 text-xl flex-shrink-0">{ROLE_LABELS[testUser.role].split(' ')[0]}</span>
                   )}
-                </div>
-              </Button>
-            ))}
-            <div className="text-xs text-muted-foreground pt-2 border-t">
-              💡 Tip: Press <kbd className="px-1 py-0.5 bg-muted rounded">Ctrl+Shift+U</kbd> to toggle
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm truncate">{testUser.name}</div>
+                    <div className="text-xs opacity-90 truncate">{testUser.email}</div>
+                    {testUser.company && (
+                      <div className="text-xs opacity-75 truncate mt-0.5">{testUser.company}</div>
+                    )}
+                  </div>
+                </Button>
+              ))}
+            </div>
+            
+            <div className="text-xs text-muted-foreground pt-2 border-t bg-muted/30 p-2 rounded">
+              💡 Tip: Press <kbd className="px-1.5 py-0.5 bg-background border rounded text-foreground font-mono">Ctrl+Shift+U</kbd> to toggle
             </div>
           </CardContent>
         </Card>
