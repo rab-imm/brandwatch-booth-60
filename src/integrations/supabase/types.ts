@@ -344,6 +344,126 @@ export type Database = {
           },
         ]
       }
+      departments: {
+        Row: {
+          company_id: string
+          created_at: string
+          credit_allocation: number
+          id: string
+          manager_id: string | null
+          name: string
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          credit_allocation?: number
+          id?: string
+          manager_id?: string | null
+          name: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          credit_allocation?: number
+          id?: string
+          manager_id?: string | null
+          name?: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "departments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_expiry_tracking: {
+        Row: {
+          auto_archive: boolean
+          auto_remind: boolean
+          created_at: string
+          document_id: string
+          expiry_date: string
+          id: string
+          last_reminder_sent: string | null
+          updated_at: string
+        }
+        Insert: {
+          auto_archive?: boolean
+          auto_remind?: boolean
+          created_at?: string
+          document_id: string
+          expiry_date: string
+          id?: string
+          last_reminder_sent?: string | null
+          updated_at?: string
+        }
+        Update: {
+          auto_archive?: boolean
+          auto_remind?: boolean
+          created_at?: string
+          document_id?: string
+          expiry_date?: string
+          id?: string
+          last_reminder_sent?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_expiry_tracking_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: true
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_versions: {
+        Row: {
+          change_summary: string | null
+          content: string
+          created_at: string
+          created_by: string
+          document_id: string
+          id: string
+          version_number: number
+        }
+        Insert: {
+          change_summary?: string | null
+          content: string
+          created_at?: string
+          created_by: string
+          document_id: string
+          id?: string
+          version_number: number
+        }
+        Update: {
+          change_summary?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string
+          document_id?: string
+          id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_versions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           approved_at: string | null
@@ -564,6 +684,53 @@ export type Database = {
           },
         ]
       }
+      letter_assignments: {
+        Row: {
+          assigned_by: string
+          assigned_to: string
+          created_at: string
+          due_date: string
+          id: string
+          letter_id: string
+          notes: string | null
+          priority: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_by: string
+          assigned_to: string
+          created_at?: string
+          due_date: string
+          id?: string
+          letter_id: string
+          notes?: string | null
+          priority?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_by?: string
+          assigned_to?: string
+          created_at?: string
+          due_date?: string
+          id?: string
+          letter_id?: string
+          notes?: string | null
+          priority?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "letter_assignments_letter_id_fkey"
+            columns: ["letter_id"]
+            isOneToOne: false
+            referencedRelation: "legal_letters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       letter_templates: {
         Row: {
           created_at: string
@@ -707,6 +874,33 @@ export type Database = {
         }
         Relationships: []
       }
+      permission_templates: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          permissions: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          permissions?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          permissions?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -717,6 +911,7 @@ export type Database = {
           id: string
           last_payment_failure: string | null
           max_credits_per_period: number | null
+          metadata: Json | null
           payment_failure_count: number | null
           queries_reset_date: string
           queries_used: number
@@ -738,6 +933,7 @@ export type Database = {
           id?: string
           last_payment_failure?: string | null
           max_credits_per_period?: number | null
+          metadata?: Json | null
           payment_failure_count?: number | null
           queries_reset_date?: string
           queries_used?: number
@@ -759,6 +955,7 @@ export type Database = {
           id?: string
           last_payment_failure?: string | null
           max_credits_per_period?: number | null
+          metadata?: Json | null
           payment_failure_count?: number | null
           queries_reset_date?: string
           queries_used?: number
@@ -915,6 +1112,38 @@ export type Database = {
           },
         ]
       }
+      review_votes: {
+        Row: {
+          created_at: string
+          id: string
+          is_helpful: boolean
+          review_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_helpful: boolean
+          review_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_helpful?: boolean
+          review_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_votes_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "template_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_events: {
         Row: {
           admin_user_id: string | null
@@ -979,6 +1208,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      system_health_logs: {
+        Row: {
+          created_at: string
+          error_rate: number
+          id: string
+          response_time_ms: number
+          service_name: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          error_rate?: number
+          id?: string
+          response_time_ms: number
+          service_name: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          error_rate?: number
+          id?: string
+          response_time_ms?: number
+          service_name?: string
+          status?: string
+        }
+        Relationships: []
       }
       template_analytics: {
         Row: {
@@ -1053,6 +1309,47 @@ export type Database = {
           },
           {
             foreignKeyName: "template_downloads_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_reviews: {
+        Row: {
+          created_at: string
+          helpful_count: number
+          id: string
+          is_verified_purchase: boolean
+          rating: number
+          review_text: string | null
+          template_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          helpful_count?: number
+          id?: string
+          is_verified_purchase?: boolean
+          rating: number
+          review_text?: string | null
+          template_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          helpful_count?: number
+          id?: string
+          is_verified_purchase?: boolean
+          rating?: number
+          review_text?: string | null
+          template_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_reviews_template_id_fkey"
             columns: ["template_id"]
             isOneToOne: false
             referencedRelation: "templates"
