@@ -13,10 +13,10 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth')
-    } else if (!loading && user) {
+    } else if (!loading && user && profile) {
       const currentPath = window.location.pathname
+      // Auto-redirect based on user role when on auth or root path
       if (currentPath === '/auth' || currentPath === '/') {
-        // Auto-redirect based on user role after successful auth
         if (profile?.user_role === 'super_admin') {
           navigate('/admin')
         } else if (profile?.user_role === 'company_admin') {
@@ -25,6 +25,16 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
           navigate('/company-user')
         } else {
           navigate('/dashboard')
+        }
+      }
+      // Redirect to appropriate dashboard if user lands on /dashboard but has a specific role
+      else if (currentPath === '/dashboard') {
+        if (profile?.user_role === 'super_admin') {
+          navigate('/admin')
+        } else if (profile?.user_role === 'company_admin') {
+          navigate('/company-admin')
+        } else if (profile?.user_role === 'company_staff' || profile?.user_role === 'company_manager') {
+          navigate('/company-user')
         }
       }
     }

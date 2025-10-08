@@ -36,10 +36,10 @@ export default function Auth() {
   const { toast } = useToast()
   const navigate = useNavigate()
 
-  // Redirect if already logged in
+  // Redirect if already logged in - let ProtectedRoute handle role-based routing
   useEffect(() => {
     if (user) {
-      navigate('/')
+      navigate('/dashboard')
     }
   }, [user, navigate])
 
@@ -78,7 +78,7 @@ export default function Auth() {
             title: "Welcome back!",
             description: "You've been successfully logged in."
           })
-          navigate('/')
+          navigate('/dashboard')
         }
       } else {
         const { error } = await signUp(email, password, fullName, signupType, companyName)
@@ -179,7 +179,7 @@ export default function Auth() {
         })
         setShowResetPassword(false)
         setNewPassword('')
-        navigate('/')
+        navigate('/dashboard')
       }
     } catch (error) {
       toast({
