@@ -26,6 +26,14 @@ import { SystemConfiguration } from './admin/SystemConfiguration';
 import { AuditLogs } from './admin/AuditLogs';
 import { SecurityMonitoring } from './admin/SecurityMonitoring';
 import { SuperAdminBillingDashboard } from './admin/SuperAdminBillingDashboard';
+import { BulkUserOperations } from './admin/BulkUserOperations';
+import { CustomReportBuilder } from './admin/CustomReportBuilder';
+import { PaymentFailureManager } from './admin/PaymentFailureManager';
+import { RetentionManager } from './admin/RetentionManager';
+import { TrialManagement } from './admin/TrialManagement';
+import { UserImpersonation } from './admin/UserImpersonation';
+import { WebhookManager } from './admin/WebhookManager';
+import { BillingAnalytics } from './admin/BillingAnalytics';
 
 export const SuperAdminDashboard = () => {
   const { user, profile } = useAuth()
@@ -417,6 +425,20 @@ export const SuperAdminDashboard = () => {
           </AdminErrorBoundary>
         )
       
+      case "bulk-operations":
+        return (
+          <AdminErrorBoundary>
+            <BulkUserOperations />
+          </AdminErrorBoundary>
+        )
+      
+      case "impersonation":
+        return (
+          <AdminErrorBoundary>
+            <UserImpersonation />
+          </AdminErrorBoundary>
+        )
+      
       case "workflow":
         return (
           <AdminErrorBoundary>
@@ -449,6 +471,34 @@ export const SuperAdminDashboard = () => {
         return (
           <AdminErrorBoundary>
             <SuperAdminBillingDashboard />
+          </AdminErrorBoundary>
+        )
+      
+      case "billing-analytics":
+        return (
+          <AdminErrorBoundary>
+            <BillingAnalytics />
+          </AdminErrorBoundary>
+        )
+      
+      case "payment-failures":
+        return (
+          <AdminErrorBoundary>
+            <PaymentFailureManager />
+          </AdminErrorBoundary>
+        )
+      
+      case "trials":
+        return (
+          <AdminErrorBoundary>
+            <TrialManagement />
+          </AdminErrorBoundary>
+        )
+      
+      case "retention":
+        return (
+          <AdminErrorBoundary>
+            <RetentionManager />
           </AdminErrorBoundary>
         )
       
@@ -544,6 +594,20 @@ export const SuperAdminDashboard = () => {
         return (
           <AdminErrorBoundary>
             <SecurityMonitoring />
+          </AdminErrorBoundary>
+        )
+      
+      case "webhooks":
+        return (
+          <AdminErrorBoundary>
+            <WebhookManager />
+          </AdminErrorBoundary>
+        )
+      
+      case "custom-reports":
+        return (
+          <AdminErrorBoundary>
+            <CustomReportBuilder />
           </AdminErrorBoundary>
         )
       

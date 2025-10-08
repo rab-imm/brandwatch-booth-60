@@ -56,18 +56,31 @@ const adminGroups: AdminGroup[] = [
     title: "User Management",
     sections: [
       { id: "users", title: "Users", icon: "users" },
+      { id: "bulk-operations", title: "Bulk Operations", icon: "layers" },
+      { id: "impersonation", title: "Impersonation", icon: "user-check" },
       { id: "companies", title: "Companies", icon: "building" },
+    ]
+  },
+  {
+    title: "Billing & Revenue",
+    sections: [
+      { id: "billing", title: "Billing Overview", icon: "credit-card" },
+      { id: "billing-analytics", title: "Billing Analytics", icon: "trending-up" },
+      { id: "payment-failures", title: "Payment Failures", icon: "alert-triangle" },
+      { id: "trials", title: "Trial Management", icon: "clock" },
+      { id: "retention", title: "Retention", icon: "users" },
     ]
   },
   {
     title: "System & Security",
     sections: [
-      { id: "billing", title: "Billing", icon: "credit-card" },
       { id: "requests", title: "Lawyer Requests", icon: "alert-circle" },
       { id: "notifications", title: "Notifications", icon: "bell" },
       { id: "settings", title: "Settings", icon: "settings" },
+      { id: "webhooks", title: "Webhooks", icon: "webhook" },
       { id: "audit", title: "Audit Logs", icon: "eye" },
       { id: "security", title: "Security", icon: "shield" },
+      { id: "custom-reports", title: "Custom Reports", icon: "file-text" },
     ]
   }
 ]
