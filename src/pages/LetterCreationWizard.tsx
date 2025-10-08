@@ -23,6 +23,7 @@ const LETTER_TYPES = [
   { value: "nda", label: "Non-Disclosure Agreement", icon: "lock" },
   { value: "settlement_agreement", label: "Settlement Agreement", icon: "handshake" },
   { value: "power_of_attorney", label: "Power of Attorney", icon: "shield" },
+  { value: "workplace_complaint", label: "Workplace Complaint", icon: "alert-triangle" },
   { value: "general_legal", label: "General Legal Letter", icon: "mail" },
 ]
 
@@ -100,6 +101,14 @@ export default function LetterCreationWizard() {
         { key: "amount", label: "Amount (if applicable)", placeholder: "AED amount" },
         { key: "deadline", label: "Deadline for Compliance", placeholder: "DD/MM/YYYY" },
         { key: "consequences", label: "Consequences of Non-Compliance", placeholder: "Legal action, etc.", multiline: true },
+      ],
+      workplace_complaint: [
+        { key: "complainantName", label: "Your Name", placeholder: "Full name" },
+        { key: "managerName", label: "Manager/Supervisor Name", placeholder: "Full name" },
+        { key: "department", label: "Department", placeholder: "Department name" },
+        { key: "complaintDetails", label: "Complaint Details", placeholder: "Describe the issue in detail", multiline: true },
+        { key: "incidentDate", label: "Date of Incident", placeholder: "DD/MM/YYYY" },
+        { key: "witnesses", label: "Witnesses (if any)", placeholder: "Names of witnesses", multiline: true },
       ],
     }
 

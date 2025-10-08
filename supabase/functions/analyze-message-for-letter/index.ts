@@ -12,11 +12,16 @@ serve(async (req) => {
   }
 
   try {
-    const { message, conversationHistory } = await req.json();
+    const { message, messages, conversationHistory } = await req.json();
 
-    if (!message) {
+    // Support both single message and full conversation array
+    const conversationText = messages 
+      ? messages.map((m: any) => `${m.role}: ${m.content}`).join('\n\n')
+      : message;
+    
+    if (!conversationText) {
       return new Response(
-        JSON.stringify({ error: "Message is required" }),
+        JSON.stringify({ error: "Message or messages array is required" }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -30,14 +35,9 @@ serve(async (req) => {
       );
     }
 
-    // Prepare context from conversation history
-    const context = conversationHistory?.slice(-5).map((msg: any) => 
-      `${msg.role}: ${msg.content}`
-    ).join('\n') || '';
+    const systemPrompt = `You are a legal AI assistant specialized in UAE law that analyzes conversations to identify opportunities for formal legal letters.
 
-    const systemPrompt = `You are a legal AI assistant that analyzes conversations to identify opportunities to generate formal legal letters.
-
-Analyze the following conversation and determine if a legal letter would be appropriate.
+Analyze the ENTIRE conversation holistically and determine if a formal legal letter should be suggested.
 
 Letter types available:
 - employment_termination: For terminating employment contracts
@@ -48,7 +48,28 @@ Letter types available:
 - nda: For non-disclosure agreements
 - settlement_agreement: For dispute settlements
 - power_of_attorney: For granting legal authority
+- workplace_complaint: For complaints about managers, supervisors, workplace issues
 - general_legal: For other legal correspondence
+
+BE PROACTIVE: If confidence >= 60% AND you can identify a letter type, suggest it! The letter wizard will collect any missing details.
+
+Suggest a letter when:
+- User explicitly wants to send/write/create something formal
+- Situation warrants formal documentation (disputes, terminations, complaints, agreements)
+- User mentions taking action (complaint, demand, termination, agreement)
+- Clear legal situation that typically requires written documentation
+
+Letter type mappings:
+- "complaint about manager/boss/supervisor" OR "workplace issue" → workplace_complaint
+- "terminate employee" OR "fire someone" → employment_termination
+- "demand payment" OR "owed money" → demand_letter
+- "end lease" OR "cancel rental" → lease_termination
+- Any other formal legal matter → general_legal
+
+Don't suggest a letter when:
+- Just asking general legal questions
+- Purely informational queries
+- No actionable situation mentioned
 
 Response format (use tool call):
 {
@@ -69,7 +90,7 @@ Response format (use tool call):
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Conversation context:\n${context}\n\nLatest message: ${message}` }
+          { role: "user", content: `Analyze this entire conversation:\n\n${conversationText}\n\nBased on the full context, should we suggest creating a formal legal letter?` }
         ],
         tools: [{
           type: "function",
@@ -84,7 +105,7 @@ Response format (use tool call):
                   type: "string",
                   enum: ["employment_termination", "employment_contract", "lease_agreement", 
                          "lease_termination", "demand_letter", "nda", "settlement_agreement",
-                         "power_of_attorney", "general_legal"]
+                         "power_of_attorney", "workplace_complaint", "general_legal"]
                 },
                 confidence: { type: "number", minimum: 0, maximum: 100 },
                 reasoning: { type: "string" },
