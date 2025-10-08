@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/integrations/supabase/client"
+import { Header } from "@/components/Header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -167,17 +168,28 @@ export default function LettersListPage() {
   }
 
   return (
-    <div className="container max-w-7xl py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Legal Letters</h1>
-          <p className="text-muted-foreground">Manage your generated legal letters</p>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="container max-w-7xl py-8">
+        {/* Breadcrumb */}
+        <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+          <Link to="/dashboard" className="hover:text-foreground transition-colors">
+            Dashboard
+          </Link>
+          <Icon name="chevron-right" className="h-4 w-4" />
+          <span className="text-foreground font-medium">My Letters</span>
+        </nav>
+
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold">Legal Letters</h1>
+            <p className="text-muted-foreground">Manage your generated legal letters</p>
+          </div>
+          <Button onClick={() => navigate('/letters/create')} className="gap-2">
+            <Icon name="file-plus" className="w-4 h-4" />
+            Create New Letter
+          </Button>
         </div>
-        <Button onClick={() => navigate('/letters/create')} className="gap-2">
-          <Icon name="file-plus" className="w-4 h-4" />
-          Create New Letter
-        </Button>
-      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -377,6 +389,7 @@ export default function LettersListPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>
     </div>
   )
 }
