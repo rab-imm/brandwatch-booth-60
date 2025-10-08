@@ -7,6 +7,7 @@ import { QueryCounter } from "@/components/QueryCounter"
 import { Header } from "@/components/Header"
 import { ChatProvider } from "@/contexts/ChatContext"
 import { UpsellModal } from "@/components/UpsellModal"
+import { NotificationCenter } from "@/components/NotificationCenter"
 
 const Dashboard = () => {
   const { user, profile, loading } = useAuth()
@@ -46,11 +47,12 @@ const Dashboard = () => {
         <ChatProvider>
           <ConversationSidebar />
           <div className="flex-1 flex flex-col">
-            <div className="border-b p-4">
+            <div className="border-b p-4 flex items-center justify-between">
               <QueryCounter 
                 queriesUsed={profile?.queries_used || 0}
                 subscriptionTier={profile?.subscription_tier || 'free'}
               />
+              <NotificationCenter />
             </div>
             <div className="flex-1">
               <ChatInterface />

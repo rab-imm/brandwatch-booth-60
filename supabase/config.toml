@@ -1,5 +1,8 @@
 project_id = "icsttnftxcfgnwhifsdm"
 
+[functions.legal-updates-monitor]
+verify_jwt = false
+
 [api]
 enabled = true
 port = 54321

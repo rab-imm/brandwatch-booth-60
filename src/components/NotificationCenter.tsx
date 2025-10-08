@@ -139,12 +139,14 @@ export const NotificationCenter = () => {
 
   const getNotificationColor = (type: string) => {
     switch (type) {
-      case 'success': return 'text-green-600'
-      case 'warning': return 'text-yellow-600'
-      case 'error': return 'text-red-600'
-      default: return 'text-blue-600'
+      case 'success': return 'text-success'
+      case 'warning': return 'text-warning'
+      case 'error': return 'text-destructive'
+      default: return 'text-primary'
     }
   }
+
+  const isLegalUpdate = (title: string) => title.includes('Smart Legal Update')
 
   if (!user) return null
 
@@ -196,7 +198,7 @@ export const NotificationCenter = () => {
                   key={notification.id}
                   className={`p-3 cursor-pointer transition-colors hover:bg-muted/50 ${
                     !notification.read_at ? 'bg-primary/5 border-primary/20' : ''
-                  }`}
+                  } ${isLegalUpdate(notification.title) ? 'border-l-4 border-l-primary' : ''}`}
                   onClick={() => {
                     if (!notification.read_at) {
                       markAsRead(notification.id)
