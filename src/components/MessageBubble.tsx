@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Message } from "@/hooks/useChatMessages"
 import { useNavigate } from "react-router-dom"
+import DOMPurify from "dompurify"
 
 interface MessageBubbleProps {
   message: Message
@@ -68,15 +69,21 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
                 <div className={`text-sm leading-relaxed ${
                   isUser ? 'text-primary-foreground' : 'text-foreground'
                 }`} dangerouslySetInnerHTML={{
-                  __html: isUser 
-                    ? message.content.replace(/\n/g, '<br/>') 
-                    : message.content
-                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                        .replace(/(^|\n)### (.*$)/gim, '$1<h3 class="font-semibold text-base mb-2 mt-4">$2</h3>')
-                        .replace(/(^|\n)## (.*$)/gim, '$1<h2 class="font-semibold text-lg mb-2 mt-4">$2</h2>')
-                        .replace(/(^|\n)# (.*$)/gim, '$1<h1 class="font-bold text-xl mb-2 mt-4">$2</h1>')
-                        .replace(/\n/g, '<br/>')
+                  __html: DOMPurify.sanitize(
+                    isUser 
+                      ? message.content.replace(/\n/g, '<br/>') 
+                      : message.content
+                          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                          .replace(/(^|\n)### (.*$)/gim, '$1<h3 class="font-semibold text-base mb-2 mt-4">$2</h3>')
+                          .replace(/(^|\n)## (.*$)/gim, '$1<h2 class="font-semibold text-lg mb-2 mt-4">$2</h2>')
+                          .replace(/(^|\n)# (.*$)/gim, '$1<h1 class="font-bold text-xl mb-2 mt-4">$2</h1>')
+                          .replace(/\n/g, '<br/>'),
+                    {
+                      ALLOWED_TAGS: ['br', 'strong', 'em', 'h1', 'h2', 'h3', 'p', 'ul', 'ol', 'li'],
+                      ALLOWED_ATTR: ['class']
+                    }
+                  )
                 }} />
               )}
             </div>
