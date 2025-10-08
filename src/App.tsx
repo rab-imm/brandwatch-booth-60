@@ -16,6 +16,9 @@ import UseCasesPage from "./pages/UseCasesPage";
 import CompanyUserDashboard from "./pages/CompanyUserDashboard";
 import InviteAccept from "./pages/InviteAccept";
 import NotFound from "./pages/NotFound";
+import LettersListPage from "./pages/LettersListPage";
+import LetterDetailPage from "./pages/LetterDetailPage";
+import LetterCreationWizard from "./pages/LetterCreationWizard";
 import { EnhancedTemplateStore } from "./components/EnhancedTemplateStore";
 import { SuperAdminDashboard } from "./components/SuperAdminDashboard";
 import { CompanyAdminDashboard } from "./components/CompanyAdminDashboard";
@@ -108,6 +111,39 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <PersonalDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/letters" 
+              element={
+                <ProtectedRoute>
+                  <div className="min-h-screen bg-background">
+                    <Header />
+                    <LettersListPage />
+                  </div>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/letters/create" 
+              element={
+                <ProtectedRoute>
+                  <div className="min-h-screen bg-background">
+                    <Header />
+                    <LetterCreationWizard />
+                  </div>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/letters/:letterId" 
+              element={
+                <ProtectedRoute>
+                  <div className="min-h-screen bg-background">
+                    <Header />
+                    <LetterDetailPage />
+                  </div>
                 </ProtectedRoute>
               } 
             />
