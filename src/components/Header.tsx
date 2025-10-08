@@ -23,21 +23,34 @@ export const Header = () => {
           <div className="flex items-center space-x-8">
             <Link to="/" className="text-2xl font-bold text-brand-primary font-pact-display">UAE Legal Research</Link>
             <nav className="hidden md:flex items-center space-x-6">
-              <Link to="/features" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                Features
-              </Link>
-              <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                Templates
-              </Link>
-              <Link to="/pricing" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                Pricing
-              </Link>
-              <Link to="/use-cases" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                Use Cases
-              </Link>
-              <Link to="/about" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                About
-              </Link>
+              {!user ? (
+                <>
+                  <Link to="/features" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                    Features
+                  </Link>
+                  <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                    Templates
+                  </Link>
+                  <Link to="/pricing" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                    Pricing
+                  </Link>
+                  <Link to="/use-cases" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                    Use Cases
+                  </Link>
+                  <Link to="/about" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                    About
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/dashboard" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                    Dashboard
+                  </Link>
+                  <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                    Templates
+                  </Link>
+                </>
+              )}
               
               {/* Resources Dropdown */}
               <DropdownMenu>
@@ -45,7 +58,7 @@ export const Header = () => {
                   Resources
                   <Icon name="chevron-down" size={12} />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-card border border-border">
+                <DropdownMenuContent align="end" className="bg-card border border-border z-50">
                   <DropdownMenuItem asChild>
                     <Link to="/resources#blog">Blog</Link>
                   </DropdownMenuItem>
@@ -67,9 +80,6 @@ export const Header = () => {
             {user ? (
               <div className="flex items-center space-x-3">
                 <NotificationCenter />
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/dashboard">Dashboard</Link>
-                </Button>
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/subscription">Subscription</Link>
                 </Button>
