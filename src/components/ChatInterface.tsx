@@ -36,10 +36,10 @@ export const ChatInterface = () => {
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || loading) return
 
-    // Check query limits
+    // Check credit limits
     if (profile?.subscription_tier === 'free' && (profile?.queries_used || 0) >= 10) {
       toast({
-        title: "Query limit reached",
+        title: "Credit limit reached",
         description: "You've reached your free tier limit. Upgrade to continue.",
         variant: "destructive"
       })
@@ -48,7 +48,7 @@ export const ChatInterface = () => {
 
     if (profile?.subscription_tier === 'essential' && (profile?.queries_used || 0) >= 50) {
       toast({
-        title: "Query limit reached", 
+        title: "Credit limit reached", 
         description: "You've reached your essential tier limit for this month.",
         variant: "destructive"
       })

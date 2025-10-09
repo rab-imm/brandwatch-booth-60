@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useNavigate } from "react-router-dom"
 import { ChatInterface } from "@/components/ChatInterface"
 import { ConversationSidebar } from "@/components/ConversationSidebar"
-import { QueryCounter } from "@/components/QueryCounter"
+import { CreditCounter } from "@/components/CreditCounter"
 import { Header } from "@/components/Header"
 import { ChatProvider } from "@/contexts/ChatContext"
 import { UpsellModal } from "@/components/UpsellModal"
@@ -48,8 +48,8 @@ const Dashboard = () => {
           <ConversationSidebar />
           <div className="flex-1 flex flex-col">
             <div className="border-b p-4 flex items-center justify-between">
-              <QueryCounter 
-                queriesUsed={profile?.queries_used || 0}
+              <CreditCounter 
+                creditsUsed={profile?.queries_used || 0}
                 subscriptionTier={profile?.subscription_tier || 'free'}
               />
               <NotificationCenter />
@@ -62,7 +62,7 @@ const Dashboard = () => {
       </div>
       
       <UpsellModal 
-        queriesUsed={profile?.queries_used || 0}
+        creditsUsed={profile?.queries_used || 0}
         subscriptionTier={profile?.subscription_tier || 'free'}
         maxQueries={getQueryLimit(profile?.subscription_tier || 'free')}
       />

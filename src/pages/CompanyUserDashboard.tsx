@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { Header } from "@/components/Header"
 import { ChatInterface } from "@/components/ChatInterface"
 import { ConversationSidebar } from "@/components/ConversationSidebar"
-import { QueryCounter } from "@/components/QueryCounter"
+import { CreditCounter } from "@/components/CreditCounter"
 import { NotificationCenter } from "@/components/NotificationCenter"
 import { ChatProvider } from "@/contexts/ChatContext"
 import { ManagerTeamOverview } from "@/components/ManagerTeamOverview"
@@ -144,8 +144,8 @@ export default function CompanyUserDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <QueryCounter 
-                    queriesUsed={companyRole?.used_credits || 0}
+                  <CreditCounter 
+                    creditsUsed={companyRole?.used_credits || 0}
                     subscriptionTier={profile?.subscription_tier}
                     maxCredits={companyRole?.max_credits_per_period || 50}
                   />

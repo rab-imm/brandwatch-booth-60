@@ -270,7 +270,7 @@ export const PersonalDashboard = () => {
                 <div>
                   <p className="font-medium text-amber-800">High Usage Alert</p>
                   <p className="text-sm text-amber-700">
-                    You've used {profile?.queries_used || 0} out of {profile?.max_credits_per_period || 10} queries ({creditUsagePercentage.toFixed(1)}%)
+                    You've used {profile?.queries_used || 0} out of {profile?.max_credits_per_period || 10} credits ({creditUsagePercentage.toFixed(1)}%)
                   </p>
                 </div>
               </div>
@@ -345,7 +345,7 @@ export const PersonalDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle>Usage Trend</CardTitle>
-              <CardDescription>Your query usage over the last 7 days</CardDescription>
+              <CardDescription>Your credit usage over the last 7 days</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={250}>

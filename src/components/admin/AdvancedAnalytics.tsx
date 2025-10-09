@@ -403,7 +403,7 @@ export const AdvancedAnalytics = () => {
         <Card>
           <CardHeader>
             <CardTitle>User Engagement</CardTitle>
-            <CardDescription>Query usage and user activity metrics</CardDescription>
+            <CardDescription>Credit usage and user activity metrics</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2">

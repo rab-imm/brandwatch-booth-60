@@ -5,17 +5,17 @@ import { useNavigate } from "react-router-dom"
 import { ExclamationTriangleIcon, LightningBoltIcon, ArrowRightIcon } from "@radix-ui/react-icons"
 
 interface UpsellModalProps {
-  queriesUsed: number
+  creditsUsed: number
   subscriptionTier: string
   maxQueries: number
 }
 
-export const UpsellModal = ({ queriesUsed, subscriptionTier, maxQueries }: UpsellModalProps) => {
+export const UpsellModal = ({ creditsUsed, subscriptionTier, maxQueries }: UpsellModalProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const [dismissed, setDismissed] = useState(false)
   const navigate = useNavigate()
 
-  const usagePercentage = (queriesUsed / maxQueries) * 100
+  const usagePercentage = (creditsUsed / maxQueries) * 100
   const shouldShow = usagePercentage >= 80 && subscriptionTier === 'free'
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const UpsellModal = ({ queriesUsed, subscriptionTier, maxQueries }: Upsel
     setIsOpen(false)
   }
 
-  const queriesRemaining = maxQueries - queriesUsed
+  const creditsRemaining = maxQueries - creditsUsed
 
   return (
     <Dialog open={isOpen} onOpenChange={handleDismiss}>
@@ -45,10 +45,10 @@ export const UpsellModal = ({ queriesUsed, subscriptionTier, maxQueries }: Upsel
             <div className="h-12 w-12 rounded-full bg-warning/10 flex items-center justify-center">
               <ExclamationTriangleIcon className="h-6 w-6 text-warning" />
             </div>
-            <DialogTitle className="text-xl">Running Low on Queries</DialogTitle>
+            <DialogTitle className="text-xl">Running Low on Credits</DialogTitle>
           </div>
           <DialogDescription className="text-base pt-2">
-            You have only <span className="font-semibold text-foreground">{queriesRemaining} {queriesRemaining === 1 ? 'query' : 'queries'}</span> remaining 
+            You have only <span className="font-semibold text-foreground">{creditsRemaining} {creditsRemaining === 1 ? 'credit' : 'credits'}</span> remaining 
             in your free plan. Upgrade now to get unlimited access and premium features.
           </DialogDescription>
         </DialogHeader>

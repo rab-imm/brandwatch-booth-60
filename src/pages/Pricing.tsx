@@ -198,7 +198,7 @@ const Pricing = () => {
                 How Many Queries Do You Need?
               </h2>
               <p className="text-xl text-muted-foreground">
-                Understanding query usage for different types of legal research
+                Understanding credit usage for different types of legal research
               </p>
             </div>
             

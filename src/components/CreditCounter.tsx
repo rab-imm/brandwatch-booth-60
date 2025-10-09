@@ -2,24 +2,24 @@ import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 import { useNavigate } from "react-router-dom"
 
-interface QueryCounterProps {
-  queriesUsed: number
+interface CreditCounterProps {
+  creditsUsed: number
   subscriptionTier: string
   maxCredits?: number
   isCompanyUser?: boolean
   companyCredits?: { used: number; total: number }
 }
 
-export const QueryCounter = ({ 
-  queriesUsed, 
+export const CreditCounter = ({ 
+  creditsUsed, 
   subscriptionTier, 
   maxCredits,
   isCompanyUser = false,
   companyCredits 
-}: QueryCounterProps) => {
+}: CreditCounterProps) => {
   const navigate = useNavigate()
 
-  const getQueryLimit = (tier: string) => {
+  const getCreditLimit = (tier: string) => {
     if (maxCredits) return maxCredits
     switch (tier) {
       case 'free':
@@ -37,8 +37,8 @@ export const QueryCounter = ({
     }
   }
 
-  const queryLimit = getQueryLimit(subscriptionTier)
-  const usagePercentage = Math.min((queriesUsed / queryLimit) * 100, 100)
+  const creditLimit = getCreditLimit(subscriptionTier)
+  const usagePercentage = Math.min((creditsUsed / creditLimit) * 100, 100)
   const isNearLimit = usagePercentage >= 80
 
   return (
@@ -47,10 +47,10 @@ export const QueryCounter = ({
       <div>
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm font-medium text-muted-foreground">
-            {isCompanyUser ? "Personal Usage" : "Query Usage"}
+            {isCompanyUser ? "Personal Usage" : "Credit Usage"}
           </span>
           <span className="text-sm text-muted-foreground">
-            {queriesUsed} / {queryLimit === 999999 ? "∞" : queryLimit}
+            {creditsUsed} / {creditLimit === 999999 ? "∞" : creditLimit}
           </span>
         </div>
         
@@ -69,7 +69,7 @@ export const QueryCounter = ({
 
         <div className="flex justify-between items-center text-xs text-muted-foreground">
           <span>
-            {queryLimit === 999999 ? "Unlimited" : `${queryLimit - queriesUsed} queries remaining`}
+            {creditLimit === 999999 ? "Unlimited" : `${creditLimit - creditsUsed} credits remaining`}
           </span>
           {subscriptionTier === 'free' && isNearLimit && (
             <Button size="sm" variant="outline" className="text-xs" onClick={() => navigate('/pricing')}>
@@ -114,8 +114,8 @@ export const QueryCounter = ({
         <div className="mt-3 p-3 bg-warning/10 border border-warning/20 rounded-lg">
           <p className="text-xs text-warning-foreground">
             {subscriptionTier === 'free' 
-              ? "You're running low on queries. Consider upgrading for more capacity."
-              : "You're approaching your query limit for this period."
+              ? "You're running low on credits. Consider upgrading for more capacity."
+              : "You're approaching your credit limit for this period."
             }
           </p>
         </div>
