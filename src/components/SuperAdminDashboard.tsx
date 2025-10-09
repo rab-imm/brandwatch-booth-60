@@ -34,6 +34,8 @@ import { TrialManagement } from './admin/TrialManagement';
 import { UserImpersonation } from './admin/UserImpersonation';
 import { WebhookManager } from './admin/WebhookManager';
 import { BillingAnalytics } from './admin/BillingAnalytics';
+import { SubscriptionAdminPanel } from './admin/SubscriptionAdminPanel';
+import { SubscriptionRevenueAnalytics } from './admin/SubscriptionRevenueAnalytics';
 
 export const SuperAdminDashboard = () => {
   const { user, profile } = useAuth()
@@ -464,6 +466,20 @@ export const SuperAdminDashboard = () => {
                 emptyMessage="No companies found"
               />
             </div>
+          </AdminErrorBoundary>
+        )
+      
+      case "subscriptions":
+        return (
+          <AdminErrorBoundary>
+            <SubscriptionAdminPanel />
+          </AdminErrorBoundary>
+        )
+      
+      case "revenue":
+        return (
+          <AdminErrorBoundary>
+            <SubscriptionRevenueAnalytics />
           </AdminErrorBoundary>
         )
       

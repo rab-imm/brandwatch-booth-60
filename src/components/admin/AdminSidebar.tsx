@@ -64,7 +64,9 @@ const adminGroups: AdminGroup[] = [
   {
     title: "Billing & Revenue",
     sections: [
-      { id: "billing", title: "Billing Overview", icon: "credit-card" },
+      { id: "subscriptions", title: "Subscriptions", icon: "credit-card" },
+      { id: "revenue", title: "Revenue Analytics", icon: "dollar-sign" },
+      { id: "billing", title: "Billing Overview", icon: "receipt" },
       { id: "billing-analytics", title: "Billing Analytics", icon: "trending-up" },
       { id: "payment-failures", title: "Payment Failures", icon: "alert-triangle" },
       { id: "trials", title: "Trial Management", icon: "clock" },
