@@ -34,18 +34,22 @@ serve(async (req) => {
     if (!user) throw new Error("User not authenticated");
     logStep("User authenticated", { userId: user.id });
 
+    // Fetch user credit usage (queries_used is the DB column but represents credits)
     const { data: profile } = await supabaseClient
       .from("profiles")
-      .select("queries_used, queries_limit")
+      .select("queries_used, max_credits_per_period")
       .eq("user_id", user.id)
       .single();
 
     if (!profile) throw new Error("Profile not found");
 
-    const usagePercentage = (profile.queries_used / profile.queries_limit) * 100;
-    logStep("Usage calculated", { 
-      used: profile.queries_used, 
-      limit: profile.queries_limit, 
+    const creditsUsed = profile.queries_used || 0;
+    const creditsLimit = profile.max_credits_per_period || 0;
+    const usagePercentage = creditsLimit > 0 ? (creditsUsed / creditsLimit) * 100 : 0;
+    
+    logStep("Credit usage calculated", { 
+      used: creditsUsed, 
+      limit: creditsLimit, 
       percentage: usagePercentage 
     });
 

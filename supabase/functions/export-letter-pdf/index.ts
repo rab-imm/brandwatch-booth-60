@@ -59,7 +59,7 @@ serve(async (req) => {
       );
     }
 
-    // Check user credits
+    // Check user credits (queries_used is the DB column name but represents credits)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('queries_used, max_credits_per_period')
@@ -74,12 +74,15 @@ serve(async (req) => {
     }
 
     const creditsNeeded = 1; // PDF export costs 1 credit
-    if (profile.queries_used + creditsNeeded > profile.max_credits_per_period) {
+    const creditsUsed = profile.queries_used || 0; // DB column is queries_used but tracks credits
+    const creditsLimit = profile.max_credits_per_period || 0;
+    
+    if (creditsUsed + creditsNeeded > creditsLimit) {
       return new Response(
         JSON.stringify({ 
           error: "Insufficient credits",
           creditsNeeded,
-          creditsAvailable: profile.max_credits_per_period - profile.queries_used
+          creditsAvailable: creditsLimit - creditsUsed
         }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -154,10 +157,10 @@ serve(async (req) => {
     // Simple approach: Return base64 encoded HTML that can be printed/converted
     const base64Html = btoa(unescape(encodeURIComponent(htmlContent)));
 
-    // Deduct credits
+    // Deduct credits (queries_used is the DB column name)
     await supabase
       .from('profiles')
-      .update({ queries_used: profile.queries_used + creditsNeeded })
+      .update({ queries_used: creditsUsed + creditsNeeded })
       .eq('user_id', user.id);
 
     console.log(`PDF exported for letter ${letterId}, ${creditsNeeded} credit deducted`);

@@ -32,16 +32,19 @@ serve(async (req) => {
 
     logStep("Rollover policy retrieved", { policy });
 
+    // Fetch profiles with unused credits (queries_used tracks credits)
     const { data: profiles } = await supabaseAdmin
       .from("profiles")
-      .select("user_id, queries_used, queries_limit")
+      .select("user_id, queries_used, max_credits_per_period")
       .gt("queries_used", 0);
 
     let rolledOver = 0;
     const maxRolloverPercentage = policy.max_rollover_percentage / 100;
 
     for (const profile of profiles || []) {
-      const remainingCredits = profile.queries_limit - profile.queries_used;
+      const creditsLimit = profile.max_credits_per_period || 0;
+      const creditsUsed = profile.queries_used || 0;
+      const remainingCredits = creditsLimit - creditsUsed;
       const rolloverAmount = Math.floor(remainingCredits * maxRolloverPercentage);
 
       if (rolloverAmount > 0) {

@@ -56,7 +56,7 @@ serve(async (req) => {
       );
     }
 
-    // Check user credits
+    // Check user credits (queries_used is the DB column name but represents credits)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('queries_used, max_credits_per_period, subscription_tier')
@@ -71,12 +71,15 @@ serve(async (req) => {
     }
 
     const creditsNeeded = 5; // Letter generation costs 5 credits
-    if (profile.queries_used + creditsNeeded > profile.max_credits_per_period) {
+    const creditsUsed = profile.queries_used || 0; // DB column is queries_used but tracks credits
+    const creditsLimit = profile.max_credits_per_period || 0;
+    
+    if (creditsUsed + creditsNeeded > creditsLimit) {
       return new Response(
         JSON.stringify({ 
           error: "Insufficient credits",
           creditsNeeded,
-          creditsAvailable: profile.max_credits_per_period - profile.queries_used
+          creditsAvailable: creditsLimit - creditsUsed
         }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -175,10 +178,10 @@ Generate the complete letter now.`;
       );
     }
 
-    // Deduct credits
+    // Deduct credits (queries_used is the DB column name)
     await supabase
       .from('profiles')
-      .update({ queries_used: profile.queries_used + creditsNeeded })
+      .update({ queries_used: creditsUsed + creditsNeeded })
       .eq('user_id', user.id);
 
     console.log(`Letter generated for user ${user.id}, ${creditsNeeded} credits deducted`);

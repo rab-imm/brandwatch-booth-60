@@ -247,9 +247,9 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
       finalResponse = "I apologize, but there was an error processing your legal query. Please try again later or consult with a qualified UAE legal professional for immediate assistance."
     }
 
-    // Step 6: Update query usage (fix the syntax error)
+    // Step 6: Update credit usage (queries_used DB column tracks credits)
     try {
-      // First get current value, then increment
+      // First get current value, then increment by 1 credit
       const { data: currentProfile } = await supabase
         .from('profiles')
         .select('queries_used')
@@ -263,11 +263,11 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
           .eq('user_id', user.id)
         
         if (updateError) {
-          console.error('Error updating query usage:', updateError)
+          console.error('Error updating credit usage:', updateError)
         }
       }
-    } catch (queryError) {
-      console.error('Error with query usage update:', queryError)
+    } catch (creditError) {
+      console.error('Error with credit usage update:', creditError)
     }
 
 

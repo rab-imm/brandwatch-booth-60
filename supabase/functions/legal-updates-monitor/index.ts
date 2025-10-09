@@ -60,7 +60,7 @@ serve(async (req) => {
       });
     }
 
-    // Get all active users with recent activity
+    // Get all active users with recent credit usage (queries_used tracks credits)
     const { data: activeUsers, error: usersError } = await supabaseClient
       .from('profiles')
       .select('user_id, email')
