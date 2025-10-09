@@ -2,7 +2,6 @@ import { useState, useEffect } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/integrations/supabase/client"
-import { Header } from "@/components/Header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -168,9 +167,7 @@ export default function LettersListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <div className="container max-w-7xl py-8">
+    <div className="container max-w-7xl py-8">
         {/* Breadcrumb */}
         <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
           <Link to="/dashboard" className="hover:text-foreground transition-colors">
@@ -389,7 +386,6 @@ export default function LettersListPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      </div>
     </div>
   )
 }
