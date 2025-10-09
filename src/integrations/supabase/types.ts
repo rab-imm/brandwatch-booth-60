@@ -1114,6 +1114,7 @@ export type Database = {
           queries_reset_date: string
           queries_used: number
           rollover_credits: number | null
+          rollover_expires_at: string | null
           subscription_status: string
           subscription_tier: string
           trial_credits_used: number | null
@@ -1138,6 +1139,7 @@ export type Database = {
           queries_reset_date?: string
           queries_used?: number
           rollover_credits?: number | null
+          rollover_expires_at?: string | null
           subscription_status?: string
           subscription_tier?: string
           trial_credits_used?: number | null
@@ -1162,6 +1164,7 @@ export type Database = {
           queries_reset_date?: string
           queries_used?: number
           rollover_credits?: number | null
+          rollover_expires_at?: string | null
           subscription_status?: string
           subscription_tier?: string
           trial_credits_used?: number | null
@@ -2132,6 +2135,10 @@ export type Database = {
         }
         Returns: Json
       }
+      expire_rollover_credits: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       generate_ticket_number: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -2167,6 +2174,14 @@ export type Database = {
       }
       mark_notification_read: {
         Args: { p_notification_id: string }
+        Returns: undefined
+      }
+      notify_expiring_credits: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      process_monthly_credit_reset: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       reset_monthly_queries: {
