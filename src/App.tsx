@@ -21,6 +21,7 @@ import LetterDetailPage from "./pages/LetterDetailPage";
 import LetterCreationWizard from "./pages/LetterCreationWizard";
 import TeamWorkspace from "./pages/TeamWorkspace";
 import CreatorPortal from "./pages/CreatorPortal";
+import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import { EnhancedTemplateStore } from "./components/EnhancedTemplateStore";
 import { SuperAdminDashboard } from "./components/SuperAdminDashboard";
 import { CompanyAdminDashboard } from "./components/CompanyAdminDashboard";
@@ -162,6 +163,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <CreatorPortal />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/analytics" 
+              element={
+                <ProtectedRoute>
+                  <AnalyticsDashboard />
                 </ProtectedRoute>
               } 
             />
