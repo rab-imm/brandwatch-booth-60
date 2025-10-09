@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Icon } from "@/components/ui/Icon"
+import { Badge } from "@/components/ui/badge"
 
 interface ChatInputProps {
   value: string
@@ -19,6 +20,21 @@ export const ChatInput = ({
   placeholder = "Type your message..." 
 }: ChatInputProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [estimatedCost, setEstimatedCost] = useState(1)
+
+  // Estimate credit cost based on input length and complexity indicators
+  const estimateCreditCost = (text: string) => {
+    const length = text.length
+    const isComplex = length > 200 || 
+                     /\b(explain|analyze|compare|detailed|comprehensive|multiple|several)\b/i.test(text)
+    return isComplex ? 2 : 1
+  }
+
+  useEffect(() => {
+    if (value) {
+      setEstimatedCost(estimateCreditCost(value))
+    }
+  }, [value])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -52,9 +68,18 @@ export const ChatInput = ({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className="min-h-[60px] max-h-32 resize-none pr-12"
+          className="min-h-[60px] max-h-32 resize-none pr-12 pb-10"
           rows={2}
         />
+        
+        {value.trim() && (
+          <div className="absolute bottom-2 left-3">
+            <Badge variant={estimatedCost === 1 ? "secondary" : "default"} className="text-xs">
+              ~{estimatedCost} credit{estimatedCost > 1 ? 's' : ''}
+            </Badge>
+          </div>
+        )}
+        
         <Button
           type="submit"
           size="sm"

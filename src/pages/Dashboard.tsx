@@ -51,6 +51,7 @@ const Dashboard = () => {
               <CreditCounter 
                 creditsUsed={profile?.queries_used || 0}
                 subscriptionTier={profile?.subscription_tier || 'free'}
+                rolloverCredits={profile?.rollover_credits || 0}
               />
               <NotificationCenter />
             </div>

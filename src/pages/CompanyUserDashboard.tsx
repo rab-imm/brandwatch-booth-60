@@ -148,6 +148,7 @@ export default function CompanyUserDashboard() {
                     creditsUsed={companyRole?.used_credits || 0}
                     subscriptionTier={profile?.subscription_tier}
                     maxCredits={companyRole?.max_credits_per_period || 50}
+                    rolloverCredits={profile?.rollover_credits || 0}
                   />
                   <NotificationCenter />
                 </div>

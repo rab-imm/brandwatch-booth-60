@@ -43,6 +43,46 @@ serve(async (req) => {
     const user = userData.user
     if (!user) throw new Error("User not authenticated")
 
+    // Check credit limits with rollover support
+    const { data: profileData, error: profileError } = await supabase
+      .from("profiles")
+      .select("queries_used, max_credits_per_period, rollover_credits, credit_rollover_enabled")
+      .eq("user_id", user.id)
+
+    if (profileError || !profileData || profileData.length === 0) {
+      throw new Error("Unable to fetch user profile")
+    }
+
+    const profile = profileData[0]
+    const creditsUsed = profile.queries_used || 0
+    const rolloverCredits = profile.rollover_credits || 0
+    const creditsLimit = profile.max_credits_per_period || 10
+    const totalAvailableCredits = creditsLimit + rolloverCredits
+
+    // Detect query complexity (basic = 1 credit, complex = 2 credits)
+    const messageLength = message?.length || 0
+    const isComplexQuery = messageLength > 200 || 
+                          /\b(explain|analyze|compare|detailed|comprehensive|multiple|several)\b/i.test(message || '')
+    const creditCost = isComplexQuery ? 2 : 1
+    
+    console.log(`Query complexity: ${isComplexQuery ? 'complex' : 'basic'}, cost: ${creditCost} credits`)
+
+    if (creditsUsed + creditCost > totalAvailableCredits) {
+      console.log("Insufficient credits for user:", user.id, `Need ${creditCost}, have ${totalAvailableCredits - creditsUsed}`)
+      return new Response(
+        JSON.stringify({
+          error: `Insufficient credits. This ${isComplexQuery ? 'complex' : 'basic'} query requires ${creditCost} credit${creditCost > 1 ? 's' : ''}. Please upgrade your plan or wait for your credits to reset.`,
+          code: "INSUFFICIENT_CREDITS",
+          required: creditCost,
+          available: totalAvailableCredits - creditsUsed
+        }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      )
+    }
+
     // Step 1: Search internal documents using embedding similarity
     let documentContext = ""
     let documentSources: any[] = []
@@ -201,8 +241,8 @@ RESPONSE FORMAT:
 
 CRITICAL: You provide legal information, not legal advice. Always recommend consulting qualified UAE legal professionals for specific matters.`
 
-    // Step 5: Generate response using GPT-5
-    console.log('Generating AI response with GPT-5...')
+    // Step 5: Generate response using GPT-4o
+    console.log('Generating AI response with GPT-4o...')
     let finalResponse = ""
     
     try {
@@ -238,7 +278,7 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
       
       // Fallback if empty response
       if (!finalResponse) {
-        console.log('Empty response from GPT-5, providing fallback')
+        console.log('Empty response from GPT-4o, providing fallback')
         finalResponse = "I apologize, but I'm unable to process your legal query at this moment. This could be due to temporary service limitations. Please try rephrasing your question or contact a qualified UAE legal professional for immediate assistance."
       }
       
@@ -247,29 +287,40 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
       finalResponse = "I apologize, but there was an error processing your legal query. Please try again later or consult with a qualified UAE legal professional for immediate assistance."
     }
 
-    // Step 6: Update credit usage (queries_used DB column tracks credits)
+    // Step 6: Update credit usage - deduct from rollover first, then from regular credits
     try {
-      // First get current value, then increment by 1 credit
-      const { data: currentProfile } = await supabase
-        .from('profiles')
-        .select('queries_used')
-        .eq('user_id', user.id)
-        .single()
+      let newCreditsUsed = creditsUsed
+      let newRolloverCredits = rolloverCredits
       
-      if (currentProfile) {
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ queries_used: (currentProfile.queries_used || 0) + 1 })
-          .eq('user_id', user.id)
-        
-        if (updateError) {
-          console.error('Error updating credit usage:', updateError)
-        }
+      if (rolloverCredits >= creditCost) {
+        // Deduct from rollover credits first
+        newRolloverCredits = rolloverCredits - creditCost
+      } else if (rolloverCredits > 0) {
+        // Use remaining rollover credits, then regular credits
+        const remainingCost = creditCost - rolloverCredits
+        newRolloverCredits = 0
+        newCreditsUsed = creditsUsed + remainingCost
+      } else {
+        // Use regular credits
+        newCreditsUsed = creditsUsed + creditCost
       }
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ 
+          queries_used: newCreditsUsed,
+          rollover_credits: newRolloverCredits
+        })
+        .eq('user_id', user.id)
+      
+      if (updateError) {
+        console.error('Error updating credit usage:', updateError)
+      }
+      
+      console.log(`Credits updated: used ${creditsUsed} -> ${newCreditsUsed}, rollover ${rolloverCredits} -> ${newRolloverCredits}`)
     } catch (creditError) {
       console.error('Error with credit usage update:', creditError)
     }
-
 
     // Step 7: Log the successful interaction
     await supabase
@@ -283,7 +334,9 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
           message_length: message.length,
           has_research: !!researchContext,
           has_documents: !!documentContext,
-          sources_count: researchSources.length
+          sources_count: researchSources.length,
+          credit_cost: creditCost,
+          query_complexity: isComplexQuery ? 'complex' : 'basic'
         }
       })
       .select()
@@ -339,12 +392,6 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
 
     console.log('Legal chat response generated successfully')
 
-    console.log('Final sources being returned:', {
-      researchSourcesLength: researchSources.length,
-      documentSourcesLength: documentSources.length,
-      hasLetterSuggestion: !!letterSuggestion
-    })
-
     return new Response(JSON.stringify({ 
       response: finalResponse,
       sources: {
@@ -356,6 +403,7 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
         documents: documentSources
       },
       suggestedLetter: letterSuggestion,
+      creditCost,
       timestamp: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

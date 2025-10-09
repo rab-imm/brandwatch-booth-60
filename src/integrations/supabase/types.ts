@@ -1101,6 +1101,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          credit_rollover_enabled: boolean | null
           current_company_id: string | null
           customer_risk_score: number | null
           email: string | null
@@ -1112,6 +1113,7 @@ export type Database = {
           payment_failure_count: number | null
           queries_reset_date: string
           queries_used: number
+          rollover_credits: number | null
           subscription_status: string
           subscription_tier: string
           trial_credits_used: number | null
@@ -1123,6 +1125,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          credit_rollover_enabled?: boolean | null
           current_company_id?: string | null
           customer_risk_score?: number | null
           email?: string | null
@@ -1134,6 +1137,7 @@ export type Database = {
           payment_failure_count?: number | null
           queries_reset_date?: string
           queries_used?: number
+          rollover_credits?: number | null
           subscription_status?: string
           subscription_tier?: string
           trial_credits_used?: number | null
@@ -1145,6 +1149,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          credit_rollover_enabled?: boolean | null
           current_company_id?: string | null
           customer_risk_score?: number | null
           email?: string | null
@@ -1156,6 +1161,7 @@ export type Database = {
           payment_failure_count?: number | null
           queries_reset_date?: string
           queries_used?: number
+          rollover_credits?: number | null
           subscription_status?: string
           subscription_tier?: string
           trial_credits_used?: number | null
