@@ -7,6 +7,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 }
 
+const logStep = (step: string, details?: any) => {
+  console.log(`[CREATE-CHECKOUT] ${step}${details ? ` - ${JSON.stringify(details)}` : ''}`)
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders })
@@ -18,13 +22,23 @@ serve(async (req) => {
   )
 
   try {
+    logStep("Function started")
+    
     const authHeader = req.headers.get("Authorization")!
     const token = authHeader.replace("Bearer ", "")
     const { data } = await supabaseClient.auth.getUser(token)
     const user = data.user
     if (!user?.email) throw new Error("User not authenticated or email not available")
 
+    logStep("User authenticated", { userId: user.id, email: user.email })
+
     const { priceId } = await req.json()
+    
+    if (!priceId) {
+      throw new Error("Price ID is required")
+    }
+
+    logStep("Price ID received", { priceId })
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
@@ -35,6 +49,9 @@ serve(async (req) => {
     let customerId
     if (customers.data.length > 0) {
       customerId = customers.data[0].id
+      logStep("Existing customer found", { customerId })
+    } else {
+      logStep("No existing customer, will create during checkout")
     }
 
     // Create a subscription checkout session
@@ -48,17 +65,24 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/dashboard?success=true`,
-      cancel_url: `${req.headers.get("origin")}/pricing?canceled=true`,
+      success_url: `${req.headers.get("origin")}/dashboard?subscription=success`,
+      cancel_url: `${req.headers.get("origin")}/pricing?subscription=cancelled`,
+      metadata: {
+        user_id: user.id,
+      },
     })
+
+    logStep("Checkout session created", { sessionId: session.id })
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     })
   } catch (error) {
-    console.error('Error creating checkout:', error)
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
+    logStep("ERROR", { message: errorMessage })
+    
+    return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     })

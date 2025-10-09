@@ -1,120 +1,205 @@
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Icon } from "@/components/ui/Icon"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { supabase } from "@/integrations/supabase/client"
+import { useAuth } from "@/hooks/useAuth"
+import { useNavigate } from "react-router-dom"
+import { useToast } from "@/hooks/use-toast"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
 const Pricing = () => {
-  const tiers = [
-    {
-      name: "Free",
-      price: "AED 0",
-      period: "",
-      description: "Perfect for individuals getting started",
-      features: [
-        "10 queries per month",
-        "Basic AI legal assistance",
-        "UAE employment law focus",
-        "Email support",
-        "Single user account"
-      ],
-      cta: "Get Started",
-      popular: false,
-      highlight: "Most Popular for Individuals",
-      priceId: null
-    },
-    {
-      name: "Essential",
-      price: "AED 20", 
-      period: "/month",
-      description: "For individuals and small businesses",
-      features: [
-        "50 queries per month",
-        "3 free templates per month",
-        "Additional templates at AED 20 each",
-        "Priority support",
-        "Document citations",
-        "Export capabilities"
-      ],
-      cta: "Subscribe Now",
-      popular: false,
-      highlight: "",
-      priceId: "price_1S70cyHsYn1ibhUiGg8DGg5g"
-    },
-    {
-      name: "Premium",
-      price: "AED 50",
-      period: "/month", 
-      description: "Ideal for legal professionals and growing firms",
-      features: [
-        "200 queries per month",
-        "10 free templates per month",
-        "Additional templates at AED 15 each",
-        "Priority support",
-        "Multi-user access (up to 5 users)",
-        "Custom document generation",
-        "Advanced search capabilities"
-      ],
-      cta: "Subscribe Now",
-      popular: true,
-      highlight: "Best Value"
-    },
-    {
-      name: "SME",
-      price: "AED 150",
-      period: "/month",
-      description: "For small to medium enterprises with extensive needs",
-      features: [
-        "Unlimited queries",
-        "Unlimited templates",
-        "Custom draft requests",
-        "Dedicated support",
-        "Multi-user access (up to 25 users)",
-        "Custom integrations",
-        "Advanced analytics",
-        "White-label options"
-      ],
-      cta: "Subscribe Now",
-      popular: false,
-      highlight: "",
-      priceId: "price_1S70f5HsYn1ibhUilLkxvekG"
-    }
-  ]
+  const { user, profile } = useAuth()
+  const navigate = useNavigate()
+  const { toast } = useToast()
+  const [loading, setLoading] = useState<string | null>(null)
+  const [tiers, setTiers] = useState<any[]>([])
+  const [isAnnual, setIsAnnual] = useState(false)
 
-  const queryExamples = [
-    { type: "Simple legal question", queries: "1 AI query" },
-    { type: "Contract analysis", queries: "3-5 AI queries" },
-    { type: "Compliance research", queries: "5-10 AI queries" },
-    { type: "Due diligence project", queries: "20-50 AI queries" }
-  ]
+  useEffect(() => {
+    fetchTiers()
+  }, [])
 
-  const faqs = [
-    {
-      question: "What happens if I run out of queries?",
-      answer: "You can upgrade your plan or purchase additional query packs. No service interruption."
-    },
-    {
-      question: "Can I change plans anytime?", 
-      answer: "Yes, upgrades are instant. Downgrades take effect at your next billing cycle."
-    },
-    {
-      question: "Do unused queries roll over?",
-      answer: "No, monthly queries reset each billing period to ensure fresh capacity."
-    },
-    {
-      question: "Is there a free trial?",
-      answer: "Yes. 14 days with 50 free queries to test our platform."
-    },
-    {
-      question: "Do you cover all UAE jurisdictions?",
-      answer: "Yes, we cover federal laws, all seven emirates, DIFC, ADGM, and major free zones."
-    },
-    {
-      question: "How accurate are the AI responses?",
-      answer: "Our platform provides 99.8% citation accuracy with verified legal references and source links."
+  const fetchTiers = async () => {
+    const { data, error } = await supabase
+      .from("subscription_tiers")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order")
+
+    if (!error && data) {
+      setTiers(data)
     }
-  ]
+  }
+
+  const handleSubscribe = async (tier: any) => {
+    if (!user) {
+      navigate("/auth")
+      return
+    }
+
+    if (tier.name === 'free') {
+      toast({
+        title: "Already on Free Plan",
+        description: "You're currently on the free plan. Upgrade to get more credits!",
+      })
+      return
+    }
+
+    if (tier.name === 'enterprise') {
+      toast({
+        title: "Contact Sales",
+        description: "Please contact our sales team for Enterprise pricing.",
+      })
+      return
+    }
+
+    setLoading(tier.name)
+
+    try {
+      const priceId = isAnnual && tier.stripe_price_id_yearly 
+        ? tier.stripe_price_id_yearly 
+        : tier.stripe_price_id_monthly
+
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId }
+      })
+
+      if (error) throw error
+
+      if (data?.url) {
+        window.open(data.url, '_blank')
+      }
+    } catch (error: any) {
+      console.error("Subscription error:", error)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to start checkout",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const individualTiers = tiers.filter(t => 
+    ['free', 'essential', 'premium'].includes(t.name)
+  )
+
+  const businessTiers = tiers.filter(t => 
+    ['essential_business', 'premium_business', 'enterprise'].includes(t.name)
+  )
+
+  const renderTierCard = (tier: any, isCurrentPlan: boolean) => {
+    const price = isAnnual ? tier.price_yearly_aed : tier.price_monthly_aed
+    const savings = tier.price_yearly_aed > 0 
+      ? Math.round(((tier.price_monthly_aed * 12 - tier.price_yearly_aed) / (tier.price_monthly_aed * 12)) * 100)
+      : 0
+
+    const isPopular = tier.name === 'premium' || tier.name === 'premium_business'
+
+    return (
+      <Card 
+        key={tier.id} 
+        className={`p-8 relative flex flex-col ${
+          isCurrentPlan 
+            ? 'border-2 border-primary shadow-lg' 
+            : isPopular 
+              ? 'border-2 border-accent shadow-md' 
+              : 'border'
+        }`}
+      >
+        {isCurrentPlan && (
+          <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary">
+            Your Plan
+          </Badge>
+        )}
+        {!isCurrentPlan && isPopular && (
+          <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent">
+            Most Popular
+          </Badge>
+        )}
+
+        <div className="space-y-6 flex-1">
+          <div>
+            <h3 className="text-2xl font-bold">{tier.display_name}</h3>
+            <p className="text-sm text-muted-foreground mt-2">{tier.description}</p>
+          </div>
+
+          <div className="flex items-baseline gap-2">
+            {tier.name === 'enterprise' ? (
+              <span className="text-4xl font-bold">Custom</span>
+            ) : (
+              <>
+                <span className="text-4xl font-bold">
+                  AED {price}
+                </span>
+                <span className="text-muted-foreground">
+                  {price > 0 ? `/${isAnnual ? 'year' : 'month'}` : ''}
+                </span>
+              </>
+            )}
+          </div>
+
+          {isAnnual && savings > 0 && (
+            <Badge variant="secondary" className="w-fit">
+              Save {savings}%
+            </Badge>
+          )}
+
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Icon name="zap" size={16} className="text-primary" />
+              <span className="font-semibold">
+                {tier.name === 'enterprise' 
+                  ? 'Custom Credits' 
+                  : `${tier.credits_per_month} credits/month`}
+              </span>
+            </div>
+            {(['premium', 'essential_business', 'premium_business', 'enterprise'].includes(tier.name)) && (
+              <div className="flex items-center gap-2">
+                <Icon name="repeat" size={14} className="text-accent" />
+                <span className="text-sm text-muted-foreground">Credit rollover enabled</span>
+              </div>
+            )}
+          </div>
+
+          <ul className="space-y-3">
+            {(tier.features as string[]).map((feature: string, i: number) => (
+              <li key={i} className="flex items-start gap-3">
+                <Icon name="check" size={16} className="text-accent mt-0.5 flex-shrink-0" />
+                <span className="text-sm">{feature}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <Button
+          variant={isCurrentPlan ? "outline" : isPopular ? "default" : "outline"}
+          className="w-full mt-6"
+          onClick={() => handleSubscribe(tier)}
+          disabled={loading !== null || isCurrentPlan}
+        >
+          {loading === tier.name ? (
+            "Processing..."
+          ) : isCurrentPlan ? (
+            "Current Plan"
+          ) : tier.name === 'enterprise' ? (
+            "Contact Sales"
+          ) : tier.name === 'free' ? (
+            "Get Started"
+          ) : (
+            "Subscribe Now"
+          )}
+        </Button>
+      </Card>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -122,101 +207,115 @@ const Pricing = () => {
       
       <main className="pt-20">
         {/* Hero Section */}
-        <section className="py-20 px-6 bg-gradient-warm">
+        <section className="py-20 px-6 bg-gradient-to-br from-primary/5 via-background to-accent/5">
           <div className="container mx-auto max-w-4xl text-center">
-          <h1 className="text-5xl lg:text-6xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            Simple, Transparent Pricing
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Start free, then choose the plan that fits your needs. From individuals to businesses to legal professionals.
-          </p>
-          <div className="mt-8 bg-brand-warm/20 rounded-lg p-4 border border-brand-warm/30 max-w-lg mx-auto">
-            <p className="text-lg font-semibold text-brand-primary mb-1">
-              🎯 Start with 3 Free Queries
+            <h1 className="text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
+              Simple, Transparent Pricing
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+              Start free, then choose the plan that fits your needs. From individuals to enterprises.
             </p>
-            <p className="text-sm text-muted-foreground">
-              No credit card required • Try before you buy • Cancel anytime
-            </p>
-          </div>
+
+            {/* Annual/Monthly Toggle */}
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <Label htmlFor="billing-toggle" className={!isAnnual ? "font-semibold" : ""}>
+                Monthly
+              </Label>
+              <Switch
+                id="billing-toggle"
+                checked={isAnnual}
+                onCheckedChange={setIsAnnual}
+              />
+              <Label htmlFor="billing-toggle" className={isAnnual ? "font-semibold" : ""}>
+                Annual
+                <Badge variant="secondary" className="ml-2">Save up to 20%</Badge>
+              </Label>
+            </div>
           </div>
         </section>
 
         {/* Pricing Tiers */}
         <section className="py-20 px-6">
           <div className="container mx-auto max-w-7xl">
-            <div className="grid lg:grid-cols-4 gap-8">
-              {tiers.map((tier, index) => (
-                <Card key={index} className={`p-8 relative ${tier.popular ? 'border-brand-accent shadow-dashboard' : 'border-dashboard-border'} ${tier.name === 'Free' ? 'bg-brand-warm/5' : ''}`}>
-                  {tier.popular && (
-                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-brand-accent text-white">
-                      {tier.highlight}
-                    </Badge>
-                  )}
-                  {tier.name === 'Free' && (
-                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-brand-warm text-white">
-                      {tier.highlight}
-                    </Badge>
-                  )}
-                  
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-2xl font-bold text-brand-primary">{tier.name}</h3>
-                      <div className="flex items-baseline mt-2">
-                        <span className="text-4xl font-bold text-foreground">{tier.price}</span>
-                        <span className="text-muted-foreground">{tier.period}</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-2">{tier.description}</p>
-                    </div>
-                    
-                    <ul className="space-y-3">
-                      {tier.features.map((feature, i) => (
-                        <li key={i} className="flex items-center space-x-3">
-                          <Icon name="check" size={16} className="text-brand-accent" />
-                          <span className="text-sm">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    
-                    <Button 
-                      variant={tier.popular ? "premium" : "outline"} 
-                      className="w-full"
-                    >
-                      {tier.cta}
-                    </Button>
-                  </div>
-                </Card>
-              ))}
-            </div>
+            <Tabs defaultValue="individual" className="w-full">
+              <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-12">
+                <TabsTrigger value="individual">Individual Plans</TabsTrigger>
+                <TabsTrigger value="business">Business Plans</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="individual">
+                <div className="grid lg:grid-cols-3 gap-8">
+                  {individualTiers.map(tier => renderTierCard(
+                    tier,
+                    profile?.subscription_tier === tier.name
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="business">
+                <div className="grid lg:grid-cols-3 gap-8">
+                  {businessTiers.map(tier => renderTierCard(
+                    tier,
+                    profile?.subscription_tier === tier.name
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </section>
 
-        {/* Credit Calculator */}
-        <section className="py-20 px-6 bg-brand-secondary/20">
+        {/* Credit Usage Guide */}
+        <section className="py-20 px-6 bg-muted/30">
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display">
-                How Many Queries Do You Need?
+              <h2 className="text-4xl font-bold mb-4">
+                Understanding Credit Usage
               </h2>
               <p className="text-xl text-muted-foreground">
-                Understanding credit usage for different types of legal research
+                How credits are deducted for different operations
               </p>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              {queryExamples.map((example, index) => (
-                <Card key={index} className="p-6 bg-card">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">{example.type}</span>
-                    <span className="text-brand-accent font-semibold">{example.queries}</span>
-                  </div>
-                </Card>
-              ))}
-            </div>
-            
-            <div className="text-center">
-              <Button variant="premium" size="lg">
-                Calculate Your Usage
-              </Button>
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <Badge>1 Credit</Badge>
+                  <h3 className="font-semibold">Basic Queries</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Simple legal questions, short answers, basic document searches
+                </p>
+              </Card>
+
+              <Card className="p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <Badge variant="secondary">2 Credits</Badge>
+                  <h3 className="font-semibold">Complex Queries</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Multi-law analysis, detailed explanations, comprehensive research
+                </p>
+              </Card>
+
+              <Card className="p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <Badge variant="outline">6 Credits</Badge>
+                  <h3 className="font-semibold">Basic Templates</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Payment requests, resignation letters, simple contracts
+                </p>
+              </Card>
+
+              <Card className="p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <Badge variant="outline">10 Credits</Badge>
+                  <h3 className="font-semibold">Advanced Templates</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Employment contracts, tenancy agreements, detailed legal documents
+                </p>
+              </Card>
             </div>
           </div>
         </section>
@@ -224,21 +323,46 @@ const Pricing = () => {
         {/* FAQs */}
         <section className="py-20 px-6">
           <div className="container mx-auto max-w-4xl">
-            <h2 className="text-4xl font-bold mb-12 text-center text-brand-primary font-pact-display">
+            <h2 className="text-4xl font-bold mb-12 text-center">
               Frequently Asked Questions
             </h2>
             
             <div className="space-y-6">
-              {faqs.map((faq, index) => (
-                <Card key={index} className="p-6 bg-card">
-                  <h3 className="text-lg font-semibold text-brand-primary mb-3">
-                    {faq.question}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {faq.answer}
-                  </p>
-                </Card>
-              ))}
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-3">
+                  Do unused credits roll over?
+                </h3>
+                <p className="text-muted-foreground">
+                  Yes! Premium Individual and all Business plans include credit rollover. Unused credits carry over to the next month, up to 2x your monthly allocation.
+                </p>
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-3">
+                  Can I upgrade or downgrade anytime?
+                </h3>
+                <p className="text-muted-foreground">
+                  Absolutely. Upgrades are instant with prorated billing. Downgrades take effect at your next billing cycle to ensure you don't lose paid credits.
+                </p>
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-3">
+                  What if I run out of credits mid-month?
+                </h3>
+                <p className="text-muted-foreground">
+                  You can purchase credit top-ups anytime or upgrade your plan for instant access to more credits. Top-ups are available in various sizes to match your needs.
+                </p>
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-3">
+                  How does business plan credit sharing work?
+                </h3>
+                <p className="text-muted-foreground">
+                  Business plans have a shared credit pool. Admins can allocate credits to team members, and all credits roll over monthly for maximum flexibility.
+                </p>
+              </Card>
             </div>
           </div>
         </section>
