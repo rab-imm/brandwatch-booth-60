@@ -16,6 +16,7 @@ interface Template {
   description: string
   category: string
   price_aed: number
+  credit_cost: number
   download_count: number
   created_at: string
   created_by: string | null
@@ -236,41 +237,47 @@ export const EnhancedTemplateStore = () => {
     setProcessingDownload(template.id)
 
     try {
+      // Get user's current company if they're a company user
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('current_company_id')
+        .eq('user_id', user.id)
+        .single()
+
+      // Deduct credits for template download
+      const { data: result, error } = await supabase.rpc('deduct_credits_for_template', {
+        p_template_id: template.id,
+        p_user_id: user.id,
+        p_company_id: profile?.current_company_id || null
+      })
+
+      if (error) throw error
+      
+      const resultData = result as { success: boolean; error?: string; credits_deducted?: number; remaining_credits?: number }
+      
+      if (!resultData.success) {
+        toast({
+          title: "Insufficient Credits",
+          description: resultData.error || "You don't have enough credits to download this template",
+          variant: "destructive"
+        })
+        return
+      }
+
       // Track analytics
       await supabase.rpc('track_template_analytics', {
         p_template_id: template.id,
-        p_action_type: 'view'
+        p_action_type: 'download',
+        p_metadata: { credit_cost: template.credit_cost }
       })
 
-      if (template.price_aed === 0) {
-        await supabase.rpc('track_template_analytics', {
-          p_template_id: template.id,
-          p_action_type: 'download'
-        })
-
-        toast({
-          title: "Download Started",
-          description: "Your free template download has started",
-        })
-      } else {
-        await supabase.rpc('track_template_analytics', {
-          p_template_id: template.id,
-          p_action_type: 'purchase'
-        })
-
-        const { data, error } = await supabase.functions.invoke('create-template-payment', {
-          body: { 
-            templateId: template.id,
-            priceAed: template.price_aed 
-          }
-        })
-
-        if (error) throw error
-
-        if (data.url) {
-          window.open(data.url, '_blank')
-        }
-      }
+      toast({
+        title: "Template Downloaded",
+        description: `${resultData.credits_deducted} ${resultData.credits_deducted === 1 ? 'credit' : 'credits'} used. ${resultData.remaining_credits} remaining.`,
+      })
+      
+      // Trigger download (in production, this would be a real file)
+      window.open(`/templates/${template.id}/download`, '_blank')
     } catch (error) {
       console.error('Error handling download:', error)
       toast({
@@ -466,20 +473,14 @@ export const EnhancedTemplateStore = () => {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <div className="text-lg font-bold">
-                      {template.price_aed === 0 ? (
-                        <Badge variant="secondary">Free</Badge>
-                      ) : template.promotion?.discount_percentage ? (
-                        <div className="flex flex-col">
-                          <span className="line-through text-sm text-muted-foreground">
-                            AED {template.price_aed}
-                          </span>
-                          <span className="text-primary">
-                            AED {(template.price_aed * (1 - template.promotion.discount_percentage / 100)).toFixed(2)}
-                          </span>
+                    <div>
+                      <div className="text-lg font-bold text-primary">
+                        {template.credit_cost} {template.credit_cost === 1 ? 'Credit' : 'Credits'}
+                      </div>
+                      {template.price_aed > 0 && (
+                        <div className="text-xs text-muted-foreground">
+                          or AED {template.price_aed}
                         </div>
-                      ) : (
-                        `AED ${template.price_aed}`
                       )}
                     </div>
                     

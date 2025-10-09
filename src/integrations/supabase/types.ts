@@ -1601,6 +1601,7 @@ export type Database = {
           is_active: boolean
           name: string
           price_aed: number
+          total_credit_cost: number
           updated_at: string
         }
         Insert: {
@@ -1612,6 +1613,7 @@ export type Database = {
           is_active?: boolean
           name: string
           price_aed?: number
+          total_credit_cost?: number
           updated_at?: string
         }
         Update: {
@@ -1623,6 +1625,7 @@ export type Database = {
           is_active?: boolean
           name?: string
           price_aed?: number
+          total_credit_cost?: number
           updated_at?: string
         }
         Relationships: []
@@ -1820,6 +1823,7 @@ export type Database = {
           content: string
           created_at: string
           created_by: string | null
+          credit_cost: number
           description: string | null
           download_count: number
           id: string
@@ -1835,6 +1839,7 @@ export type Database = {
           content: string
           created_at?: string
           created_by?: string | null
+          credit_cost?: number
           description?: string | null
           download_count?: number
           id?: string
@@ -1850,6 +1855,7 @@ export type Database = {
           content?: string
           created_at?: string
           created_by?: string | null
+          credit_cost?: number
           description?: string | null
           download_count?: number
           id?: string
@@ -2117,6 +2123,14 @@ export type Database = {
           p_title: string
         }
         Returns: string
+      }
+      deduct_credits_for_template: {
+        Args: {
+          p_company_id?: string
+          p_template_id: string
+          p_user_id: string
+        }
+        Returns: Json
       }
       generate_ticket_number: {
         Args: Record<PropertyKey, never>
