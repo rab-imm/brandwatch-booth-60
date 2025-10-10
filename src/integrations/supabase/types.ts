@@ -351,6 +351,59 @@ export type Database = {
         }
         Relationships: []
       }
+      company_activity_logs: {
+        Row: {
+          activity_type: Database["public"]["Enums"]["company_activity_type"]
+          company_id: string
+          created_at: string
+          description: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          performed_by: string
+          target_entity_id: string | null
+          target_entity_type: string | null
+          target_user_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          activity_type: Database["public"]["Enums"]["company_activity_type"]
+          company_id: string
+          created_at?: string
+          description: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          performed_by: string
+          target_entity_id?: string | null
+          target_entity_type?: string | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          activity_type?: Database["public"]["Enums"]["company_activity_type"]
+          company_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          performed_by?: string
+          target_entity_id?: string | null
+          target_entity_type?: string | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_activity_logs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           created_at: string
@@ -2216,6 +2269,17 @@ export type Database = {
       }
     }
     Enums: {
+      company_activity_type:
+        | "user_invited"
+        | "user_deleted"
+        | "user_role_changed"
+        | "user_credits_updated"
+        | "invitation_accepted"
+        | "invitation_cancelled"
+        | "company_updated"
+        | "department_created"
+        | "department_updated"
+        | "department_deleted"
       document_category:
         | "employment"
         | "commercial"
@@ -2379,6 +2443,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      company_activity_type: [
+        "user_invited",
+        "user_deleted",
+        "user_role_changed",
+        "user_credits_updated",
+        "invitation_accepted",
+        "invitation_cancelled",
+        "company_updated",
+        "department_created",
+        "department_updated",
+        "department_deleted",
+      ],
       document_category: [
         "employment",
         "commercial",
