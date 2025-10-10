@@ -115,6 +115,26 @@ export default function CompanyUserDashboard() {
       case "requests":
         return <ManagerRequestsPanel />
       
+      case "members":
+        if (!isAdmin) return null
+        navigate('/company-admin')
+        return null
+      
+      case "conversations":
+        if (!isAdmin) return null
+        navigate('/company-admin')
+        return null
+      
+      case "analytics":
+        if (!isAdmin) return null
+        navigate('/company-admin')
+        return null
+      
+      case "settings":
+        if (!isAdmin) return null
+        navigate('/company-admin')
+        return null
+      
       default:
         return null
     }

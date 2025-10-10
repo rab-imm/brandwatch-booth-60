@@ -27,6 +27,8 @@ import { CompanyDashboardOverview } from "@/components/CompanyDashboardOverview"
 import { NotificationCenter } from "@/components/NotificationCenter"
 import { LettersList } from "@/components/LettersList"
 import { LetterDetail } from "@/components/LetterDetail"
+import { CompanyTeamMembers } from "@/components/CompanyTeamMembers"
+import { CompanySettings } from "@/components/CompanySettings"
 
 interface CompanyData {
   id: string
@@ -329,75 +331,7 @@ export const CompanyAdminDashboard = () => {
         )
 
       case "members":
-        return (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Team Members</h2>
-              <Button onClick={() => setInviteDialog({ ...inviteDialog, open: true })}>
-                <Icon name="plus" className="h-4 w-4 mr-2" />
-                Invite User
-              </Button>
-            </div>
-
-            <div className="grid gap-4">
-              {companyUsers.map((companyUser) => (
-                <Card key={companyUser.id}>
-                  <CardContent className="flex items-center justify-between p-6">
-                    <div className="flex items-center space-x-4">
-                      <Avatar>
-                        <AvatarFallback>
-                          {(companyUser.profile?.full_name || companyUser.profile?.email || 'U').charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{companyUser.profile?.full_name || 'Unknown User'}</p>
-                        <p className="text-sm text-muted-foreground">{companyUser.profile?.email}</p>
-                        <Badge variant="outline" className="mt-1">
-                          {companyUser.role}
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right">
-                        <p className="text-sm font-medium">
-                          {companyUser.used_credits} / {companyUser.max_credits_per_period}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Credits used</p>
-                      </div>
-                      
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            const newCredits = prompt('Enter new credit limit:', companyUser.max_credits_per_period.toString())
-                            if (newCredits && !isNaN(Number(newCredits))) {
-                              handleUpdateUserCredits(companyUser.id, companyUser.user_id, Number(newCredits))
-                            }
-                          }}
-                        >
-                          <Icon name="edit" className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => {
-                            if (confirm('Are you sure you want to remove this user from the company?')) {
-                              handleRemoveUser(companyUser.user_id)
-                            }
-                          }}
-                        >
-                          <Icon name="trash-2" className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )
+        return company ? <CompanyTeamMembers companyId={company.id} /> : null
 
       case "analytics":
         return (
@@ -427,27 +361,7 @@ export const CompanyAdminDashboard = () => {
         )
       
       case "settings":
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Company Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">Company Name</label>
-                <p className="text-lg">{company?.name}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Email</label>
-                <p className="text-lg">{company?.email}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Subscription Tier</label>
-                <p className="text-lg capitalize">{company?.subscription_tier}</p>
-              </div>
-            </CardContent>
-          </Card>
-        )
+        return company ? <CompanySettings companyId={company.id} /> : null
       
       default:
         return null
