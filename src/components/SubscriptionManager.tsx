@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PersonalBillingHistory } from "@/components/PersonalBillingHistory"
 import { Header } from "@/components/Header"
 import { Database } from "@/integrations/supabase/types"
+import { useTranslation } from 'react-i18next'
 
 type SubscriptionTier = Database['public']['Tables']['subscription_tiers']['Row']
 
@@ -21,6 +22,7 @@ const CREDIT_PACKAGES = [
 ]
 
 export const SubscriptionManager = () => {
+  const { t } = useTranslation()
   const { user, profile, refetchProfile } = useAuth()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
@@ -189,8 +191,8 @@ export const SubscriptionManager = () => {
       <div className="max-w-4xl mx-auto space-y-6 p-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="subscription">Subscription Plans</TabsTrigger>
-          <TabsTrigger value="billing">My Billing</TabsTrigger>
+          <TabsTrigger value="subscription">{t('subscription.availablePlans')}</TabsTrigger>
+          <TabsTrigger value="billing">{t('admin.billing')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="subscription" className="space-y-6">
@@ -200,7 +202,7 @@ export const SubscriptionManager = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Icon name="credit-card" className="h-5 w-5" />
-                  Current Subscription
+                  {t('subscription.currentSubscription')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -216,7 +218,7 @@ export const SubscriptionManager = () => {
                           : "10 queries per month"}
                       </p>
                       <Badge className="mt-2" variant={currentTier ? "default" : "secondary"}>
-                        {currentTier ? "Active" : "FREE"}
+                        {currentTier ? t('subscription.active') : t('pricing.startTrial')}
                       </Badge>
                     </div>
                     {currentTier && (
@@ -226,7 +228,7 @@ export const SubscriptionManager = () => {
                         variant="outline"
                       >
                         <Icon name="settings" className="h-4 w-4 mr-2" />
-                        Manage Subscription
+                        {t('subscription.manageSubscription')}
                       </Button>
                     )}
                   </div>
@@ -234,7 +236,7 @@ export const SubscriptionManager = () => {
                   {/* Credits Usage */}
                   <div className="pt-4 border-t">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Credits Remaining</span>
+                      <span className="text-sm font-medium">{t('subscription.creditsRemaining')}</span>
                       <span className="text-sm font-bold">{getCreditsRemaining()} / {currentTier?.credits_per_month || 10}</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
@@ -261,10 +263,10 @@ export const SubscriptionManager = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Icon name="zap" className="h-5 w-5" />
-                Purchase Additional Credits
+                {t('subscription.purchaseCredits')}
               </CardTitle>
               <CardDescription>
-                One-time credit packages that never expire
+                {t('subscription.oneTimeCredits')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -273,7 +275,7 @@ export const SubscriptionManager = () => {
                   <Card key={pkg.credits} className="border-2 hover:border-primary transition-colors">
                     <CardContent className="p-4 text-center space-y-2">
                       <div className="text-2xl font-bold">{pkg.credits}</div>
-                      <div className="text-xs text-muted-foreground">Credits</div>
+                      <div className="text-xs text-muted-foreground">{t('pricing.credits', { count: pkg.credits })}</div>
                       <div className="text-lg font-semibold">AED {pkg.price}</div>
                       <Button
                         onClick={() => handlePurchaseCredits(pkg.credits, pkg.price)}
@@ -281,7 +283,7 @@ export const SubscriptionManager = () => {
                         size="sm"
                         className="w-full"
                       >
-                        Buy Now
+                        {t('subscription.buy')}
                       </Button>
                     </CardContent>
                   </Card>
@@ -292,7 +294,7 @@ export const SubscriptionManager = () => {
 
           {/* Available Plans */}
           <div>
-            <h2 className="text-2xl font-bold mb-6">Available Plans</h2>
+            <h2 className="text-2xl font-bold mb-6">{t('subscription.availablePlans')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {tiers.map((tier) => {
                 const isCurrentTier = profile?.subscription_tier === tier.name
@@ -311,7 +313,7 @@ export const SubscriptionManager = () => {
                   >
                     {isPopular && !isCurrentTier && (
                       <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent">
-                        MOST POPULAR
+                        {t('pricing.popular').toUpperCase()}
                       </Badge>
                     )}
                     
@@ -321,7 +323,7 @@ export const SubscriptionManager = () => {
                         <div className="text-4xl font-bold">
                           AED {tier.price_monthly_aed}
                         </div>
-                        <CardDescription className="mt-1">per month</CardDescription>
+                        <CardDescription className="mt-1">{t('pricing.perMonth')}</CardDescription>
                       </div>
                     </CardHeader>
                     
@@ -358,12 +360,12 @@ export const SubscriptionManager = () => {
                         {isCurrentTier ? (
                           <>
                             <Icon name="check" className="h-4 w-4 mr-2" />
-                            Current Plan
+                            {t('pricing.currentPlan')}
                           </>
                         ) : (
                           <>
                             <Icon name="credit-card" className="h-4 w-4 mr-2" />
-                            Subscribe
+                            {t('pricing.subscribe')}
                           </>
                         )}
                       </Button>
@@ -382,7 +384,7 @@ export const SubscriptionManager = () => {
               size="sm"
             >
               <Icon name="refresh-cw" className="h-4 w-4 mr-2" />
-              Refresh Subscription Status
+              {t('subscription.status')}
             </Button>
           </div>
         </TabsContent>

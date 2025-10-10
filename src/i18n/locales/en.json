@@ -12,7 +12,28 @@
     "edit": "Edit",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "download": "Download",
+    "upload": "Upload",
+    "create": "Create",
+    "update": "Update",
+    "view": "View",
+    "manage": "Manage",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "send": "Send"
   },
   "nav": {
     "home": "Home",
@@ -26,13 +47,25 @@
     "templates": "Templates",
     "letters": "Letters",
     "analytics": "Analytics",
-    "subscription": "Subscription"
+    "subscription": "Subscription",
+    "team": "Team",
+    "workspace": "Workspace",
+    "myLetters": "My Letters",
+    "createLetter": "Create Letter"
   },
   "hero": {
-    "title": "AI-Powered Legal Research for UAE Law",
-    "subtitle": "Get instant access to Federal and Emirate-level legislation with AI-powered search, multi-language support, and professional document generation.",
-    "cta": "Start Free Trial",
-    "watchDemo": "Watch Demo"
+    "title": "Get UAE Legal Answers",
+    "titleAccent": "in Minutes, Not Hours",
+    "subtitle": "Ask any UAE legal question — employment, business, family law, and more. Get instant answers with verified citations from our comprehensive legal database.",
+    "freeQueries": "🎯 3 Free Queries Every Month",
+    "freeQueriesDesc": "No credit card required • Start asking legal questions instantly",
+    "tryFree": "Try 3 Free Queries",
+    "seePricing": "See Pricing Plans",
+    "verifiedDocs": "verified documents",
+    "allJurisdictions": "UAE jurisdictions",
+    "instantAnswers": "AI answers",
+    "all": "All",
+    "instant": "Instant"
   },
   "features": {
     "title": "Everything You Need for Legal Research",
@@ -63,7 +96,10 @@
     "popular": "Popular",
     "credits": "{{count}} credits/month",
     "rollover": "{{count}} rollover credits",
-    "features": "Features"
+    "features": "Features",
+    "selectPlan": "Select Plan",
+    "upgradeTo": "Upgrade to {{plan}}",
+    "downgradeTo": "Downgrade to {{plan}}"
   },
   "subscription": {
     "title": "Manage Subscription",
@@ -78,7 +114,17 @@
     "buyCredits": "Buy {{count}} Credits",
     "creditsUsed": "{{used}} / {{total}} credits used",
     "manageSubscription": "Manage Subscription",
-    "cancelSubscription": "Cancel Subscription"
+    "cancelSubscription": "Cancel Subscription",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "billingCycle": "Billing Cycle",
+    "nextBillingDate": "Next Billing Date",
+    "monthlyCredits": "Monthly Credits",
+    "oneTimeCredits": "One-Time Credit Packages",
+    "quickBoost": "Quick boost for extra queries",
+    "buy": "Buy",
+    "for": "for"
   },
   "dashboard": {
     "welcome": "Welcome back",
@@ -89,7 +135,13 @@
     "browseTemplates": "Browse Templates",
     "usage": "Usage",
     "creditsUsed": "Credits Used",
-    "creditsRemaining": "Credits Remaining"
+    "creditsRemaining": "Credits Remaining",
+    "myDashboard": "My Dashboard",
+    "overview": "Overview",
+    "activity": "Activity",
+    "statistics": "Statistics",
+    "recentActivity": "Recent Activity",
+    "viewAll": "View All"
   },
   "chat": {
     "placeholder": "Ask a legal question...",
@@ -98,7 +150,89 @@
     "sources": "Research Sources",
     "documentSources": "Document Sources",
     "suggestLetter": "Suggest Letter",
-    "createLetter": "Create Letter"
+    "createLetter": "Create Letter",
+    "typing": "Typing...",
+    "thinking": "Thinking...",
+    "researching": "Researching...",
+    "analyzing": "Analyzing..."
+  },
+  "letters": {
+    "title": "My Letters",
+    "createNew": "Create New Letter",
+    "draft": "Draft",
+    "completed": "Completed",
+    "archived": "Archived",
+    "viewDetails": "View Details",
+    "editLetter": "Edit Letter",
+    "deleteLetter": "Delete Letter",
+    "downloadPDF": "Download PDF",
+    "createdOn": "Created on",
+    "lastModified": "Last modified",
+    "status": "Status",
+    "noLetters": "No letters found",
+    "createFirst": "Create your first letter to get started"
+  },
+  "templates": {
+    "title": "Template Store",
+    "browse": "Browse Templates",
+    "featured": "Featured Templates",
+    "categories": "Categories",
+    "useTemplate": "Use Template",
+    "preview": "Preview",
+    "price": "Price",
+    "free": "Free",
+    "premium": "Premium",
+    "popular": "Popular",
+    "new": "New",
+    "searchTemplates": "Search templates...",
+    "noTemplates": "No templates found"
+  },
+  "team": {
+    "title": "Team Workspace",
+    "members": "Team Members",
+    "inviteMember": "Invite Member",
+    "pending": "Pending",
+    "active": "Active",
+    "role": "Role",
+    "admin": "Admin",
+    "member": "Member",
+    "manager": "Manager",
+    "viewer": "Viewer",
+    "removeMember": "Remove Member",
+    "changeRole": "Change Role",
+    "teamConversations": "Team Conversations",
+    "sharedLetters": "Shared Letters"
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "users": "Users",
+    "subscriptions": "Subscriptions",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "overview": "Overview",
+    "totalUsers": "Total Users",
+    "activeSubscriptions": "Active Subscriptions",
+    "revenue": "Revenue",
+    "growth": "Growth",
+    "userManagement": "User Management",
+    "billing": "Billing",
+    "reports": "Reports",
+    "systemHealth": "System Health"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "resetPassword": "Reset Password",
+    "createAccount": "Create Account",
+    "haveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?",
+    "signInWithGoogle": "Sign in with Google",
+    "signUpWithGoogle": "Sign up with Google",
+    "orContinueWith": "Or continue with"
   },
   "footer": {
     "description": "AI-powered legal research platform built for UAE legal professionals. Access comprehensive legal databases with instant AI-powered search.",
@@ -114,5 +248,23 @@
     "copyright": "© 2024 UAE Legal Research. All rights reserved.",
     "builtFor": "Built for legal professionals",
     "certified": "ISO 27001 Certified"
+  },
+  "errors": {
+    "general": "Something went wrong",
+    "notFound": "Page not found",
+    "unauthorized": "Unauthorized access",
+    "networkError": "Network error",
+    "tryAgain": "Try again",
+    "goHome": "Go to home page"
+  },
+  "notifications": {
+    "success": "Success!",
+    "error": "Error occurred",
+    "warning": "Warning",
+    "info": "Information",
+    "saved": "Changes saved successfully",
+    "deleted": "Deleted successfully",
+    "updated": "Updated successfully",
+    "created": "Created successfully"
   }
 }

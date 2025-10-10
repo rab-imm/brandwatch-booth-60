@@ -1,7 +1,9 @@
 import { Icon } from "@/components/ui/Icon"
 import { Link } from "react-router-dom"
+import { useTranslation } from 'react-i18next'
 
 export const Footer = () => {
+  const { t } = useTranslation()
   return (
     <footer className="border-t border-border py-12 px-6 bg-card">
       <div className="container mx-auto max-w-6xl">
@@ -9,8 +11,7 @@ export const Footer = () => {
           <div className="md:col-span-2">
             <h3 className="text-2xl font-bold text-brand-primary mb-4">UAE Legal Research</h3>
             <p className="text-muted-foreground mb-4 max-w-md">
-              AI-powered legal research platform trusted by leading UAE law firms. 
-              Comprehensive legal document coverage with verified citations.
+              {t('footer.description')}
             </p>
             
             {/* Newsletter Signup */}
@@ -18,11 +19,11 @@ export const Footer = () => {
               <div className="flex max-w-md gap-2">
                 <input 
                   type="email" 
-                  placeholder="Enter your email" 
+                  placeholder={t('footer.emailPlaceholder')}
                   className="flex-1 px-3 py-2 text-sm border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
                 <button className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
-                  Subscribe
+                  {t('footer.subscribe')}
                 </button>
               </div>
               <p className="text-xs text-muted-foreground mt-2">Get weekly legal insights</p>
@@ -43,28 +44,28 @@ export const Footer = () => {
 
             <div className="flex space-x-4 text-sm">
               <a href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
-                Privacy Policy
+                {t('footer.privacyPolicy')}
               </a>
               <a href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
-                Terms of Service
+                {t('footer.termsOfService')}
               </a>
               <a href="/security" className="text-muted-foreground hover:text-foreground transition-colors">
-                Security
+                {t('footer.security')}
               </a>
             </div>
           </div>
           
           <div>
-            <h4 className="font-semibold text-brand-primary mb-4">Product</h4>
+            <h4 className="font-semibold text-brand-primary mb-4">{t('footer.product')}</h4>
             <div className="space-y-2">
               <Link to="/features" className="block text-muted-foreground hover:text-foreground transition-colors">
-                Features
+                {t('nav.features')}
               </Link>
               <Link to="/pricing" className="block text-muted-foreground hover:text-foreground transition-colors">
-                Pricing
+                {t('nav.pricing')}
               </Link>
               <Link to="/use-cases" className="block text-muted-foreground hover:text-foreground transition-colors">
-                Use Cases
+                {t('nav.useCases')}
               </Link>
               <Link to="/features#integrations" className="block text-muted-foreground hover:text-foreground transition-colors">
                 Integrations
@@ -73,7 +74,7 @@ export const Footer = () => {
           </div>
           
           <div>
-            <h4 className="font-semibold text-brand-primary mb-4">Resources</h4>
+            <h4 className="font-semibold text-brand-primary mb-4">{t('footer.resources')}</h4>
             <div className="space-y-2">
               <Link to="/resources#blog" className="block text-muted-foreground hover:text-foreground transition-colors">
                 Blog
@@ -88,7 +89,7 @@ export const Footer = () => {
                 Status Page
               </Link>
               <Link to="/about" className="block text-muted-foreground hover:text-foreground transition-colors">
-                About
+                {t('nav.about')}
               </Link>
             </div>
           </div>
@@ -96,11 +97,11 @@ export const Footer = () => {
         
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            UAE Legal Research © 2025 • Built for legal professionals • ISO 27001 Certified
+            {t('footer.copyright')}
           </p>
           <div className="flex items-center space-x-4 mt-4 md:mt-0">
             <Icon name="shield" size={16} className="text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Enterprise Security</span>
+            <span className="text-sm text-muted-foreground">{t('footer.builtFor')}</span>
           </div>
         </div>
       </div>
