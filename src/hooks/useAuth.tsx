@@ -35,20 +35,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const fetchProfile = async (userId: string) => {
     try {
+      console.log('[fetchProfile] Fetching profile for user:', userId)
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
         .single()
       
+      console.log('[fetchProfile] Result:', { data, error })
+      
       if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching profile:', error)
+        console.error('[fetchProfile] Error fetching profile:', error)
         return
       }
       
       setProfile(data || null)
+      console.log('[fetchProfile] Profile set successfully')
     } catch (error) {
-      console.error('Error fetching profile:', error)
+      console.error('[fetchProfile] Exception caught:', error)
     }
   }
 
