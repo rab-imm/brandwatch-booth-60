@@ -23,6 +23,7 @@ import LetterCreationWizard from "./pages/LetterCreationWizard";
 import TeamWorkspace from "./pages/TeamWorkspace";
 import CreatorPortal from "./pages/CreatorPortal";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
+import FixProfile from "./pages/FixProfile";
 import { EnhancedTemplateStore } from "./components/EnhancedTemplateStore";
 import { SuperAdminDashboard } from "./components/SuperAdminDashboard";
 import { CompanyAdminDashboard } from "./components/CompanyAdminDashboard";
@@ -175,6 +176,7 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            <Route path="/fix-profile" element={<FixProfile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
