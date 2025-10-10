@@ -1,13 +1,16 @@
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { useTranslation } from 'react-i18next'
 
 export const ProblemSection = () => {
+  const { t } = useTranslation()
+  
   const legalChallenges = [
-    { challenge: "Document Hunt", task: "Hours searching through scattered UAE legal sources" },
-    { challenge: "Language Barrier", task: "Arabic-English legal document translation struggles" },
-    { challenge: "Version Control", task: "Which amendment is current? When did it take effect?" },
-    { challenge: "Citation Accuracy", task: "Manual cross-referencing across federal and emirate laws" },
-    { challenge: "Compliance Risk", task: "Missing recent regulatory updates and changes" }
+    { challenge: t('problemSection.documentHunt'), task: t('problemSection.documentHuntDesc') },
+    { challenge: t('problemSection.languageBarrier'), task: t('problemSection.languageBarrierDesc') },
+    { challenge: t('problemSection.versionControl'), task: t('problemSection.versionControlDesc') },
+    { challenge: t('problemSection.citationAccuracy'), task: t('problemSection.citationAccuracyDesc') },
+    { challenge: t('problemSection.complianceRisk'), task: t('problemSection.complianceRiskDesc') }
   ]
 
   return (
@@ -15,10 +18,10 @@ export const ProblemSection = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            Legal Research is Broken in the UAE
+            {t('problemSection.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-12">
-            Every legal professional faces these daily challenges:
+            {t('problemSection.subtitle')}
           </p>
         </div>
 
@@ -33,10 +36,10 @@ export const ProblemSection = () => {
 
         <div className="text-center space-y-6">
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Meanwhile, international firms are accessing UAE legal information instantly with AI-powered research.
+            {t('problemSection.meanwhile')}
           </p>
           <Button variant="premium" size="lg">
-            See the Solution
+            {t('problemSection.seeSolution')}
           </Button>
         </div>
       </div>

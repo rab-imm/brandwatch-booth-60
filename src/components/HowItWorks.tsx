@@ -2,28 +2,31 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Icon } from "@/components/ui/Icon"
+import { useTranslation } from 'react-i18next'
 
 export const HowItWorks = () => {
+  const { t } = useTranslation()
+  
   const steps = [
     {
       number: "01",
-      title: "Ask Your Legal Question",
-      description: "Type your question in plain English or Arabic. Our AI understands context, not just keywords.",
-      cta: "Try Sample Query",
+      title: t('howItWorks.step1Title'),
+      description: t('howItWorks.step1Desc'),
+      cta: t('howItWorks.step1Cta'),
       icon: "message-circle"
     },
     {
       number: "02", 
-      title: "AI Searches & Analyzes",
-      description: "AI searches across 50K+ UAE legal documents, analyzes relevant laws, and identifies applicable regulations.",
-      cta: "See Search Results",
+      title: t('howItWorks.step2Title'),
+      description: t('howItWorks.step2Desc'),
+      cta: t('howItWorks.step2Cta'),
       icon: "brain"
     },
     {
       number: "03",
-      title: "Get Verified Answers",
-      description: "Receive detailed answers with proper citations, risk assessments, and relevant case references.",
-      cta: "View Sample Response",
+      title: t('howItWorks.step3Title'),
+      description: t('howItWorks.step3Desc'),
+      cta: t('howItWorks.step3Cta'),
       icon: "shield-check"
     }
   ]
@@ -33,13 +36,13 @@ export const HowItWorks = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <Badge variant="outline" className="mb-4">
-            Simple Process
+            {t('howItWorks.badge')}
           </Badge>
           <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            From Question to Answer in 3 Steps
+            {t('howItWorks.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Our AI-powered legal research workflow provides accurate answers with verified citations faster than traditional research.
+            {t('howItWorks.subtitle')}
           </p>
         </div>
 

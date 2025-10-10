@@ -1,12 +1,15 @@
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Icon } from "@/components/ui/Icon"
+import { useTranslation } from 'react-i18next'
 
 export const CallToAction = () => {
+  const { t } = useTranslation()
+  
   const benefits = [
-    "No credit card required",
-    "Full access", 
-    "Cancel anytime"
+    t('callToAction.noCreditCard'),
+    t('callToAction.fullAccess'), 
+    t('callToAction.cancelAnytime')
   ]
 
   return (
@@ -21,11 +24,10 @@ export const CallToAction = () => {
           <div className="relative z-10 text-center space-y-8">
             <div className="space-y-4">
               <h2 className="text-4xl lg:text-5xl font-bold leading-tight font-pact-display tracking-tight">
-                Ready to Transform Your
-                <span className="block">Legal Research?</span>
+                {t('callToAction.title')}
               </h2>
               <p className="text-xl opacity-90 max-w-2xl mx-auto">
-                Join leading UAE law firms using our platform to research faster, stay compliant, and deliver better client outcomes.
+                {t('callToAction.subtitle')}
               </p>
             </div>
             
@@ -34,14 +36,14 @@ export const CallToAction = () => {
                 size="lg" 
                 className="bg-white text-brand-primary hover:bg-white/90 font-semibold group"
               >
-                Start Research Trial
+                {t('callToAction.startTrial')}
                 <Icon name="arrow-right" className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button 
                 variant="outline-contrast" 
                 size="lg"
               >
-                Schedule Legal Demo
+                {t('callToAction.schedulDemo')}
               </Button>
             </div>
             
