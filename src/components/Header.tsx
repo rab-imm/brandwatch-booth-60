@@ -92,7 +92,6 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-3">
-                <NotificationCenter />
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/subscription">{t('nav.subscription')}</Link>
                 </Button>
@@ -112,6 +111,7 @@ export const Header = () => {
                 <Button variant="outline" size="sm" onClick={signOut}>
                   {t('common.signOut')}
                 </Button>
+                <NotificationCenter />
               </div>
             ) : (
               <>
