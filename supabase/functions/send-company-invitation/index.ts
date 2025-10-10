@@ -35,6 +35,12 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
+    // Create a separate admin client for operations that need to bypass RLS
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
     const { email, role, maxCredits, companyId } = await req.json()
 
     if (!email || !role || !companyId) {
@@ -170,14 +176,16 @@ serve(async (req) => {
 
     // Check if invited email already has an account and notify them
     try {
-      const { data: invitedUser } = await supabase
+      const { data: invitedUser, error: invitedUserError } = await supabaseAdmin
         .from('profiles')
         .select('user_id')
         .eq('email', email)
         .maybeSingle()
 
+      console.log('Checking for existing user:', { email, found: !!invitedUser, error: invitedUserError })
+
       if (invitedUser) {
-        await supabase
+        const { error: notifError } = await supabaseAdmin
           .from('notifications')
           .insert({
             user_id: invitedUser.user_id,
@@ -186,10 +194,17 @@ serve(async (req) => {
             type: 'info',
             action_url: `/invite/${token}`,
           })
-        console.log('Notification created for invited user')
+        
+        if (notifError) {
+          console.error('Failed to create notification for invited user:', notifError)
+        } else {
+          console.log('Notification created for invited user:', invitedUser.user_id)
+        }
+      } else {
+        console.log('Invited email does not have an existing account yet')
       }
     } catch (notifError) {
-      console.error('Failed to create notification for invited user (non-critical):', notifError)
+      console.error('Error in invited user notification flow:', notifError)
     }
 
     // TODO: Send email notification here using Resend or similar service
