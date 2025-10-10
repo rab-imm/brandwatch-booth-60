@@ -32,6 +32,7 @@ import { CompanySettings } from "@/components/CompanySettings"
 import { TeamActivityFeed } from "@/components/company/TeamActivityFeed"
 import { CreditUsageChart } from "@/components/company/CreditUsageChart"
 import { DepartmentCreditAllocation } from "@/components/company/DepartmentCreditAllocation"
+import { PermissionTemplateManager } from "@/components/company/PermissionTemplateManager"
 
 interface CompanyData {
   id: string
@@ -369,7 +370,12 @@ export const CompanyAdminDashboard = () => {
         )
       
       case "settings":
-        return company ? <CompanySettings companyId={company.id} /> : null
+        return company ? (
+          <div className="space-y-6">
+            <CompanySettings companyId={company.id} />
+            <PermissionTemplateManager />
+          </div>
+        ) : null
       
       default:
         return null

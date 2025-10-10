@@ -14,7 +14,7 @@ interface PermissionTemplate {
   id: string
   name: string
   description: string
-  permissions: Record<string, boolean>
+  permissions: any // Using any to handle Json type from Supabase
   created_at: string
 }
 
@@ -150,7 +150,8 @@ export const PermissionTemplateManager = () => {
     }))
   }
 
-  const countPermissions = (permissions: Record<string, boolean>) => {
+  const countPermissions = (permissions: any) => {
+    if (typeof permissions !== 'object' || !permissions) return 0
     return Object.values(permissions).filter(Boolean).length
   }
 
