@@ -129,6 +129,45 @@ serve(async (req) => {
       companyName: company?.name,
     })
 
+    // Log activity to company_activity_logs
+    try {
+      await supabase
+        .from('company_activity_logs')
+        .insert({
+          company_id: companyId,
+          performed_by: user.id,
+          activity_type: 'user_invited',
+          target_entity_type: 'invitation',
+          target_entity_id: invitation.id,
+          description: `Invited ${email} to join as ${role}`,
+          metadata: {
+            email,
+            role,
+            max_credits: maxCredits || 50,
+            invite_url: inviteUrl,
+          }
+        })
+      console.log('Activity logged successfully')
+    } catch (logError) {
+      console.error('Failed to log activity (non-critical):', logError)
+    }
+
+    // Create notification for the inviter
+    try {
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: user.id,
+          title: 'Invitation Sent',
+          message: `Successfully sent invitation to ${email} to join ${company?.name || 'your company'} as ${role}`,
+          type: 'success',
+          action_url: `/dashboard?tab=team`,
+        })
+      console.log('Notification created successfully')
+    } catch (notifError) {
+      console.error('Failed to create notification (non-critical):', notifError)
+    }
+
     // TODO: Send email notification here using Resend or similar service
     // For now, we just return the invite URL
 

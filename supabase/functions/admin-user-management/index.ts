@@ -439,7 +439,14 @@ serve(async (req) => {
       }
 
       case 'delete_user': {
-        const { user_id } = requestData;
+        const { user_id, company_id } = requestData;
+        
+        // Get user info before deletion for logging
+        const { data: userProfile } = await supabaseClient
+          .from('profiles')
+          .select('email, full_name, current_company_id')
+          .eq('user_id', user_id)
+          .single();
         
         // Delete auth user (cascades to profiles)
         const { error: deleteError } = await supabaseClient.auth.admin.deleteUser(user_id);
@@ -456,8 +463,35 @@ serve(async (req) => {
             action: 'delete_user',
             resource_type: 'user',
             resource_id: user_id,
-            metadata: {}
+            metadata: {
+              deleted_user_email: userProfile?.email,
+              deleted_user_name: userProfile?.full_name,
+            }
           });
+
+        // If user was part of a company, log to company_activity_logs
+        if (company_id || userProfile?.current_company_id) {
+          try {
+            await supabaseClient
+              .from('company_activity_logs')
+              .insert({
+                company_id: company_id || userProfile.current_company_id,
+                performed_by: user.id,
+                activity_type: 'user_removed',
+                target_user_id: user_id,
+                target_entity_type: 'user',
+                target_entity_id: user_id,
+                description: `Removed ${userProfile?.full_name || userProfile?.email || 'user'} from the company`,
+                metadata: {
+                  deleted_user_email: userProfile?.email,
+                  deleted_user_name: userProfile?.full_name,
+                }
+              });
+            console.log('Company activity logged successfully');
+          } catch (companyLogError) {
+            console.error('Failed to log company activity (non-critical):', companyLogError);
+          }
+        }
 
         return new Response(JSON.stringify({ success: true }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },

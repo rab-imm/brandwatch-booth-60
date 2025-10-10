@@ -196,6 +196,52 @@ serve(async (req) => {
       console.error('Error updating invitation:', updateError)
     }
 
+    // Log activity to company_activity_logs
+    try {
+      await supabaseAdmin
+        .from('company_activity_logs')
+        .insert({
+          company_id: invitation.company_id,
+          performed_by: userData.user.id,
+          activity_type: 'user_joined',
+          target_user_id: userData.user.id,
+          target_entity_type: 'user',
+          target_entity_id: userData.user.id,
+          description: `${fullName} (${invitation.email}) accepted invitation and joined as ${invitation.role}`,
+          metadata: {
+            email: invitation.email,
+            role: invitation.role,
+            invited_by: invitation.invited_by,
+            invitation_id: invitation.id,
+          }
+        })
+      console.log('Activity logged successfully')
+    } catch (logError) {
+      console.error('Failed to log activity (non-critical):', logError)
+    }
+
+    // Create notification for the company admin who sent the invitation
+    try {
+      const { data: company } = await supabaseAdmin
+        .from('companies')
+        .select('name')
+        .eq('id', invitation.company_id)
+        .single()
+
+      await supabaseAdmin
+        .from('notifications')
+        .insert({
+          user_id: invitation.invited_by,
+          title: 'Invitation Accepted',
+          message: `${fullName} has accepted your invitation and joined ${company?.name || 'the company'}`,
+          type: 'success',
+          action_url: `/dashboard?tab=team`,
+        })
+      console.log('Notification created successfully')
+    } catch (notifError) {
+      console.error('Failed to create notification (non-critical):', notifError)
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
