@@ -152,8 +152,18 @@ export const CompanyAdminDashboard = () => {
     try {
       if (!company || !inviteDialog.email) return
 
-      // Create a notification for the invited user (basic implementation)
-      // In a real system, you'd send an email invitation
+      const { data, error } = await supabase.functions.invoke('send-company-invitation', {
+        body: {
+          email: inviteDialog.email,
+          role: inviteDialog.role,
+          maxCredits: inviteDialog.maxCredits,
+          companyId: company.id,
+        }
+      })
+
+      if (error) throw error
+      if (data?.error) throw new Error(data.error)
+
       toast.success(`Invitation sent to ${inviteDialog.email}`)
       
       setInviteDialog({
@@ -162,44 +172,55 @@ export const CompanyAdminDashboard = () => {
         role: 'individual',
         maxCredits: 50
       })
-    } catch (error) {
+      
+      fetchCompanyData()
+    } catch (error: any) {
       console.error('Error inviting user:', error)
-      toast.error('Failed to send invitation')
+      toast.error(error.message || 'Failed to send invitation')
     }
   }
 
   const handleRemoveUser = async (userId: string) => {
     try {
-      const { error } = await supabase
-        .from('user_company_roles')
-        .delete()
-        .eq('user_id', userId)
-        .eq('company_id', company!.id)
+      if (!company) return
+
+      const { data, error } = await supabase.functions.invoke('remove-company-user', {
+        body: {
+          userId,
+          companyId: company.id,
+        }
+      })
 
       if (error) throw error
+      if (data?.error) throw new Error(data.error)
 
-      toast.success('User removed from company')
       fetchCompanyData()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error removing user:', error)
-      toast.error('Failed to remove user')
+      toast.error(error.message || 'Failed to remove user')
     }
   }
 
-  const handleUpdateUserCredits = async (userRoleId: string, newMaxCredits: number) => {
+  const handleUpdateUserCredits = async (userRoleId: string, userId: string, newMaxCredits: number) => {
     try {
-      const { error } = await supabase
-        .from('user_company_roles')
-        .update({ max_credits_per_period: newMaxCredits })
-        .eq('id', userRoleId)
+      if (!company) return
+
+      const { data, error } = await supabase.functions.invoke('update-user-credits', {
+        body: {
+          userRoleId,
+          userId,
+          companyId: company.id,
+          newMaxCredits,
+        }
+      })
 
       if (error) throw error
+      if (data?.error) throw new Error(data.error)
 
-      toast.success('User credits updated')
       fetchCompanyData()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating user credits:', error)
-      toast.error('Failed to update user credits')
+      toast.error(error.message || 'Failed to update user credits')
     }
   }
 
@@ -352,7 +373,7 @@ export const CompanyAdminDashboard = () => {
                           onClick={() => {
                             const newCredits = prompt('Enter new credit limit:', companyUser.max_credits_per_period.toString())
                             if (newCredits && !isNaN(Number(newCredits))) {
-                              handleUpdateUserCredits(companyUser.id, Number(newCredits))
+                              handleUpdateUserCredits(companyUser.id, companyUser.user_id, Number(newCredits))
                             }
                           }}
                         >

@@ -140,6 +140,57 @@ export const useAdminActions = () => {
     }
   };
 
+  const removeCompanyUser = async (userId: string, companyId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('remove-company-user', {
+        body: { userId, companyId }
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast.success("User removed from company");
+      return true;
+    } catch (error: any) {
+      toast.error(error.message || "Failed to remove user");
+      return false;
+    }
+  };
+
+  const updateUserCredits = async (userRoleId: string, userId: string, companyId: string, newMaxCredits: number) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('update-user-credits', {
+        body: { userRoleId, userId, companyId, newMaxCredits }
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast.success("User credits updated");
+      return true;
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update credits");
+      return false;
+    }
+  };
+
+  const updateUserRole = async (userRoleId: string, userId: string, companyId: string, newRole: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('update-user-role', {
+        body: { userRoleId, userId, companyId, newRole }
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast.success("User role updated");
+      return true;
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update role");
+      return false;
+    }
+  };
+
   return {
     createUser,
     updateUser,
@@ -148,6 +199,9 @@ export const useAdminActions = () => {
     updateCompany,
     deleteCompany,
     pauseCompany,
-    resetUserPassword
+    resetUserPassword,
+    removeCompanyUser,
+    updateUserCredits,
+    updateUserRole
   };
 };
