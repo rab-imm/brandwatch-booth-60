@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 import heroImage from "@/assets/uae-legal-hero.jpg"
+import { useTranslation } from 'react-i18next'
 
 export const Hero = () => {
+  const { t } = useTranslation();
   return (
     <section className="py-20 px-6 bg-gradient-warm">
       <div className="container mx-auto max-w-6xl">

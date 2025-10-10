@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { NotificationCenter } from "@/components/NotificationCenter"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
+import { useTranslation } from 'react-i18next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,7 @@ import {
 
 export const Header = () => {
   const { user, signOut, profile } = useAuth();
+  const { t } = useTranslation();
 
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -26,39 +28,39 @@ export const Header = () => {
               {!user ? (
                 <>
                   <Link to="/features" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    Features
+                    {t('nav.features')}
                   </Link>
                   <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    Templates
+                    {t('nav.templates')}
                   </Link>
                   <Link to="/pricing" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    Pricing
+                    {t('nav.pricing')}
                   </Link>
                   <Link to="/use-cases" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    Use Cases
+                    {t('nav.useCases')}
                   </Link>
                   <Link to="/about" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    About
+                    {t('nav.about')}
                   </Link>
                 </>
               ) : profile?.current_company_id ? (
                 <>
                   {/* Company users - no personal navigation in header, use sidebar instead */}
                   <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    Templates
+                    {t('nav.templates')}
                   </Link>
                 </>
               ) : (
                 <>
                   {/* Personal users - show personal navigation */}
                   <Link to="/dashboard" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    Dashboard
+                    {t('nav.dashboard')}
                   </Link>
                   <Link to="/letters" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    My Letters
+                    {t('nav.letters')}
                   </Link>
                   <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    Templates
+                    {t('nav.templates')}
                   </Link>
                 </>
               )}
@@ -66,7 +68,7 @@ export const Header = () => {
               {/* Resources Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-                  Resources
+                  {t('nav.resources')}
                   <Icon name="chevron-down" size={12} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-card border border-border z-50">
@@ -92,32 +94,32 @@ export const Header = () => {
               <div className="flex items-center space-x-3">
                 <NotificationCenter />
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to="/subscription">Subscription</Link>
+                  <Link to="/subscription">{t('nav.subscription')}</Link>
                 </Button>
                 {profile?.user_role === 'super_admin' && (
                   <Button variant="ghost" size="sm" asChild>
-                    <Link to="/admin">Super Admin</Link>
+                    <Link to="/admin">{t('nav.admin')}</Link>
                   </Button>
                 )}
                 {profile?.user_role === 'company_admin' && (
                   <Button variant="ghost" size="sm" asChild>
-                    <Link to="/company-admin">Company Admin</Link>
+                    <Link to="/company-admin">{t('nav.admin')}</Link>
                   </Button>
                 )}
                 <span className="text-sm text-muted-foreground hidden sm:block">
                   {user.email}
                 </span>
                 <Button variant="outline" size="sm" onClick={signOut}>
-                  Sign Out
+                  {t('common.signOut')}
                 </Button>
               </div>
             ) : (
               <>
                 <Button variant="outline" size="sm" asChild>
-                  <Link to="/auth">Sign In</Link>
+                  <Link to="/auth">{t('common.signIn')}</Link>
                 </Button>
                 <Button variant="premium" size="sm" asChild>
-                  <Link to="/auth">Try Free Queries</Link>
+                  <Link to="/auth">{t('common.startTrial')}</Link>
                 </Button>
               </>
             )}
