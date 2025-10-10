@@ -1,25 +1,28 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
+import { useTranslation } from 'react-i18next'
 
 export const ChatPreview = () => {
+  const { t } = useTranslation()
+  
   const chatExample = [
     {
       type: "user",
-      message: "Can my employer terminate me for being sick with a medical certificate?"
+      message: t('chatPreview.userQuestion')
     },
     {
       type: "ai",
-      message: "Based on UAE Employment Law, an employer cannot terminate an employee during sick leave if you have a valid medical certificate. Here's what the law says:",
+      message: t('chatPreview.aiResponse'),
       citations: [
-        { title: "UAE Labour Law Article 84", link: "#" },
-        { title: "Ministerial Resolution 279/2020", link: "#" }
+        { title: t('chatPreview.citation1'), link: "#" },
+        { title: t('chatPreview.citation2'), link: "#" }
       ],
       details: [
-        "✓ Medical leave with certificate is protected",
-        "✓ Maximum 90 days sick leave per year", 
-        "✓ First 15 days are paid leave",
-        "⚠️ Certificate must be from licensed doctor"
+        t('chatPreview.detail1'),
+        t('chatPreview.detail2'),
+        t('chatPreview.detail3'),
+        t('chatPreview.detail4')
       ]
     }
   ]
@@ -29,10 +32,10 @@ export const ChatPreview = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            See How It Works
+            {t('chatPreview.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Ask any UAE legal question and get instant, accurate answers with verified citations
+            {t('chatPreview.subtitle')}
           </p>
         </div>
 
@@ -47,10 +50,10 @@ export const ChatPreview = () => {
                     <div className="w-8 h-8 rounded-full bg-brand-accent flex items-center justify-center">
                       <Icon name="message-circle" size={16} className="text-white" />
                     </div>
-                    <span className="font-semibold text-brand-primary">UAE Legal AI</span>
+                    <span className="font-semibold text-brand-primary">{t('chatPreview.chatHeader')}</span>
                   </div>
                   <div className="text-xs text-muted-foreground bg-brand-warm/20 px-2 py-1 rounded">
-                    2 queries remaining this month
+                    2 {t('chatPreview.queriesRemaining')}
                   </div>
                 </div>
 
@@ -76,7 +79,7 @@ export const ChatPreview = () => {
                             
                             {/* Citations */}
                             <div className="border-t border-border pt-3">
-                              <p className="text-xs font-medium text-foreground mb-2">Sources:</p>
+                              <p className="text-xs font-medium text-foreground mb-2">{t('chatPreview.sources')}</p>
                               <div className="space-y-1">
                                 {msg.citations?.map((citation, i) => (
                                   <a key={i} href={citation.link} className="flex items-center space-x-2 text-xs text-brand-accent hover:underline">
@@ -97,7 +100,7 @@ export const ChatPreview = () => {
                 <div className="border-t border-border pt-4">
                   <div className="flex space-x-2">
                     <div className="flex-1 bg-muted rounded-lg px-3 py-2">
-                      <p className="text-sm text-muted-foreground">Ask your UAE legal question...</p>
+                      <p className="text-sm text-muted-foreground">{t('chatPreview.placeholder')}</p>
                     </div>
                     <Button size="sm" disabled>
                       <Icon name="send" size={16} />
@@ -112,12 +115,10 @@ export const ChatPreview = () => {
           <div className="space-y-8">
             <div>
               <h3 className="text-2xl font-bold text-brand-primary mb-4">
-                Instant Legal Guidance for Everyone
+                {t('chatPreview.benefitsTitle')}
               </h3>
               <p className="text-muted-foreground leading-relaxed">
-                Get preliminary legal advice on employment issues, business questions, family law, 
-                tenancy disputes, and more. Our AI analyzes UAE law to provide accurate, 
-                cited responses in seconds.
+                {t('chatPreview.benefitsDesc')}
               </p>
             </div>
 
@@ -125,18 +126,18 @@ export const ChatPreview = () => {
               {[
                 {
                   icon: "shield-check",
-                  title: "Verified Legal Sources",
-                  description: "Every answer includes citations to specific UAE laws and regulations"
+                  title: t('chatPreview.benefit1Title'),
+                  description: t('chatPreview.benefit1Desc')
                 },
                 {
                   icon: "clock",
-                  title: "Get Answers in Seconds",
-                  description: "No more hours of research - instant responses to your legal questions"
+                  title: t('chatPreview.benefit2Title'),
+                  description: t('chatPreview.benefit2Desc')
                 },
                 {
                   icon: "users",
-                  title: "For Everyone",
-                  description: "Designed for individuals, businesses, and legal professionals alike"
+                  title: t('chatPreview.benefit3Title'),
+                  description: t('chatPreview.benefit3Desc')
                 }
               ].map((benefit, index) => (
                 <div key={index} className="flex space-x-4">
@@ -153,7 +154,7 @@ export const ChatPreview = () => {
 
             <div className="pt-4">
               <Button variant="premium" size="lg" className="w-full group">
-                Start Your Free Queries
+                {t('chatPreview.startFreeQueries')}
                 <Icon name="arrow-right" size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </div>

@@ -1,29 +1,32 @@
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Icon } from "@/components/ui/Icon"
+import { useTranslation } from 'react-i18next'
 
 export const ThreeModePipeline = () => {
+  const { t } = useTranslation()
+  
   const steps = [
     {
       number: "1",
       icon: "message-circle",
-      title: "Ask Your Question",
-      description: "Type any UAE legal question in plain English. Employment, business, family law - we cover it all.",
-      example: "\"Can my employer reduce my salary?\""
+      title: t('threeModes.step1Title'),
+      description: t('threeModes.step1Desc'),
+      example: t('threeModes.step1Example')
     },
     {
       number: "2", 
       icon: "brain",
-      title: "AI Analyzes UAE Law",
-      description: "Our AI searches through 50,000+ verified legal documents across all UAE jurisdictions.",
-      example: "Checking Labour Law, Civil Code, Federal regulations..."
+      title: t('threeModes.step2Title'),
+      description: t('threeModes.step2Desc'),
+      example: t('threeModes.step2Example')
     },
     {
       number: "3",
       icon: "file-text",
-      title: "Get Answer with Sources",
-      description: "Receive clear answers with direct citations to specific laws and regulations.",
-      example: "UAE Labour Law Article 83 + Ministerial Resolution links"
+      title: t('threeModes.step3Title'),
+      description: t('threeModes.step3Desc'),
+      example: t('threeModes.step3Example')
     }
   ]
 
@@ -32,10 +35,10 @@ export const ThreeModePipeline = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            How It Works
+            {t('threeModes.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Get accurate UAE legal guidance in three simple steps - no legal expertise required
+            {t('threeModes.subtitle')}
           </p>
         </div>
 
@@ -73,11 +76,11 @@ export const ThreeModePipeline = () => {
 
         <div className="text-center mt-12">
           <Button variant="premium" size="lg" className="group">
-            Try Your First Question Free
+            {t('threeModes.tryFirstQuestion')}
             <Icon name="arrow-right" size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>
           <p className="text-sm text-muted-foreground mt-3">
-            3 free queries • No credit card required • Instant access
+            {t('threeModes.freeInfo')}
           </p>
         </div>
       </div>

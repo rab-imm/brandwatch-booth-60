@@ -1,27 +1,30 @@
 import { Card } from "@/components/ui/card"
 import { Icon } from "@/components/ui/Icon"
+import { useTranslation } from 'react-i18next'
 
 export const LegalDisclaimers = () => {
+  const { t } = useTranslation()
+  
   const disclaimers = [
     {
       icon: "info-circle",
-      title: "Preliminary Legal Guidance",
-      description: "Our AI provides general information and preliminary guidance based on UAE law. This is not formal legal advice and should not be considered as such."
+      title: t('legalDisclaimers.disclaimer1Title'),
+      description: t('legalDisclaimers.disclaimer1Desc')
     },
     {
       icon: "user-check",
-      title: "Consult a Licensed Attorney",
-      description: "For specific legal matters, complex situations, or formal legal representation, always consult with a qualified UAE-licensed attorney."
+      title: t('legalDisclaimers.disclaimer2Title'),
+      description: t('legalDisclaimers.disclaimer2Desc')
     },
     {
       icon: "shield-off",
-      title: "No Attorney-Client Relationship",
-      description: "Using this platform does not create an attorney-client relationship. We are a legal research tool, not a law firm."
+      title: t('legalDisclaimers.disclaimer3Title'),
+      description: t('legalDisclaimers.disclaimer3Desc')
     },
     {
       icon: "alert-triangle",
-      title: "Verify Information",
-      description: "While our sources are verified and updated regularly, laws can change. Always verify current legal requirements for critical decisions."
+      title: t('legalDisclaimers.disclaimer4Title'),
+      description: t('legalDisclaimers.disclaimer4Desc')
     }
   ]
 
@@ -30,10 +33,10 @@ export const LegalDisclaimers = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-            Important Legal Information
+            {t('legalDisclaimers.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Understanding the scope and limitations of our AI legal guidance platform
+            {t('legalDisclaimers.subtitle')}
           </p>
         </div>
 
@@ -63,16 +66,16 @@ export const LegalDisclaimers = () => {
               <Icon name="scale" size={28} className="text-brand-accent" />
             </div>
             <h3 className="text-2xl font-bold text-brand-primary">
-              When to Consult a Lawyer
+              {t('legalDisclaimers.whenToConsult')}
             </h3>
             <div className="grid md:grid-cols-3 gap-6 mt-8">
               {[
-                "Contract disputes or negotiations",
-                "Court proceedings or litigation", 
-                "Business formation or compliance",
-                "Employment termination issues",
-                "Property transactions",
-                "Family law matters"
+                t('legalDisclaimers.situation1'),
+                t('legalDisclaimers.situation2'),
+                t('legalDisclaimers.situation3'),
+                t('legalDisclaimers.situation4'),
+                t('legalDisclaimers.situation5'),
+                t('legalDisclaimers.situation6')
               ].map((situation, index) => (
                 <div key={index} className="flex items-center space-x-2">
                   <Icon name="check" size={16} className="text-brand-accent flex-shrink-0" />
@@ -81,8 +84,7 @@ export const LegalDisclaimers = () => {
               ))}
             </div>
             <p className="text-muted-foreground mt-6 max-w-2xl mx-auto">
-              Our platform provides an excellent starting point for understanding UAE law, 
-              but professional legal counsel is essential for formal legal matters.
+              {t('legalDisclaimers.consultDesc')}
             </p>
           </div>
         </Card>
