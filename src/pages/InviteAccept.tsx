@@ -96,8 +96,8 @@ export default function InviteAccept() {
 
       if (error) throw error
 
-      toast.success("Invitation accepted! Redirecting to company dashboard...")
-      setTimeout(() => navigate("/company-dashboard"), 1500)
+      toast.success("Invitation accepted! Redirecting...")
+      setTimeout(() => navigate("/dashboard"), 1500)
     } catch (error: any) {
       console.error("Error accepting invitation:", error)
       toast.error(error.message || "Failed to accept invitation")
