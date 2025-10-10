@@ -153,7 +153,7 @@ serve(async (req) => {
         .insert({
           company_id: invitation.company_id,
           performed_by: user.id,
-          activity_type: 'user_joined',
+          activity_type: 'invitation_accepted',
           target_entity_type: 'user',
           target_entity_id: user.id,
           description: `${profile.email} joined the company as ${invitation.role}`,
