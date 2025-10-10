@@ -58,6 +58,7 @@ const adminGroups: AdminGroup[] = [
       { id: "users", title: "Users", icon: "users" },
       { id: "bulk-operations", title: "Bulk Operations", icon: "layers" },
       { id: "impersonation", title: "Impersonation", icon: "user-check" },
+      { id: "create-company-admin", title: "Create Company Admin", icon: "user-plus" },
       { id: "companies", title: "Companies", icon: "building" },
     ]
   },

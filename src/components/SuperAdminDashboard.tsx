@@ -36,6 +36,7 @@ import { WebhookManager } from './admin/WebhookManager';
 import { BillingAnalytics } from './admin/BillingAnalytics';
 import { SubscriptionAdminPanel } from './admin/SubscriptionAdminPanel';
 import { SubscriptionRevenueAnalytics } from './admin/SubscriptionRevenueAnalytics';
+import { CreateCompanyAdmin } from './admin/CreateCompanyAdmin';
 
 export const SuperAdminDashboard = () => {
   const { user, profile } = useAuth()
@@ -438,6 +439,15 @@ export const SuperAdminDashboard = () => {
         return (
           <AdminErrorBoundary>
             <UserImpersonation />
+          </AdminErrorBoundary>
+        )
+      
+      case "create-company-admin":
+        return (
+          <AdminErrorBoundary>
+            <div className="flex items-center justify-center min-h-[600px]">
+              <CreateCompanyAdmin />
+            </div>
           </AdminErrorBoundary>
         )
       
