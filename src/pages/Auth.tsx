@@ -19,6 +19,7 @@ import {
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true)
+  const [isCompanyLogin, setIsCompanyLogin] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
@@ -69,7 +70,7 @@ export default function Auth() {
     setLoading(true)
 
     try {
-      if (isLogin) {
+      if (isLogin || isCompanyLogin) {
         const { error } = await signIn(email, password)
         if (error) {
           toast({
@@ -79,10 +80,47 @@ export default function Auth() {
           })
           setLoading(false)
         } else {
-          toast({
-            title: "Welcome back!",
-            description: "You've been successfully logged in."
-          })
+          // If company login, fetch and display company name
+          if (isCompanyLogin) {
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('current_company_id')
+                .eq('email', email)
+                .single()
+
+              if (profile?.current_company_id) {
+                const { data: company } = await supabase
+                  .from('companies')
+                  .select('name')
+                  .eq('id', profile.current_company_id)
+                  .single()
+
+                toast({
+                  title: "Welcome back!",
+                  description: company?.name 
+                    ? `Logging in to ${company.name}` 
+                    : "You've been successfully logged in."
+                })
+              } else {
+                toast({
+                  title: "Welcome back!",
+                  description: "You've been successfully logged in."
+                })
+              }
+            } catch (err) {
+              console.error('Error fetching company:', err)
+              toast({
+                title: "Welcome back!",
+                description: "You've been successfully logged in."
+              })
+            }
+          } else {
+            toast({
+              title: "Welcome back!",
+              description: "You've been successfully logged in."
+            })
+          }
           // Don't set loading to false or navigate here
           // Let the useEffect handle the redirect when user state updates
         }
@@ -206,13 +244,17 @@ export default function Auth() {
             UAE Legal AI
           </h1>
           <p className="mt-2 text-muted-foreground">
-            {isLogin ? 'Sign in to your account' : 'Create your free account'}
+            {isCompanyLogin 
+              ? 'Sign in to your company account'
+              : isLogin 
+              ? 'Sign in to your account' 
+              : 'Create your free account'}
           </p>
         </div>
 
         <Card className="p-8 bg-card border-dashboard-border">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {!isLogin && (
+            {!isLogin && !isCompanyLogin && (
               <>
                 <div className="space-y-4">
                   <Label>Account Type</Label>
@@ -292,7 +334,7 @@ export default function Auth() {
             <div>
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                {isLogin && (
+                {(isLogin || isCompanyLogin) && (
                   <button
                     type="button"
                     onClick={() => {
@@ -326,21 +368,49 @@ export default function Auth() {
               {loading ? (
                 <Icon name="loader" size={16} className="animate-spin mr-2" />
               ) : null}
-              {isLogin ? 'Sign In' : 'Create Account'}
+              {isCompanyLogin ? 'Sign In to Company' : isLogin ? 'Sign In' : 'Create Account'}
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-brand-accent hover:underline"
-            >
-              {isLogin 
-                ? "Don't have an account? Sign up" 
-                : "Already have an account? Sign in"
-              }
-            </button>
+          <div className="mt-6 text-center space-y-2">
+            {!isCompanyLogin && (
+              <button
+                type="button"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-sm text-brand-accent hover:underline block w-full"
+              >
+                {isLogin 
+                  ? "Don't have an account? Sign up" 
+                  : "Already have an account? Sign in"
+                }
+              </button>
+            )}
+            
+            {isLogin && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCompanyLogin(true)
+                  setIsLogin(false)
+                }}
+                className="text-sm text-brand-accent hover:underline block w-full"
+              >
+                Company Login →
+              </button>
+            )}
+
+            {isCompanyLogin && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCompanyLogin(false)
+                  setIsLogin(true)
+                }}
+                className="text-sm text-muted-foreground hover:text-brand-accent hover:underline block w-full"
+              >
+                ← Back to Personal Login
+              </button>
+            )}
           </div>
 
           {!isLogin && (
