@@ -168,6 +168,30 @@ serve(async (req) => {
       console.error('Failed to create notification (non-critical):', notifError)
     }
 
+    // Check if invited email already has an account and notify them
+    try {
+      const { data: invitedUser } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('email', email)
+        .maybeSingle()
+
+      if (invitedUser) {
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: invitedUser.user_id,
+            title: 'Company Invitation',
+            message: `You've been invited to join ${company?.name || 'a company'} as ${role}. Click to accept.`,
+            type: 'info',
+            action_url: `/invite/${token}`,
+          })
+        console.log('Notification created for invited user')
+      }
+    } catch (notifError) {
+      console.error('Failed to create notification for invited user (non-critical):', notifError)
+    }
+
     // TODO: Send email notification here using Resend or similar service
     // For now, we just return the invite URL
 

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
+import { useAuth } from "@/hooks/useAuth"
 
 interface InvitationData {
   email: string
@@ -22,9 +23,11 @@ interface InvitationData {
 export default function InviteAccept() {
   const { token } = useParams<{ token: string }>()
   const navigate = useNavigate()
+  const { user, profile } = useAuth()
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [invitation, setInvitation] = useState<InvitationData | null>(null)
+  const [isExistingUser, setIsExistingUser] = useState(false)
   const [formData, setFormData] = useState({
     fullName: "",
     password: "",
@@ -66,6 +69,11 @@ export default function InviteAccept() {
         }
 
         setInvitation(data)
+        
+        // Check if current user matches invitation email
+        if (user && profile?.email === data.email) {
+          setIsExistingUser(true)
+        }
       } catch (error) {
         console.error("Error fetching invitation:", error)
         toast.error("Failed to load invitation")
@@ -76,7 +84,27 @@ export default function InviteAccept() {
     }
 
     fetchInvitation()
-  }, [token, navigate])
+  }, [token, navigate, user, profile])
+
+  const handleExistingUserAccept = async () => {
+    setSubmitting(true)
+    try {
+      // For existing users, we need to directly add them to the company
+      const { error } = await supabase.functions.invoke('accept-existing-user-invitation', {
+        body: { token }
+      })
+
+      if (error) throw error
+
+      toast.success("Invitation accepted! Redirecting to company dashboard...")
+      setTimeout(() => navigate("/company-dashboard"), 1500)
+    } catch (error: any) {
+      console.error("Error accepting invitation:", error)
+      toast.error(error.message || "Failed to accept invitation")
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -145,7 +173,28 @@ export default function InviteAccept() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {isExistingUser ? (
+            <div className="space-y-4">
+              <div className="bg-muted p-4 rounded-md">
+                <p className="font-medium mb-2">Welcome back!</p>
+                <p className="text-sm text-muted-foreground mb-3">
+                  You're already registered with this email. Click below to accept the invitation and join the company.
+                </p>
+                <div className="space-y-2">
+                  <p className="text-sm"><span className="font-medium">Role:</span> {invitation.role.replace('_', ' ')}</p>
+                  <p className="text-sm"><span className="font-medium">Credits:</span> {invitation.max_credits_per_period} per month</p>
+                </div>
+              </div>
+              <Button 
+                onClick={handleExistingUserAccept} 
+                className="w-full" 
+                disabled={submitting}
+              >
+                {submitting ? "Accepting..." : "Accept Invitation"}
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -202,10 +251,11 @@ export default function InviteAccept() {
               </p>
             </div>
 
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "Creating Account..." : "Create Account"}
-            </Button>
-          </form>
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? "Creating Account..." : "Create Account"}
+              </Button>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>
