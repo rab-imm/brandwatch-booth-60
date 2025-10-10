@@ -121,9 +121,20 @@ export const DepartmentCreditAllocation = ({ companyId }: DepartmentCreditAlloca
           .eq('id', editingDept.id)
 
         if (error) throw error
+
+        // Log activity
+        await supabase.from('company_activity_logs').insert({
+          company_id: companyId,
+          performed_by: (await supabase.auth.getUser()).data.user?.id,
+          activity_type: 'department_updated',
+          target_entity_id: editingDept.id,
+          target_entity_type: 'department',
+          description: `Updated department "${formData.name}"`
+        })
+
         toast.success('Department updated successfully')
       } else {
-        const { error } = await supabase
+        const { data: newDept, error } = await supabase
           .from('departments')
           .insert({
             company_id: companyId,
@@ -132,8 +143,21 @@ export const DepartmentCreditAllocation = ({ companyId }: DepartmentCreditAlloca
             manager_id: formData.manager_id || null,
             parent_id: formData.parent_id || null
           })
+          .select()
+          .single()
 
         if (error) throw error
+
+        // Log activity
+        await supabase.from('company_activity_logs').insert({
+          company_id: companyId,
+          performed_by: (await supabase.auth.getUser()).data.user?.id,
+          activity_type: 'department_created',
+          target_entity_id: newDept.id,
+          target_entity_type: 'department',
+          description: `Created department "${formData.name}" with ${formData.credit_allocation} credits`
+        })
+
         toast.success('Department created successfully')
       }
 
@@ -147,7 +171,7 @@ export const DepartmentCreditAllocation = ({ companyId }: DepartmentCreditAlloca
     }
   }
 
-  const handleDelete = async (deptId: string) => {
+  const handleDelete = async (deptId: string, deptName: string) => {
     if (!confirm('Are you sure you want to delete this department?')) return
 
     try {
@@ -157,6 +181,17 @@ export const DepartmentCreditAllocation = ({ companyId }: DepartmentCreditAlloca
         .eq('id', deptId)
 
       if (error) throw error
+
+      // Log activity
+      await supabase.from('company_activity_logs').insert({
+        company_id: companyId,
+        performed_by: (await supabase.auth.getUser()).data.user?.id,
+        activity_type: 'department_deleted',
+        target_entity_id: deptId,
+        target_entity_type: 'department',
+        description: `Deleted department "${deptName}"`
+      })
+
       toast.success('Department deleted successfully')
       fetchDepartments()
     } catch (error: any) {
@@ -245,7 +280,7 @@ export const DepartmentCreditAllocation = ({ companyId }: DepartmentCreditAlloca
                     <Button variant="outline" size="sm" onClick={() => openEditDialog(dept)}>
                       <Icon name="pencil" className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDelete(dept.id)}>
+                    <Button variant="outline" size="sm" onClick={() => handleDelete(dept.id, dept.name)}>
                       <Icon name="trash" className="h-4 w-4" />
                     </Button>
                   </div>

@@ -63,6 +63,7 @@ export const CreditUsageChart = ({ companyId }: CreditUsageChartProps) => {
   }
 
   const getBarColor = (credits: number, maxCredits: number) => {
+    if (maxCredits === 0) return '#6b7280' // gray if no limit set
     const percentage = (credits / maxCredits) * 100
     if (percentage >= 90) return '#ef4444' // red
     if (percentage >= 70) return '#f59e0b' // orange
@@ -116,6 +117,9 @@ export const CreditUsageChart = ({ companyId }: CreditUsageChartProps) => {
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
                     const data = payload[0].payload
+                    const percentage = data.maxCredits > 0 
+                      ? ((data.credits / data.maxCredits) * 100).toFixed(1)
+                      : 'N/A'
                     return (
                       <div className="bg-popover border rounded-lg p-3 shadow-lg">
                         <p className="font-medium">{data.name}</p>
@@ -123,7 +127,7 @@ export const CreditUsageChart = ({ companyId }: CreditUsageChartProps) => {
                           {data.credits} / {data.maxCredits} credits used
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {((data.credits / data.maxCredits) * 100).toFixed(1)}% utilized
+                          {percentage !== 'N/A' ? `${percentage}% utilized` : 'No limit set'}
                         </p>
                       </div>
                     )

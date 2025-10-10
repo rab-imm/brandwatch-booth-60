@@ -43,8 +43,20 @@ export const TeamActivityFeed = ({ companyId, limit = 20 }: TeamActivityFeedProp
           table: 'company_activity_logs',
           filter: `company_id=eq.${companyId}`
         },
-        (payload) => {
-          setActivities(prev => [payload.new as ActivityLog, ...prev].slice(0, limit))
+        async (payload) => {
+          const newActivity = payload.new as ActivityLog
+          
+          // Fetch profile data for the performer
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, email')
+            .eq('user_id', newActivity.performed_by)
+            .single()
+
+          setActivities(prev => [
+            { ...newActivity, profiles: profile || undefined },
+            ...prev
+          ].slice(0, limit))
         }
       )
       .subscribe()
@@ -94,16 +106,20 @@ export const TeamActivityFeed = ({ companyId, limit = 20 }: TeamActivityFeedProp
         return 'mail'
       case 'invitation_accepted':
         return 'user-plus'
-      case 'user_removed':
+      case 'user_deleted':
         return 'user-minus'
-      case 'credits_updated':
+      case 'user_credits_updated':
         return 'coins'
-      case 'role_updated':
+      case 'user_role_changed':
         return 'shield'
-      case 'letter_created':
-        return 'file-text'
-      case 'document_uploaded':
-        return 'upload'
+      case 'invitation_cancelled':
+        return 'x-circle'
+      case 'company_updated':
+        return 'building'
+      case 'department_created':
+      case 'department_updated':
+      case 'department_deleted':
+        return 'folder'
       default:
         return 'activity'
     }
@@ -113,15 +129,18 @@ export const TeamActivityFeed = ({ companyId, limit = 20 }: TeamActivityFeedProp
     switch (activityType) {
       case 'user_invited':
       case 'invitation_accepted':
+      case 'department_created':
         return 'bg-green-500/10 text-green-500'
-      case 'user_removed':
+      case 'user_deleted':
+      case 'invitation_cancelled':
+      case 'department_deleted':
         return 'bg-red-500/10 text-red-500'
-      case 'credits_updated':
+      case 'user_credits_updated':
         return 'bg-blue-500/10 text-blue-500'
-      case 'role_updated':
+      case 'user_role_changed':
+      case 'department_updated':
         return 'bg-purple-500/10 text-purple-500'
-      case 'letter_created':
-      case 'document_uploaded':
+      case 'company_updated':
         return 'bg-orange-500/10 text-orange-500'
       default:
         return 'bg-muted text-muted-foreground'
