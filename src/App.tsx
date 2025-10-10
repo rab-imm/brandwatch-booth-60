@@ -88,6 +88,14 @@ const App = () => (
               } 
             />
             <Route 
+              path="/company-dashboard" 
+              element={
+                <ProtectedRoute>
+                  <CompanyAdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/company-user" 
               element={
                 <ProtectedRoute>

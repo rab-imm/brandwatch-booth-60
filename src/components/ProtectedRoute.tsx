@@ -28,7 +28,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         }
       }
       // Redirect to appropriate dashboard if user lands on /dashboard but has a specific role
-      else if (currentPath === '/dashboard') {
+      else if (currentPath === '/dashboard' || currentPath === '/company-dashboard') {
         if (profile?.user_role === 'super_admin') {
           navigate('/admin')
         } else if (profile?.user_role === 'company_admin') {
