@@ -29,6 +29,9 @@ import { LettersList } from "@/components/LettersList"
 import { LetterDetail } from "@/components/LetterDetail"
 import { CompanyTeamMembers } from "@/components/CompanyTeamMembers"
 import { CompanySettings } from "@/components/CompanySettings"
+import { TeamActivityFeed } from "@/components/company/TeamActivityFeed"
+import { CreditUsageChart } from "@/components/company/CreditUsageChart"
+import { DepartmentCreditAllocation } from "@/components/company/DepartmentCreditAllocation"
 
 interface CompanyData {
   id: string
@@ -337,10 +340,15 @@ export const CompanyAdminDashboard = () => {
         return (
           <div className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
+              <TeamActivityFeed companyId={company.id} />
+              <CreditUsageChart companyId={company.id} />
+            </div>
+            <DepartmentCreditAllocation companyId={company.id} />
+            <CompanyUsageAnalytics company={company} companyUsers={companyUsers} />
+            <div className="grid gap-6 md:grid-cols-2">
               <CompanyInviteManager />
               <CompanyInvitationList />
             </div>
-            <CompanyUsageAnalytics company={company} companyUsers={companyUsers} />
           </div>
         )
 

@@ -15,6 +15,7 @@ import { CompanySidebar } from "@/components/CompanySidebar"
 import { CompanyDashboardOverview } from "@/components/CompanyDashboardOverview"
 import { LettersList } from "@/components/LettersList"
 import { LetterDetail } from "@/components/LetterDetail"
+import { TeamActivityFeed } from "@/components/company/TeamActivityFeed"
 
 export default function CompanyUserDashboard() {
   const { user, profile, loading } = useAuth()
@@ -110,7 +111,12 @@ export default function CompanyUserDashboard() {
         )
       
       case "team":
-        return <ManagerTeamOverview />
+        return companyData ? (
+          <div className="space-y-6">
+            <TeamActivityFeed companyId={companyData.id} limit={15} />
+            {isManager && <ManagerTeamOverview />}
+          </div>
+        ) : null
       
       case "requests":
         return <ManagerRequestsPanel />
