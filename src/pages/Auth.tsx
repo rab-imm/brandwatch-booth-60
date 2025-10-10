@@ -413,7 +413,7 @@ export default function Auth() {
             )}
           </div>
 
-          {!isLogin && (
+          {!isLogin && !isCompanyLogin && (
             <div className="mt-6 p-4 bg-brand-warm/10 rounded-lg border border-brand-warm/20">
               <div className="flex items-start space-x-2">
                 <Icon name="gift" size={16} className="text-brand-accent mt-0.5 flex-shrink-0" />
