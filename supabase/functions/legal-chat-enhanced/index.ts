@@ -140,7 +140,7 @@ serve(async (req) => {
       console.log('Fetching real-time UAE legal research...')
       const perplexityQuery = `UAE law ${message} legal information federal emirates regulations 2024 2025`
       
-      // Primary search with official UAE government domains only
+      // Search using Perplexity sonar-pro model with UAE government domain filters
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
         headers: {
