@@ -1,10 +1,16 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { z } from "npm:zod@3.22.4";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const revokeShareLinkSchema = z.object({
+  shareLinkId: z.string().uuid("Invalid share link ID"),
+});
 
 interface RevokeShareLinkRequest {
   shareLinkId: string;
@@ -37,7 +43,22 @@ serve(async (req) => {
       );
     }
 
-    const { shareLinkId }: RevokeShareLinkRequest = await req.json();
+    const requestBody = await req.json();
+    
+    // Validate input
+    const validationResult = revokeShareLinkSchema.safeParse(requestBody);
+    if (!validationResult.success) {
+      console.error('Validation error:', validationResult.error);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input', 
+          details: validationResult.error.issues 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { shareLinkId } = validationResult.data;
 
     console.log('Revoking share link:', shareLinkId);
 

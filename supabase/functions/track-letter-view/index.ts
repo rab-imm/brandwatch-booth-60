@@ -1,10 +1,18 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { z } from "npm:zod@3.22.4";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const trackViewSchema = z.object({
+  token: z.string().length(64, "Invalid token format"),
+  password: z.string().max(100).optional(),
+  viewDurationSeconds: z.number().min(0).max(86400).optional(),
+});
 
 interface TrackViewRequest {
   token: string;
@@ -22,7 +30,22 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { token, password, viewDurationSeconds }: TrackViewRequest = await req.json();
+    const requestBody = await req.json();
+    
+    // Validate input
+    const validationResult = trackViewSchema.safeParse(requestBody);
+    if (!validationResult.success) {
+      console.error('Validation error:', validationResult.error);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input', 
+          details: validationResult.error.issues 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { token, password, viewDurationSeconds } = validationResult.data;
 
     console.log('Tracking view for token:', token.substring(0, 8) + '...');
 

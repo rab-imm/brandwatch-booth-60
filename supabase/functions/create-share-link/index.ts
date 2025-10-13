@@ -1,10 +1,30 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { z } from "npm:zod@3.22.4";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schemas
+const createShareLinkSchema = z.object({
+  letterId: z.string().uuid("Invalid letter ID"),
+  recipientEmail: z.string().email("Invalid email address").max(255),
+  recipientName: z.string().max(100).optional(),
+  expiresInDays: z.number().min(1).max(365).optional(),
+  maxViews: z.number().min(1).max(1000).optional(),
+  requirePassword: z.boolean().optional(),
+  password: z.string().min(8).max(100).optional(),
+}).refine((data) => {
+  if (data.requirePassword && !data.password) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Password is required when password protection is enabled",
+  path: ["password"],
+});
 
 interface CreateShareLinkRequest {
   letterId: string;
@@ -43,6 +63,21 @@ serve(async (req) => {
       );
     }
 
+    const requestBody = await req.json();
+    
+    // Validate input
+    const validationResult = createShareLinkSchema.safeParse(requestBody);
+    if (!validationResult.success) {
+      console.error('Validation error:', validationResult.error);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input', 
+          details: validationResult.error.issues 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { 
       letterId, 
       recipientEmail, 
@@ -51,7 +86,7 @@ serve(async (req) => {
       maxViews,
       requirePassword,
       password 
-    }: CreateShareLinkRequest = await req.json();
+    } = validationResult.data;
 
     console.log('Creating share link for letter:', letterId);
 
@@ -128,9 +163,12 @@ serve(async (req) => {
 
     console.log('Share link created successfully:', shareLink.id);
 
-    // Generate shareable URL
-    const baseUrl = supabaseUrl.replace('.supabase.co', '');
-    const shareUrl = `${baseUrl}/view-letter/${shareToken}`;
+    // Generate shareable URL using APP_URL or fallback to preview URL
+    const appUrl = Deno.env.get('APP_URL') || 
+                   `https://${Deno.env.get('SUPABASE_PROJECT_REF')}.lovable.app`;
+    const shareUrl = `${appUrl}/view-letter/${shareToken}`;
+
+    console.log('Generated share URL:', shareUrl);
 
     return new Response(
       JSON.stringify({
