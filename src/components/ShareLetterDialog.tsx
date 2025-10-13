@@ -77,14 +77,22 @@ export function ShareLetterDialog({
 
       // Send email notification if requested
       if (sendEmail) {
+        // Get current user's profile for sender name
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name, email")
+          .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
+          .single();
+
         const { error: emailError } = await supabase.functions.invoke(
           "send-letter-share-notification",
           {
             body: {
               recipientEmail,
               recipientName: recipientName || recipientEmail,
+              senderName: profile?.full_name || profile?.email || "UAE Legal Assistant",
               letterTitle,
-              shareUrl: data.shareLink.url,
+              shareLink: data.shareLink.url,
               expiresAt: data.shareLink.expires_at,
               maxViews: data.shareLink.max_views,
               isPasswordProtected: requirePassword,
