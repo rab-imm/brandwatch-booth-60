@@ -117,7 +117,7 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
                   <div className="space-y-2 overflow-visible">
                     <p className="text-xs font-medium text-muted-foreground">Research Sources:</p>
                     <div className="space-y-2 overflow-visible">
-                      {message.sources.research.slice(0, 3).map((source, index) => (
+                      {message.sources.research.map((source, index) => (
                         <div key={index} className="text-xs bg-muted/50 rounded-md p-3 overflow-visible relative">
                           <div className="flex items-start justify-between gap-3 min-h-[20px]">
                             <span className="font-medium text-foreground leading-tight flex-1 pr-2">{source.title}</span>
