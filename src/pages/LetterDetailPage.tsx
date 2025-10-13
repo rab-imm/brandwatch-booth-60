@@ -10,6 +10,9 @@ import { Badge } from "@/components/ui/badge"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ShareLetterDialog } from "@/components/ShareLetterDialog"
+import { ManageShareLinks } from "@/components/ManageShareLinks"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,6 +65,7 @@ export default function LetterDetailPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
 
   useEffect(() => {
     if (letterId && user) {
@@ -261,118 +265,164 @@ export default function LetterDetailPage() {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
+      <Tabs defaultValue="letter" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="letter">Letter</TabsTrigger>
+          <TabsTrigger value="share">Share & Links</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="letter">
+          <Card>
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  {isEditing ? (
+                    <Input
+                      value={editedTitle}
+                      onChange={(e) => setEditedTitle(e.target.value)}
+                      className="text-2xl font-bold mb-2"
+                    />
+                  ) : (
+                    <CardTitle className="text-2xl mb-2">{letter.title}</CardTitle>
+                  )}
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <Badge variant="secondary">
+                      {LETTER_TYPE_LABELS[letter.letter_type] || letter.letter_type}
+                    </Badge>
+                    <Badge variant={letter.status === 'draft' ? 'outline' : 'default'}>
+                      {letter.status}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Icon name="clock" className="w-4 h-4" />
+                      Created {formatDistanceToNow(new Date(letter.created_at), { addSuffix: true })}
+                    </span>
+                    <span className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Icon name="zap" className="w-4 h-4" />
+                      {letter.credits_used} credits
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
               {isEditing ? (
-                <Input
-                  value={editedTitle}
-                  onChange={(e) => setEditedTitle(e.target.value)}
-                  className="text-2xl font-bold mb-2"
+                <Textarea
+                  value={editedContent}
+                  onChange={(e) => setEditedContent(e.target.value)}
+                  rows={20}
+                  className="font-serif"
                 />
               ) : (
-                <CardTitle className="text-2xl mb-2">{letter.title}</CardTitle>
+                <div className="bg-card border rounded-lg p-6">
+                  <pre className="whitespace-pre-wrap font-serif text-sm">
+                    {letter.content}
+                  </pre>
+                </div>
               )}
-              <div className="flex items-center gap-3 flex-wrap">
-                <Badge variant="secondary">
-                  {LETTER_TYPE_LABELS[letter.letter_type] || letter.letter_type}
-                </Badge>
-                <Badge variant={letter.status === 'draft' ? 'outline' : 'default'}>
-                  {letter.status}
-                </Badge>
-                <span className="text-sm text-muted-foreground flex items-center gap-1">
-                  <Icon name="clock" className="w-4 h-4" />
-                  Created {formatDistanceToNow(new Date(letter.created_at), { addSuffix: true })}
-                </span>
-                <span className="text-sm text-muted-foreground flex items-center gap-1">
-                  <Icon name="zap" className="w-4 h-4" />
-                  {letter.credits_used} credits
-                </span>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between pt-6 border-t">
+                <div className="flex gap-2">
+                  {letter.status === 'draft' && !isEditing && (
+                    <>
+                      <Button variant="outline" onClick={() => setIsEditing(true)}>
+                        <Icon name="edit" className="w-4 h-4 mr-2" />
+                        Edit
+                      </Button>
+                      <Button onClick={() => setFinalizeDialogOpen(true)}>
+                        <Icon name="check-circle" className="w-4 h-4 mr-2" />
+                        Finalize
+                      </Button>
+                    </>
+                  )}
+
+                  {isEditing && (
+                    <>
+                      <Button variant="outline" onClick={() => {
+                        setEditedTitle(letter.title)
+                        setEditedContent(letter.content)
+                        setIsEditing(false)
+                      }}>
+                        Cancel
+                      </Button>
+                      <Button onClick={handleSave} disabled={isSaving}>
+                        {isSaving ? (
+                          <>
+                            <Icon name="loader" className="w-4 h-4 mr-2 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Icon name="save" className="w-4 h-4 mr-2" />
+                            Save Changes
+                          </>
+                        )}
+                      </Button>
+                    </>
+                  )}
+
+                  <Button
+                    variant="outline"
+                    onClick={() => setShareDialogOpen(true)}
+                  >
+                    <Icon name="share" className="w-4 h-4 mr-2" />
+                    Share
+                  </Button>
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={handleExportPDF}
+                  disabled={isExporting}
+                  className="gap-2"
+                >
+                  {isExporting ? (
+                    <>
+                      <Icon name="loader" className="w-4 h-4 animate-spin" />
+                      Exporting...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="download" className="w-4 h-4" />
+                      Export PDF (1 credit)
+                    </>
+                  )}
+                </Button>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="share">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Share This Letter</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={() => setShareDialogOpen(true)}>
+                  <Icon name="share" className="w-4 h-4 mr-2" />
+                  Create Share Link
+                </Button>
+              </CardContent>
+            </Card>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Active Share Links</h3>
+              <ManageShareLinks letterId={letter.id} />
             </div>
           </div>
-        </CardHeader>
+        </TabsContent>
+      </Tabs>
 
-        <CardContent className="space-y-6">
-          {isEditing ? (
-            <Textarea
-              value={editedContent}
-              onChange={(e) => setEditedContent(e.target.value)}
-              rows={20}
-              className="font-serif"
-            />
-          ) : (
-            <div className="bg-card border rounded-lg p-6">
-              <pre className="whitespace-pre-wrap font-serif text-sm">
-                {letter.content}
-              </pre>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex items-center justify-between pt-6 border-t">
-            <div className="flex gap-2">
-              {letter.status === 'draft' && !isEditing && (
-                <>
-                  <Button variant="outline" onClick={() => setIsEditing(true)}>
-                    <Icon name="edit" className="w-4 h-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button onClick={() => setFinalizeDialogOpen(true)}>
-                    <Icon name="check-circle" className="w-4 h-4 mr-2" />
-                    Finalize
-                  </Button>
-                </>
-              )}
-
-              {isEditing && (
-                <>
-                  <Button variant="outline" onClick={() => {
-                    setEditedTitle(letter.title)
-                    setEditedContent(letter.content)
-                    setIsEditing(false)
-                  }}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleSave} disabled={isSaving}>
-                    {isSaving ? (
-                      <>
-                        <Icon name="loader" className="w-4 h-4 mr-2 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Icon name="save" className="w-4 h-4 mr-2" />
-                        Save Changes
-                      </>
-                    )}
-                  </Button>
-                </>
-              )}
-            </div>
-
-            <Button
-              variant="outline"
-              onClick={handleExportPDF}
-              disabled={isExporting}
-              className="gap-2"
-            >
-              {isExporting ? (
-                <>
-                  <Icon name="loader" className="w-4 h-4 animate-spin" />
-                  Exporting...
-                </>
-              ) : (
-                <>
-                  <Icon name="download" className="w-4 h-4" />
-                  Export PDF (1 credit)
-                </>
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Share Dialog */}
+      <ShareLetterDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        letterId={letter.id}
+        letterTitle={letter.title}
+      />
 
       {/* Finalize Confirmation Dialog */}
       <AlertDialog open={finalizeDialogOpen} onOpenChange={setFinalizeDialogOpen}>
