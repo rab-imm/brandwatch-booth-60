@@ -54,11 +54,10 @@ serve(async (req) => {
 
     // Send email via Resend
     const { data, error } = await resend.emails.send({
-      from: "UAE Legal Assistant <documents@uaelegalassistant.com>",
+      from: "UAE Legal Assistant <onboarding@resend.dev>",
       to: [recipientEmail],
       subject: `${senderName} shared a legal document with you`,
       html,
-      replyTo: "noreply@uaelegalassistant.com",
     })
 
     if (error) {
