@@ -140,6 +140,7 @@ serve(async (req) => {
       console.log('Fetching real-time UAE legal research...')
       const perplexityQuery = `UAE law ${message} legal information federal emirates regulations 2024 2025`
       
+      // Primary search with official UAE government domains only
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
         headers: {
@@ -147,18 +148,33 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'sonar',
+          model: 'llama-3.1-sonar-large-128k-online',
           messages: [
             {
               role: 'system',
-              content: 'You are a UAE legal research assistant. Provide current, accurate UAE law information with specific citations and sources. Focus on federal UAE law and emirate-specific regulations.'
+              content: 'You are a UAE legal research assistant. ONLY cite information from official UAE government sources, federal gazettes, and official legal portals. Prioritize uaelegislation.gov.ae, u.ae, moj.gov.ae, and elaws.moj.gov.ae domains. Do not use news articles or unofficial sources.'
             },
             {
               role: 'user',
               content: perplexityQuery
             }
           ],
-          max_tokens: 1000
+          max_tokens: 1000,
+          temperature: 0.2,
+          search_domain_filter: [
+            'uaelegislation.gov.ae',  // Primary federal legislation database
+            'u.ae',                    // Official UAE government portal
+            'moj.gov.ae',              // Ministry of Justice
+            'elaws.moj.gov.ae',        // Electronic Laws Portal
+            'dfsaen.thomsonreuters.com', // DIFC laws
+            'dlp.dubai.gov.ae',        // Dubai legislation portal
+            'en.adgm.thomsonreuters.com', // ADGM laws
+            'adgm.com',                // ADGM official framework
+            'mohre.gov.ae',            // Ministry of Human Resources
+            'economy.gov.ae',          // Ministry of Economy
+            'uaecabinet.ae'            // UAE Cabinet
+          ],
+          return_citations: true
         }),
       })
 
