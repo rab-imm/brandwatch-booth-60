@@ -168,7 +168,12 @@ export function ShareLetterDialog({
         {!shareUrl ? (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Recipient Email *</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="email">Recipient Email *</Label>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                  For testing only
+                </span>
+              </div>
               <Input
                 id="email"
                 type="email"
@@ -176,7 +181,12 @@ export function ShareLetterDialog({
                 value={recipientEmail}
                 onChange={(e) => setRecipientEmail(e.target.value)}
                 required
+                disabled
+                className="bg-muted cursor-not-allowed"
               />
+              <p className="text-xs text-muted-foreground">
+                Email sharing is limited in test mode. Verify your domain at resend.com/domains to enable.
+              </p>
             </div>
 
             <div className="space-y-2">
