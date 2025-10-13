@@ -1,5 +1,8 @@
 project_id = "icsttnftxcfgnwhifsdm"
 
+[functions.send-letter-share-notification]
+verify_jwt = false
+
 [functions.legal-updates-monitor]
 verify_jwt = false
 
