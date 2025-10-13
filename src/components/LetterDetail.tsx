@@ -19,6 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { ShareLetterDialog } from "@/components/ShareLetterDialog"
 import { formatDistanceToNow } from "date-fns"
 
 interface Letter {
@@ -64,6 +65,7 @@ export function LetterDetail({ letterId, onBack }: LetterDetailProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
 
   useEffect(() => {
     if (letterId && user) {
@@ -349,24 +351,35 @@ export function LetterDetail({ letterId, onBack }: LetterDetailProps) {
               )}
             </div>
 
-            <Button
-              variant="outline"
-              onClick={handleExportPDF}
-              disabled={isExporting}
-              className="gap-2"
-            >
-              {isExporting ? (
-                <>
-                  <Icon name="loader" className="w-4 h-4 animate-spin" />
-                  Exporting...
-                </>
-              ) : (
-                <>
-                  <Icon name="download" className="w-4 h-4" />
-                  Export PDF (1 credit)
-                </>
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="default"
+                onClick={() => setShareDialogOpen(true)}
+                className="gap-2"
+              >
+                <Icon name="send" className="w-4 h-4" />
+                Share Document
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={handleExportPDF}
+                disabled={isExporting}
+                className="gap-2"
+              >
+                {isExporting ? (
+                  <>
+                    <Icon name="loader" className="w-4 h-4 animate-spin" />
+                    Exporting...
+                  </>
+                ) : (
+                  <>
+                    <Icon name="download" className="w-4 h-4" />
+                    Export PDF (1 credit)
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -388,6 +401,14 @@ export function LetterDetail({ letterId, onBack }: LetterDetailProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Share Document Dialog */}
+      <ShareLetterDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        letterId={letter.id}
+        letterTitle={letter.title}
+      />
     </div>
   )
 }

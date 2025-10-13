@@ -16,6 +16,7 @@ import { CompanyDashboardOverview } from "@/components/CompanyDashboardOverview"
 import { LettersList } from "@/components/LettersList"
 import { LetterDetail } from "@/components/LetterDetail"
 import { TeamActivityFeed } from "@/components/company/TeamActivityFeed"
+import { EnhancedTemplateStore } from "@/components/EnhancedTemplateStore"
 
 export default function CompanyUserDashboard() {
   const { user, profile, loading } = useAuth()
@@ -109,6 +110,9 @@ export default function CompanyUserDashboard() {
             onCreateClick={() => navigate('/letters/create')}
           />
         )
+      
+      case "templates":
+        return <EnhancedTemplateStore />
       
       case "team":
         return companyData ? (

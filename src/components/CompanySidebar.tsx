@@ -60,6 +60,7 @@ export function CompanySidebar({
         { id: "dashboard", title: "Dashboard", icon: "layout-dashboard" },
         { id: "chat", title: "Legal Assistant", icon: "message-circle" },
         { id: "letters", title: "My Letters", icon: "file-text" },
+        { id: "templates", title: "My Templates", icon: "book-open" },
       ],
       defaultOpen: true,
     },
