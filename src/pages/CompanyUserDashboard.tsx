@@ -89,9 +89,9 @@ export default function CompanyUserDashboard() {
       
       case "chat":
         return (
-          <div className="flex h-[calc(100vh-12rem)] border rounded-lg overflow-hidden">
+          <div className="flex h-full border rounded-lg overflow-hidden bg-background shadow-sm">
             <ConversationSidebar />
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col min-w-0">
               <ChatInterface />
             </div>
           </div>
@@ -180,8 +180,10 @@ export default function CompanyUserDashboard() {
                 </div>
               </div>
 
-              <div className="p-6 overflow-auto flex-1">
-                {renderSection()}
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <div className={activeSection === 'chat' ? 'flex-1 flex p-6' : 'flex-1 p-6 overflow-auto'}>
+                  {renderSection()}
+                </div>
               </div>
             </main>
           </div>

@@ -97,8 +97,8 @@ export const ChatInterface = () => {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex flex-col h-full bg-background">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         {(() => {
           const shouldShowEmpty = messages.length === 0 && !loading;
           console.log('🎨 UI Decision:', { 
@@ -214,7 +214,7 @@ export const ChatInterface = () => {
         <div ref={messagesEndRef} />
       </div>
       
-      <div className="border-t p-4 space-y-3">
+      <div className="border-t bg-card p-4 space-y-3 flex-shrink-0">
         <div className="flex justify-center items-center gap-3">
           <LawyerRequestButton conversationId={currentConversationId} />
           <SuggestLetterButton conversationId={currentConversationId} />
