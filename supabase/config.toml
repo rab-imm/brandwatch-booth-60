@@ -98,3 +98,12 @@ enabled = true
 
 [functions.legal-chat]
 verify_jwt = false
+
+[functions.create-share-link]
+verify_jwt = true
+
+[functions.track-letter-view]
+verify_jwt = false
+
+[functions.revoke-share-link]
+verify_jwt = true
