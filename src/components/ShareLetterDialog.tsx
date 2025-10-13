@@ -21,7 +21,7 @@ export function ShareLetterDialog({
   letterId,
   letterTitle,
 }: ShareLetterDialogProps) {
-  const [recipientEmail, setRecipientEmail] = useState("");
+  const [recipientEmail, setRecipientEmail] = useState("raffay.ansari@bigimmersive.com");
   const [recipientName, setRecipientName] = useState("");
   const [expiresInDays, setExpiresInDays] = useState<number>(7);
   const [maxViews, setMaxViews] = useState<number | undefined>();
@@ -143,7 +143,7 @@ export function ShareLetterDialog({
   };
 
   const handleClose = () => {
-    setRecipientEmail("");
+    setRecipientEmail("raffay.ansari@bigimmersive.com");
     setRecipientName("");
     setExpiresInDays(7);
     setMaxViews(undefined);
