@@ -1025,6 +1025,68 @@ export type Database = {
           },
         ]
       }
+      letter_share_links: {
+        Row: {
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          is_password_protected: boolean
+          letter_id: string
+          max_views: number | null
+          metadata: Json | null
+          password_hash: string | null
+          recipient_email: string
+          recipient_name: string | null
+          revoked_at: string | null
+          token: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          is_password_protected?: boolean
+          letter_id: string
+          max_views?: number | null
+          metadata?: Json | null
+          password_hash?: string | null
+          recipient_email: string
+          recipient_name?: string | null
+          revoked_at?: string | null
+          token: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          is_password_protected?: boolean
+          letter_id?: string
+          max_views?: number | null
+          metadata?: Json | null
+          password_hash?: string | null
+          recipient_email?: string
+          recipient_name?: string | null
+          revoked_at?: string | null
+          token?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "letter_share_links_letter_id_fkey"
+            columns: ["letter_id"]
+            isOneToOne: false
+            referencedRelation: "legal_letters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       letter_templates: {
         Row: {
           created_at: string
@@ -1063,6 +1125,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      letter_view_logs: {
+        Row: {
+          id: string
+          ip_address: string | null
+          location_data: Json | null
+          metadata: Json | null
+          share_link_id: string
+          user_agent: string | null
+          view_duration_seconds: number | null
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          ip_address?: string | null
+          location_data?: Json | null
+          metadata?: Json | null
+          share_link_id: string
+          user_agent?: string | null
+          view_duration_seconds?: number | null
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          ip_address?: string | null
+          location_data?: Json | null
+          metadata?: Json | null
+          share_link_id?: string
+          user_agent?: string | null
+          view_duration_seconds?: number | null
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "letter_view_logs_share_link_id_fkey"
+            columns: ["share_link_id"]
+            isOneToOne: false
+            referencedRelation: "letter_share_links"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {
