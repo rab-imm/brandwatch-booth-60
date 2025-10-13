@@ -357,15 +357,17 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
       })
       .select()
 
-    // Prepare source information
+    // Prepare source information - match frontend expected format
     const sourceInfo = {
-      hasResearch: !!researchContext,
-      hasDocuments: !!documentContext,
-      sourcesCount: researchSources.length,
-      researchSources: researchSources.slice(0, 5).map(source => ({
+      research: researchSources.slice(0, 5).map(source => ({
         title: source.title || 'UAE Legal Source',
         url: source.url || '',
         snippet: source.text?.substring(0, 150) || ''
+      })),
+      documents: documentSources.map(doc => ({
+        title: doc.title,
+        category: doc.category,
+        similarity: doc.similarity
       }))
     }
 
