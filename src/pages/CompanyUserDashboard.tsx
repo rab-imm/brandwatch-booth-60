@@ -24,7 +24,7 @@ export default function CompanyUserDashboard() {
   const [companyRole, setCompanyRole] = useState<any>(null)
   const [companyName, setCompanyName] = useState<string>("")
   const [companyData, setCompanyData] = useState<any>(null)
-  const [activeSection, setActiveSection] = useState("dashboard")
+  const [activeSection, setActiveSection] = useState("chat")
   const [selectedLetterId, setSelectedLetterId] = useState<string | null>(null)
 
   useEffect(() => {
