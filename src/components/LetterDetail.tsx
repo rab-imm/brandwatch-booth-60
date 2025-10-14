@@ -339,7 +339,7 @@ export function LetterDetail({ letterId, onBack }: LetterDetailProps) {
                       Edit
                     </Button>
                     <Button onClick={() => setFinalizeDialogOpen(true)}>
-                      <Icon name="check-circle" className="w-4 h-4 mr-2" />
+                      <Icon name="check" className="w-4 h-4 mr-2" />
                       Finalize
                     </Button>
                   </>
