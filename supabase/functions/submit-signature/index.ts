@@ -38,13 +38,18 @@ serve(async (req) => {
       throw new Error("Field values must be provided");
     }
     
-    // Validate field_values structure and prevent injection
+    // Validate field_values structure
     for (const [fieldId, value] of Object.entries(field_values)) {
       if (typeof fieldId !== 'string' || fieldId.length > 100) {
         throw new Error("Invalid field ID format");
       }
-      if (typeof value !== 'string' || value.length > 10000) {
-        throw new Error("Invalid field value - must be string under 10000 characters");
+      
+      // Check if value is a storage URL (short) vs base64 data (long)
+      const isStorageUrl = typeof value === 'string' && value.startsWith('https://icsttnftxcfgnwhifsdm.supabase.co/storage/');
+      const maxLength = isStorageUrl ? 500 : 500000;
+      
+      if (typeof value !== 'string' || value.length > maxLength) {
+        throw new Error(`Invalid field value - must be string under ${maxLength} characters`);
       }
     }
 

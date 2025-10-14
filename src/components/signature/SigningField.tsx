@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Pencil, Calendar, FileText, CheckSquare } from "lucide-react";
 import { SignatureCanvas } from "./SignatureCanvas";
+import { uploadSignatureImage } from "@/lib/signature-upload";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ interface SigningFieldProps {
   field: {
     id: string;
     field_type: string;
+    recipient_id?: string;
     x_position: number;
     y_position: number;
     width: number;
@@ -32,10 +34,26 @@ export const SigningField = ({ field, value, onComplete }: SigningFieldProps) =>
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [localValue, setLocalValue] = useState<string>(value || "");
 
-  const handleSignatureSave = (signature: string) => {
-    setLocalValue(signature);
-    onComplete(field.id, signature);
-    setShowSignatureDialog(false);
+  const handleSignatureSave = async (signature: string) => {
+    try {
+      // Upload signature image and get URL
+      const signatureUrl = await uploadSignatureImage(
+        signature,
+        field.recipient_id || 'unknown',
+        field.id
+      );
+      
+      // Save URL instead of base64 data
+      setLocalValue(signatureUrl);
+      onComplete(field.id, signatureUrl);
+      setShowSignatureDialog(false);
+    } catch (error) {
+      console.error('Failed to upload signature:', error);
+      // Fallback to base64 if upload fails
+      setLocalValue(signature);
+      onComplete(field.id, signature);
+      setShowSignatureDialog(false);
+    }
   };
 
   const handleTextChange = (newValue: string) => {
