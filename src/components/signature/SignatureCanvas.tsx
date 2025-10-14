@@ -3,6 +3,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { X, RotateCcw } from "lucide-react";
 
+const compressSignature = (canvas: HTMLCanvasElement): string => {
+  // Create a smaller canvas for compression
+  const maxWidth = 400;
+  const maxHeight = 200;
+  const scale = Math.min(maxWidth / canvas.width, maxHeight / canvas.height);
+  
+  const compressedCanvas = document.createElement('canvas');
+  compressedCanvas.width = canvas.width * scale;
+  compressedCanvas.height = canvas.height * scale;
+  
+  const ctx = compressedCanvas.getContext('2d');
+  if (!ctx) return canvas.toDataURL('image/png');
+  
+  // Set white background for JPEG
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, compressedCanvas.width, compressedCanvas.height);
+  
+  // Draw scaled signature
+  ctx.drawImage(canvas, 0, 0, compressedCanvas.width, compressedCanvas.height);
+  
+  // Convert to JPEG with 0.7 quality (reduces size by ~70%)
+  return compressedCanvas.toDataURL('image/jpeg', 0.7);
+};
+
 interface SignatureCanvasProps {
   onSave: (signature: string) => void;
   onCancel: () => void;
@@ -88,7 +112,7 @@ export const SignatureCanvas = ({ onSave, onCancel, label = "Draw your signature
     const canvas = canvasRef.current;
     if (!canvas || isEmpty) return;
 
-    const signature = canvas.toDataURL("image/png");
+    const signature = compressSignature(canvas);
     onSave(signature);
   };
 
