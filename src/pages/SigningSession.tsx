@@ -38,11 +38,29 @@ export default function SigningSession() {
         body: { access_token: accessToken },
       });
 
-      console.log("Function response:", { data, error });
+      console.log("Function response - data:", data);
+      console.log("Function response - error:", error);
 
+      // Check for Supabase Functions specific errors
       if (error) {
-        console.error("Function invocation error:", error);
-        throw error;
+        console.error("Function invocation error details:", {
+          name: error.name,
+          message: error.message,
+          context: error.context,
+          stack: error.stack
+        });
+        
+        // Check if it's a network/deployment issue
+        if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+          setError("Network error: Unable to connect to signing service. Please check your internet connection.");
+        } else if (error.message?.includes('404') || error.message?.includes('not found')) {
+          setError("Signing service is temporarily unavailable. Please contact support.");
+        } else if (error.message?.includes('CORS')) {
+          setError("Configuration error: CORS issue detected. Please contact support.");
+        } else {
+          setError(`Service error: ${error.message}`);
+        }
+        return;
       }
 
       if (data?.error) {
@@ -51,6 +69,8 @@ export default function SigningSession() {
           setError("You have already signed this document.");
         } else if (data.expired) {
           setError("This signature request has expired.");
+        } else if (data.sequential_signing_blocked) {
+          setError(data.error + ` (You are signer #${data.your_order})`);
         } else {
           setError(data.error);
         }
@@ -60,9 +80,14 @@ export default function SigningSession() {
       console.log("Session loaded successfully:", data);
       setSessionData(data);
     } catch (err: any) {
-      console.error("Error loading signing session:", err);
-      console.error("Error details:", JSON.stringify(err, null, 2));
-      setError(err.message || "Failed to load signing session");
+      console.error("Unexpected error loading signing session:", err);
+      console.error("Error type:", err.constructor.name);
+      console.error("Error details:", {
+        message: err.message,
+        stack: err.stack,
+        stringified: JSON.stringify(err, Object.getOwnPropertyNames(err))
+      });
+      setError(err.message || "An unexpected error occurred while loading the signing session");
     } finally {
       setLoading(false);
     }
