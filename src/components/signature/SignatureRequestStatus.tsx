@@ -83,10 +83,24 @@ export const SignatureRequestStatus = ({ letterId }: SignatureRequestStatusProps
   };
 
   const handleSendReminder = async (recipientId: string) => {
-    toast({
-      title: "Reminder sent",
-      description: "A reminder email has been sent to the recipient",
-    });
+    try {
+      const { error } = await supabase.functions.invoke("send-reminder-email", {
+        body: { recipient_id: recipientId },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Reminder sent",
+        description: "A reminder email has been sent to the recipient",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Failed to send reminder",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const getCompletionPercentage = () => {

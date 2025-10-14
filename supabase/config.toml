@@ -40,6 +40,9 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.verify-signature]
+verify_jwt = false
+
+[functions.send-reminder-email]
 verify_jwt = true
 
 [functions.document-expiry-monitor]
