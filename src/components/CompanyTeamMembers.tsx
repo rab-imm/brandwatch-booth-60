@@ -55,7 +55,8 @@ export function CompanyTeamMembers({ companyId }: CompanyTeamMembersProps) {
           role,
           used_credits,
           max_credits_per_period,
-          credits_reset_date
+          credits_reset_date,
+          email
         `)
         .eq('company_id', companyId)
         .order('created_at', { ascending: false })
@@ -67,13 +68,16 @@ export function CompanyTeamMembers({ companyId }: CompanyTeamMembersProps) {
         (data || []).map(async (member) => {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('full_name, email')
+            .select('full_name')
             .eq('user_id', member.user_id)
             .maybeSingle()
           
           return {
             ...member,
-            profile: profile || { full_name: null, email: null }
+            profile: { 
+              full_name: profile?.full_name || null,
+              email: member.email
+            }
           }
         })
       )

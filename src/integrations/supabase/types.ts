@@ -2481,6 +2481,7 @@ export type Database = {
           company_id: string | null
           created_at: string
           credits_reset_date: string
+          email: string | null
           id: string
           max_credits_per_period: number | null
           permissions: Json | null
@@ -2493,6 +2494,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           credits_reset_date?: string
+          email?: string | null
           id?: string
           max_credits_per_period?: number | null
           permissions?: Json | null
@@ -2505,6 +2507,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           credits_reset_date?: string
+          email?: string | null
           id?: string
           max_credits_per_period?: number | null
           permissions?: Json | null
