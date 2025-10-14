@@ -18,19 +18,6 @@ export const PDFDocumentViewer = ({ content, onPageClick, overlayContent }: PDFD
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [scale, setScale] = useState<number>(1.0);
-  const [pdfData, setPdfData] = useState<string>("");
-
-  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
-  };
-
-  // Convert HTML content to PDF blob URL (simplified - in production use proper PDF generation)
-  useState(() => {
-    // For now, we'll create a data URL from the content
-    const blob = new Blob([content], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    setPdfData(url);
-  });
 
   const handlePageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!onPageClick) return;

@@ -23,6 +23,8 @@ export interface SignatureField {
 interface SignatureFieldPlacerProps {
   fields: SignatureField[];
   currentRecipient?: string;
+  selectedFieldType?: FieldType;
+  onFieldTypeChange?: (type: FieldType) => void;
   onAddField: (field: Omit<SignatureField, "id">) => void;
   onRemoveField: (fieldId: string) => void;
 }
@@ -38,13 +40,21 @@ const fieldTypes: { type: FieldType; label: string; icon: any; color: string }[]
 export const SignatureFieldPlacer = ({
   fields,
   currentRecipient,
+  selectedFieldType: externalSelectedFieldType,
+  onFieldTypeChange,
   onAddField,
   onRemoveField,
 }: SignatureFieldPlacerProps) => {
-  const [selectedFieldType, setSelectedFieldType] = useState<FieldType>("signature");
+  const [internalSelectedFieldType, setInternalSelectedFieldType] = useState<FieldType>("signature");
+  
+  const selectedFieldType = externalSelectedFieldType ?? internalSelectedFieldType;
 
   const handleFieldTypeClick = (type: FieldType) => {
-    setSelectedFieldType(type);
+    if (onFieldTypeChange) {
+      onFieldTypeChange(type);
+    } else {
+      setInternalSelectedFieldType(type);
+    }
   };
 
   const recipientFields = currentRecipient

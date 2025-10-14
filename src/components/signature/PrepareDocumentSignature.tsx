@@ -33,6 +33,7 @@ export const PrepareDocumentSignature = ({
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [selectedRecipient, setSelectedRecipient] = useState<string>();
   const [fields, setFields] = useState<SignatureField[]>([]);
+  const [selectedFieldType, setSelectedFieldType] = useState<SignatureField["type"]>("signature");
   const [loading, setLoading] = useState(false);
   
   const { toast } = useToast();
@@ -81,13 +82,24 @@ export const PrepareDocumentSignature = ({
       return;
     }
 
+    // Determine field dimensions based on type
+    const fieldDimensions = {
+      signature: { width: 200, height: 60 },
+      initial: { width: 80, height: 60 },
+      date: { width: 120, height: 40 },
+      text: { width: 200, height: 40 },
+      checkbox: { width: 24, height: 24 },
+    };
+
+    const dims = fieldDimensions[selectedFieldType];
+
     handleAddField({
-      type: "signature",
+      type: selectedFieldType,
       page: pageNumber,
       x,
       y,
-      width: 200,
-      height: 60,
+      width: dims.width,
+      height: dims.height,
       recipientEmail: selectedRecipient,
       required: true,
     });
@@ -274,6 +286,8 @@ export const PrepareDocumentSignature = ({
           <SignatureFieldPlacer
             fields={fields}
             currentRecipient={selectedRecipient}
+            selectedFieldType={selectedFieldType}
+            onFieldTypeChange={setSelectedFieldType}
             onAddField={handleAddField}
             onRemoveField={handleRemoveField}
           />
