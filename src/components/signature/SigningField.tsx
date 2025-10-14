@@ -44,8 +44,9 @@ export const SigningField = ({ field, value, onComplete }: SigningFieldProps) =>
   };
 
   const handleCheckboxChange = (checked: boolean) => {
-    setLocalValue(checked);
-    onComplete(field.id, checked);
+    const stringValue = checked ? "true" : "false";
+    setLocalValue(stringValue);
+    onComplete(field.id, stringValue);
   };
 
   const getFieldIcon = () => {
