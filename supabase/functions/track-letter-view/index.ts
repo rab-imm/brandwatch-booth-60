@@ -59,10 +59,11 @@ serve(async (req) => {
           title,
           content,
           letter_type,
-          status
+          status,
+          created_at
         )
       `)
-      .eq('token', token)
+      .eq('share_token', token)
       .single();
 
     if (linkError || !shareLink) {
