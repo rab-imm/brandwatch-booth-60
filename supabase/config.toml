@@ -116,3 +116,6 @@ verify_jwt = true
 
 [functions.get-signing-session]
 verify_jwt = false
+
+[functions.submit-signature]
+verify_jwt = false
