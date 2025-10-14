@@ -20,6 +20,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { ShareLetterDialog } from "@/components/ShareLetterDialog"
+import { PrepareDocumentSignature } from "@/components/signature/PrepareDocumentSignature"
 import { formatDistanceToNow } from "date-fns"
 
 interface Letter {
@@ -66,6 +67,7 @@ export function LetterDetail({ letterId, onBack }: LetterDetailProps) {
   const [isExporting, setIsExporting] = useState(false)
   const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false)
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const [showSignaturePrep, setShowSignaturePrep] = useState(false)
 
   useEffect(() => {
     if (letterId && user) {
@@ -253,6 +255,22 @@ export function LetterDetail({ letterId, onBack }: LetterDetailProps) {
     return null
   }
 
+  if (showSignaturePrep) {
+    return (
+      <div className="space-y-4">
+        <Button variant="ghost" onClick={() => setShowSignaturePrep(false)}>
+          <Icon name="arrow-left" className="w-4 h-4 mr-2" />
+          Back to Letter
+        </Button>
+        <PrepareDocumentSignature
+          letterId={letter.id}
+          letterContent={letter.content}
+          letterTitle={letter.title}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <Button variant="ghost" onClick={onBack}>
@@ -353,11 +371,20 @@ export function LetterDetail({ letterId, onBack }: LetterDetailProps) {
 
             <div className="flex gap-2">
               <Button
+                variant="premium"
+                onClick={() => setShowSignaturePrep(true)}
+                className="gap-2"
+              >
+                <Icon name="pen-tool" className="w-4 h-4" />
+                Send for Signature
+              </Button>
+              
+              <Button
                 variant="default"
                 onClick={() => setShareDialogOpen(true)}
                 className="gap-2"
               >
-                <Icon name="send" className="w-4 h-4" />
+                <Icon name="share" className="w-4 h-4" />
                 Share Document
               </Button>
               
