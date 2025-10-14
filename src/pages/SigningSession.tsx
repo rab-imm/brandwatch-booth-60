@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -10,7 +10,7 @@ import { SigningField } from "@/components/signature/SigningField";
 import { Loader, AlertCircle, CheckCircle } from "lucide-react";
 
 export default function SigningSession() {
-  const [searchParams] = useSearchParams();
+  const { token: accessToken } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -20,8 +20,6 @@ export default function SigningSession() {
   const [signing, setSigning] = useState(false);
   const [fieldValues, setFieldValues] = useState<Record<string, string | boolean>>({});
   const [completed, setCompleted] = useState(false);
-  
-  const accessToken = searchParams.get("token");
 
   useEffect(() => {
     if (accessToken) {
