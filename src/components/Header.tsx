@@ -21,35 +21,36 @@ export const Header = () => {
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-8">
-            <Link to="/" className="text-2xl font-bold text-brand-primary font-pact-display">UAE Legal Research</Link>
-            
-            {user && !profile?.current_company_id && (
-              <nav className="hidden md:flex items-center space-x-2 bg-secondary/30 rounded-lg px-4 py-2">
-                <Link 
-                  to="/dashboard" 
-                  className="text-sm font-medium px-4 py-2 rounded-md hover:bg-secondary transition-colors"
-                >
-                  {t('nav.dashboard')}
-                </Link>
-                <Link 
-                  to="/templates" 
-                  className="text-sm font-medium px-4 py-2 rounded-md hover:bg-secondary transition-colors"
-                >
-                  {t('nav.templates')}
-                </Link>
-                <Link 
-                  to="/letters" 
-                  className="text-sm font-medium px-4 py-2 rounded-md hover:bg-secondary transition-colors"
-                >
-                  {t('nav.letters')}
-                </Link>
-              </nav>
-            )}
+        <div className="flex items-center justify-between gap-8">
+          <Link to="/" className="text-2xl font-bold text-brand-primary font-pact-display whitespace-nowrap">UAE Legal Research</Link>
+          
+          {user && !profile?.current_company_id && (
+            <nav className="flex items-center gap-1 bg-muted/50 rounded-lg p-1">
+              <Link 
+                to="/dashboard" 
+                className="text-sm font-medium px-6 py-2 rounded-md hover:bg-background transition-colors"
+              >
+                Dashboard
+              </Link>
+              <Link 
+                to="/templates" 
+                className="text-sm font-medium px-6 py-2 rounded-md hover:bg-background transition-colors"
+              >
+                Templates
+              </Link>
+              <Link 
+                to="/letters" 
+                className="text-sm font-medium px-6 py-2 rounded-md hover:bg-background transition-colors"
+              >
+                My Letters
+              </Link>
+            </nav>
+          )}
 
+          <div className="flex items-center space-x-8">
+            
             {!user && (
-              <nav className="hidden md:flex items-center space-x-6">
+              <nav className="flex items-center space-x-6">
                 <Link to="/features" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
                   {t('nav.features')}
                 </Link>
@@ -69,7 +70,7 @@ export const Header = () => {
             )}
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 ml-auto">
             {user ? (
               <div className="flex items-center space-x-3">
                 <Button variant="ghost" size="sm" asChild>
