@@ -221,7 +221,7 @@ export default function LettersListPage() {
                 <p className="text-sm text-muted-foreground">Finalized</p>
                 <p className="text-2xl font-bold">{stats.finalized}</p>
               </div>
-              <Icon name="check-circle" className="w-8 h-8 text-muted-foreground" />
+              <Icon name="check" className="w-8 h-8 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
@@ -233,7 +233,7 @@ export default function LettersListPage() {
                 <p className="text-sm text-muted-foreground">Signed</p>
                 <p className="text-2xl font-bold">{stats.signed}</p>
               </div>
-              <Icon name="pen-tool" className="w-8 h-8 text-muted-foreground" />
+              <Icon name="edit" className="w-8 h-8 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
@@ -331,7 +331,7 @@ export default function LettersListPage() {
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
-                        <Icon name="tag" className="w-4 h-4" />
+                        <Icon name="file-text" className="w-4 h-4" />
                         {LETTER_TYPE_LABELS[letter.letter_type] || letter.letter_type}
                       </span>
                       <span className="flex items-center gap-1">
