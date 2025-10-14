@@ -24,8 +24,8 @@ export const Header = () => {
         <div className="flex items-center justify-between gap-8">
           <Link to="/" className="text-2xl font-bold text-brand-primary font-pact-display whitespace-nowrap">UAE Legal Research</Link>
           
-          {user && !profile?.current_company_id && (
-            <nav className="flex items-center gap-1 bg-muted/50 rounded-lg p-1">
+          {user && (
+            <nav className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border border-border">
               <Link 
                 to="/dashboard" 
                 className="text-sm font-medium px-6 py-2 rounded-md hover:bg-background transition-colors"
@@ -47,28 +47,25 @@ export const Header = () => {
             </nav>
           )}
 
-          <div className="flex items-center space-x-8">
-            
-            {!user && (
-              <nav className="flex items-center space-x-6">
-                <Link to="/features" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                  {t('nav.features')}
-                </Link>
-                <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                  {t('nav.templates')}
-                </Link>
-                <Link to="/pricing" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                  {t('nav.pricing')}
-                </Link>
-                <Link to="/use-cases" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                  {t('nav.useCases')}
-                </Link>
-                <Link to="/about" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                  {t('nav.about')}
-                </Link>
-              </nav>
-            )}
-          </div>
+          {!user && (
+            <nav className="flex items-center space-x-6">
+              <Link to="/features" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                {t('nav.features')}
+              </Link>
+              <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                {t('nav.templates')}
+              </Link>
+              <Link to="/pricing" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                {t('nav.pricing')}
+              </Link>
+              <Link to="/use-cases" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                {t('nav.useCases')}
+              </Link>
+              <Link to="/about" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                {t('nav.about')}
+              </Link>
+            </nav>
+          )}
           
           <div className="flex items-center space-x-4 ml-auto">
             {user ? (
