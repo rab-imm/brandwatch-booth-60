@@ -55,17 +55,30 @@ export function CompanyTeamMembers({ companyId }: CompanyTeamMembersProps) {
           role,
           used_credits,
           max_credits_per_period,
-          credits_reset_date,
-          profiles (
-            full_name,
-            email
-          )
+          credits_reset_date
         `)
         .eq('company_id', companyId)
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      setMembers(data || [])
+      
+      // Fetch profile data separately for each user
+      const membersWithProfiles = await Promise.all(
+        (data || []).map(async (member) => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, email')
+            .eq('user_id', member.user_id)
+            .maybeSingle()
+          
+          return {
+            ...member,
+            profile: profile || { full_name: null, email: null }
+          }
+        })
+      )
+      
+      setMembers(membersWithProfiles)
     } catch (error) {
       console.error('Error fetching team members:', error)
       toast.error('Failed to load team members')
@@ -247,13 +260,15 @@ export function CompanyTeamMembers({ companyId }: CompanyTeamMembersProps) {
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-semibold text-lg">
-                            {member.profile?.full_name || 'Unknown User'}
+                            {member.profile?.full_name || member.profile?.email || 'User (No Profile)'}
                           </h3>
                           <Badge variant={getRoleBadgeVariant(member.role)}>
                             {member.role.replace('company_', '')}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">{member.profile?.email}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {member.profile?.email || 'No email on file'}
+                        </p>
                       </div>
 
                       <div className="space-y-2">
