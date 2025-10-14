@@ -24,13 +24,13 @@ interface SigningFieldProps {
     placeholder_text?: string;
     is_required: boolean;
   };
-  value?: string | boolean;
-  onComplete: (fieldId: string, value: string | boolean) => void;
+  value?: string;
+  onComplete: (fieldId: string, value: string) => void;
 }
 
 export const SigningField = ({ field, value, onComplete }: SigningFieldProps) => {
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
-  const [localValue, setLocalValue] = useState<string | boolean>(value || "");
+  const [localValue, setLocalValue] = useState<string>(value || "");
 
   const handleSignatureSave = (signature: string) => {
     setLocalValue(signature);
@@ -153,7 +153,7 @@ export const SigningField = ({ field, value, onComplete }: SigningFieldProps) =>
       return (
         <div className="flex items-center justify-center h-full">
           <Checkbox
-            checked={Boolean(localValue)}
+            checked={localValue === "true"}
             onCheckedChange={handleCheckboxChange}
           />
         </div>

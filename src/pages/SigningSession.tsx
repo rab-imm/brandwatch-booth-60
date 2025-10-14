@@ -18,7 +18,7 @@ export default function SigningSession() {
   const [sessionData, setSessionData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [signing, setSigning] = useState(false);
-  const [fieldValues, setFieldValues] = useState<Record<string, string | boolean>>({});
+  const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function SigningSession() {
     }
   };
 
-  const handleFieldComplete = (fieldId: string, value: string | boolean) => {
+  const handleFieldComplete = (fieldId: string, value: string) => {
     setFieldValues((prev) => ({ ...prev, [fieldId]: value }));
   };
 
