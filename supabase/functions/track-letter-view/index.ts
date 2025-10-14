@@ -63,7 +63,7 @@ serve(async (req) => {
           created_at
         )
       `)
-      .eq('share_token', token)
+      .eq('token', token)
       .single();
 
     if (linkError || !shareLink) {
