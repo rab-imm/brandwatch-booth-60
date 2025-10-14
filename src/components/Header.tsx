@@ -24,69 +24,49 @@ export const Header = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
             <Link to="/" className="text-2xl font-bold text-brand-primary font-pact-display">UAE Legal Research</Link>
-            <nav className="hidden md:flex items-center space-x-6">
-              {!user ? (
-                <>
-                  <Link to="/features" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    {t('nav.features')}
-                  </Link>
-                  <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    {t('nav.templates')}
-                  </Link>
-                  <Link to="/pricing" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    {t('nav.pricing')}
-                  </Link>
-                  <Link to="/use-cases" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    {t('nav.useCases')}
-                  </Link>
-                  <Link to="/about" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    {t('nav.about')}
-                  </Link>
-                </>
-              ) : profile?.current_company_id ? (
-                <>
-                  {/* Company users - no personal navigation in header, use sidebar instead */}
-                  <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    {t('nav.templates')}
-                  </Link>
-                </>
-              ) : (
-                <>
-                  {/* Personal users - show personal navigation */}
-                  <Link to="/dashboard" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    {t('nav.dashboard')}
-                  </Link>
-                  <Link to="/letters" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    {t('nav.letters')}
-                  </Link>
-                  <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                    {t('nav.templates')}
-                  </Link>
-                </>
-              )}
-              
-              {/* Resources Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-                  {t('nav.resources')}
-                  <Icon name="chevron-down" size={12} />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-card border border-border z-50">
-                  <DropdownMenuItem asChild>
-                    <Link to="/resources#blog">Blog</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/resources#help">Help Center</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/resources#docs">API Docs</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/resources#status">Status Page</Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </nav>
+            
+            {user && !profile?.current_company_id && (
+              <nav className="hidden md:flex items-center space-x-2 bg-secondary/30 rounded-lg px-4 py-2">
+                <Link 
+                  to="/dashboard" 
+                  className="text-sm font-medium px-4 py-2 rounded-md hover:bg-secondary transition-colors"
+                >
+                  {t('nav.dashboard')}
+                </Link>
+                <Link 
+                  to="/templates" 
+                  className="text-sm font-medium px-4 py-2 rounded-md hover:bg-secondary transition-colors"
+                >
+                  {t('nav.templates')}
+                </Link>
+                <Link 
+                  to="/letters" 
+                  className="text-sm font-medium px-4 py-2 rounded-md hover:bg-secondary transition-colors"
+                >
+                  {t('nav.letters')}
+                </Link>
+              </nav>
+            )}
+
+            {!user && (
+              <nav className="hidden md:flex items-center space-x-6">
+                <Link to="/features" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                  {t('nav.features')}
+                </Link>
+                <Link to="/templates" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                  {t('nav.templates')}
+                </Link>
+                <Link to="/pricing" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                  {t('nav.pricing')}
+                </Link>
+                <Link to="/use-cases" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                  {t('nav.useCases')}
+                </Link>
+                <Link to="/about" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                  {t('nav.about')}
+                </Link>
+              </nav>
+            )}
           </div>
           
           <div className="flex items-center space-x-4">
