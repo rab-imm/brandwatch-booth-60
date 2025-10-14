@@ -59,7 +59,7 @@ serve(async (req) => {
       });
     }
 
-    // Update viewed_at if first time
+    // Update viewed_at and status if first time
     if (!recipient.viewed_at) {
       const ip_address = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip");
       const user_agent = req.headers.get("user-agent");
@@ -68,10 +68,13 @@ serve(async (req) => {
         .from("signature_recipients")
         .update({ 
           viewed_at: new Date().toISOString(),
+          status: "viewed",
           ip_address,
           user_agent
         })
         .eq("id", recipient.id);
+      
+      logStep("Recipient status updated to viewed");
     }
 
     // Get field positions for this recipient

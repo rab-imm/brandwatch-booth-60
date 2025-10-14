@@ -73,18 +73,22 @@ serve(async (req) => {
       throw new Error(`Missing required fields: ${missingFields.map(f => f.field_label || f.field_type).join(", ")}`);
     }
 
-    // Update field positions with values
-    for (const [fieldId, value] of Object.entries(field_values)) {
-      await supabaseClient
-        .from("signature_field_positions")
-        .update({ 
-          field_value: typeof value === 'string' ? value : String(value),
-          completed_at: new Date().toISOString()
-        })
-        .eq("id", fieldId);
-    }
+    // Insert field values into signature_field_values table
+    const fieldValueInserts = Object.entries(field_values).map(([fieldId, value]) => ({
+      field_position_id: fieldId,
+      field_value: typeof value === 'string' ? value : String(value),
+      signed_at: new Date().toISOString(),
+      ip_address: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
+      user_agent: req.headers.get("user-agent")
+    }));
 
-    logStep("Fields updated", { fieldCount: Object.keys(field_values).length });
+    const { error: valuesError } = await supabaseClient
+      .from("signature_field_values")
+      .insert(fieldValueInserts);
+
+    if (valuesError) throw valuesError;
+
+    logStep("Field values inserted", { fieldCount: Object.keys(field_values).length });
 
     // Mark recipient as signed
     const { error: updateError } = await supabaseClient
