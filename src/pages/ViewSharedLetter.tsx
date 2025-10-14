@@ -7,12 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Lock, AlertTriangle, Clock, Eye, Download } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
-
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export default function ViewSharedLetter() {
   const { token } = useParams<{ token: string }>();
@@ -24,9 +18,6 @@ export default function ViewSharedLetter() {
   const [shareInfo, setShareInfo] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [viewStartTime] = useState(Date.now());
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [numPages, setNumPages] = useState<number | null>(null);
-  const [pageNumber, setPageNumber] = useState(1);
 
   useEffect(() => {
     if (token) {
@@ -77,70 +68,12 @@ export default function ViewSharedLetter() {
         sender_name: data.recipientName,
         view_count: data.viewCount || 0,
       });
-      
-      // Generate PDF URL
-      generatePdf();
     } catch (err: any) {
       console.error("Error tracking view:", err);
       setError(err.message || "Failed to load letter");
     } finally {
       setLoading(false);
     }
-  };
-
-  const generatePdf = () => {
-    // Create a blob URL for the PDF
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              max-width: 800px;
-              margin: 40px auto;
-              padding: 20px;
-              line-height: 1.6;
-              color: #333;
-            }
-            .header {
-              border-bottom: 2px solid #333;
-              padding-bottom: 20px;
-              margin-bottom: 30px;
-            }
-            .title {
-              font-size: 24px;
-              font-weight: bold;
-              margin-bottom: 10px;
-            }
-            .metadata {
-              font-size: 12px;
-              color: #666;
-              margin-bottom: 5px;
-            }
-            .content {
-              font-size: 14px;
-              margin-top: 30px;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <div class="title">${letter?.title || ''}</div>
-            <div class="metadata">Type: ${letter?.letter_type || ''}</div>
-            <div class="metadata">Created: ${letter ? new Date(letter.created_at).toLocaleDateString() : ''}</div>
-          </div>
-          <div class="content">
-            ${letter?.content || ''}
-          </div>
-        </body>
-      </html>
-    `;
-    
-    const blob = new Blob([htmlContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    setPdfUrl(url);
   };
 
   const handleDownload = () => {
