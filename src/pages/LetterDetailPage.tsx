@@ -334,73 +334,85 @@ export default function LetterDetailPage() {
               )}
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-6 border-t">
-                <div className="flex gap-2">
-                  {letter.status === 'draft' && !isEditing && (
-                    <>
-                      <Button variant="outline" onClick={() => setIsEditing(true)}>
-                        <Icon name="edit" className="w-4 h-4 mr-2" />
-                        Edit
-                      </Button>
-                      <Button onClick={() => setFinalizeDialogOpen(true)}>
-                        <Icon name="check-circle" className="w-4 h-4 mr-2" />
-                        Finalize
-                      </Button>
-                    </>
-                  )}
+              <div className="flex flex-col gap-4 pt-6 border-t">
+                {/* Edit Controls */}
+                {letter.status === 'draft' && !isEditing && (
+                  <div className="flex gap-2 flex-wrap">
+                    <Button variant="outline" onClick={() => setIsEditing(true)}>
+                      <Icon name="edit" className="w-4 h-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button onClick={() => setFinalizeDialogOpen(true)}>
+                      <Icon name="check" className="w-4 h-4 mr-2" />
+                      Finalize
+                    </Button>
+                  </div>
+                )}
 
-                  {isEditing && (
-                    <>
-                      <Button variant="outline" onClick={() => {
-                        setEditedTitle(letter.title)
-                        setEditedContent(letter.content)
-                        setIsEditing(false)
-                      }}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleSave} disabled={isSaving}>
-                        {isSaving ? (
-                          <>
-                            <Icon name="loader" className="w-4 h-4 mr-2 animate-spin" />
-                            Saving...
-                          </>
-                        ) : (
-                          <>
-                            <Icon name="save" className="w-4 h-4 mr-2" />
-                            Save Changes
-                          </>
-                        )}
-                      </Button>
-                    </>
-                  )}
+                {isEditing && (
+                  <div className="flex gap-2 flex-wrap">
+                    <Button variant="outline" onClick={() => {
+                      setEditedTitle(letter.title)
+                      setEditedContent(letter.content)
+                      setIsEditing(false)
+                    }}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSave} disabled={isSaving}>
+                      {isSaving ? (
+                        <>
+                          <Icon name="loader" className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Icon name="save" className="w-4 h-4 mr-2" />
+                          Save Changes
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
 
+                {/* Primary Actions */}
+                <div className="flex gap-3 flex-wrap items-center">
+                  <Button
+                    variant="premium"
+                    size="lg"
+                    onClick={() => setShowSignaturePrep(true)}
+                  >
+                    <Icon name="pen-tool" className="w-4 h-4 mr-2" />
+                    Send for Signature
+                  </Button>
+                  
                   <Button
                     variant="outline"
+                    size="lg"
                     onClick={() => setShareDialogOpen(true)}
                   >
                     <Icon name="share" className="w-4 h-4 mr-2" />
-                    Share
+                    Share Document
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={handleExportPDF}
+                    disabled={isExporting}
+                  >
+                    {isExporting ? (
+                      <>
+                        <Icon name="loader" className="w-4 h-4 mr-2 animate-spin" />
+                        Exporting...
+                      </>
+                    ) : (
+                      <>
+                        <Icon name="download" className="w-4 h-4 mr-2" />
+                        Export PDF (1 credit)
+                      </>
+                    )}
                   </Button>
                 </div>
-
-                <Button
-                  variant="outline"
-                  onClick={handleExportPDF}
-                  disabled={isExporting}
-                  className="gap-2"
-                >
-                  {isExporting ? (
-                    <>
-                      <Icon name="loader" className="w-4 h-4 animate-spin" />
-                      Exporting...
-                    </>
-                  ) : (
-                    <>
-                      <Icon name="download" className="w-4 h-4" />
-                      Export PDF (1 credit)
-                    </>
-                  )}
-                </Button>
               </div>
             </CardContent>
           </Card>
