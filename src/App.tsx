@@ -26,6 +26,7 @@ import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import FixProfile from "./pages/FixProfile";
 import ViewSharedLetter from "./pages/ViewSharedLetter";
 import SigningSession from "./pages/SigningSession";
+import VerifySignature from "./pages/VerifySignature";
 import { EnhancedTemplateStore } from "./components/EnhancedTemplateStore";
 import { SuperAdminDashboard } from "./components/SuperAdminDashboard";
 import { CompanyAdminDashboard } from "./components/CompanyAdminDashboard";
@@ -188,7 +189,8 @@ const App = () => (
             />
             <Route path="/fix-profile" element={<FixProfile />} />
             <Route path="/view-letter/:token" element={<ViewSharedLetter />} />
-            <Route path="/sign/:token" element={<SigningSession />} />
+          <Route path="/sign/:token" element={<SigningSession />} />
+          <Route path="/verify" element={<VerifySignature />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

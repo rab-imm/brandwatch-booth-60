@@ -25,8 +25,27 @@ serve(async (req) => {
 
     const { access_token, session_token, field_values } = await req.json();
     
-    if (!access_token || !session_token || !field_values) {
-      throw new Error("Missing required parameters");
+    // Input validation
+    if (!access_token || typeof access_token !== 'string') {
+      throw new Error("Valid access token required");
+    }
+    
+    if (!session_token || typeof session_token !== 'string') {
+      throw new Error("Valid session token required");
+    }
+    
+    if (!field_values || typeof field_values !== 'object') {
+      throw new Error("Field values must be provided");
+    }
+    
+    // Validate field_values structure and prevent injection
+    for (const [fieldId, value] of Object.entries(field_values)) {
+      if (typeof fieldId !== 'string' || fieldId.length > 100) {
+        throw new Error("Invalid field ID format");
+      }
+      if (typeof value !== 'string' || value.length > 10000) {
+        throw new Error("Invalid field value - must be string under 10000 characters");
+      }
     }
 
     // Verify recipient by access token
@@ -34,9 +53,10 @@ serve(async (req) => {
       .from("signature_recipients")
       .select("*, signature_requests(*)")
       .eq("access_token", access_token)
-      .single();
+      .maybeSingle();
 
     if (recipientError || !recipient) {
+      logStep("Invalid access token", { error: recipientError?.message });
       throw new Error("Invalid access token");
     }
 
@@ -73,22 +93,26 @@ serve(async (req) => {
       throw new Error(`Missing required fields: ${missingFields.map(f => f.field_label || f.field_type).join(", ")}`);
     }
 
-    // Insert field values into signature_field_values table
-    const fieldValueInserts = Object.entries(field_values).map(([fieldId, value]) => ({
-      field_position_id: fieldId,
-      field_value: typeof value === 'string' ? value : String(value),
-      signed_at: new Date().toISOString(),
-      ip_address: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
-      user_agent: req.headers.get("user-agent")
-    }));
+    // Update field positions with values (since values are stored in this table)
+    for (const [fieldId, value] of Object.entries(field_values)) {
+      const sanitizedValue = String(value).trim().substring(0, 10000);
+      
+      const { error: updateError } = await supabaseClient
+        .from("signature_field_positions")
+        .update({ 
+          field_value: sanitizedValue,
+          completed_at: new Date().toISOString()
+        })
+        .eq("id", fieldId)
+        .eq("recipient_id", recipient.id); // Ensure recipient owns this field
+      
+      if (updateError) {
+        logStep("Error updating field", { fieldId, error: updateError.message });
+        throw new Error(`Failed to update field: ${updateError.message}`);
+      }
+    }
 
-    const { error: valuesError } = await supabaseClient
-      .from("signature_field_values")
-      .insert(fieldValueInserts);
-
-    if (valuesError) throw valuesError;
-
-    logStep("Field values inserted", { fieldCount: Object.keys(field_values).length });
+    logStep("Fields updated", { fieldCount: Object.keys(field_values).length });
 
     // Mark recipient as signed
     const { error: updateError } = await supabaseClient

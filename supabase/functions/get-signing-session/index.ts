@@ -24,16 +24,33 @@ serve(async (req) => {
     );
 
     const { access_token } = await req.json();
-    if (!access_token) throw new Error("Access token required");
+    
+    // Input validation
+    if (!access_token || typeof access_token !== 'string') {
+      throw new Error("Valid access token required");
+    }
+    
+    if (access_token.length > 100) {
+      throw new Error("Invalid access token format");
+    }
 
     // Find recipient by access token
     const { data: recipient, error: recipientError } = await supabaseClient
       .from("signature_recipients")
-      .select("*, signature_requests(*)")
+      .select(`
+        *,
+        signature_requests!inner(
+          *,
+          legal_letters!inner(*)
+        )
+      `)
       .eq("access_token", access_token)
-      .single();
+      .maybeSingle();
 
-    if (recipientError || !recipient) throw new Error("Invalid access token");
+    if (recipientError || !recipient) {
+      logStep("Invalid access token", { error: recipientError?.message });
+      throw new Error("Invalid access token");
+    }
     logStep("Recipient found", { recipientId: recipient.id });
 
     // Check if already signed
@@ -50,6 +67,7 @@ serve(async (req) => {
     // Check expiration
     const request = recipient.signature_requests;
     if (request.expires_at && new Date(request.expires_at) < new Date()) {
+      logStep("Request expired");
       return new Response(JSON.stringify({ 
         error: "Signature request has expired",
         expired: true 
@@ -57,6 +75,36 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
       });
+    }
+
+    // Check sequential signing order if enabled
+    if (request.signing_order_enabled) {
+      const { data: allRecipients } = await supabaseClient
+        .from("signature_recipients")
+        .select("*")
+        .eq("signature_request_id", request.id)
+        .order("signing_order", { ascending: true });
+
+      const currentOrderIndex = allRecipients?.findIndex(r => r.id === recipient.id) || 0;
+      
+      // Check if all previous recipients have signed
+      const previousRecipients = allRecipients?.slice(0, currentOrderIndex) || [];
+      const allPreviousSigned = previousRecipients.every(r => r.signed_at !== null);
+      
+      if (!allPreviousSigned) {
+        logStep("Sequential signing violation", { 
+          recipientOrder: recipient.signing_order,
+          currentIndex: currentOrderIndex 
+        });
+        return new Response(JSON.stringify({ 
+          error: "Please wait for previous signers to complete their signatures",
+          sequential_signing_blocked: true,
+          your_order: recipient.signing_order
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
     }
 
     // Update viewed_at and status if first time
@@ -85,11 +133,7 @@ serve(async (req) => {
       .order("page_number", { ascending: true });
 
     // Get letter content
-    const { data: letter } = await supabaseClient
-      .from("legal_letters")
-      .select("*")
-      .eq("id", request.letter_id)
-      .single();
+    const letter = recipient.signature_requests.legal_letters;
 
     // Create or get session
     const sessionToken = crypto.randomUUID();
