@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ShareLetterDialog } from "@/components/ShareLetterDialog"
+import { PrepareDocumentSignature } from "@/components/signature/PrepareDocumentSignature"
 import { ManageShareLinks } from "@/components/ManageShareLinks"
 import {
   AlertDialog,
@@ -66,6 +67,7 @@ export default function LetterDetailPage() {
   const [isExporting, setIsExporting] = useState(false)
   const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false)
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const [showSignaturePrep, setShowSignaturePrep] = useState(false)
 
   useEffect(() => {
     if (letterId && user) {
@@ -252,8 +254,16 @@ export default function LetterDetailPage() {
     )
   }
 
-  if (!letter) {
-    return null
+  if (!letter) return null
+
+  if (showSignaturePrep) {
+    return (
+      <PrepareDocumentSignature
+        letterId={letter.id}
+        letterContent={letter.content}
+        letterTitle={letter.title}
+      />
+    )
   }
 
   return (
@@ -268,6 +278,7 @@ export default function LetterDetailPage() {
       <Tabs defaultValue="letter" className="space-y-6">
         <TabsList>
           <TabsTrigger value="letter">Letter</TabsTrigger>
+          <TabsTrigger value="signature">Request Signature</TabsTrigger>
           <TabsTrigger value="share">Share & Links</TabsTrigger>
         </TabsList>
 
@@ -390,6 +401,23 @@ export default function LetterDetailPage() {
                   )}
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="signature">
+          <Card>
+            <CardHeader>
+              <CardTitle>Request Signatures</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Prepare this document for electronic signature by adding recipients and signature fields.
+              </p>
+              <Button onClick={() => setShowSignaturePrep(true)}>
+                <Icon name="edit" className="w-4 h-4 mr-2" />
+                Prepare Document for Signing
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
