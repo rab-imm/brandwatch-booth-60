@@ -2720,6 +2720,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_signature_recipients: {
+        Args: { _signature_request_id: string }
+        Returns: boolean
+      }
+      letter_has_signature_recipients: {
+        Args: { _letter_id: string }
+        Returns: boolean
+      }
       log_activity: {
         Args: {
           p_action: string
