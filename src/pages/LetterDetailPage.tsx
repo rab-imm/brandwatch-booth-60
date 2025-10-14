@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ShareLetterDialog } from "@/components/ShareLetterDialog"
 import { PrepareDocumentSignature } from "@/components/signature/PrepareDocumentSignature"
+import { SignatureRequestStatus } from "@/components/signature/SignatureRequestStatus"
 import { ManageShareLinks } from "@/components/ManageShareLinks"
 import {
   AlertDialog,
@@ -406,20 +407,24 @@ export default function LetterDetailPage() {
         </TabsContent>
 
         <TabsContent value="signature">
-          <Card>
-            <CardHeader>
-              <CardTitle>Request Signatures</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                Prepare this document for electronic signature by adding recipients and signature fields.
-              </p>
-              <Button onClick={() => setShowSignaturePrep(true)}>
-                <Icon name="edit" className="w-4 h-4 mr-2" />
-                Prepare Document for Signing
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <SignatureRequestStatus letterId={letter.id} />
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Create New Signature Request</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Prepare this document for electronic signature by adding recipients and signature fields.
+                </p>
+                <Button onClick={() => setShowSignaturePrep(true)}>
+                  <Icon name="edit" className="w-4 w-4 mr-2" />
+                  Prepare Document for Signing
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="share">

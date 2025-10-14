@@ -113,6 +113,38 @@ serve(async (req) => {
       logStep("Field positions created", { count: fieldInserts.length });
     }
 
+    // Send email notifications to recipients
+    const { data: letterData } = await supabaseClient
+      .from("legal_letters")
+      .select("user_id, profiles!inner(full_name)")
+      .eq("id", letter_id)
+      .single();
+
+    const senderName = letterData?.profiles?.full_name || "A user";
+
+    for (const recipient of createdRecipients) {
+      try {
+        await supabaseClient.functions.invoke("send-signature-request-email", {
+          body: {
+            recipientEmail: recipient.email,
+            recipientName: recipient.name,
+            senderName,
+            documentTitle: title,
+            message,
+            accessToken: recipient.access_token,
+            expiresAt: expiresAt,
+          },
+        });
+        logStep("Email sent to recipient", { email: recipient.email });
+      } catch (emailError) {
+        logStep("Failed to send email", { 
+          email: recipient.email, 
+          error: emailError instanceof Error ? emailError.message : String(emailError) 
+        });
+        // Continue even if email fails - signature request is created
+      }
+    }
+
     return new Response(JSON.stringify({ 
       success: true, 
       signature_request: signatureRequest,
