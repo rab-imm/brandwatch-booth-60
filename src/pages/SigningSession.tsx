@@ -32,13 +32,21 @@ export default function SigningSession() {
 
   const loadSigningSession = async () => {
     try {
+      console.log("Loading signing session with access token:", accessToken);
+      
       const { data, error } = await supabase.functions.invoke("get-signing-session", {
         body: { access_token: accessToken },
       });
 
-      if (error) throw error;
+      console.log("Function response:", { data, error });
 
-      if (data.error) {
+      if (error) {
+        console.error("Function invocation error:", error);
+        throw error;
+      }
+
+      if (data?.error) {
+        console.error("Business logic error:", data.error);
         if (data.already_signed) {
           setError("You have already signed this document.");
         } else if (data.expired) {
@@ -49,9 +57,11 @@ export default function SigningSession() {
         return;
       }
 
+      console.log("Session loaded successfully:", data);
       setSessionData(data);
     } catch (err: any) {
       console.error("Error loading signing session:", err);
+      console.error("Error details:", JSON.stringify(err, null, 2));
       setError(err.message || "Failed to load signing session");
     } finally {
       setLoading(false);
