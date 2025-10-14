@@ -126,3 +126,9 @@ verify_jwt = false
 [functions.send-signature-request-email]
 verify_jwt = false
 
+[functions.trigger-signature-webhook]
+verify_jwt = false
+
+[functions.generate-signature-certificate]
+verify_jwt = true
+

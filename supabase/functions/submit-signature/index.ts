@@ -154,6 +154,21 @@ serve(async (req) => {
         .eq("id", recipient.signature_request_id);
 
       logStep("All recipients signed - request completed");
+
+      // Trigger webhook notification in background
+      try {
+        EdgeRuntime.waitUntil(
+          supabaseClient.functions.invoke("trigger-signature-webhook", {
+            body: {
+              signature_request_id: recipient.signature_request_id,
+              event_type: "completed",
+            },
+          })
+        );
+        logStep("Webhook trigger queued");
+      } catch (webhookError) {
+        logStep("Webhook trigger failed (non-blocking)", { error: webhookError });
+      }
     }
 
     logStep("Signature submitted successfully");

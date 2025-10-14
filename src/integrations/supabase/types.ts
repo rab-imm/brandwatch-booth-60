@@ -146,6 +146,45 @@ export type Database = {
         }
         Relationships: []
       }
+      batch_signature_requests: {
+        Row: {
+          batch_name: string
+          completed_requests: number | null
+          created_at: string | null
+          created_by: string
+          failed_requests: number | null
+          id: string
+          metadata: Json | null
+          status: string | null
+          total_requests: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          batch_name: string
+          completed_requests?: number | null
+          created_at?: string | null
+          created_by: string
+          failed_requests?: number | null
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+          total_requests?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          batch_name?: string
+          completed_requests?: number | null
+          created_at?: string | null
+          created_by?: string
+          failed_requests?: number | null
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+          total_requests?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       billing_alerts: {
         Row: {
           alert_type: string
@@ -1687,6 +1726,10 @@ export type Database = {
       signature_requests: {
         Row: {
           allow_editing: boolean | null
+          batch_id: string | null
+          certificate_generated: boolean | null
+          certificate_generated_at: string | null
+          certificate_url: string | null
           completed_at: string | null
           created_at: string | null
           created_by: string
@@ -1699,9 +1742,15 @@ export type Database = {
           status: Database["public"]["Enums"]["signature_request_status"]
           title: string
           updated_at: string | null
+          webhook_events: string[] | null
+          webhook_url: string | null
         }
         Insert: {
           allow_editing?: boolean | null
+          batch_id?: string | null
+          certificate_generated?: boolean | null
+          certificate_generated_at?: string | null
+          certificate_url?: string | null
           completed_at?: string | null
           created_at?: string | null
           created_by: string
@@ -1714,9 +1763,15 @@ export type Database = {
           status?: Database["public"]["Enums"]["signature_request_status"]
           title: string
           updated_at?: string | null
+          webhook_events?: string[] | null
+          webhook_url?: string | null
         }
         Update: {
           allow_editing?: boolean | null
+          batch_id?: string | null
+          certificate_generated?: boolean | null
+          certificate_generated_at?: string | null
+          certificate_url?: string | null
           completed_at?: string | null
           created_at?: string | null
           created_by?: string
@@ -1729,13 +1784,72 @@ export type Database = {
           status?: Database["public"]["Enums"]["signature_request_status"]
           title?: string
           updated_at?: string | null
+          webhook_events?: string[] | null
+          webhook_url?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "signature_requests_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batch_signature_requests"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "signature_requests_letter_id_fkey"
             columns: ["letter_id"]
             isOneToOne: false
             referencedRelation: "legal_letters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signature_webhook_logs: {
+        Row: {
+          created_at: string | null
+          delivered_at: string | null
+          error_message: string | null
+          event_type: string
+          id: string
+          payload: Json
+          response_body: string | null
+          response_status: number | null
+          retry_count: number | null
+          signature_request_id: string
+          webhook_url: string
+        }
+        Insert: {
+          created_at?: string | null
+          delivered_at?: string | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          payload: Json
+          response_body?: string | null
+          response_status?: number | null
+          retry_count?: number | null
+          signature_request_id: string
+          webhook_url: string
+        }
+        Update: {
+          created_at?: string | null
+          delivered_at?: string | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          response_body?: string | null
+          response_status?: number | null
+          retry_count?: number | null
+          signature_request_id?: string
+          webhook_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signature_webhook_logs_signature_request_id_fkey"
+            columns: ["signature_request_id"]
+            isOneToOne: false
+            referencedRelation: "signature_requests"
             referencedColumns: ["id"]
           },
         ]

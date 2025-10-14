@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, Clock, Mail, User, Calendar } from "lucide-react";
+import { CheckCircle, Clock, Mail, User, Calendar, FileCheck, Download } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface SignatureRequestStatusProps {
@@ -30,12 +30,16 @@ interface SignatureRequest {
   expires_at: string | null;
   message: string | null;
   signing_order_enabled: boolean;
+  certificate_generated?: boolean;
+  certificate_url?: string;
+  certificate_generated_at?: string;
 }
 
 export const SignatureRequestStatus = ({ letterId }: SignatureRequestStatusProps) => {
   const [request, setRequest] = useState<SignatureRequest | null>(null);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [loading, setLoading] = useState(true);
+  const [generatingCert, setGeneratingCert] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -118,6 +122,35 @@ export const SignatureRequestStatus = ({ letterId }: SignatureRequestStatusProps
     return variants[status] || "outline";
   };
 
+  const handleGenerateCertificate = async () => {
+    if (!request) return;
+
+    setGeneratingCert(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-signature-certificate", {
+        body: { signature_request_id: request.id },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Certificate generated",
+        description: "Your signature certificate is ready",
+      });
+
+      // Reload request to get updated certificate info
+      loadSignatureRequest();
+    } catch (error: any) {
+      toast({
+        title: "Failed to generate certificate",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingCert(false);
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -158,6 +191,45 @@ export const SignatureRequestStatus = ({ letterId }: SignatureRequestStatusProps
             {recipients.filter(r => r.signed_at).length} of {recipients.length} signatures collected
           </p>
         </div>
+
+        {/* Certificate Generation */}
+        {request.status === "completed" && (
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <FileCheck className="h-4 w-4" />
+              Digital Certificate
+            </h4>
+            {request.certificate_generated ? (
+              <div className="border rounded-lg p-4 bg-muted/50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">Certificate Generated</p>
+                    <p className="text-xs text-muted-foreground">
+                      Created {request.certificate_generated_at && 
+                        formatDistanceToNow(new Date(request.certificate_generated_at), { addSuffix: true })}
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={request.certificate_url} target="_blank" rel="noopener noreferrer">
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                onClick={handleGenerateCertificate}
+                disabled={generatingCert}
+                variant="outline"
+                className="w-full"
+              >
+                <FileCheck className="h-4 w-4 mr-2" />
+                {generatingCert ? "Generating..." : "Generate Certificate"}
+              </Button>
+            )}
+          </div>
+        )}
 
         {/* Expiry Warning */}
         {isExpired && (

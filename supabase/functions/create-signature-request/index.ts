@@ -34,7 +34,7 @@ serve(async (req) => {
     if (!user) throw new Error("User not authenticated");
     logStep("User authenticated", { userId: user.id });
 
-    const { letter_id, title, message, recipients, fields, expires_in_days, allow_editing, signing_order_enabled } = await req.json();
+    const { letter_id, title, message, recipients, fields, expires_in_days, allow_editing, signing_order_enabled, webhook_url, webhook_events } = await req.json();
 
     // Verify letter ownership
     const { data: letter } = await supabaseClient
@@ -60,6 +60,8 @@ serve(async (req) => {
         expires_at: expiresAt,
         allow_editing: allow_editing || false,
         signing_order_enabled: signing_order_enabled || false,
+        webhook_url: webhook_url || null,
+        webhook_events: webhook_events || ['completed'],
         status: 'draft'
       })
       .select()
