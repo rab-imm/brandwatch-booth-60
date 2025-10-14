@@ -37,10 +37,8 @@ serve(async (req) => {
       throw new Error("Missing required email parameters");
     }
 
-    // Construct signing URL
-    const baseUrl = Deno.env.get("SUPABASE_URL")?.replace('.supabase.co', '.lovableproject.com') || 
-                    "https://preview--brandwatch-booth-60.lovable.app";
-    const signingUrl = `${baseUrl}/sign/${accessToken}`;
+    // Use the correct published domain for signing URLs
+    const signingUrl = `https://brandwatch-booth-60.lovable.app/sign/${accessToken}`;
 
     logStep("Rendering email template");
 
