@@ -163,15 +163,8 @@ serve(async (req) => {
 
     console.log('Share link created successfully:', shareLink.id);
 
-    // Generate shareable URL using APP_URL or extract from SUPABASE_URL
-    let appUrl = Deno.env.get('APP_URL');
-    if (!appUrl) {
-      // Extract project ref from SUPABASE_URL (e.g., https://xxx.supabase.co -> xxx)
-      const supabaseUrlEnv = Deno.env.get('SUPABASE_URL') || '';
-      const projectRef = supabaseUrlEnv.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1];
-      appUrl = projectRef ? `https://${projectRef}.lovable.app` : 'https://icsttnftxcfgnwhifsdm.lovable.app';
-    }
-    const shareUrl = `${appUrl}/view-letter/${shareToken}`;
+    // Use the correct published domain for share links
+    const shareUrl = `https://brandwatch-booth-60.lovable.app/view-letter/${shareToken}`;
 
     console.log('Generated share URL:', shareUrl);
 
