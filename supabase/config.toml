@@ -110,3 +110,9 @@ verify_jwt = false
 
 [functions.revoke-share-link]
 verify_jwt = true
+
+[functions.create-signature-request]
+verify_jwt = true
+
+[functions.get-signing-session]
+verify_jwt = false

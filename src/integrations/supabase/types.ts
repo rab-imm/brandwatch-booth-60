@@ -1550,6 +1550,240 @@ export type Database = {
           },
         ]
       }
+      signature_field_positions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          field_label: string | null
+          field_type: Database["public"]["Enums"]["signature_field_type"]
+          field_value: string | null
+          height: number
+          id: string
+          is_required: boolean | null
+          metadata: Json | null
+          page_number: number
+          placeholder_text: string | null
+          recipient_id: string
+          signature_request_id: string
+          width: number
+          x_position: number
+          y_position: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          field_label?: string | null
+          field_type: Database["public"]["Enums"]["signature_field_type"]
+          field_value?: string | null
+          height: number
+          id?: string
+          is_required?: boolean | null
+          metadata?: Json | null
+          page_number: number
+          placeholder_text?: string | null
+          recipient_id: string
+          signature_request_id: string
+          width: number
+          x_position: number
+          y_position: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          field_label?: string | null
+          field_type?: Database["public"]["Enums"]["signature_field_type"]
+          field_value?: string | null
+          height?: number
+          id?: string
+          is_required?: boolean | null
+          metadata?: Json | null
+          page_number?: number
+          placeholder_text?: string | null
+          recipient_id?: string
+          signature_request_id?: string
+          width?: number
+          x_position?: number
+          y_position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signature_field_positions_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "signature_recipients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "signature_field_positions_signature_request_id_fkey"
+            columns: ["signature_request_id"]
+            isOneToOne: false
+            referencedRelation: "signature_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signature_recipients: {
+        Row: {
+          access_token: string
+          created_at: string | null
+          email: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          name: string
+          role: string | null
+          signature_request_id: string
+          signed_at: string | null
+          signing_order: number | null
+          status: string | null
+          updated_at: string | null
+          user_agent: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          access_token: string
+          created_at?: string | null
+          email: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          name: string
+          role?: string | null
+          signature_request_id: string
+          signed_at?: string | null
+          signing_order?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_agent?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          access_token?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          name?: string
+          role?: string | null
+          signature_request_id?: string
+          signed_at?: string | null
+          signing_order?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_agent?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signature_recipients_signature_request_id_fkey"
+            columns: ["signature_request_id"]
+            isOneToOne: false
+            referencedRelation: "signature_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signature_requests: {
+        Row: {
+          allow_editing: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          created_by: string
+          expires_at: string | null
+          id: string
+          letter_id: string
+          message: string | null
+          metadata: Json | null
+          signing_order_enabled: boolean | null
+          status: Database["public"]["Enums"]["signature_request_status"]
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          allow_editing?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          letter_id: string
+          message?: string | null
+          metadata?: Json | null
+          signing_order_enabled?: boolean | null
+          status?: Database["public"]["Enums"]["signature_request_status"]
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          allow_editing?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          letter_id?: string
+          message?: string | null
+          metadata?: Json | null
+          signing_order_enabled?: boolean | null
+          status?: Database["public"]["Enums"]["signature_request_status"]
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signature_requests_letter_id_fkey"
+            columns: ["letter_id"]
+            isOneToOne: false
+            referencedRelation: "legal_letters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signing_sessions: {
+        Row: {
+          completed_at: string | null
+          id: string
+          ip_address: string | null
+          last_activity_at: string | null
+          metadata: Json | null
+          recipient_id: string
+          session_token: string
+          started_at: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          ip_address?: string | null
+          last_activity_at?: string | null
+          metadata?: Json | null
+          recipient_id: string
+          session_token: string
+          started_at?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          ip_address?: string | null
+          last_activity_at?: string | null
+          metadata?: Json | null
+          recipient_id?: string
+          session_token?: string
+          started_at?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signing_sessions_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "signature_recipients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_events: {
         Row: {
           admin_user_id: string | null
@@ -2448,6 +2682,19 @@ export type Database = {
         | "power_of_attorney"
         | "general_legal"
         | "workplace_complaint"
+      signature_field_type:
+        | "signature"
+        | "initial"
+        | "date"
+        | "text"
+        | "checkbox"
+      signature_request_status:
+        | "draft"
+        | "sent"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
+        | "expired"
       subscription_tier: "free" | "essential" | "premium" | "sme" | "enterprise"
       template_category:
         | "employment"
@@ -2624,6 +2871,21 @@ export const Constants = {
         "power_of_attorney",
         "general_legal",
         "workplace_complaint",
+      ],
+      signature_field_type: [
+        "signature",
+        "initial",
+        "date",
+        "text",
+        "checkbox",
+      ],
+      signature_request_status: [
+        "draft",
+        "sent",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "expired",
       ],
       subscription_tier: ["free", "essential", "premium", "sme", "enterprise"],
       template_category: [
