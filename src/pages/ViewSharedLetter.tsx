@@ -63,7 +63,11 @@ export default function ViewSharedLetter() {
       }
 
       setLetter(data.letter);
-      setShareInfo(data.shareInfo);
+      // Map the response from edge function to shareInfo structure
+      setShareInfo({
+        sender_name: data.recipientName,
+        view_count: data.viewCount || 0,
+      });
     } catch (err: any) {
       console.error("Error tracking view:", err);
       setError(err.message || "Failed to load letter");
