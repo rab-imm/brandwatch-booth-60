@@ -328,51 +328,56 @@ export function LetterDetail({ letterId, onBack }: LetterDetailProps) {
           )}
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between pt-6 border-t">
-            <div className="flex gap-2">
-              {letter.status === 'draft' && !isEditing && (
-                <>
-                  <Button variant="outline" onClick={() => setIsEditing(true)}>
-                    <Icon name="edit" className="w-4 h-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button onClick={() => setFinalizeDialogOpen(true)}>
-                    <Icon name="check-circle" className="w-4 h-4 mr-2" />
-                    Finalize
-                  </Button>
-                </>
-              )}
+          <div className="flex flex-col gap-4 pt-6 border-t">
+            {/* Edit Controls */}
+            {(letter.status === 'draft' || isEditing) && (
+              <div className="flex flex-wrap gap-2">
+                {letter.status === 'draft' && !isEditing && (
+                  <>
+                    <Button variant="outline" onClick={() => setIsEditing(true)}>
+                      <Icon name="edit" className="w-4 h-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button onClick={() => setFinalizeDialogOpen(true)}>
+                      <Icon name="check-circle" className="w-4 h-4 mr-2" />
+                      Finalize
+                    </Button>
+                  </>
+                )}
 
-              {isEditing && (
-                <>
-                  <Button variant="outline" onClick={() => {
-                    setEditedTitle(letter.title)
-                    setEditedContent(letter.content)
-                    setIsEditing(false)
-                  }}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleSave} disabled={isSaving}>
-                    {isSaving ? (
-                      <>
-                        <Icon name="loader" className="w-4 h-4 mr-2 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Icon name="save" className="w-4 h-4 mr-2" />
-                        Save Changes
-                      </>
-                    )}
-                  </Button>
-                </>
-              )}
-            </div>
+                {isEditing && (
+                  <>
+                    <Button variant="outline" onClick={() => {
+                      setEditedTitle(letter.title)
+                      setEditedContent(letter.content)
+                      setIsEditing(false)
+                    }}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSave} disabled={isSaving}>
+                      {isSaving ? (
+                        <>
+                          <Icon name="loader" className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Icon name="save" className="w-4 h-4 mr-2" />
+                          Save Changes
+                        </>
+                      )}
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
 
-            <div className="flex gap-2">
+            {/* Primary Actions */}
+            <div className="flex flex-wrap gap-3">
               <Button
                 variant="premium"
                 onClick={() => setShowSignaturePrep(true)}
+                size="lg"
                 className="gap-2"
               >
                 <Icon name="pen-tool" className="w-4 h-4" />
@@ -382,6 +387,7 @@ export function LetterDetail({ letterId, onBack }: LetterDetailProps) {
               <Button
                 variant="default"
                 onClick={() => setShareDialogOpen(true)}
+                size="lg"
                 className="gap-2"
               >
                 <Icon name="share" className="w-4 h-4" />
@@ -392,6 +398,7 @@ export function LetterDetail({ letterId, onBack }: LetterDetailProps) {
                 variant="outline"
                 onClick={handleExportPDF}
                 disabled={isExporting}
+                size="lg"
                 className="gap-2"
               >
                 {isExporting ? (
