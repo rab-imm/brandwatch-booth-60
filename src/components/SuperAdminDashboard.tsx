@@ -51,11 +51,13 @@ export const SuperAdminDashboard = () => {
   const [filteredDocuments, setFilteredDocuments] = useState([])
   const [filteredCompanies, setFilteredCompanies] = useState([])
 
+  const isSuperAdmin = profile?.roles?.includes('super_admin') || false
+
   useEffect(() => {
-    if (profile?.user_role === 'super_admin') {
+    if (isSuperAdmin) {
       fetchData()
     }
-  }, [profile])
+  }, [profile, isSuperAdmin])
 
   useEffect(() => {
     setFilteredDocuments(documents)
@@ -351,7 +353,7 @@ export const SuperAdminDashboard = () => {
   ]
 
   // Check if user is super admin
-  if (profile?.user_role !== 'super_admin') {
+  if (!isSuperAdmin) {
     return (
       <div className="min-h-screen bg-background">
         <Header />

@@ -177,7 +177,11 @@ export const RealtimeDashboard = () => {
     }
   }
 
-  if (!user || (profile?.user_role !== 'super_admin' && profile?.user_role !== 'company_admin')) {
+  const hasAccess = profile?.roles?.some(role => 
+    ['super_admin', 'company_admin'].includes(role)
+  ) || false
+
+  if (!user || !hasAccess) {
     return (
       <Card>
         <CardHeader>

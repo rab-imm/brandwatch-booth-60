@@ -32,12 +32,16 @@ export const AdminOverviewDashboard = () => {
   const [loading, setLoading] = useState(true)
   const [recentActivity, setRecentActivity] = useState<any[]>([])
 
+  const hasAdminAccess = profile?.roles?.some(role => 
+    ['super_admin', 'company_admin'].includes(role)
+  ) || false
+
   useEffect(() => {
-    if (profile?.user_role === 'super_admin' || profile?.user_role === 'company_admin') {
+    if (hasAdminAccess) {
       fetchDashboardStats()
       fetchRecentActivity()
     }
-  }, [profile])
+  }, [profile, hasAdminAccess])
 
   const fetchDashboardStats = async () => {
     try {

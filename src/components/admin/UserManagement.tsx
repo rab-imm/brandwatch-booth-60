@@ -122,12 +122,14 @@ export const UserManagement = () => {
     total_credits: 1000
   })
 
+  const isSuperAdmin = profile?.roles?.includes('super_admin') || false
+
   useEffect(() => {
-    if (profile?.user_role === 'super_admin') {
+    if (isSuperAdmin) {
       fetchUsers()
       fetchCompanies()
     }
-  }, [profile])
+  }, [profile, isSuperAdmin])
 
   useEffect(() => {
     setFilteredUsers(users)
@@ -724,7 +726,7 @@ export const UserManagement = () => {
     }
   ]
 
-  if (profile?.user_role !== 'super_admin') {
+  if (!isSuperAdmin) {
     return (
       <Card>
         <CardHeader>

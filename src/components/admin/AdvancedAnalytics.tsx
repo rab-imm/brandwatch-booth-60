@@ -56,8 +56,10 @@ export const AdvancedAnalytics = () => {
     }
   })
 
+  const isSuperAdmin = profile?.roles?.includes('super_admin') || false
+
   useEffect(() => {
-    if (profile?.user_role === 'super_admin') {
+    if (isSuperAdmin) {
       fetchAnalytics()
       fetchCohortAnalysis()
       fetchRetentionData()
@@ -192,7 +194,7 @@ export const AdvancedAnalytics = () => {
     }
   }
 
-  if (profile?.user_role !== 'super_admin') {
+  if (!isSuperAdmin) {
     return (
       <Card>
         <CardHeader>

@@ -82,7 +82,9 @@ export const CompanyAdminDashboard = () => {
   })
 
   // Check if user has company_admin role
-  const isCompanyAdmin = profile?.user_role === 'company_admin' || profile?.user_role === 'super_admin'
+  const isCompanyAdmin = profile?.roles?.some(role => 
+    ['company_admin', 'super_admin'].includes(role)
+  ) || false
 
   useEffect(() => {
     if (user && isCompanyAdmin) {

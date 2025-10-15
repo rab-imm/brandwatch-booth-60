@@ -73,12 +73,12 @@ export const Header = () => {
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/subscription">{t('nav.subscription')}</Link>
                 </Button>
-                {profile?.user_role === 'super_admin' && (
+                {profile?.roles?.includes('super_admin') && (
                   <Button variant="ghost" size="sm" asChild>
                     <Link to="/admin">{t('nav.admin')}</Link>
                   </Button>
                 )}
-                {profile?.user_role === 'company_admin' && (
+                {profile?.roles?.includes('company_admin') && (
                   <Button variant="ghost" size="sm" asChild>
                     <Link to="/company-admin">{t('nav.admin')}</Link>
                   </Button>
