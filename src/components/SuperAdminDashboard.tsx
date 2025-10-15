@@ -39,6 +39,7 @@ import { SubscriptionRevenueAnalytics } from './admin/SubscriptionRevenueAnalyti
 import { CreateCompanyAdmin } from './admin/CreateCompanyAdmin';
 import { OCRUpload } from './OCRUpload';
 import { OCRHistory } from './OCRHistory';
+import { OCRManagement } from './admin/OCRManagement';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 export const SuperAdminDashboard = () => {
@@ -587,6 +588,13 @@ export const SuperAdminDashboard = () => {
                 <OCRHistory />
               </TabsContent>
             </Tabs>
+          </AdminErrorBoundary>
+        )
+      
+      case "ocr-management":
+        return (
+          <AdminErrorBoundary>
+            <OCRManagement />
           </AdminErrorBoundary>
         )
       
