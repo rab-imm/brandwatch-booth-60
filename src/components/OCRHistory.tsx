@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/hooks/use-toast"
 import { formatDistanceToNow } from "date-fns"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface OCRRecord {
   id: string
@@ -178,8 +180,10 @@ export const OCRHistory = () => {
                   Copy
                 </Button>
               </div>
-              <div className="p-4 bg-muted rounded-lg whitespace-pre-wrap text-sm">
-                {selectedRecord.ai_summary}
+              <div className="p-4 bg-muted rounded-lg text-sm prose prose-sm dark:prose-invert max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {selectedRecord.ai_summary}
+                </ReactMarkdown>
               </div>
             </div>
 
