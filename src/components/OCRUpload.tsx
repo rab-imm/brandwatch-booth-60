@@ -31,11 +31,19 @@ export const OCRUpload = () => {
     if (!file) return
 
     // Validate file type
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'text/plain',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/msword'
+    ]
     if (!allowedTypes.includes(file.type)) {
       toast({
         title: "Invalid File Type",
-        description: "Please upload PDF or image files (JPG, PNG, WEBP)",
+        description: "Please upload PDF, Word documents, text files, or images (JPG, PNG, WEBP)",
         variant: "destructive"
       })
       return
@@ -159,13 +167,13 @@ export const OCRUpload = () => {
           <div>
             <Input
               type="file"
-              accept=".pdf,image/jpeg,image/png,image/webp"
+              accept=".pdf,.txt,.doc,.docx,image/jpeg,image/png,image/webp"
               onChange={handleFileSelect}
               disabled={isProcessing}
               className="cursor-pointer"
             />
             <p className="text-xs text-muted-foreground mt-2">
-              Supported: PDF, JPG, PNG, WEBP (Max 10MB)
+              Supported: PDF, DOC, DOCX, TXT, JPG, PNG, WEBP (Max 10MB)
             </p>
           </div>
 
