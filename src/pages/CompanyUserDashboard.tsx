@@ -19,6 +19,9 @@ import { LetterDetail } from "@/components/LetterDetail"
 import { TeamActivityFeed } from "@/components/company/TeamActivityFeed"
 import { EnhancedTemplateStore } from "@/components/EnhancedTemplateStore"
 import { StaffDashboardOverview } from "@/components/StaffDashboardOverview"
+import { OCRUpload } from "@/components/OCRUpload"
+import { OCRHistory } from "@/components/OCRHistory"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function CompanyUserDashboard() {
   const { user, profile, loading } = useAuth()
@@ -127,6 +130,22 @@ export default function CompanyUserDashboard() {
       
       case "templates":
         return <EnhancedTemplateStore />
+      
+      case "ocr":
+        return (
+          <Tabs defaultValue="scan" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 max-w-md mb-6">
+              <TabsTrigger value="scan">Scan Document</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
+            </TabsList>
+            <TabsContent value="scan">
+              <OCRUpload />
+            </TabsContent>
+            <TabsContent value="history">
+              <OCRHistory />
+            </TabsContent>
+          </Tabs>
+        )
       
       case "team":
         return companyData ? (

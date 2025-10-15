@@ -61,6 +61,7 @@ export function CompanySidebar({
         { id: "chat", title: "Legal Assistant", icon: "message-circle" },
         { id: "letters", title: "My Letters", icon: "file-text" },
         { id: "templates", title: "My Templates", icon: "book-open" },
+        { id: "ocr", title: "OCR Scanner", icon: "scan" },
       ],
       defaultOpen: true,
     },
