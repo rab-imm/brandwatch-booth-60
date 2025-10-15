@@ -1283,6 +1283,65 @@ export type Database = {
         }
         Relationships: []
       }
+      ocr_history: {
+        Row: {
+          ai_summary: string | null
+          character_count: number | null
+          company_id: string | null
+          created_at: string | null
+          credits_used: number | null
+          extracted_text: string
+          file_name: string
+          file_size: number
+          file_type: string
+          id: string
+          metadata: Json | null
+          processing_time_ms: number | null
+          user_id: string
+          word_count: number | null
+        }
+        Insert: {
+          ai_summary?: string | null
+          character_count?: number | null
+          company_id?: string | null
+          created_at?: string | null
+          credits_used?: number | null
+          extracted_text: string
+          file_name: string
+          file_size: number
+          file_type: string
+          id?: string
+          metadata?: Json | null
+          processing_time_ms?: number | null
+          user_id: string
+          word_count?: number | null
+        }
+        Update: {
+          ai_summary?: string | null
+          character_count?: number | null
+          company_id?: string | null
+          created_at?: string | null
+          credits_used?: number | null
+          extracted_text?: string
+          file_name?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          metadata?: Json | null
+          processing_time_ms?: number | null
+          user_id?: string
+          word_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ocr_history_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       password_reset_codes: {
         Row: {
           code: string
