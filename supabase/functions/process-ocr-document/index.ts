@@ -51,43 +51,9 @@ serve(async (req) => {
       console.log(`Extracted ${extractedText.length} characters from text file`)
       
     } else if (file_type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || file_type === 'application/msword') {
-      // Handle Word documents (.docx and .doc)
-      console.log('Processing Word document...')
-      
-      // For Word docs, we'll convert to base64 and use AI to extract text
-      const arrayBuffer = await fileData.arrayBuffer()
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
-      
-      const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')
-      const extractResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${lovableApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
-          messages: [
-            {
-              role: 'user',
-              content: `This is a Word document file. Extract all text content from it. Return ONLY the extracted text without any additional commentary or formatting.`
-            }
-          ]
-        })
-      })
-
-      if (!extractResponse.ok) {
-        const errorText = await extractResponse.text()
-        console.error('AI extraction error:', extractResponse.status, errorText)
-        extractedText = `Word Document: ${file_name}\n\nUnable to automatically extract text from this Word document. Please try:\n1. Converting to PDF\n2. Copying and pasting the text into a .txt file\n3. Saving as a newer .docx format\n\nFile Information:\n- File Name: ${file_name}\n- File Size: ${(fileData.size / 1024).toFixed(2)} KB`
-      } else {
-        const extractData = await extractResponse.json()
-        extractedText = extractData.choices?.[0]?.message?.content || ''
-        
-        if (!extractedText || extractedText.trim().length < 10) {
-          extractedText = `Word Document: ${file_name}\n\nMinimal or no text could be extracted from this Word document.\n\nSuggestions:\n1. Ensure the document contains actual text (not just images)\n2. Try converting to PDF format\n3. Copy text and save as .txt file\n\nFile Information:\n- File Name: ${file_name}\n- File Size: ${(fileData.size / 1024).toFixed(2)} KB`
-        }
-      }
+      // Word documents are not directly supported - provide helpful message
+      console.log('Word document detected - providing conversion instructions')
+      extractedText = `Word Document: ${file_name}\n\nWord documents (.doc, .docx) cannot be directly scanned with OCR.\n\nPlease convert your document to one of these formats:\n\n✓ PDF format - Best for maintaining layout\n✓ Plain text (.txt) - Copy and paste text into a text file\n✓ Images (JPG/PNG) - Take screenshots of each page\n\nHow to convert:\n1. Open the Word document\n2. Go to File → Save As\n3. Choose PDF or TXT format\n4. Upload the converted file here\n\nFile Information:\n- File Name: ${file_name}\n- File Size: ${(fileData.size / 1024).toFixed(2)} KB`
       
     } else if (file_type === 'application/pdf') {
       console.log('Processing PDF with PDF.js...')
