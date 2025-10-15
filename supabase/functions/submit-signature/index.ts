@@ -149,16 +149,31 @@ serve(async (req) => {
     const allSigned = allRecipients?.every(r => r.signed_at) || false;
 
     if (allSigned) {
-      // Update signature request status to completed
-      await supabaseClient
+      // Update signature request status to completed and get letter_id
+      const { data: signatureRequest } = await supabaseClient
         .from("signature_requests")
         .update({
           status: "completed",
           completed_at: new Date().toISOString()
         })
-        .eq("id", recipient.signature_request_id);
+        .eq("id", recipient.signature_request_id)
+        .select("letter_id")
+        .single();
 
       logStep("All recipients signed - request completed");
+
+      // Update the associated legal letter status to signed
+      if (signatureRequest?.letter_id) {
+        await supabaseClient
+          .from("legal_letters")
+          .update({
+            status: "signed",
+            signed_at: new Date().toISOString()
+          })
+          .eq("id", signatureRequest.letter_id);
+        
+        logStep("Letter status updated to signed", { letterId: signatureRequest.letter_id });
+      }
 
       // Trigger webhook notification in background
       try {

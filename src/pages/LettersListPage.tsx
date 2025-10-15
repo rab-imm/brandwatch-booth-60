@@ -76,6 +76,39 @@ export default function LettersListPage() {
     filterLetters()
   }, [letters, searchQuery, statusFilter, typeFilter])
 
+  useEffect(() => {
+    if (!user) return
+
+    // Subscribe to real-time updates for letters
+    const channel = supabase
+      .channel('legal_letters_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'legal_letters',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Letter updated:', payload)
+          // Update the letter in state
+          setLetters(prev => 
+            prev.map(letter => 
+              letter.id === payload.new.id 
+                ? { ...letter, ...payload.new } 
+                : letter
+            )
+          )
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user])
+
   const fetchLetters = async () => {
     if (!user) return
 
