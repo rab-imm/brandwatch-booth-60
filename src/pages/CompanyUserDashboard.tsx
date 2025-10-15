@@ -6,6 +6,7 @@ import { Header } from "@/components/Header"
 import { ChatInterface } from "@/components/ChatInterface"
 import { ConversationSidebar } from "@/components/ConversationSidebar"
 import { CompanyCreditCounter } from "@/components/CompanyCreditCounter"
+import { PersonalCreditCounter } from "@/components/PersonalCreditCounter"
 import { NotificationCenter } from "@/components/NotificationCenter"
 import { ChatProvider } from "@/contexts/ChatContext"
 import { ManagerTeamOverview } from "@/components/ManagerTeamOverview"
@@ -173,19 +174,30 @@ export default function CompanyUserDashboard() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                     <div>
-                      <h1 className="text-2xl font-bold text-purple-900 dark:text-purple-100">Company Workspace</h1>
+                      <h1 className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                        {isManager || isAdmin ? 'Company Workspace' : 'Team Workspace'}
+                      </h1>
                       <p className="text-sm text-purple-700 dark:text-purple-300">{companyName}</p>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <CompanyCreditCounter
-                    personalUsed={companyRole?.used_credits || 0}
-                    personalLimit={companyRole?.max_credits_per_period || 50}
-                    companyUsed={companyData?.used_credits || 0}
-                    companyTotal={companyData?.total_credits || 0}
-                    rolloverCredits={profile?.rollover_credits || 0}
-                  />
+                  {isManager || isAdmin ? (
+                    <CompanyCreditCounter
+                      personalUsed={companyRole?.used_credits || 0}
+                      personalLimit={companyRole?.max_credits_per_period || 50}
+                      companyUsed={companyData?.used_credits || 0}
+                      companyTotal={companyData?.total_credits || 0}
+                      rolloverCredits={profile?.rollover_credits || 0}
+                    />
+                  ) : (
+                    <PersonalCreditCounter
+                      creditsUsed={companyRole?.used_credits || 0}
+                      subscriptionTier={companyData?.subscription_tier || 'free'}
+                      maxCredits={companyRole?.max_credits_per_period || 50}
+                      rolloverCredits={0}
+                    />
+                  )}
                   <NotificationCenter />
                 </div>
               </div>
