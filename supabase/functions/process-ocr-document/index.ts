@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import * as pdfjsLib from "npm:pdfjs-dist@4.0.379"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -38,29 +39,46 @@ serve(async (req) => {
     let extractedText = ''
     
     if (file_type === 'application/pdf') {
-      // For PDFs, we need to use a text-based approach since vision API doesn't support PDFs
-      // We'll ask the AI to help extract structured information from the file metadata
-      console.log('Processing PDF - note: full OCR for PDFs requires additional libraries')
+      console.log('Processing PDF with PDF.js...')
       
-      // For now, provide a helpful message that PDF OCR requires additional setup
-      extractedText = `PDF Document: ${file_name}
-      
-This PDF file has been uploaded successfully. However, full OCR text extraction from PDFs requires additional PDF processing libraries.
-
-To enable full PDF OCR capabilities, you would need to:
-1. Use a PDF parsing library (like pdf-parse or pdfjs-dist)
-2. Extract text page by page
-3. Handle embedded images separately with OCR
-
-For now, you can:
-- Convert PDFs to images and scan those
-- Use the image-based OCR for scanned PDF pages
-- Upload individual pages as images
-
-File Information:
-- File Name: ${file_name}
-- File Size: ${(fileData.size / 1024).toFixed(2)} KB
-- Type: PDF Document`
+      try {
+        // Convert blob to ArrayBuffer
+        const arrayBuffer = await fileData.arrayBuffer()
+        const uint8Array = new Uint8Array(arrayBuffer)
+        
+        // Load the PDF document
+        const loadingTask = pdfjsLib.getDocument({ data: uint8Array })
+        const pdfDoc = await loadingTask.promise
+        
+        console.log(`PDF loaded: ${pdfDoc.numPages} pages`)
+        
+        // Extract text from all pages
+        const textPromises = []
+        for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+          textPromises.push(
+            pdfDoc.getPage(pageNum).then(async (page) => {
+              const textContent = await page.getTextContent()
+              const pageText = textContent.items
+                .map((item: any) => item.str)
+                .join(' ')
+              return pageText
+            })
+          )
+        }
+        
+        const pageTexts = await Promise.all(textPromises)
+        extractedText = pageTexts.join('\n\n').trim()
+        
+        if (!extractedText || extractedText.length < 10) {
+          // If no text found, it might be a scanned PDF
+          extractedText = `Scanned PDF Document: ${file_name}\n\nThis appears to be a scanned PDF with no extractable text. The document contains ${pdfDoc.numPages} page(s).\n\nTo extract text from scanned PDFs, please:\n1. Convert the PDF pages to images\n2. Upload each page as a separate image file for OCR\n\nFile Information:\n- File Name: ${file_name}\n- File Size: ${(fileData.size / 1024).toFixed(2)} KB\n- Pages: ${pdfDoc.numPages}`
+        } else {
+          console.log(`Extracted ${extractedText.length} characters from PDF`)
+        }
+      } catch (pdfError) {
+        console.error('PDF parsing error:', pdfError)
+        extractedText = `Error processing PDF: ${file_name}\n\nThe PDF file could not be processed. It may be encrypted, corrupted, or in an unsupported format.\n\nError: ${pdfError.message}\n\nPlease try:\n1. Converting the PDF to images\n2. Ensuring the PDF is not password-protected\n3. Re-saving the PDF with a different tool`
+      }
       
     } else if (file_type.startsWith('image/')) {
       // For images, convert to base64 and use AI vision
@@ -112,18 +130,19 @@ File Information:
       throw new Error('No text could be extracted from the document')
     }
     
-    // Skip AI summary for PDFs since we're providing an informational message
+    // Generate AI summary
     let aiSummary = ''
-    if (file_type === 'application/pdf') {
-      aiSummary = 'PDF OCR is currently limited. Please convert to images for full text extraction.'
-    } else {
+    
+    if (!extractedText || extractedText.trim().length === 0) {
+      throw new Error('No text could be extracted from the document')
+    }
+    
+    console.log('Text extracted, length:', extractedText.length)
 
-      console.log('Text extracted, length:', extractedText.length)
-
-      // Generate AI summary
-      console.log('Generating AI summary...')
-      const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')
-      const summaryResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Generate AI summary
+    console.log('Generating AI summary...')
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')
+    const summaryResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${lovableApiKey}`,
@@ -154,16 +173,15 @@ Provide the summary in a clear, professional format.`
         })
       })
 
-      if (!summaryResponse.ok) {
-        console.error('AI summary error:', summaryResponse.status)
-        throw new Error('Failed to generate AI summary')
-      }
-
-      const summaryData = await summaryResponse.json()
-      aiSummary = summaryData.choices?.[0]?.message?.content || ''
-
-      console.log('AI summary generated')
+    if (!summaryResponse.ok) {
+      console.error('AI summary error:', summaryResponse.status)
+      throw new Error('Failed to generate AI summary')
     }
+
+    const summaryData = await summaryResponse.json()
+    aiSummary = summaryData.choices?.[0]?.message?.content || ''
+
+    console.log('AI summary generated')
 
     // Calculate statistics
     const characterCount = extractedText.length
