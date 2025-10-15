@@ -165,12 +165,17 @@ export default function CompanyUserDashboard() {
             />
             
             <main className="flex-1 flex flex-col overflow-hidden">
-              <div className="border-b p-4 flex items-center justify-between bg-card">
+              <div className="border-b p-4 flex items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
                 <div className="flex items-center gap-4">
                   <SidebarTrigger />
-                  <div>
-                    <h1 className="text-2xl font-bold">Company Dashboard</h1>
-                    <p className="text-sm text-muted-foreground">{companyName}</p>
+                  <div className="flex items-center gap-3">
+                    <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <div>
+                      <h1 className="text-2xl font-bold text-purple-900 dark:text-purple-100">Company Workspace</h1>
+                      <p className="text-sm text-purple-700 dark:text-purple-300">{companyName}</p>
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -179,6 +184,11 @@ export default function CompanyUserDashboard() {
                     subscriptionTier={profile?.subscription_tier}
                     maxCredits={companyRole?.max_credits_per_period || 50}
                     rolloverCredits={profile?.rollover_credits || 0}
+                    isCompanyUser={true}
+                    companyCredits={{
+                      used: companyData?.used_credits || 0,
+                      total: companyData?.total_credits || 0
+                    }}
                   />
                   <NotificationCenter />
                 </div>

@@ -132,3 +132,6 @@ verify_jwt = false
 [functions.generate-signature-certificate]
 verify_jwt = true
 
+[functions.validate-access]
+verify_jwt = true
+

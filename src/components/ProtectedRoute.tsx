@@ -1,44 +1,77 @@
 import { useEffect } from "react"
 import { useAuth } from "@/hooks/useAuth"
 import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
+  allowedRoles?: string[]
 }
 
-export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   const { user, loading, profile } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth')
-    } else if (!loading && user && profile) {
+      return
+    }
+
+    if (!loading && user && profile) {
       const currentPath = window.location.pathname
-      // Auto-redirect based on user role when on auth or root path
-      if (currentPath === '/auth' || currentPath === '/') {
-        if (profile?.user_role === 'super_admin') {
+
+      // Check if user has required role for current page
+      if (allowedRoles && !allowedRoles.includes(profile.user_role)) {
+        toast.error('Access denied: You do not have permission to view this page')
+        
+        // Redirect to appropriate dashboard based on role
+        if (profile.user_role === 'super_admin') {
           navigate('/admin')
-        } else if (profile?.user_role === 'company_admin') {
+        } else if (profile.user_role === 'company_admin') {
           navigate('/company-admin')
-        } else if (profile?.user_role === 'company_staff' || profile?.user_role === 'company_manager') {
+        } else if (profile.user_role === 'company_staff' || profile.user_role === 'company_manager') {
           navigate('/company-user')
         } else {
           navigate('/dashboard')
         }
+        return
       }
-      // Only redirect from /dashboard or /company-dashboard, not from other routes
-      else if (currentPath === '/dashboard' || currentPath === '/company-dashboard') {
-        if (profile?.user_role === 'super_admin') {
+
+      // Auto-redirect based on user role when on auth or root path
+      if (currentPath === '/auth' || currentPath === '/') {
+        if (profile.user_role === 'super_admin') {
           navigate('/admin')
-        } else if (profile?.user_role === 'company_admin') {
+        } else if (profile.user_role === 'company_admin') {
           navigate('/company-admin')
-        } else if (profile?.user_role === 'company_staff' || profile?.user_role === 'company_manager') {
+        } else if (profile.user_role === 'company_staff' || profile.user_role === 'company_manager') {
           navigate('/company-user')
+        } else {
+          navigate('/dashboard')
+        }
+        return
+      }
+
+      // Enforce role-based routing for all dashboard and admin pages
+      if (currentPath.includes('/dashboard') || 
+          currentPath.includes('/company-') ||
+          currentPath === '/personal-dashboard' ||
+          currentPath === '/admin') {
+        
+        if (profile.user_role === 'super_admin') {
+          if (currentPath !== '/admin') navigate('/admin')
+        } else if (profile.user_role === 'company_admin') {
+          if (currentPath !== '/company-admin') navigate('/company-admin')
+        } else if (profile.user_role === 'company_staff' || profile.user_role === 'company_manager') {
+          if (currentPath !== '/company-user') navigate('/company-user')
+        } else if (profile.user_role === 'individual') {
+          if (currentPath !== '/dashboard' && currentPath !== '/personal-dashboard') {
+            navigate('/dashboard')
+          }
         }
       }
     }
-  }, [user, loading, profile, navigate])
+  }, [user, loading, profile, navigate, allowedRoles])
 
   if (loading) {
     return (

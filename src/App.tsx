@@ -51,7 +51,7 @@ const App = () => (
             <Route
               path="/dashboard" 
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={['individual']}>
                   <Dashboard />
                 </ProtectedRoute>
               } 
@@ -77,7 +77,7 @@ const App = () => (
             <Route 
               path="/admin" 
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={['super_admin']}>
                   <SuperAdminDashboard />
                 </ProtectedRoute>
               } 
@@ -85,15 +85,7 @@ const App = () => (
             <Route 
               path="/company-admin" 
               element={
-                <ProtectedRoute>
-                  <CompanyAdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/company-dashboard" 
-              element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={['company_admin', 'super_admin']}>
                   <CompanyAdminDashboard />
                 </ProtectedRoute>
               } 
@@ -101,7 +93,7 @@ const App = () => (
             <Route 
               path="/company-user" 
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={['company_staff', 'company_manager']}>
                   <CompanyUserDashboard />
                 </ProtectedRoute>
               } 
