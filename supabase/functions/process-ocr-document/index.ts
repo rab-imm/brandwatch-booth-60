@@ -38,50 +38,29 @@ serve(async (req) => {
     let extractedText = ''
     
     if (file_type === 'application/pdf') {
-      // For PDFs, use a simple approach - convert to base64 and send to AI for extraction
-      const arrayBuffer = await fileData.arrayBuffer()
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
+      // For PDFs, we need to use a text-based approach since vision API doesn't support PDFs
+      // We'll ask the AI to help extract structured information from the file metadata
+      console.log('Processing PDF - note: full OCR for PDFs requires additional libraries')
       
-      console.log('Processing PDF with AI...')
+      // For now, provide a helpful message that PDF OCR requires additional setup
+      extractedText = `PDF Document: ${file_name}
       
-      // Use Lovable AI to extract text from PDF
-      const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')
-      const extractResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${lovableApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'text',
-                  text: 'Extract all text content from this PDF document. Return ONLY the extracted text without any additional commentary or formatting.'
-                },
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: `data:application/pdf;base64,${base64}`
-                  }
-                }
-              ]
-            }
-          ]
-        })
-      })
+This PDF file has been uploaded successfully. However, full OCR text extraction from PDFs requires additional PDF processing libraries.
 
-      if (!extractResponse.ok) {
-        const errorText = await extractResponse.text()
-        console.error('AI extraction error:', extractResponse.status, errorText)
-        throw new Error(`AI extraction failed: ${extractResponse.status}`)
-      }
+To enable full PDF OCR capabilities, you would need to:
+1. Use a PDF parsing library (like pdf-parse or pdfjs-dist)
+2. Extract text page by page
+3. Handle embedded images separately with OCR
 
-      const extractData = await extractResponse.json()
-      extractedText = extractData.choices?.[0]?.message?.content || ''
+For now, you can:
+- Convert PDFs to images and scan those
+- Use the image-based OCR for scanned PDF pages
+- Upload individual pages as images
+
+File Information:
+- File Name: ${file_name}
+- File Size: ${(fileData.size / 1024).toFixed(2)} KB
+- Type: PDF Document`
       
     } else if (file_type.startsWith('image/')) {
       // For images, convert to base64 and use AI vision
@@ -132,28 +111,34 @@ serve(async (req) => {
     if (!extractedText || extractedText.trim().length === 0) {
       throw new Error('No text could be extracted from the document')
     }
+    
+    // Skip AI summary for PDFs since we're providing an informational message
+    let aiSummary = ''
+    if (file_type === 'application/pdf') {
+      aiSummary = 'PDF OCR is currently limited. Please convert to images for full text extraction.'
+    } else {
 
-    console.log('Text extracted, length:', extractedText.length)
+      console.log('Text extracted, length:', extractedText.length)
 
-    // Generate AI summary
-    console.log('Generating AI summary...')
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')
-    const summaryResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a document summarization expert. Analyze documents and provide clear, professional summaries.'
-          },
-          {
-            role: 'user',
-            content: `Analyze the following extracted text and provide:
+      // Generate AI summary
+      console.log('Generating AI summary...')
+      const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')
+      const summaryResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${lovableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a document summarization expert. Analyze documents and provide clear, professional summaries.'
+            },
+            {
+              role: 'user',
+              content: `Analyze the following extracted text and provide:
 
 1. A concise summary (2-3 sentences)
 2. Key points identified (bullet list, max 5 points)
@@ -164,20 +149,21 @@ Extracted Text:
 ${extractedText.substring(0, 4000)}
 
 Provide the summary in a clear, professional format.`
-          }
-        ]
+            }
+          ]
+        })
       })
-    })
 
-    if (!summaryResponse.ok) {
-      console.error('AI summary error:', summaryResponse.status)
-      throw new Error('Failed to generate AI summary')
+      if (!summaryResponse.ok) {
+        console.error('AI summary error:', summaryResponse.status)
+        throw new Error('Failed to generate AI summary')
+      }
+
+      const summaryData = await summaryResponse.json()
+      aiSummary = summaryData.choices?.[0]?.message?.content || ''
+
+      console.log('AI summary generated')
     }
-
-    const summaryData = await summaryResponse.json()
-    const aiSummary = summaryData.choices?.[0]?.message?.content || ''
-
-    console.log('AI summary generated')
 
     // Calculate statistics
     const characterCount = extractedText.length
