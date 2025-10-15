@@ -220,18 +220,18 @@ export const OCRUpload = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
+              <h3 className="text-sm font-semibold mb-2">Extracted Text</h3>
+              <div className="p-4 bg-muted rounded-lg max-h-96 overflow-y-auto whitespace-pre-wrap text-sm font-mono">
+                {result.extractedText}
+              </div>
+            </div>
+
+            <div>
               <h3 className="text-sm font-semibold mb-2">AI Summary</h3>
               <div className="p-4 bg-muted rounded-lg prose prose-sm dark:prose-invert max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {result.aiSummary}
                 </ReactMarkdown>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold mb-2">Extracted Text</h3>
-              <div className="p-4 bg-muted rounded-lg max-h-96 overflow-y-auto whitespace-pre-wrap text-sm font-mono">
-                {result.extractedText}
               </div>
             </div>
           </CardContent>
