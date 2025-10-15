@@ -414,7 +414,7 @@ export const PersonalDashboard = () => {
           </Card>
         </div>
 
-        {/* Quick Actions */}
+          {/* Quick Actions */}
         <Card className="mt-8">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
@@ -436,6 +436,11 @@ export const PersonalDashboard = () => {
                 <Icon name="file-text" className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Browse Templates</span>
                 <span className="sm:hidden">Templates</span>
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => window.location.href = '/ocr'} className="flex-1 sm:flex-none">
+                <Icon name="scan" className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">OCR Scanner</span>
+                <span className="sm:hidden">OCR</span>
               </Button>
             </div>
           </CardContent>
