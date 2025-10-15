@@ -34,6 +34,7 @@ import { DocumentUpload } from "./components/DocumentUpload";
 import { SubscriptionManager } from "./components/SubscriptionManager";
 import { PersonalDashboard } from "./components/PersonalDashboard";
 import { Header } from "./components/Header";
+import OCRPage from "./pages/OCRPage";
 
 const queryClient = new QueryClient();
 
@@ -176,6 +177,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AnalyticsDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/ocr" 
+              element={
+                <ProtectedRoute>
+                  <OCRPage />
                 </ProtectedRoute>
               } 
             />

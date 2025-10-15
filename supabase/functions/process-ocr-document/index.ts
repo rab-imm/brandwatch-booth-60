@@ -198,7 +198,7 @@ Provide the summary in a clear, professional format.`
         character_count: characterCount,
         word_count: wordCount,
         processing_time_ms: processingTime,
-        credits_used: 2,
+        credits_used: 1,
         metadata: {
           processed_at: new Date().toISOString()
         }
