@@ -18,6 +18,7 @@ import { LettersList } from "@/components/LettersList"
 import { LetterDetail } from "@/components/LetterDetail"
 import { TeamActivityFeed } from "@/components/company/TeamActivityFeed"
 import { EnhancedTemplateStore } from "@/components/EnhancedTemplateStore"
+import { StaffDashboardOverview } from "@/components/StaffDashboardOverview"
 
 export default function CompanyUserDashboard() {
   const { user, profile, loading } = useAuth()
@@ -25,7 +26,7 @@ export default function CompanyUserDashboard() {
   const [companyRole, setCompanyRole] = useState<any>(null)
   const [companyName, setCompanyName] = useState<string>("")
   const [companyData, setCompanyData] = useState<any>(null)
-  const [activeSection, setActiveSection] = useState("chat")
+  const [activeSection, setActiveSection] = useState("dashboard")
   const [selectedLetterId, setSelectedLetterId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -81,13 +82,25 @@ export default function CompanyUserDashboard() {
   const renderSection = () => {
     switch (activeSection) {
       case "dashboard":
-        return companyData && companyRole ? (
-          <CompanyDashboardOverview
-            company={companyData}
-            companyRole={companyRole}
-            onNavigateToSection={setActiveSection}
-          />
-        ) : null
+        // Show different dashboard based on role
+        if (isManager || isAdmin) {
+          return companyData && companyRole ? (
+            <CompanyDashboardOverview
+              company={companyData}
+              companyRole={companyRole}
+              onNavigateToSection={setActiveSection}
+            />
+          ) : null
+        } else {
+          // Regular staff see their activity overview
+          return user && companyData ? (
+            <StaffDashboardOverview
+              userId={user.id}
+              companyId={companyData.id}
+              onNavigateToSection={setActiveSection}
+            />
+          ) : null
+        }
       
       case "chat":
         return (
