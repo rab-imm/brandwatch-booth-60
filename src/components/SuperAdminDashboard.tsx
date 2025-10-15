@@ -37,6 +37,9 @@ import { BillingAnalytics } from './admin/BillingAnalytics';
 import { SubscriptionAdminPanel } from './admin/SubscriptionAdminPanel';
 import { SubscriptionRevenueAnalytics } from './admin/SubscriptionRevenueAnalytics';
 import { CreateCompanyAdmin } from './admin/CreateCompanyAdmin';
+import { OCRUpload } from './OCRUpload';
+import { OCRHistory } from './OCRHistory';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 export const SuperAdminDashboard = () => {
   const { user, profile } = useAuth()
@@ -566,6 +569,24 @@ export const SuperAdminDashboard = () => {
         return (
           <AdminErrorBoundary>
             <DocumentUpload />
+          </AdminErrorBoundary>
+        )
+      
+      case "ocr":
+        return (
+          <AdminErrorBoundary>
+            <Tabs defaultValue="scan" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 max-w-md mb-6">
+                <TabsTrigger value="scan">Scan Document</TabsTrigger>
+                <TabsTrigger value="history">History</TabsTrigger>
+              </TabsList>
+              <TabsContent value="scan">
+                <OCRUpload />
+              </TabsContent>
+              <TabsContent value="history">
+                <OCRHistory />
+              </TabsContent>
+            </Tabs>
           </AdminErrorBoundary>
         )
       
