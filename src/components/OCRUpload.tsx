@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/hooks/use-toast"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 export const OCRUpload = () => {
   const { user, profile } = useAuth()
@@ -219,8 +221,10 @@ export const OCRUpload = () => {
           <CardContent className="space-y-4">
             <div>
               <h3 className="text-sm font-semibold mb-2">AI Summary</h3>
-              <div className="p-4 bg-muted rounded-lg whitespace-pre-wrap text-sm">
-                {result.aiSummary}
+              <div className="p-4 bg-muted rounded-lg prose prose-sm dark:prose-invert max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {result.aiSummary}
+                </ReactMarkdown>
               </div>
             </div>
 
