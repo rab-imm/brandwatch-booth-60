@@ -94,6 +94,7 @@ export const OCRUpload = () => {
       setUploadProgress(40)
 
       // Process OCR
+      console.log('Invoking OCR function...')
       const { data, error } = await supabase.functions.invoke('process-ocr-document', {
         body: {
           file_path: fileName,
@@ -104,12 +105,16 @@ export const OCRUpload = () => {
         }
       })
 
+      console.log('OCR function response:', { data, error })
       setUploadProgress(80)
 
-      if (error) throw error
+      if (error) {
+        console.error('OCR function error:', error)
+        throw new Error(`OCR function failed: ${error.message}`)
+      }
 
-      if (!data.success) {
-        throw new Error(data.error || 'OCR processing failed')
+      if (!data?.success) {
+        throw new Error(data?.error || 'OCR processing failed')
       }
 
       // Update user credits
@@ -139,9 +144,18 @@ export const OCRUpload = () => {
 
     } catch (error: any) {
       console.error('OCR error:', error)
+      
+      let errorMessage = "Failed to process document. Please try again."
+      
+      if (error.message?.includes('Failed to fetch')) {
+        errorMessage = "Network error. Please check your connection and try again."
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
       toast({
         title: "OCR Failed",
-        description: error.message || "Failed to process document. Please try again.",
+        description: errorMessage,
         variant: "destructive"
       })
     } finally {
