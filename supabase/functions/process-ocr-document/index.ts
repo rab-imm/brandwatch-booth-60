@@ -153,21 +153,26 @@ serve(async (req) => {
           messages: [
             {
               role: 'system',
-              content: 'You are a document summarization expert. Analyze documents and provide clear, professional summaries.'
+              content: 'You are a document summarization expert. Provide ultra-concise, bullet-point summaries focusing only on the most critical information.'
             },
             {
               role: 'user',
-              content: `Analyze the following extracted text and provide:
+              content: `Analyze this document and provide a SHORT summary with:
 
-1. A concise summary (2-3 sentences)
-2. Key points identified (bullet list, max 5 points)
-3. Document type classification (if recognizable)
-4. Any important dates, names, or amounts mentioned
+### Summary
+- 1-2 sentence overview
 
-Extracted Text:
-${extractedText.substring(0, 4000)}
+### Key Points
+- Max 3 bullet points of most important info only
 
-Provide the summary in a clear, professional format.`
+### Details
+- Document type (if identifiable)
+- Critical dates/amounts/names (if any)
+
+Keep it brief and scannable.
+
+Text:
+${extractedText.substring(0, 4000)}`
             }
           ]
         })
