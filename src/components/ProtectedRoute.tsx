@@ -58,22 +58,24 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
         return
       }
 
-      // Enforce role-based routing for all dashboard and admin pages
-      if (currentPath.includes('/dashboard') || 
-          currentPath.includes('/company-') ||
-          currentPath === '/personal-dashboard' ||
-          currentPath === '/admin') {
+      // Only enforce strict routing for role-specific dashboard pages
+      const isDashboardRoute = ['/admin', '/company-admin', '/company-user', '/dashboard'].includes(currentPath)
+
+      if (isDashboardRoute) {
+        // Redirect to correct dashboard if on wrong one
+        let correctDashboard = '/dashboard'
         
         if (primaryRole === 'super_admin') {
-          if (currentPath !== '/admin') navigate('/admin')
+          correctDashboard = '/admin'
         } else if (primaryRole === 'company_admin') {
-          if (currentPath !== '/company-admin') navigate('/company-admin')
+          correctDashboard = '/company-admin'
         } else if (primaryRole === 'company_staff' || primaryRole === 'company_manager') {
-          if (currentPath !== '/company-user') navigate('/company-user')
-        } else if (primaryRole === 'individual') {
-          if (currentPath !== '/dashboard' && currentPath !== '/personal-dashboard') {
-            navigate('/dashboard')
-          }
+          correctDashboard = '/company-user'
+        }
+        
+        if (currentPath !== correctDashboard) {
+          navigate(correctDashboard)
+          return
         }
       }
     }

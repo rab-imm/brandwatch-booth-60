@@ -18,6 +18,15 @@ export const Header = () => {
   const { user, signOut, profile } = useAuth();
   const { t } = useTranslation();
 
+  const getDashboardLink = () => {
+    const primaryRole = profile?.primary_role
+    
+    if (primaryRole === 'super_admin') return '/admin'
+    if (primaryRole === 'company_admin') return '/company-admin'
+    if (primaryRole === 'company_staff' || primaryRole === 'company_manager') return '/company-user'
+    return '/dashboard'
+  }
+
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-6 py-4">
@@ -27,7 +36,7 @@ export const Header = () => {
           {user && (
             <nav className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border border-border">
               <Link 
-                to="/dashboard" 
+                to={getDashboardLink()} 
                 className="text-sm font-medium px-6 py-2 rounded-md hover:bg-background transition-colors"
               >
                 Dashboard
