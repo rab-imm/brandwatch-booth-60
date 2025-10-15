@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useNavigate } from "react-router-dom"
 import { ChatInterface } from "@/components/ChatInterface"
 import { ConversationSidebar } from "@/components/ConversationSidebar"
-import { CreditCounter } from "@/components/CreditCounter"
+import { PersonalCreditCounter } from "@/components/PersonalCreditCounter"
 import { Header } from "@/components/Header"
 import { ChatProvider } from "@/contexts/ChatContext"
 import { UpsellModal } from "@/components/UpsellModal"
@@ -60,11 +60,11 @@ const Dashboard = () => {
           <ConversationSidebar />
           <div className="flex-1 flex flex-col">
             <div className="border-b p-4 flex items-center justify-between">
-              <CreditCounter 
-                creditsUsed={profile?.queries_used || 0}
-                subscriptionTier={profile?.subscription_tier || 'free'}
-                rolloverCredits={profile?.rollover_credits || 0}
-              />
+          <PersonalCreditCounter 
+            creditsUsed={profile?.queries_used || 0}
+            subscriptionTier={profile?.subscription_tier || 'free'}
+            rolloverCredits={profile?.rollover_credits || 0}
+          />
               <NotificationCenter />
             </div>
             <div className="flex-1">

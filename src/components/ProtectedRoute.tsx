@@ -20,31 +20,37 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
 
     if (!loading && user && profile) {
       const currentPath = window.location.pathname
+      const userRoles = profile.roles || []
+      const primaryRole = profile.primary_role || profile.user_role
 
       // Check if user has required role for current page
-      if (allowedRoles && !allowedRoles.includes(profile.user_role)) {
-        toast.error('Access denied: You do not have permission to view this page')
+      if (allowedRoles && userRoles.length > 0) {
+        const hasAccess = userRoles.some(role => allowedRoles.includes(role))
         
-        // Redirect to appropriate dashboard based on role
-        if (profile.user_role === 'super_admin') {
-          navigate('/admin')
-        } else if (profile.user_role === 'company_admin') {
-          navigate('/company-admin')
-        } else if (profile.user_role === 'company_staff' || profile.user_role === 'company_manager') {
-          navigate('/company-user')
-        } else {
-          navigate('/dashboard')
+        if (!hasAccess) {
+          toast.error('Access denied: You do not have permission to view this page')
+          
+          // Redirect to appropriate dashboard based on PRIMARY role
+          if (primaryRole === 'super_admin') {
+            navigate('/admin')
+          } else if (primaryRole === 'company_admin') {
+            navigate('/company-admin')
+          } else if (primaryRole === 'company_staff' || primaryRole === 'company_manager') {
+            navigate('/company-user')
+          } else {
+            navigate('/dashboard')
+          }
+          return
         }
-        return
       }
 
       // Auto-redirect based on user role when on auth or root path
       if (currentPath === '/auth' || currentPath === '/') {
-        if (profile.user_role === 'super_admin') {
+        if (primaryRole === 'super_admin') {
           navigate('/admin')
-        } else if (profile.user_role === 'company_admin') {
+        } else if (primaryRole === 'company_admin') {
           navigate('/company-admin')
-        } else if (profile.user_role === 'company_staff' || profile.user_role === 'company_manager') {
+        } else if (primaryRole === 'company_staff' || primaryRole === 'company_manager') {
           navigate('/company-user')
         } else {
           navigate('/dashboard')
@@ -58,13 +64,13 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
           currentPath === '/personal-dashboard' ||
           currentPath === '/admin') {
         
-        if (profile.user_role === 'super_admin') {
+        if (primaryRole === 'super_admin') {
           if (currentPath !== '/admin') navigate('/admin')
-        } else if (profile.user_role === 'company_admin') {
+        } else if (primaryRole === 'company_admin') {
           if (currentPath !== '/company-admin') navigate('/company-admin')
-        } else if (profile.user_role === 'company_staff' || profile.user_role === 'company_manager') {
+        } else if (primaryRole === 'company_staff' || primaryRole === 'company_manager') {
           if (currentPath !== '/company-user') navigate('/company-user')
-        } else if (profile.user_role === 'individual') {
+        } else if (primaryRole === 'individual') {
           if (currentPath !== '/dashboard' && currentPath !== '/personal-dashboard') {
             navigate('/dashboard')
           }

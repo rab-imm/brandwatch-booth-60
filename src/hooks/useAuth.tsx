@@ -36,21 +36,41 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const fetchProfile = async (userId: string) => {
     try {
       console.log('[fetchProfile] Fetching profile for user:', userId)
-      const { data, error } = await supabase
+      
+      // Fetch profile data
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
         .single()
       
-      console.log('[fetchProfile] Result:', { data, error })
-      
-      if (error && error.code !== 'PGRST116') {
-        console.error('[fetchProfile] Error fetching profile:', error)
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error('[fetchProfile] Error fetching profile:', profileError)
         return
       }
       
-      setProfile(data || null)
-      console.log('[fetchProfile] Profile set successfully')
+      // Fetch roles from user_roles table (PRIMARY SOURCE OF TRUTH)
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+      
+      if (rolesError) {
+        console.error('[fetchProfile] Error fetching roles:', rolesError)
+      }
+      
+      console.log('[fetchProfile] Roles fetched:', rolesData)
+      
+      // Combine data - add roles array to profile
+      const enrichedProfile = {
+        ...profileData,
+        roles: rolesData?.map(r => r.role) || [],
+        // primary_role is the first role or fallback to user_role for backward compatibility
+        primary_role: rolesData?.[0]?.role || profileData?.user_role
+      }
+      
+      setProfile(enrichedProfile)
+      console.log('[fetchProfile] Profile set successfully with roles:', enrichedProfile)
     } catch (error) {
       console.error('[fetchProfile] Exception caught:', error)
     }
