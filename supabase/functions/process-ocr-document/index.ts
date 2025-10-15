@@ -38,24 +38,7 @@ serve(async (req) => {
     // Extract text based on file type
     let extractedText = ''
     
-    if (file_type === 'text/plain') {
-      // Handle plain text files
-      console.log('Processing plain text file...')
-      const textContent = await fileData.text()
-      extractedText = textContent.trim()
-      
-      if (!extractedText || extractedText.length < 1) {
-        throw new Error('Text file is empty')
-      }
-      
-      console.log(`Extracted ${extractedText.length} characters from text file`)
-      
-    } else if (file_type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || file_type === 'application/msword') {
-      // Word documents are not directly supported - provide helpful message
-      console.log('Word document detected - providing conversion instructions')
-      extractedText = `Word Document: ${file_name}\n\nWord documents (.doc, .docx) cannot be directly scanned with OCR.\n\nPlease convert your document to one of these formats:\n\n✓ PDF format - Best for maintaining layout\n✓ Plain text (.txt) - Copy and paste text into a text file\n✓ Images (JPG/PNG) - Take screenshots of each page\n\nHow to convert:\n1. Open the Word document\n2. Go to File → Save As\n3. Choose PDF or TXT format\n4. Upload the converted file here\n\nFile Information:\n- File Name: ${file_name}\n- File Size: ${(fileData.size / 1024).toFixed(2)} KB`
-      
-    } else if (file_type === 'application/pdf') {
+    if (file_type === 'application/pdf') {
       console.log('Processing PDF with PDF.js...')
       
       try {

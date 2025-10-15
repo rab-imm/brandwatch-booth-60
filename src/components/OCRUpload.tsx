@@ -31,17 +31,11 @@ export const OCRUpload = () => {
     if (!file) return
 
     // Validate file type
-    const allowedTypes = [
-      'application/pdf',
-      'image/jpeg',
-      'image/png',
-      'image/webp',
-      'text/plain'
-    ]
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
     if (!allowedTypes.includes(file.type)) {
       toast({
         title: "Invalid File Type",
-        description: "Please upload PDF, text files, or images (JPG, PNG, WEBP)",
+        description: "Please upload PDF or image files (JPG, PNG, WEBP)",
         variant: "destructive"
       })
       return
@@ -94,7 +88,6 @@ export const OCRUpload = () => {
       setUploadProgress(40)
 
       // Process OCR
-      console.log('Invoking OCR function...')
       const { data, error } = await supabase.functions.invoke('process-ocr-document', {
         body: {
           file_path: fileName,
@@ -105,16 +98,12 @@ export const OCRUpload = () => {
         }
       })
 
-      console.log('OCR function response:', { data, error })
       setUploadProgress(80)
 
-      if (error) {
-        console.error('OCR function error:', error)
-        throw new Error(`OCR function failed: ${error.message}`)
-      }
+      if (error) throw error
 
-      if (!data?.success) {
-        throw new Error(data?.error || 'OCR processing failed')
+      if (!data.success) {
+        throw new Error(data.error || 'OCR processing failed')
       }
 
       // Update user credits
@@ -144,18 +133,9 @@ export const OCRUpload = () => {
 
     } catch (error: any) {
       console.error('OCR error:', error)
-      
-      let errorMessage = "Failed to process document. Please try again."
-      
-      if (error.message?.includes('Failed to fetch')) {
-        errorMessage = "Network error. Please check your connection and try again."
-      } else if (error.message) {
-        errorMessage = error.message
-      }
-      
       toast({
         title: "OCR Failed",
-        description: errorMessage,
+        description: error.message || "Failed to process document. Please try again.",
         variant: "destructive"
       })
     } finally {
@@ -179,13 +159,13 @@ export const OCRUpload = () => {
           <div>
             <Input
               type="file"
-              accept=".pdf,.txt,image/jpeg,image/png,image/webp"
+              accept=".pdf,image/jpeg,image/png,image/webp"
               onChange={handleFileSelect}
               disabled={isProcessing}
               className="cursor-pointer"
             />
             <p className="text-xs text-muted-foreground mt-2">
-              Supported: PDF, TXT, JPG, PNG, WEBP (Max 10MB)
+              Supported: PDF, JPG, PNG, WEBP (Max 10MB)
             </p>
           </div>
 
