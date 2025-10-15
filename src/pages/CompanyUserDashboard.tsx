@@ -179,7 +179,7 @@ export default function CompanyUserDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <CompanyCreditCounter 
+                  <CompanyCreditCounter
                     personalUsed={companyRole?.used_credits || 0}
                     personalLimit={companyRole?.max_credits_per_period || 50}
                     companyUsed={companyData?.used_credits || 0}
