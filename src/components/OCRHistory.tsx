@@ -180,7 +180,7 @@ export const OCRHistory = () => {
                   Copy
                 </Button>
               </div>
-              <div className="p-4 bg-muted rounded-lg text-sm prose prose-sm dark:prose-invert max-w-none">
+              <div className="p-4 bg-muted rounded-lg prose prose-sm dark:prose-invert max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {selectedRecord.ai_summary}
                 </ReactMarkdown>
