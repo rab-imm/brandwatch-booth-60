@@ -75,7 +75,7 @@ export default function CompanyUserDashboard() {
   }
 
   const isManager = companyRole?.role === 'company_manager'
-  const isAdmin = profile?.user_role === 'company_admin'
+  const isAdmin = profile?.roles?.includes('company_admin') || false
 
   const renderSection = () => {
     switch (activeSection) {
