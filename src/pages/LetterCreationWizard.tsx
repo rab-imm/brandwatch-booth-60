@@ -13,6 +13,9 @@ import { Icon } from "@/components/ui/Icon"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Progress } from "@/components/ui/progress"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Shield, AlertCircle } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 
 const LETTER_TYPES = [
   { value: "employment_termination", label: "Employment Termination", icon: "briefcase" },
@@ -43,6 +46,7 @@ export default function LetterCreationWizard() {
   const [details, setDetails] = useState<LetterDetails>({})
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedContent, setGeneratedContent] = useState("")
+  const [dataProtectionConsent, setDataProtectionConsent] = useState(false)
 
   useEffect(() => {
     if (location.state) {
@@ -55,7 +59,7 @@ export default function LetterCreationWizard() {
     }
   }, [location.state])
 
-  const progress = (currentStep / 5) * 100
+  const progress = (currentStep / 6) * 100
 
   const handleTypeSelect = (type: string) => {
     setLetterType(type)
@@ -147,12 +151,21 @@ export default function LetterCreationWizard() {
       }
     }
 
+    if (currentStep === 4 && !dataProtectionConsent) {
+      toast({
+        title: "Acknowledgment required",
+        description: "Please acknowledge data protection compliance to continue",
+        variant: "destructive"
+      })
+      return false
+    }
+
     return true
   }
 
   const handleNext = () => {
     if (validateStep()) {
-      setCurrentStep(prev => Math.min(prev + 1, 5))
+      setCurrentStep(prev => Math.min(prev + 1, 6))
     }
   }
 
@@ -194,7 +207,7 @@ export default function LetterCreationWizard() {
 
       setGeneratedContent(data.content)
       await refetchProfile()
-      setCurrentStep(5)
+      setCurrentStep(6)
 
       toast({
         title: "Letter generated!",
@@ -255,7 +268,7 @@ export default function LetterCreationWizard() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-2xl">Create Legal Letter</CardTitle>
-              <CardDescription>Step {currentStep} of 5</CardDescription>
+              <CardDescription>Step {currentStep} of 6</CardDescription>
             </div>
             <Badge variant="outline" className="gap-1">
               <Icon name="zap" className="w-3 h-3" />
@@ -351,8 +364,56 @@ export default function LetterCreationWizard() {
             </div>
           )}
 
-          {/* Step 4: Review & Confirm */}
+          {/* Step 4: Data Protection Consent */}
           {currentStep === 4 && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold mb-2">Data Protection Acknowledgment</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Please review and acknowledge data protection requirements
+                </p>
+              </div>
+              
+              <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+                <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                <AlertTitle className="text-amber-900 dark:text-amber-100">
+                  UAE Federal Law No. 45 of 2021 (PDPL) Compliance
+                </AlertTitle>
+                <AlertDescription className="text-amber-800 dark:text-amber-200">
+                  <p className="mb-3">
+                    This letter will contain personal information protected under UAE data protection law.
+                  </p>
+                  <div className="space-y-2 text-sm">
+                    <p className="font-medium">By proceeding, you confirm that:</p>
+                    <ul className="list-disc list-inside space-y-1 ml-2">
+                      <li>You have lawful consent to process the personal data in this letter</li>
+                      <li>You will handle all personal information in accordance with UAE PDPL</li>
+                      <li>You will implement appropriate security measures to protect this data</li>
+                      <li>You will only use this data for the stated legal purposes</li>
+                      <li>You understand your obligations regarding data retention and disposal</li>
+                    </ul>
+                  </div>
+                </AlertDescription>
+              </Alert>
+
+              <div className="flex items-center space-x-2 p-4 border rounded-lg bg-card">
+                <Checkbox
+                  id="dataProtectionConsent"
+                  checked={dataProtectionConsent}
+                  onCheckedChange={(checked) => setDataProtectionConsent(checked === true)}
+                />
+                <label
+                  htmlFor="dataProtectionConsent"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                >
+                  I acknowledge and agree to comply with UAE data protection requirements
+                </label>
+              </div>
+            </div>
+          )}
+
+          {/* Step 5: Review & Confirm */}
+          {currentStep === 5 && (
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold mb-2">Review & Confirm</h3>
@@ -389,6 +450,14 @@ export default function LetterCreationWizard() {
                   </div>
                 </div>
 
+                <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                  <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <AlertTitle className="text-blue-900 dark:text-blue-100">Personal Data Notice</AlertTitle>
+                  <AlertDescription className="text-blue-800 dark:text-blue-200">
+                    The information above may include personal data. A data protection notice will be automatically included in your generated letter to ensure UAE PDPL compliance.
+                  </AlertDescription>
+                </Alert>
+
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-start gap-3">
                   <Icon name="info" className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                   <div className="text-sm">
@@ -403,8 +472,8 @@ export default function LetterCreationWizard() {
             </div>
           )}
 
-          {/* Step 5: Generated Letter */}
-          {currentStep === 5 && (
+          {/* Step 6: Generated Letter */}
+          {currentStep === 6 && (
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold mb-2">Your Generated Letter</h3>
@@ -417,6 +486,22 @@ export default function LetterCreationWizard() {
                   {generatedContent}
                 </pre>
               </div>
+
+              <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                <Shield className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <AlertTitle className="text-green-900 dark:text-green-100">
+                  Data Protection Compliance Notice
+                </AlertTitle>
+                <AlertDescription className="text-green-800 dark:text-green-200 space-y-2">
+                  <p>Your letter includes a data protection notice compliant with UAE PDPL. When using this letter:</p>
+                  <ul className="list-disc list-inside space-y-1 ml-2 text-sm">
+                    <li>Store it securely and limit access to authorized persons only</li>
+                    <li>Do not share it with unauthorized third parties</li>
+                    <li>Dispose of it securely when no longer needed</li>
+                    <li>Respect the data subject's rights under UAE PDPL</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
             </div>
           )}
 
@@ -432,14 +517,14 @@ export default function LetterCreationWizard() {
             </Button>
 
             <div className="flex gap-2">
-              {currentStep < 4 && (
+              {currentStep < 5 && (
                 <Button onClick={handleNext}>
                   Next
                   <Icon name="arrow-right" className="w-4 h-4 ml-2" />
                 </Button>
               )}
 
-              {currentStep === 4 && (
+              {currentStep === 5 && (
                 <Button onClick={handleGenerateLetter} disabled={isGenerating}>
                   {isGenerating ? (
                     <>
@@ -455,7 +540,7 @@ export default function LetterCreationWizard() {
                 </Button>
               )}
 
-              {currentStep === 5 && (
+              {currentStep === 6 && (
                 <>
                   <Button variant="outline" onClick={() => navigate('/letters')}>
                     View All Letters

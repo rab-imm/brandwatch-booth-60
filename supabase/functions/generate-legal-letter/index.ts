@@ -18,6 +18,16 @@ const LETTER_TYPE_TEMPLATES = {
   general_legal: `Generate a formal legal letter.`
 };
 
+const DATA_PROTECTION_CLAUSES = {
+  employment: `\n\nDATA PROTECTION NOTICE:\nAll personal data collected and processed in this document is handled in accordance with UAE Federal Law No. 45 of 2021 on the Protection of Personal Data (PDPL). The parties agree to process personal data only for the purposes stated herein and to maintain appropriate security measures. Employee records will be retained as per UAE labor law requirements and securely disposed of thereafter.`,
+  
+  lease: `\n\nDATA PROTECTION NOTICE:\nThe personal information contained in this agreement shall be processed in compliance with UAE Federal Law No. 45 of 2021 on the Protection of Personal Data (PDPL). Both parties commit to protecting each other's personal data and using it solely for the purposes of this tenancy/lease agreement. Personal data will be retained for the duration of the tenancy and for any legally required period thereafter.`,
+  
+  nda: `\n\nDATA PROTECTION NOTICE:\nThis agreement acknowledges that confidential information may include personal data protected under UAE Federal Law No. 45 of 2021 (PDPL). All parties agree to process any personal data in accordance with applicable data protection regulations and maintain confidentiality as specified herein.`,
+  
+  general: `\n\nDATA PROTECTION NOTICE:\nThis document contains personal data that is protected under UAE Federal Law No. 45 of 2021 on the Protection of Personal Data. All parties must handle this information in accordance with applicable data protection regulations and use it only for the purposes stated in this document.`
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -109,6 +119,8 @@ Requirements:
 - Use proper date format: [Date will be inserted]
 - Include signature lines and notary sections where appropriate
 - Reference relevant UAE laws when applicable
+- IMPORTANT: Comply with UAE Federal Law No. 45 of 2021 on the Protection of Personal Data (PDPL)
+- Include appropriate data protection language for any personal information processed
 
 Structure the letter properly with:
 1. Header (letterhead information if provided)
@@ -169,7 +181,7 @@ Generate the complete letter now.`;
     }
 
     const data = await response.json();
-    const letterContent = data.choices?.[0]?.message?.content;
+    let letterContent = data.choices?.[0]?.message?.content;
 
     if (!letterContent) {
       return new Response(
@@ -177,6 +189,15 @@ Generate the complete letter now.`;
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Append appropriate data protection clause based on letter type
+    const dataProtectionClause = 
+      letterType.includes('employment') ? DATA_PROTECTION_CLAUSES.employment :
+      letterType.includes('lease') ? DATA_PROTECTION_CLAUSES.lease :
+      letterType === 'nda' ? DATA_PROTECTION_CLAUSES.nda :
+      DATA_PROTECTION_CLAUSES.general;
+    
+    letterContent += dataProtectionClause;
 
     // Deduct credits (queries_used is the DB column name)
     await supabase
