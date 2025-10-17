@@ -12,7 +12,11 @@ const LETTER_TYPE_TEMPLATES = {
   lease_agreement: `Generate a residential/commercial lease agreement compliant with UAE RERA regulations.`,
   lease_termination: `Generate a formal lease termination notice following UAE tenancy laws.`,
   demand_letter: `Generate a formal demand letter for payment or action.`,
-  nda: `Generate a non-disclosure agreement suitable for business use.`,
+  nda: `Generate a non-disclosure agreement suitable for business use in the UAE. 
+MUST include these mandatory clauses:
+- Governing Law: "This Agreement shall be governed by and construed in accordance with the laws of the United Arab Emirates."
+- Dispute Resolution: "Any dispute arising out of or in connection with this Agreement shall be resolved through [UAE courts/arbitration], with jurisdiction in [specific Emirate]."
+Ensure these clauses are prominently placed near the end of the agreement, before the signature section.`,
   settlement_agreement: `Generate a settlement agreement for dispute resolution.`,
   power_of_attorney: `Generate a power of attorney document.`,
   general_legal: `Generate a formal legal letter.`
@@ -27,6 +31,16 @@ const DATA_PROTECTION_CLAUSES = {
   
   general: `\n\nDATA PROTECTION NOTICE:\nThis document contains personal data that is protected under UAE Federal Law No. 45 of 2021 on the Protection of Personal Data. All parties must handle this information in accordance with applicable data protection regulations and use it only for the purposes stated in this document.`
 };
+
+const NDA_LEGAL_CLAUSES = `
+
+GOVERNING LAW:
+This Agreement shall be governed by and construed in accordance with the laws of the United Arab Emirates.
+
+DISPUTE RESOLUTION:
+Any dispute arising out of or in connection with this Agreement shall be resolved through [UAE courts/arbitration], with jurisdiction in [specific Emirate].
+
+NOTE: The parties should specify their preferred dispute resolution method (courts or arbitration) and the specific Emirate (Dubai, Abu Dhabi, etc.) for jurisdiction.`;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -198,6 +212,11 @@ Generate the complete letter now.`;
       DATA_PROTECTION_CLAUSES.general;
     
     letterContent += dataProtectionClause;
+
+    // Add NDA-specific legal clauses if this is an NDA
+    if (letterType === 'nda') {
+      letterContent += NDA_LEGAL_CLAUSES;
+    }
 
     // Deduct credits (queries_used is the DB column name)
     await supabase
