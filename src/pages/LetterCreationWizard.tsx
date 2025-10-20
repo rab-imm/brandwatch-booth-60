@@ -16,6 +16,8 @@ import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Shield, AlertCircle } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
+import { DatePickerField } from "@/components/ui/date-picker-field"
+import { format, parseISO, isValid, isBefore, isAfter, subYears, addYears, subMonths, addMonths, startOfDay } from "date-fns"
 
 const LETTER_TYPES = [
   { value: "employment_termination", label: "Employment Termination", icon: "briefcase" },
@@ -82,13 +84,13 @@ export default function LetterCreationWizard() {
       employment_termination: [
         { key: "employeeName", label: "Employee Name", placeholder: "Full name" },
         { key: "position", label: "Position", placeholder: "Job title" },
-        { key: "terminationDate", label: "Termination Date", placeholder: "DD/MM/YYYY" },
+        { key: "terminationDate", label: "Termination Date", type: "date", placeholder: "Select date" },
         { key: "reason", label: "Reason for Termination", placeholder: "Brief explanation", multiline: true },
       ],
       employment_contract: [
         { key: "employeeName", label: "Employee Name", placeholder: "Full name" },
         { key: "position", label: "Position", placeholder: "Job title" },
-        { key: "startDate", label: "Start Date", placeholder: "DD/MM/YYYY" },
+        { key: "startDate", label: "Start Date", type: "date", placeholder: "Select date" },
         { key: "salary", label: "Salary (AED)", placeholder: "Monthly salary" },
         { key: "benefits", label: "Benefits", placeholder: "Healthcare, housing, etc.", multiline: true },
       ],
@@ -97,13 +99,13 @@ export default function LetterCreationWizard() {
         { key: "tenantName", label: "Tenant Name", placeholder: "Full name" },
         { key: "landlordName", label: "Landlord Name", placeholder: "Full name" },
         { key: "rentAmount", label: "Annual Rent (AED)", placeholder: "Amount in AED" },
-        { key: "startDate", label: "Lease Start Date", placeholder: "DD/MM/YYYY" },
+        { key: "startDate", label: "Lease Start Date", type: "date", placeholder: "Select date" },
         { key: "duration", label: "Lease Duration", placeholder: "e.g., 12 months" },
       ],
       demand_letter: [
         { key: "demandType", label: "Type of Demand", placeholder: "Payment, action, etc." },
         { key: "amount", label: "Amount (if applicable)", placeholder: "AED amount" },
-        { key: "deadline", label: "Deadline for Compliance", placeholder: "DD/MM/YYYY" },
+        { key: "deadline", label: "Deadline for Compliance", type: "date", placeholder: "Select date" },
         { key: "consequences", label: "Consequences of Non-Compliance", placeholder: "Legal action, etc.", multiline: true },
       ],
       workplace_complaint: [
@@ -111,7 +113,7 @@ export default function LetterCreationWizard() {
         { key: "managerName", label: "Manager/Supervisor Name", placeholder: "Full name" },
         { key: "department", label: "Department", placeholder: "Department name" },
         { key: "complaintDetails", label: "Complaint Details", placeholder: "Describe the issue in detail", multiline: true },
-        { key: "incidentDate", label: "Date of Incident", placeholder: "DD/MM/YYYY" },
+        { key: "incidentDate", label: "Date of Incident", type: "date", placeholder: "Select date" },
         { key: "witnesses", label: "Witnesses (if any)", placeholder: "Names of witnesses", multiline: true },
       ],
     }
@@ -148,6 +150,102 @@ export default function LetterCreationWizard() {
           variant: "destructive"
         })
         return false
+      }
+
+      // Validate date fields
+      const dateFields = required.filter(field => field.type === "date")
+      for (const field of dateFields) {
+        const dateValue = details[field.key]
+        if (!dateValue) continue
+
+        try {
+          const date = parseISO(dateValue)
+          const today = startOfDay(new Date())
+
+          if (!isValid(date)) {
+            toast({
+              title: "Invalid date",
+              description: `Please select a valid ${field.label.toLowerCase()}`,
+              variant: "destructive"
+            })
+            return false
+          }
+
+          // Validate based on field type
+          if (field.key === "terminationDate") {
+            const oneYearAgo = subYears(today, 1)
+            const sixMonthsFromNow = addMonths(today, 6)
+            if (isBefore(date, oneYearAgo) || isAfter(date, sixMonthsFromNow)) {
+              toast({
+                title: "Invalid termination date",
+                description: "Termination date should be within the past year or next 6 months",
+                variant: "destructive"
+              })
+              return false
+            }
+          }
+
+          if (field.key === "startDate") {
+            const threeMonthsAgo = subMonths(today, 3)
+            const oneYearFromNow = addYears(today, 1)
+            if (isBefore(date, threeMonthsAgo) || isAfter(date, oneYearFromNow)) {
+              toast({
+                title: "Invalid start date",
+                description: "Start date should be within 3 months in the past or 1 year in the future",
+                variant: "destructive"
+              })
+              return false
+            }
+          }
+
+          if (field.key === "deadline") {
+            const tomorrow = addMonths(today, 0)
+            const twoYearsFromNow = addYears(today, 2)
+            if (isBefore(date, tomorrow)) {
+              toast({
+                title: "Invalid deadline",
+                description: "Deadline must be in the future",
+                variant: "destructive"
+              })
+              return false
+            }
+            if (isAfter(date, twoYearsFromNow)) {
+              toast({
+                title: "Invalid deadline",
+                description: "Deadline should not be more than 2 years in the future",
+                variant: "destructive"
+              })
+              return false
+            }
+          }
+
+          if (field.key === "incidentDate") {
+            const fiveYearsAgo = subYears(today, 5)
+            if (isAfter(date, today)) {
+              toast({
+                title: "Invalid incident date",
+                description: "Incident date cannot be in the future",
+                variant: "destructive"
+              })
+              return false
+            }
+            if (isBefore(date, fiveYearsAgo)) {
+              toast({
+                title: "Invalid incident date",
+                description: "Incident date should not be more than 5 years ago",
+                variant: "destructive"
+              })
+              return false
+            }
+          }
+        } catch (error) {
+          toast({
+            title: "Invalid date",
+            description: `Please select a valid ${field.label.toLowerCase()}`,
+            variant: "destructive"
+          })
+          return false
+        }
       }
     }
 
@@ -341,22 +439,34 @@ export default function LetterCreationWizard() {
               <div className="space-y-4">
                 {getRequiredFields().map((field) => (
                   <div key={field.key} className="space-y-2">
-                    <Label htmlFor={field.key}>{field.label}</Label>
-                    {field.multiline ? (
-                      <Textarea
-                        id={field.key}
+                    {field.type === "date" ? (
+                      <DatePickerField
+                        label={field.label}
                         placeholder={field.placeholder}
                         value={details[field.key] || ""}
-                        onChange={(e) => handleDetailChange(field.key, e.target.value)}
-                        rows={3}
+                        onChange={(date) => handleDetailChange(field.key, date)}
                       />
+                    ) : field.multiline ? (
+                      <>
+                        <Label htmlFor={field.key}>{field.label}</Label>
+                        <Textarea
+                          id={field.key}
+                          placeholder={field.placeholder}
+                          value={details[field.key] || ""}
+                          onChange={(e) => handleDetailChange(field.key, e.target.value)}
+                          rows={3}
+                        />
+                      </>
                     ) : (
-                      <Input
-                        id={field.key}
-                        placeholder={field.placeholder}
-                        value={details[field.key] || ""}
-                        onChange={(e) => handleDetailChange(field.key, e.target.value)}
-                      />
+                      <>
+                        <Label htmlFor={field.key}>{field.label}</Label>
+                        <Input
+                          id={field.key}
+                          placeholder={field.placeholder}
+                          value={details[field.key] || ""}
+                          onChange={(e) => handleDetailChange(field.key, e.target.value)}
+                        />
+                      </>
                     )}
                   </div>
                 ))}
@@ -438,14 +548,28 @@ export default function LetterCreationWizard() {
                     <div className="space-y-2">
                       {Object.entries(details)
                         .filter(([key]) => key !== 'conversationContext')
-                        .map(([key, value]) => (
-                          <div key={key} className="flex justify-between text-sm">
-                            <span className="text-muted-foreground capitalize">
-                              {key.replace(/([A-Z])/g, ' $1').trim()}:
-                            </span>
-                            <span className="font-medium">{value}</span>
-                          </div>
-                        ))}
+                        .map(([key, value]) => {
+                          // Format date fields
+                          const isDateField = ['terminationDate', 'startDate', 'deadline', 'incidentDate'].includes(key)
+                          const displayValue = isDateField && value
+                            ? (() => {
+                                try {
+                                  return format(parseISO(value), 'dd/MM/yyyy')
+                                } catch {
+                                  return value
+                                }
+                              })()
+                            : value
+
+                          return (
+                            <div key={key} className="flex justify-between text-sm">
+                              <span className="text-muted-foreground capitalize">
+                                {key.replace(/([A-Z])/g, ' $1').trim()}:
+                              </span>
+                              <span className="font-medium">{displayValue}</span>
+                            </div>
+                          )
+                        })}
                     </div>
                   </div>
                 </div>
