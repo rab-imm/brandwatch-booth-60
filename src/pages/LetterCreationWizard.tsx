@@ -814,12 +814,18 @@ export default function LetterCreationWizard() {
 
       const { content, creditsUsed } = response.data;
 
-      const { error: saveError } = await supabase.from("generated_letters").insert({
-        user_id: profile?.user_id,
-        letter_type: letterType,
+      // Generate a title for the letter
+      const letterTitle = `${LETTER_TYPES.find(t => t.value === letterType)?.label} - ${format(new Date(), 'dd/MM/yyyy')}`;
+
+      const { error: saveError } = await supabase.from("legal_letters").insert({
+        user_id: profile?.user_id!,
+        company_id: profile?.current_company_id,
+        letter_type: letterType as any,
+        title: letterTitle,
         content,
-        details,
+        status: 'finalized' as any,
         credits_used: creditsUsed,
+        metadata: details,
       });
 
       if (saveError) throw saveError;
