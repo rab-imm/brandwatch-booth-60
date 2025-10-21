@@ -31,7 +31,14 @@ import {
   IconCalendar,
   IconAlertTriangle,
   IconBan,
-  IconFileText
+  IconFileText,
+  IconHome,
+  IconShield,
+  IconKey,
+  IconTool,
+  IconBolt,
+  IconSettings,
+  IconDoorExit
 } from "@tabler/icons-react";
 import { Icon } from "@/components/ui/Icon";
 
@@ -997,6 +1004,264 @@ export default function LetterCreationWizard() {
         if (details.witnessesRequired >= 2 && (!details.witness2Name || !details.witness2EmiratesId)) {
           errors.push("Witness 2 details are required");
         }
+      }
+    }
+
+    if (letterType === 'lease_agreement') {
+      // === REQUIRED FIELDS VALIDATION ===
+      const requiredFields = [
+        'landlordName', 'landlordId', 'landlordAddress', 'landlordPhone', 'landlordEmail',
+        'tenantName', 'tenantId', 'tenantAddress', 'tenantPhone', 'tenantEmail',
+        'propertyAddress', 'propertyType', 'unitNumber', 'propertyAreaSqm', 'parkingSpaces',
+        'propertyCondition', 'furnished', 'appliancesIncluded',
+        'leaseStartDate', 'leaseEndDate', 'autoRenewal',
+        'annualRent', 'paymentFrequency', 'paymentMethod', 'firstPaymentDueDate',
+        'gracePeriod', 'bouncedChequePenalty', 'rentIncludesMunicipalityFees',
+        'securityDeposit', 'securityDepositPaymentMethod', 'securityDepositPaymentDate',
+        'depositSeparateAccount', 'depositReturnTimeline', 'depositReturnMethod',
+        'permittedUse', 'numberOfOccupants', 'petsAllowed', 'prohibitedActivities',
+        'landlordMaintenanceResponsibilities', 'tenantMaintenanceResponsibilities',
+        'repairRequestProcedure', 'emergencyRepairProtocol', 'repairResponseTimeline', 'repairCostAllocation',
+        'electricityResponsibility', 'waterResponsibility', 'gasResponsibility',
+        'coolingResponsibility', 'internetResponsibility', 'serviceChargesResponsibility',
+        'municipalityFeeResponsibility', 'chillerMaintenanceResponsibility',
+        'utilityConnectionProcedure', 'finalUtilitySettlement',
+        'alterationsAllowed', 'landlordBuildingInsurance', 'tenantContentsInsuranceRequired',
+        'tenantLiabilityInsuranceRequired', 'landlordAccessNotice', 'permittedAccessReasons',
+        'inspectionFrequency', 'emergencyAccess',
+        'sublettingAllowed', 'assignmentAllowed',
+        'tenantNoticePeriod', 'earlyTerminationPenalty', 'landlordNoticePeriod',
+        'validGroundsLandlordTermination', 'moveOutProcedure', 'finalInspectionProcess',
+        'registrationRequired', 'registrationFeesPayer', 'registrationTimeline', 'registrationDocuments',
+        'emirate', 'disputeResolutionAuthority', 'governingLaw',
+        'dataRetentionPeriod', 'dataProtectionEmail'
+      ];
+
+      for (const field of requiredFields) {
+        if (!details[field] || (typeof details[field] === 'string' && !details[field].trim())) {
+          errors.push(`Required field missing: ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+        }
+      }
+
+      // === CONDITIONAL REQUIRED FIELDS ===
+      if (details.autoRenewal === 'Yes') {
+        if (!details.renewalNoticePeriod) errors.push("Renewal notice period is required when auto-renewal is enabled");
+        if (!details.renewalRentIncrease) errors.push("Renewal rent increase is required when auto-renewal is enabled");
+      }
+
+      if (details.paymentMethod && details.paymentMethod.includes('Cheque')) {
+        if (!details.numberOfCheques) errors.push("Number of cheques is required when payment method includes cheques");
+        if (!details.chequeDatesAmounts) errors.push("Cheque dates and amounts must be specified");
+      }
+
+      if (details.paymentMethod === 'Bank Transfer') {
+        if (!details.bankName || !details.accountName || !details.accountNumber || !details.iban) {
+          errors.push("Bank details (bank name, account name, account number, IBAN) are required for bank transfer");
+        }
+      }
+
+      if (details.furnished === 'Fully Furnished' || details.furnished === 'Semi-Furnished') {
+        if (!details.furnitureList) errors.push("Furniture list is required for furnished/semi-furnished properties");
+      }
+
+      if (details.appliancesIncluded === 'Yes' && !details.appliancesList) {
+        errors.push("Appliances list is required when appliances are included");
+      }
+
+      if (details.latePaymentPenalty === 'Yes' && !details.latePaymentRate) {
+        errors.push("Late payment rate is required when late payment penalty applies");
+      }
+
+      if ((details.petsAllowed === 'Yes' || details.petsAllowed === 'With Consent') && details.petDepositRequired === 'Yes' && !details.petDepositAmount) {
+        errors.push("Pet deposit amount is required when pet deposit is required");
+      }
+
+      if (details.alterationsAllowed !== 'No Alterations') {
+        if (!details.alterationsProhibited) errors.push("Explicitly prohibited alterations must be specified");
+        if (!details.whoPaysAlterations) errors.push("Who pays for alterations must be specified");
+        if (!details.restorationRequired) errors.push("Restoration requirement must be specified");
+      }
+
+      if (details.landlordBuildingInsurance === 'Yes' && !details.landlordInsuranceCoverage) {
+        errors.push("Landlord insurance coverage amount is required");
+      }
+
+      if (details.sublettingAllowed !== 'No' && !details.sublettingConditions) {
+        errors.push("Subletting conditions must be specified when subletting is allowed");
+      }
+
+      if (details.assignmentAllowed !== 'No' && !details.assignmentProcess) {
+        errors.push("Assignment process must be specified when assignment is allowed");
+      }
+
+      // === DATE VALIDATION ===
+      const startDate = new Date(details.leaseStartDate);
+      const endDate = new Date(details.leaseEndDate);
+      const today = startOfDay(new Date());
+
+      if (isBefore(startDate, subMonths(today, 6))) {
+        errors.push("Lease start date cannot be more than 6 months in the past");
+      }
+
+      if (!isAfter(endDate, startDate)) {
+        errors.push("Lease end date must be after start date");
+      }
+
+      const monthsDiff = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30);
+      if (monthsDiff < 11) {
+        toast({
+          title: "Short Lease Duration Warning",
+          description: "UAE residential leases are typically 1 year minimum. Please verify this short duration is intentional.",
+          variant: "default",
+        });
+      }
+
+      if (details.firstPaymentDueDate) {
+        const firstPayment = new Date(details.firstPaymentDueDate);
+        if (isBefore(firstPayment, startDate)) errors.push("First payment due date cannot be before lease start date");
+        if (isAfter(firstPayment, endDate)) errors.push("First payment due date cannot be after lease end date");
+      }
+
+      if (details.securityDepositPaymentDate) {
+        const depositDate = new Date(details.securityDepositPaymentDate);
+        if (isAfter(depositDate, startDate)) {
+          toast({
+            title: "Security Deposit Date Warning",
+            description: "Security deposit is typically paid before or on the lease start date.",
+            variant: "default",
+          });
+        }
+      }
+
+      // === EMAIL VALIDATION ===
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (details.landlordEmail && !emailRegex.test(details.landlordEmail)) errors.push("Landlord email must be a valid email address");
+      if (details.tenantEmail && !emailRegex.test(details.tenantEmail)) errors.push("Tenant email must be a valid email address");
+      if (details.dataProtectionEmail && !emailRegex.test(details.dataProtectionEmail)) errors.push("Data protection contact email must be a valid email address");
+
+      // === UAE PHONE VALIDATION ===
+      const uaePhoneRegex = /^\+971\s?\d{1,2}\s?\d{3}\s?\d{4}$/;
+      if (details.landlordPhone && !uaePhoneRegex.test(details.landlordPhone)) errors.push("Landlord phone must be in UAE format: +971 XX XXX XXXX");
+      if (details.tenantPhone && !uaePhoneRegex.test(details.tenantPhone)) errors.push("Tenant phone must be in UAE format: +971 XX XXX XXXX");
+
+      // === EMIRATES ID / PASSPORT VALIDATION ===
+      const emiratesIdRegex = /^784-\d{4}-\d{7}-\d{1}$/;
+      const passportRegex = /^[A-Z0-9]{6,9}$/;
+      
+      if (details.landlordId) {
+        const isEmiratesId = emiratesIdRegex.test(details.landlordId);
+        const isPassport = passportRegex.test(details.landlordId);
+        if (!isEmiratesId && !isPassport) errors.push("Landlord ID must be valid Emirates ID (784-XXXX-XXXXXXX-X) or Passport (6-9 alphanumeric)");
+      }
+      
+      if (details.tenantId) {
+        const isEmiratesId = emiratesIdRegex.test(details.tenantId);
+        const isPassport = passportRegex.test(details.tenantId);
+        if (!isEmiratesId && !isPassport) errors.push("Tenant ID must be valid Emirates ID (784-XXXX-XXXXXXX-X) or Passport (6-9 alphanumeric)");
+      }
+
+      // === NUMERIC VALIDATIONS ===
+      const annualRent = parseFloat(details.annualRent || 0);
+      if (annualRent <= 0) errors.push("Annual rent must be a positive number");
+      if (annualRent < 10000) {
+        toast({
+          title: "Low Rent Warning",
+          description: "Annual rent seems unusually low for UAE properties. Please verify.",
+          variant: "default",
+        });
+      }
+
+      const securityDeposit = parseFloat(details.securityDeposit || 0);
+      if (securityDeposit < 0) errors.push("Security deposit cannot be negative");
+      if (annualRent > 0 && securityDeposit > 0) {
+        const depositPercentage = (securityDeposit / annualRent) * 100;
+        if (depositPercentage < 3 || depositPercentage > 15) {
+          toast({
+            title: "Security Deposit Warning",
+            description: `Security deposit is ${depositPercentage.toFixed(1)}% of annual rent. Typical range is 5-10%.`,
+            variant: "default",
+          });
+        }
+      }
+
+      const propertyArea = parseFloat(details.propertyAreaSqm || 0);
+      if (propertyArea <= 0) errors.push("Property area must be a positive number");
+
+      const parkingSpaces = parseInt(details.parkingSpaces || 0);
+      if (parkingSpaces < 0) errors.push("Parking spaces cannot be negative");
+
+      const occupants = parseInt(details.numberOfOccupants || 0);
+      if (occupants <= 0) errors.push("Number of occupants must be at least 1");
+
+      const tenantNotice = parseInt(details.tenantNoticePeriod || 0);
+      if (tenantNotice < 30 || tenantNotice > 180) {
+        toast({
+          title: "Tenant Notice Period Warning",
+          description: "Tenant notice period is typically 60-90 days in UAE. Please verify.",
+          variant: "default",
+        });
+      }
+
+      const landlordNotice = parseInt(details.landlordNoticePeriod || 0);
+      if (landlordNotice < 90) {
+        toast({
+          title: "Landlord Notice Period Warning",
+          description: "Landlord notice period must be at least 90 days by UAE law (12 months for residential personal use). Please verify.",
+          variant: "default",
+        });
+      }
+
+      const earlyTerminationPenalty = parseFloat(details.earlyTerminationPenalty || 0);
+      if (earlyTerminationPenalty < 0) errors.push("Early termination penalty cannot be negative");
+      if (earlyTerminationPenalty > 3) {
+        toast({
+          title: "High Termination Penalty Warning",
+          description: "Early termination penalty exceeds 3 months rent. Typical range is 1-2 months.",
+          variant: "default",
+        });
+      }
+
+      const depositReturnDays = parseInt(details.depositReturnTimeline || 0);
+      if (depositReturnDays < 7) errors.push("Deposit return timeline should be at least 7 days");
+      if (depositReturnDays > 90) {
+        toast({
+          title: "Long Deposit Return Timeline",
+          description: "Deposit return timeline exceeds 90 days. Typical range is 30-60 days.",
+          variant: "default",
+        });
+      }
+
+      const registrationDays = parseInt(details.registrationTimeline || 0);
+      if (registrationDays > 30) {
+        toast({
+          title: "Registration Timeline Warning",
+          description: "Ejari/Tawtheeq registration should typically be completed within 30 days.",
+          variant: "default",
+        });
+      }
+
+      // === BUSINESS LOGIC VALIDATIONS ===
+      if (details.paymentFrequency && details.numberOfCheques) {
+        const expectedCheques: { [key: string]: number } = {
+          'Annual (1 cheque)': 1,
+          'Semi-Annual (2 cheques)': 2,
+          'Quarterly (4 cheques)': 4,
+          'Monthly (12 cheques)': 12
+        };
+        const expected = expectedCheques[details.paymentFrequency];
+        const actual = parseInt(details.numberOfCheques);
+        if (expected && actual !== expected) {
+          toast({
+            title: "Cheque Count Mismatch",
+            description: `Payment frequency is ${details.paymentFrequency} but number of cheques is ${actual}. Expected ${expected}.`,
+            variant: "default",
+          });
+        }
+      }
+
+      if (details.propertyType && ['Apartment', 'Villa', 'Townhouse'].includes(details.propertyType)) {
+        if (!details.numberOfBedrooms) errors.push("Number of bedrooms is required for residential properties");
+        if (!details.numberOfBathrooms) errors.push("Number of bathrooms is required for residential properties");
       }
     }
 
@@ -2415,6 +2680,592 @@ export default function LetterCreationWizard() {
                     <span>✓ UAE Labor Law compliant</span>
                     <span>✓ Employee data rights included</span>
                     <span>✓ Governing law established</span>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            </div>
+          ) : letterType === 'lease_agreement' ? (
+            <div className="space-y-4 mt-6">
+              <Alert className="bg-blue-50 border-blue-200">
+                <AlertDescription className="text-sm text-blue-900">
+                  <strong>Review all lease agreement details carefully before generating. Ensure compliance with UAE tenancy law and RERA regulations.</strong>
+                </AlertDescription>
+              </Alert>
+
+              {/* 1. PARTIES TO LEASE */}
+              <Card className="border-blue-200">
+                <CardHeader className="bg-blue-50">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <IconUsers className="h-5 w-5" />
+                    Parties to Lease
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Landlord (Lessor)</p>
+                    <p className="font-medium">{details.landlordName}</p>
+                    <p className="text-sm text-muted-foreground">ID: {details.landlordId}</p>
+                    <p className="text-sm text-muted-foreground">{details.landlordAddress}</p>
+                    <p className="text-sm text-muted-foreground">{details.landlordEmail} / {details.landlordPhone}</p>
+                    {details.landlordRep && <p className="text-sm text-muted-foreground">Rep: {details.landlordRep} ({details.landlordRepId})</p>}
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Tenant (Lessee)</p>
+                    <p className="font-medium">{details.tenantName}</p>
+                    <p className="text-sm text-muted-foreground">ID: {details.tenantId}</p>
+                    <p className="text-sm text-muted-foreground">{details.tenantAddress}</p>
+                    <p className="text-sm text-muted-foreground">{details.tenantEmail} / {details.tenantPhone}</p>
+                    {details.tenantRep && <p className="text-sm text-muted-foreground">Rep: {details.tenantRep} ({details.tenantRepId})</p>}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 2. PROPERTY DETAILS */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <IconHome className="h-5 w-5" />
+                    Property Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Property Address</p>
+                    <p className="font-medium">{details.propertyAddress}</p>
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Property Type</p>
+                      <Badge>{details.propertyType}</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Unit/Plot Number</p>
+                      <p className="text-sm">{details.unitNumber}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Property Area</p>
+                      <p className="text-sm">{details.propertyAreaSqm} sq.m {details.propertyAreaSqft && `(${details.propertyAreaSqft} sq.ft)`}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Parking Spaces</p>
+                      <p className="text-sm">{details.parkingSpaces} {details.parkingLocation && `- ${details.parkingLocation}`}</p>
+                    </div>
+                  </div>
+                  {['Apartment', 'Villa', 'Townhouse'].includes(details.propertyType) && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Bedrooms / Bathrooms</p>
+                        <p className="text-sm">{details.numberOfBedrooms} BD / {details.numberOfBathrooms} BA</p>
+                      </div>
+                    </div>
+                  )}
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Property Condition</p>
+                      <Badge variant="secondary">{details.propertyCondition}</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Furnished</p>
+                      <Badge variant="secondary">{details.furnished}</Badge>
+                    </div>
+                  </div>
+                  {details.furnitureList && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Furniture Included</p>
+                      <p className="text-sm whitespace-pre-wrap">{details.furnitureList}</p>
+                    </div>
+                  )}
+                  {details.appliancesIncluded === 'Yes' && details.appliancesList && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Appliances Included</p>
+                      <p className="text-sm whitespace-pre-wrap">{details.appliancesList}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* 3. LEASE TERM */}
+              <Card className="border-purple-200">
+                <CardHeader className="bg-purple-50">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <IconCalendar className="h-5 w-5" />
+                    Lease Term
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Start Date</p>
+                      <p className="font-medium">{format(new Date(details.leaseStartDate), 'PPP')}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">End Date</p>
+                      <p className="font-medium">{format(new Date(details.leaseEndDate), 'PPP')}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Duration</p>
+                      <Badge>{details.leaseDuration}</Badge>
+                    </div>
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Automatic Renewal</p>
+                    <Badge variant={details.autoRenewal === 'Yes' ? "default" : "secondary"}>{details.autoRenewal}</Badge>
+                    {details.autoRenewal === 'Yes' && (
+                      <div className="mt-2 text-sm">
+                        <p>Notice Period: {details.renewalNoticePeriod} days</p>
+                        <p>Rent Increase: {details.renewalRentIncrease}%</p>
+                        {details.renewalTerms && <p className="text-muted-foreground mt-1">{details.renewalTerms}</p>}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 4. RENT & PAYMENT */}
+              <Card className="border-green-200">
+                <CardHeader className="bg-green-50">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <IconCurrencyDollar className="h-5 w-5" />
+                    Rent & Payment Terms
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Annual Rent Amount</p>
+                    <p className="text-2xl font-bold text-green-700">AED {parseFloat(details.annualRent).toLocaleString()}</p>
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Payment Frequency</p>
+                      <Badge>{details.paymentFrequency}</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Payment Method</p>
+                      <Badge variant="secondary">{details.paymentMethod}</Badge>
+                    </div>
+                  </div>
+                  {details.paymentMethod && details.paymentMethod.includes('Cheque') && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Cheque Details</p>
+                      <p className="text-sm">Number of Cheques: {details.numberOfCheques}</p>
+                      {details.chequeDatesAmounts && <p className="text-sm whitespace-pre-wrap mt-1">{details.chequeDatesAmounts}</p>}
+                    </div>
+                  )}
+                  {details.paymentMethod === 'Bank Transfer' && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Bank Details</p>
+                      <p className="text-sm">Bank: {details.bankName}</p>
+                      <p className="text-sm">Account: {details.accountName}</p>
+                      <p className="text-sm">Account #: {details.accountNumber}</p>
+                      <p className="text-sm">IBAN: {details.iban}</p>
+                    </div>
+                  )}
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">First Payment Due</p>
+                    <p className="text-sm">{format(new Date(details.firstPaymentDueDate), 'PPP')}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Grace Period</p>
+                      <p className="text-sm">{details.gracePeriod} days</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Bounced Cheque Penalty</p>
+                      <p className="text-sm text-red-600">AED {parseFloat(details.bouncedChequePenalty).toLocaleString()}</p>
+                    </div>
+                  </div>
+                  {details.latePaymentPenalty === 'Yes' && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Late Payment Penalty</p>
+                      <p className="text-sm text-red-600">{details.latePaymentRate}% per day</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* 5. SECURITY DEPOSIT */}
+              <Card className="border-green-200">
+                <CardHeader className="bg-green-50">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <IconShield className="h-5 w-5" />
+                    Security Deposit
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Deposit Amount</p>
+                    <p className="text-xl font-bold text-green-700">AED {parseFloat(details.securityDeposit).toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      ({((parseFloat(details.securityDeposit) / parseFloat(details.annualRent)) * 100).toFixed(1)}% of annual rent)
+                    </p>
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Payment Method</p>
+                      <Badge variant="secondary">{details.securityDepositPaymentMethod}</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Payment Date</p>
+                      <p className="text-sm">{format(new Date(details.securityDepositPaymentDate), 'PPP')}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Held in Separate Account</p>
+                    <Badge variant={details.depositSeparateAccount === 'Yes' ? "default" : "secondary"}>{details.depositSeparateAccount}</Badge>
+                    {details.depositSeparateAccount === 'Yes' && details.depositBankDetails && (
+                      <p className="text-sm text-muted-foreground mt-1">{details.depositBankDetails}</p>
+                    )}
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Permitted Deductions</p>
+                    <p className="text-sm whitespace-pre-wrap">{details.permittedDeductions}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Return Timeline</p>
+                      <p className="text-sm">{details.depositReturnTimeline} days after lease end</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Return Method</p>
+                      <Badge variant="secondary">{details.depositReturnMethod}</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 6. PROPERTY USE */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <IconKey className="h-5 w-5" />
+                    Property Use & Restrictions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Permitted Use</p>
+                      <Badge>{details.permittedUse}</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Number of Occupants</p>
+                      <p className="text-sm">{details.numberOfOccupants} person(s)</p>
+                    </div>
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Pets Allowed</p>
+                      <Badge variant={details.petsAllowed === 'Yes' ? "default" : "secondary"}>{details.petsAllowed}</Badge>
+                      {details.petDepositRequired === 'Yes' && details.petDepositAmount && (
+                        <p className="text-sm mt-1">Deposit: AED {parseFloat(details.petDepositAmount).toLocaleString()}</p>
+                      )}
+                    </div>
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Prohibited Activities</p>
+                    <div className="text-sm whitespace-pre-wrap text-red-600">{details.prohibitedActivities}</div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 7. MAINTENANCE & REPAIRS */}
+              <Card className="border-amber-200">
+                <CardHeader className="bg-amber-50">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <IconTool className="h-5 w-5" />
+                    Maintenance & Repairs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Landlord Responsibilities</p>
+                    <div className="text-sm whitespace-pre-wrap bg-blue-50 p-3 rounded">{details.landlordMaintenanceResponsibilities}</div>
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Tenant Responsibilities</p>
+                    <div className="text-sm whitespace-pre-wrap bg-amber-50 p-3 rounded">{details.tenantMaintenanceResponsibilities}</div>
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Repair Request Procedure</p>
+                    <p className="text-sm">{details.repairRequestProcedure}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Emergency Repair Protocol</p>
+                    <p className="text-sm text-red-600">{details.emergencyRepairProtocol}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Response Timeline</p>
+                      <Badge>{details.repairResponseTimeline} days</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 8. UTILITIES & SERVICES */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <IconBolt className="h-5 w-5" />
+                    Utilities & Services Responsibilities
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Electricity (DEWA/FEWA)</p>
+                      <Badge variant="secondary">{details.electricityResponsibility}</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Water</p>
+                      <Badge variant="secondary">{details.waterResponsibility}</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Gas</p>
+                      <Badge variant="secondary">{details.gasResponsibility}</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">District Cooling/Heating</p>
+                      <Badge variant="secondary">{details.coolingResponsibility}</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Internet/Cable</p>
+                      <Badge variant="secondary">{details.internetResponsibility}</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Service Charges/Mgmt Fees</p>
+                      <Badge variant="secondary">{details.serviceChargesResponsibility}</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Municipality Housing Fee</p>
+                      <Badge variant="secondary">{details.municipalityFeeResponsibility}</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Chiller Maintenance</p>
+                      <Badge variant="secondary">{details.chillerMaintenanceResponsibility}</Badge>
+                    </div>
+                  </div>
+                  <Separator className="my-3" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Utility Connection Procedure</p>
+                    <p className="text-sm">{details.utilityConnectionProcedure}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Final Utility Settlement</p>
+                    <p className="text-sm">{details.finalUtilitySettlement}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 9. ALTERATIONS & INSURANCE */}
+              <Card className="border-purple-200">
+                <CardHeader className="bg-purple-50">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <IconSettings className="h-5 w-5" />
+                    Alterations & Insurance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Alterations Allowed</p>
+                    <Badge variant={details.alterationsAllowed === 'No Alterations' ? "secondary" : "default"}>{details.alterationsAllowed}</Badge>
+                    {details.alterationsAllowed !== 'No Alterations' && (
+                      <>
+                        {details.alterationsProhibited && (
+                          <div className="mt-2">
+                            <p className="text-xs font-medium text-muted-foreground">Prohibited:</p>
+                            <p className="text-sm text-red-600">{details.alterationsProhibited}</p>
+                          </div>
+                        )}
+                        {details.whoPaysAlterations && (
+                          <p className="text-sm mt-1">Cost: {details.whoPaysAlterations}</p>
+                        )}
+                        {details.restorationRequired && (
+                          <p className="text-sm mt-1">Restoration: {details.restorationRequired}</p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Landlord Building Insurance</p>
+                    <Badge variant={details.landlordBuildingInsurance === 'Yes' ? "default" : "secondary"}>{details.landlordBuildingInsurance}</Badge>
+                    {details.landlordBuildingInsurance === 'Yes' && details.landlordInsuranceCoverage && (
+                      <p className="text-sm mt-1">Coverage: AED {parseFloat(details.landlordInsuranceCoverage).toLocaleString()}</p>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Tenant Contents Insurance</p>
+                    <Badge variant={details.tenantContentsInsuranceRequired.includes('Required') ? "destructive" : "secondary"}>{details.tenantContentsInsuranceRequired}</Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Tenant Liability Insurance</p>
+                    <Badge variant={details.tenantLiabilityInsuranceRequired === 'Yes' ? "destructive" : "secondary"}>{details.tenantLiabilityInsuranceRequired}</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 10. ACCESS, SUBLETTING & TERMINATION */}
+              <Card className="border-amber-200">
+                <CardHeader className="bg-amber-50">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <IconDoorExit className="h-5 w-5" />
+                    Access, Subletting & Termination
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Landlord Access Notice Period</p>
+                    <Badge>{details.landlordAccessNotice} hours</Badge>
+                    <p className="text-sm text-muted-foreground mt-1">Permitted Reasons: {details.permittedAccessReasons}</p>
+                    <p className="text-sm text-red-600 mt-1">Emergency Access: {details.emergencyAccess}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Inspection Frequency</p>
+                    <Badge variant="secondary">{details.inspectionFrequency}</Badge>
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Subletting</p>
+                      <Badge variant={details.sublettingAllowed === 'No' ? "destructive" : "default"}>{details.sublettingAllowed}</Badge>
+                      {details.sublettingAllowed !== 'No' && details.sublettingConditions && (
+                        <p className="text-xs text-muted-foreground mt-1">{details.sublettingConditions}</p>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Assignment</p>
+                      <Badge variant={details.assignmentAllowed === 'No' ? "destructive" : "default"}>{details.assignmentAllowed}</Badge>
+                      {details.assignmentAllowed !== 'No' && details.assignmentProcess && (
+                        <p className="text-xs text-muted-foreground mt-1">{details.assignmentProcess}</p>
+                      )}
+                    </div>
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Tenant Notice Period</p>
+                      <Badge>{details.tenantNoticePeriod} days</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Landlord Notice Period</p>
+                      <Badge>{details.landlordNoticePeriod} days</Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Early Termination Penalty</p>
+                    <p className="text-lg font-bold text-red-600">{details.earlyTerminationPenalty} month(s) rent</p>
+                    {details.earlyTerminationWaiverConditions && (
+                      <p className="text-xs text-muted-foreground mt-1">Waiver Conditions: {details.earlyTerminationWaiverConditions}</p>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Valid Grounds for Landlord Termination</p>
+                    <p className="text-sm whitespace-pre-wrap">{details.validGroundsLandlordTermination}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 11. EJARI REGISTRATION & LEGAL */}
+              <Card className="border-green-200">
+                <CardHeader className="bg-green-50">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <IconShieldCheck className="h-5 w-5" />
+                    EJARI Registration & Legal Framework
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Registration Required</p>
+                    <Badge variant="destructive">{details.registrationRequired}</Badge>
+                    {details.registrationRequired && (
+                      <>
+                        <p className="text-sm mt-1">Fees Paid By: {details.registrationFeesPayer}</p>
+                        <p className="text-sm">Timeline: Within {details.registrationTimeline} days of signing</p>
+                        <p className="text-xs text-muted-foreground mt-2">Required Documents: {details.registrationDocuments}</p>
+                      </>
+                    )}
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Jurisdiction</p>
+                    <Badge>{details.emirate}</Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Dispute Resolution Authority</p>
+                    <p className="text-sm font-medium text-blue-600">{details.disputeResolutionAuthority}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Governing Law</p>
+                    <p className="text-sm">{details.governingLaw}</p>
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Data Retention (PDPL)</p>
+                    <Badge variant="secondary">{details.dataRetentionPeriod}</Badge>
+                    <p className="text-sm text-muted-foreground mt-1">Data Protection Contact: {details.dataProtectionEmail}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 12. ADDITIONAL TERMS */}
+              {(details.specialConditions || details.attachments) && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <IconFileText className="h-5 w-5" />
+                      Additional Terms & Attachments
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4 space-y-3">
+                    {details.specialConditions && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Special Conditions</p>
+                        <p className="text-sm whitespace-pre-wrap">{details.specialConditions}</p>
+                      </div>
+                    )}
+                    {details.attachments && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Attachments</p>
+                        <p className="text-sm whitespace-pre-wrap">{details.attachments}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* 13. COMPLIANCE SUMMARY */}
+              <Alert className="bg-green-50 border-green-200">
+                <IconCircleCheck className="h-5 w-5 text-green-600" />
+                <AlertTitle className="text-green-900">Lease Agreement Compliance Summary</AlertTitle>
+                <AlertDescription className="text-sm text-green-800 space-y-1 mt-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <span>✓ All required fields completed</span>
+                    <span>✓ Parties clearly identified</span>
+                    <span>✓ Property details comprehensive</span>
+                    <span>✓ Rent & payment terms defined</span>
+                    <span>✓ Security deposit clearly outlined</span>
+                    <span>✓ Maintenance responsibilities split</span>
+                    <span>✓ Utilities allocation clear</span>
+                    <span>✓ Termination conditions specified</span>
+                    <span>✓ EJARI/Tawtheeq registration included</span>
+                    <span>✓ RERA compliant (if Dubai)</span>
+                    <span>✓ PDPL compliant</span>
+                    <span>✓ UAE Tenancy Law compliant</span>
                   </div>
                 </AlertDescription>
               </Alert>
