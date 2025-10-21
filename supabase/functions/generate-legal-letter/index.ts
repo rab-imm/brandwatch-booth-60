@@ -7,8 +7,850 @@ const corsHeaders = {
 };
 
 const LETTER_TYPE_TEMPLATES = {
-  employment_termination: `Generate a formal employment termination letter following UAE labor law requirements.`,
-  employment_contract: `Generate a comprehensive employment contract compliant with UAE labor law.`,
+  employment_termination: `Generate a comprehensive Employment Termination Letter compliant with UAE Federal Decree-Law No. 33 of 2021 (Labor Law) and Personal Data Protection Law (PDPL).
+
+CRITICAL REQUIREMENTS - MUST INCLUDE ALL OF THESE:
+
+STRUCTURE & FORMATTING:
+Use these EXACT section headers in order:
+1. DOCUMENT HEADER & REFERENCE
+2. RECIPIENT INFORMATION (Employee Details)
+3. SUBJECT LINE
+4. TERMINATION NOTICE
+5. TERMINATION DETAILS
+6. END-OF-SERVICE BENEFITS BREAKDOWN
+7. COMPANY PROPERTY RETURN REQUIREMENTS
+8. FINAL SETTLEMENT PROCESS
+9. CONFIDENTIALITY & NON-DISCLOSURE OBLIGATIONS
+10. NON-COMPETE CLAUSE (if applicable)
+11. DATA PROTECTION & PDPL COMPLIANCE
+12. LEGAL DISCLAIMER
+13. NEXT STEPS & CONTACTS
+14. GOVERNING LAW & DISPUTE RESOLUTION
+15. SIGNATURE SECTION
+
+LANGUAGE REQUIREMENTS:
+- Use simple, clear sentences (maximum 20 words per sentence)
+- Avoid unnecessary legal jargon; use plain business language
+- Use bullet points for benefits, property, and instructions
+- Write in active voice, not passive
+- Keep paragraphs short (3-4 sentences maximum)
+
+DOCUMENT HEADER:
+"[companyName]
+[companyAddress]
+
+Reference: TERM-[employeeId]-[current date]
+Date: [noticeDate format DD MMMM YYYY]
+
+EMPLOYMENT TERMINATION LETTER
+
+STRICTLY CONFIDENTIAL"
+
+RECIPIENT INFORMATION:
+"TO:
+[employeeName]
+Employee ID: [employeeId]
+Position: [position]
+Department: [department if provided]
+Emirates ID/Passport: [emiratesIdOrPassport]
+Email: [employeeEmail]
+Address: [employeeAddress]"
+
+SUBJECT LINE:
+"SUBJECT: NOTICE OF EMPLOYMENT TERMINATION"
+
+TERMINATION NOTICE:
+"Dear [employeeName],
+
+We write to inform you that your employment with [companyName] will be terminated effective [terminationDate format DD MMMM YYYY].
+
+TERMINATION DETAILS:
+
+Reason for Termination: [terminationReason]
+Detailed Explanation: [detailedReason]
+
+Notice Date: [noticeDate format DD MMMM YYYY]
+Final Working Day: [finalWorkingDay format DD MMMM YYYY]
+Termination Effective Date: [terminationDate format DD MMMM YYYY]
+
+NOTICE PERIOD COMPLIANCE:
+• Required Notice Period: [noticePeriodRequired] days (as per your employment contract)
+• Notice Period Provided: [noticePeriodProvided] days
+• Status: [noticePeriodCompliance]
+[If noticePeriodProvided less than noticePeriodRequired: "You will receive payment in lieu of the shortfall of [difference] days."]"
+
+END-OF-SERVICE BENEFITS BREAKDOWN:
+"END-OF-SERVICE BENEFITS:
+
+You are entitled to the following end-of-service benefits calculated in accordance with UAE Federal Decree-Law No. 33 of 2021 (Labor Law):
+
+1. NOTICE PERIOD PAY:
+   Period: [noticePeriodPay] days
+   Daily Rate: AED [basicSalary divided by 30]
+   Amount: AED [noticePeriodPayAmount]
+
+2. ACCRUED ANNUAL LEAVE:
+   Unused Leave Days: [accruedLeave] days
+   Daily Rate: AED [basicSalary divided by 30]
+   Amount: AED [annualLeavePayAmount if provided]
+
+3. END-OF-SERVICE GRATUITY:
+   Years of Service: [gratuityYears] years
+   Calculation Basis: Articles 51-54 of UAE Labor Law
+   [If gratuityYears less than 1: "Not eligible (less than 1 year service)"]
+   [If 1-5 years: "21 days basic salary per year × [gratuityYears] years"]
+   [If over 5 years: "21 days × 5 years + 30 days × [years beyond 5] years"]
+   Gratuity Amount: AED [gratuityAmount]
+
+4. REPATRIATION BENEFIT:
+   Flight Ticket: [repatriationBenefit]
+   [If repatriationDestination provided: "Destination: [repatriationDestination]"]
+   [If cash equivalent: "Cash Equivalent: AED [repatriationAmount if provided]"]
+
+5. OTHER DUES:
+   [If otherDues provided: "[otherDues]: AED [otherDuesAmount]"]
+   [If no otherDues: "None"]
+
+───────────────────────────────────────────
+TOTAL FINAL SETTLEMENT: AED [totalSettlement]
+───────────────────────────────────────────
+
+All amounts calculated based on your basic monthly salary of AED [basicSalary]."
+
+COMPANY PROPERTY RETURN REQUIREMENTS:
+"COMPANY PROPERTY RETURN:
+
+[If propertyToReturn is "Yes":]
+You are required to return ALL company property on or before [propertyReturnDeadline format DD MMMM YYYY]:
+
+ITEMS TO RETURN:
+[If laptopDetails provided: "• Company Laptop: [laptopDetails]"]
+[If mobilePhone provided: "• Company Mobile Phone: [mobilePhone]"]
+[If accessCards provided: "• Access Cards/Keys: [accessCards]"]
+[If documentsToReturn provided: "• Documents/Files: [documentsToReturn]"]
+[If otherProperty provided: "• Other Property: [otherProperty]"]
+
+RETURN PROCESS:
+• Where: HR Department, [companyAddress]
+• When: On or before [propertyReturnDeadline format DD MMMM YYYY]
+• Contact: [hrEmail] / [hrPhone]
+
+CONSEQUENCES OF NON-RETURN:
+[consequencesNonReturn]
+
+[If propertyToReturn is "No":]
+No company property return required."
+
+FINAL SETTLEMENT PROCESS:
+"FINAL SETTLEMENT PAYMENT:
+
+TIMELINE:
+• Settlement will be processed within [settlementTimeline]
+• Expected payment date: [calculate based on settlementTimeline]
+
+PAYMENT METHOD:
+• Method: [settlementMethod]
+[If bankAccountDetails provided: "• Bank Transfer to: [bankAccountDetails]"]
+[If cheque: "• Cheque collection from HR Department"]
+
+SETTLEMENT CONTACT:
+• Contact Person: [settlementContact]
+• For Queries: [settlementQueriesContact]
+• HR Email: [hrEmail]
+• HR Phone: [hrPhone]
+• Payroll Email: [payrollEmail]
+
+DOCUMENTATION:
+On your final working day, you must:
+• Sign the final settlement acknowledgment form
+• Confirm receipt of all dues
+• Provide bank account details for transfer (if not already on file)
+• Collect your employment termination certificate"
+
+POST-TERMINATION OBLIGATIONS:
+"CONFIDENTIALITY & NON-DISCLOSURE:
+
+[If confidentialityContinues is "Yes":]
+Your confidentiality and non-disclosure obligations CONTINUE after termination:
+• You must not disclose company confidential information, trade secrets, or proprietary data
+• You must not use company information for personal benefit or to compete
+• Breach may result in legal action for damages
+
+[If nonCompeteApplicable is "Yes":]
+NON-COMPETE CLAUSE:
+• Duration: [nonCompeteDuration] months from termination date
+• Scope: [nonCompeteScope]
+• You must not work for direct competitors or start competing business during this period
+• Violation may result in legal action and claims for damages
+
+[If nonCompeteApplicable is "No":]
+No non-compete restrictions apply after termination."
+
+DATA PROTECTION & PDPL COMPLIANCE:
+"DATA PROTECTION NOTICE (UAE PDPL Compliance):
+
+This termination letter contains personal data protected under UAE Federal Law No. 45 of 2021 (Personal Data Protection Law).
+
+PERSONAL DATA PROCESSING:
+Your personal data will be processed and retained in accordance with UAE PDPL for the following purposes:
+• Completion of employment termination process
+• Calculation and payment of end-of-service benefits
+• Compliance with UAE Labor Law record-keeping requirements
+• Handling any post-termination inquiries or disputes
+
+DATA RETENTION:
+• Your employment records will be retained for [dataRetentionPeriod]
+• Minimum retention: As required by UAE law (typically 5 years after termination)
+
+YOUR DATA RIGHTS:
+Under UAE PDPL, you have the right to:
+• Access your personal data held by the company
+• Request correction of inaccurate data
+• Request deletion (subject to legal retention requirements)
+• Lodge complaints with the UAE Data Protection Office
+
+DATA PROTECTION CONTACT:
+For data-related inquiries, contact: [dataProtectionEmail]"
+
+LEGAL DISCLAIMER:
+"LEGAL DISCLAIMER & RESERVATION OF RIGHTS:
+
+This employment termination letter does not constitute a waiver of the Company's rights to pursue any claims, remedies, or legal actions available under:
+• UAE Federal Decree-Law No. 33 of 2021 (Labor Law)
+• Your employment contract
+• Any other applicable UAE laws
+
+The Company expressly reserves all rights to:
+• Pursue claims for damages or losses caused by employee misconduct
+• Recover company property or compensation for non-returned items
+• Enforce confidentiality and non-compete obligations
+• Take legal action for breach of employment terms or company policies
+
+This termination is subject to all applicable UAE labor laws and regulations."
+
+NEXT STEPS & INSTRUCTIONS:
+"NEXT STEPS FOR YOU:
+
+BEFORE YOUR FINAL WORKING DAY ([finalWorkingDay format DD MMMM YYYY]):
+1. Complete all pending work and handover tasks as directed by your manager
+2. Return all company property (see list above)
+3. Complete exit interview (if requested by HR)
+4. Ensure your contact details are up to date with HR
+
+ON YOUR FINAL WORKING DAY:
+1. Meet with HR Department to sign final settlement documents
+2. Return any remaining company property
+3. Collect your employment termination certificate
+[If certificateRequired is "Yes": "4. Request employment certificate (ready within [certificateIssuanceTimeline if provided, else "5 business days"])"]
+
+AFTER TERMINATION:
+1. Final settlement will be paid within [settlementTimeline]
+2. Contact [settlementContact] for any settlement queries
+3. Notify HR immediately of any address or bank account changes
+
+[additionalInstructions]"
+
+GOVERNING LAW & DISPUTE RESOLUTION:
+"GOVERNING LAW:
+
+This employment termination is governed by UAE Federal Decree-Law No. 33 of 2021 on the Regulation of Labor Relations (UAE Labor Law) and any applicable amendments.
+
+DISPUTE RESOLUTION:
+
+If you have concerns regarding this termination, follow this process:
+
+1. INTERNAL RESOLUTION:
+   Contact: HR Department at [hrEmail] or [hrPhone]
+   Timeline: Raise concerns within 14 days of receiving this letter
+
+2. MINISTRY OF HUMAN RESOURCES AND EMIRATISATION (MOHRE):
+   If internal resolution fails, you may file a complaint with MOHRE
+   Online: www.mohre.gov.ae
+   Timeline: Within 14 days of exhausting internal process
+
+3. LABOR COURTS:
+   If MOHRE mediation is unsuccessful, the matter may proceed to Labor Courts
+   Jurisdiction: [emirate] Labor Court
+   Timeline: As per MOHRE referral process
+
+EMPLOYEE RIGHTS:
+You retain all rights granted under UAE Labor Law, including:
+• Right to receive all calculated end-of-service benefits (Articles 51-56)
+• Right to file complaint with MOHRE if rights are violated
+• Right to challenge unfair termination (if applicable under Articles 44-48)
+• Right to receive employment termination certificate (Article 57)"
+
+SIGNATURE SECTION:
+"ISSUED BY:
+
+Company Representative:
+Name: _______________________
+Position: _____________________
+Signature: ____________________
+Date: ________________________
+
+Company Stamp: [AFFIX COMPANY STAMP]
+
+ACKNOWLEDGED AND RECEIVED BY EMPLOYEE:
+
+Employee Name: [employeeName]
+Employee ID: [employeeId]
+Signature: ____________________
+Date: ________________________
+
+A copy of this termination letter has been provided to the employee."
+
+PROFESSIONAL FORMATTING:
+- Use company letterhead if available
+- Include clear section headers (UPPERCASE, bold)
+- Use bullet points for lists
+- Include signature lines
+- Professional font and spacing
+- Page numbering if multi-page
+
+PLACEHOLDERS:
+Replace ALL bracketed placeholders with actual information provided. Do NOT leave any [bracketed text] in the final output unless explicitly asking employee to provide information.`,
+
+  employment_contract: `Generate a comprehensive Employment Contract compliant with UAE Federal Decree-Law No. 33 of 2021 (Labor Law) and Personal Data Protection Law (PDPL).
+
+CRITICAL REQUIREMENTS - MUST INCLUDE ALL OF THESE:
+
+STRUCTURE & FORMATTING:
+Use these EXACT section headers in order:
+1. EMPLOYMENT CONTRACT HEADING & REFERENCE
+2. PARTIES TO THE CONTRACT
+3. RECITALS
+4. POSITION & DUTIES
+5. EMPLOYMENT TERM
+6. COMPENSATION & BENEFITS
+7. WORKING HOURS & LEAVE ENTITLEMENTS
+8. PROBATION PERIOD (if applicable)
+9. TERMINATION PROVISIONS
+10. CONFIDENTIALITY & NON-DISCLOSURE
+11. NON-COMPETE CLAUSE (if applicable)
+12. INTELLECTUAL PROPERTY RIGHTS
+13. DATA PROTECTION & PDPL COMPLIANCE
+14. GOVERNING LAW & DISPUTE RESOLUTION
+15. GENERAL PROVISIONS
+16. SIGNATURE SECTION
+
+LANGUAGE REQUIREMENTS:
+- Use simple, clear sentences (maximum 20 words per sentence)
+- Avoid unnecessary legal jargon; use plain business language
+- Use bullet points for compensation, benefits, and working hours
+- Write in active voice, not passive
+- Keep paragraphs short (3-4 sentences maximum)
+
+EMPLOYMENT CONTRACT HEADING:
+"EMPLOYMENT CONTRACT
+
+Reference No: EMP-[employeeId if provided, else current date]
+Date of Contract: [startDate format DD MMMM YYYY]
+Place of Execution: [emirate if provided], United Arab Emirates"
+
+PARTIES TO THE CONTRACT:
+"PARTIES:
+
+EMPLOYER (First Party):
+Legal Name: [companyName]
+License Number: [companyLicenseNumber if provided]
+Address: [companyAddress]
+Email: [hrContactEmail]
+Phone: [hrContactPhone]
+
+AND
+
+EMPLOYEE (Second Party):
+Full Legal Name: [employeeName] (as per passport)
+Nationality: [employeeNationality]
+Passport/Emirates ID: [passportOrEmiratesId]
+Address in UAE: [employeeAddressUAE]
+Email: [employeeEmail]
+Phone: [employeePhone]
+[If emergencyContact provided: "Emergency Contact: [emergencyContact]"]
+
+(Hereinafter referred to as 'the Employer' and 'the Employee' respectively, and collectively as 'the Parties')"
+
+RECITALS:
+"RECITALS:
+
+WHEREAS the Employer is engaged in business operations in the United Arab Emirates and requires the services of qualified personnel;
+
+WHEREAS the Employee possesses the qualifications, skills, and experience necessary to perform the duties required by the Employer;
+
+WHEREAS the Parties wish to enter into an employment relationship on the terms and conditions set forth in this Contract;
+
+NOW, THEREFORE, in consideration of the mutual covenants and agreements contained herein, the Parties agree as follows:"
+
+POSITION & DUTIES:
+"1. POSITION & JOB DUTIES
+
+1.1 POSITION:
+The Employee is hired for the position of: [jobTitle]
+Department: [department]
+Direct Manager/Supervisor: [directManager]
+
+1.2 JOB DESCRIPTION & DUTIES:
+The Employee's primary duties and responsibilities include:
+[jobDescription]
+
+1.3 REPORTING STRUCTURE:
+The Employee will report directly to: [reportingStructure if provided, else directManager]
+
+1.4 DUTIES & OBLIGATIONS:
+The Employee agrees to:
+• Perform duties diligently, professionally, and in good faith
+• Follow company policies, procedures, and code of conduct
+• Comply with all UAE laws and regulations
+• Act in the best interests of the Employer
+• Maintain professional standards appropriate to the position"
+
+EMPLOYMENT TERM:
+"2. EMPLOYMENT TERM
+
+2.1 CONTRACT TYPE:
+This is a [contractType] employment contract.
+
+[If contractType is "Limited/Fixed Term":]
+• Contract Duration: [contractDuration]
+• Start Date: [startDate format DD MMMM YYYY]
+• End Date: [calculate based on duration]
+• Renewal: Subject to mutual agreement and performance evaluation
+
+[If contractType is "Unlimited/Indefinite":]
+• Start Date: [startDate format DD MMMM YYYY]
+• This contract continues until terminated by either party in accordance with Section 9 (Termination Provisions)
+
+2.2 WORK LOCATION:
+Primary Work Location: [workLocation]
+[If remote/hybrid: "Work Arrangement: [Remote/Hybrid/On-site] as specified"]
+
+2.3 PROBATION PERIOD:
+[If probationPeriod is not "No Probation":]
+• Probation Duration: [probationPeriod] (maximum 6 months per UAE Labor Law Article 10)
+• Probation Notice Period: [probationNoticePeriod] days by either party
+• Assessment: Performance will be evaluated at end of probation
+• Confirmation: Upon successful completion, employment continues under full contract terms
+• Termination during probation: Either party may terminate with [probationNoticePeriod] days' notice without end-of-service benefits
+
+[If probationPeriod is "No Probation":]
+No probation period applies. Full contract terms effective from start date."
+
+COMPENSATION & BENEFITS:
+"3. COMPENSATION PACKAGE
+
+3.1 BASIC SALARY:
+Monthly Basic Salary: AED [basicSalary]
+(Payable on [paymentFrequency] basis via [paymentMethod])
+
+3.2 ALLOWANCES:
+• Housing Allowance: [housingAllowance]
+  [If "Accommodation Provided": "Company-provided accommodation at [specify if details]"]
+  [If amount: "AED [amount] per month"]
+
+• Transport Allowance: [transportAllowance]
+  [If "Transport Provided": "Company-provided transport"]
+  [If amount: "AED [amount] per month"]
+
+[If otherAllowances provided:]
+• Other Allowances:
+  [otherAllowances]
+
+3.3 BONUSES & COMMISSION:
+[If annualBonus provided: "• Annual Performance Bonus: [annualBonus]"]
+[If commissionStructure provided: "• Commission Structure: [commissionStructure]"]
+
+3.4 TOTAL MONTHLY COMPENSATION:
+─────────────────────────────────────
+TOTAL: AED [totalMonthlyCompensation]
+─────────────────────────────────────
+
+3.5 PAYMENT TERMS:
+• Payment Frequency: [paymentFrequency]
+• Payment Method: [paymentMethod]
+• Payment Date: [Typically last working day of month/period]
+• Salary Review: [salaryReviewFrequency if provided, else "Subject to company policy and performance"]
+
+3.6 DEDUCTIONS:
+The Employer may deduct from salary:
+• Income tax (if applicable - currently UAE has no personal income tax)
+• Social insurance contributions (for UAE nationals)
+• Penalties for authorized absences or violations (as per UAE Labor Law limits)
+• Any amounts owed to Employer (e.g., unreturned property, advances)"
+
+BENEFITS:
+"4. EMPLOYEE BENEFITS
+
+4.1 HEALTH INSURANCE:
+[healthInsurance]
+[If "Provided": "Coverage: [healthInsuranceCoverage]"]
+[If "Employee Responsible": "Employee must obtain own health insurance"]
+
+4.2 ANNUAL LEAVE:
+• Annual Leave Entitlement: [annualLeaveEntitlement] calendar days per year (minimum 30 days per UAE Labor Law Article 29)
+• First year: 2 days per month if serving less than 1 year
+• Leave includes: Full salary (basic + allowances)
+• Timing: Subject to company approval and business needs
+• Unused leave: May be carried forward (max 30 days) or paid out on termination
+
+4.3 FLIGHT TICKETS:
+[flightTickets]
+[If destination provided: "Destination: [destination]"]
+[Annual/Biennial as specified]
+
+4.4 VISA & WORK PERMIT:
+[visaWorkPermit]
+[If "Company Provides": "The Employer will sponsor and bear costs of:
+• Employment visa
+• Work permit
+• Emiratesإقامة (Residence permit)
+• Medical fitness test
+• Emirates ID"]
+
+4.5 END-OF-SERVICE GRATUITY:
+Upon termination, Employee entitled to end-of-service gratuity calculated per UAE Labor Law Articles 51-54:
+• Less than 1 year: No gratuity
+• 1-5 years: 21 days' basic salary per year of service
+• Over 5 years: 30 days' basic salary per year exceeding 5 years
+• Resignation before 5 years: Partial gratuity (1-3 years: 1/3; 3-5 years: 2/3)
+• Maximum: 2 years' basic salary
+• Calculation basis: Final basic salary only (excludes allowances)
+
+4.6 OTHER BENEFITS:
+[If otherBenefits provided: "[otherBenefits]"]
+[If benefitsCommencementDate provided: "Benefits commence: [benefitsCommencementDate]"]"
+
+WORKING HOURS & LEAVE:
+"5. WORKING HOURS & LEAVE ENTITLEMENTS
+
+5.1 WORKING HOURS:
+• Standard Hours: [workingHoursPerDay] hours per day
+• Working Days: [workingDaysPerWeek] days per week
+• Work Schedule: [workSchedule]
+• Maximum: 8 hours/day or 48 hours/week per UAE Labor Law Article 17
+• During Ramadan: [ramadanWorkingHours]
+
+5.2 OVERTIME:
+[overtimePolicy]
+• Overtime compensation: As per UAE Labor Law (125% basic salary for regular hours, 150% for night hours 9pm-4am)
+• Approval: All overtime must be pre-approved by manager
+
+5.3 REST DAYS:
+• Weekly Rest: [restDaysPerWeek] day(s) per week (typically Friday)
+• Employee cannot be required to work on rest day except in exceptional circumstances with additional compensation
+
+5.4 ANNUAL LEAVE:
+(Covered in Section 4.2 - 30 calendar days minimum)
+
+5.5 SICK LEAVE:
+Employee entitled to sick leave per UAE Labor Law Article 31:
+• First 15 days: Full salary
+• Next 30 days: Half salary
+• Subsequent 45 days: Unpaid
+• Maximum: 90 days per year (continuous or intermittent)
+• Requirement: Medical certificate from licensed UAE medical facility
+
+5.6 MATERNITY LEAVE (if applicable):
+Female employees entitled to maternity leave per UAE Labor Law Article 30:
+• Duration: 60 calendar days (45 days full pay + 15 days half pay)
+• Extended unpaid leave: Up to 100 additional days
+• Protection: No termination during maternity leave
+
+5.7 OTHER LEAVE:
+[If otherLeaveTypes provided: "[otherLeaveTypes]"]
+[If leaveApprovalProcess provided: "Approval Process: [leaveApprovalProcess]"]"
+
+TERMINATION PROVISIONS:
+"6. TERMINATION OF EMPLOYMENT
+
+6.1 TERMINATION CONDITIONS:
+This contract may be terminated by:
+
+A. MUTUAL AGREEMENT:
+Both parties consent in writing to terminate
+
+B. CONTRACT EXPIRY (if Limited Term):
+Fixed-term contract ends on specified date
+
+C. RESIGNATION BY EMPLOYEE:
+• Notice Period: [noticePeroidByEmployee]
+• Notice must be in writing
+• Employee must work full notice period unless waived by Employer
+• Failure to provide notice: Employer may deduct notice period salary
+
+D. TERMINATION BY EMPLOYER:
+• Notice Period: [noticePeriodByEmployer]
+• Notice must be in writing
+• Employer must pay notice period salary or allow employee to work notice period
+• End-of-service benefits payable per UAE Labor Law
+
+E. TERMINATION FOR CAUSE (Article 44):
+Immediate termination without notice or benefits for serious violations including:
+• Assault on employer, manager, or colleague
+• Failure to perform duties and ignoring warnings
+• Breach of confidentiality or trade secrets
+• Fraud, theft, or dishonesty
+• Being intoxicated or under influence of drugs at work
+• Absence without valid reason for more than 20 non-continuous days or 7 continuous days per year
+[terminationConditions if provided]
+
+F. FORCE MAJEURE:
+Circumstances beyond control of parties
+
+6.2 NOTICE PERIODS:
+• During probation: [probationNoticePeriod if applicable] days
+• After probation - Employee: [noticePeriodByEmployee]
+• After probation - Employer: [noticePeriodByEmployer]
+
+[If gardenLeaveApplicable is "Yes":]
+6.3 GARDEN LEAVE:
+During notice period, Employer may require Employee to remain away from work ('garden leave') while receiving full salary and benefits."
+
+CONFIDENTIALITY & IP:
+"7. CONFIDENTIALITY & NON-DISCLOSURE
+
+7.1 CONFIDENTIALITY OBLIGATION:
+[If confidentialityObligation is "Yes":]
+The Employee agrees to:
+• Maintain strict confidentiality of all Company information, trade secrets, client data, and proprietary knowledge
+• Not disclose confidential information to any third party during or after employment
+• Not use confidential information for personal benefit or to compete with Company
+• Return all confidential documents and data upon termination
+
+Confidential information includes:
+• Business strategies, plans, and financial information
+• Client lists, pricing, and contract terms
+• Proprietary processes, methods, and know-how
+• Employee and personnel information
+• Any information marked "Confidential" or that should reasonably be considered confidential
+
+7.2 DURATION:
+This confidentiality obligation continues indefinitely after termination of employment.
+
+7.3 BREACH:
+Breach of confidentiality may result in:
+• Immediate termination for cause
+• Legal action for damages and injunctive relief
+• Criminal prosecution under UAE law
+
+[If ndaSeparate is "Yes":]
+7.4 SEPARATE NDA:
+Employee has signed a separate Non-Disclosure Agreement dated [date] which remains in full force.
+
+8. INTELLECTUAL PROPERTY RIGHTS
+
+8.1 OWNERSHIP:
+All work product, inventions, designs, discoveries, improvements, and intellectual property created by Employee during employment belong exclusively to the Employer.
+
+This includes:
+• Software code, designs, and technical specifications
+• Business processes and methodologies
+• Marketing materials and content
+• Research and development outputs
+• Any IP created using Company time, resources, or information
+
+8.2 ASSIGNMENT:
+Employee assigns all rights, title, and interest in work-related IP to the Employer.
+
+8.3 MORAL RIGHTS:
+Employee waives all moral rights in work product created during employment.
+
+8.4 POST-EMPLOYMENT:
+Employee has no right to use, exploit, or claim ownership of any Company IP after termination.
+
+[If dataAccessLevel provided:]
+8.5 DATA ACCESS:
+Employee's data access level: [dataAccessLevel]"
+
+NON-COMPETE:
+"9. NON-COMPETE CLAUSE
+
+[If nonCompeteClause is "Yes":]
+9.1 NON-COMPETE OBLIGATION:
+Employee agrees not to:
+• Work for direct competitors
+• Start or operate a competing business
+• Solicit Company clients or employees
+
+9.2 DURATION:
+[nonCompeteDuration] months from termination date
+
+9.3 SCOPE:
+[nonCompeteScope]
+
+9.4 GEOGRAPHIC AREA:
+United Arab Emirates [or specific emirates if narrower scope]
+
+9.5 ENFORCEMENT:
+Violation may result in:
+• Injunctive relief
+• Claims for damages
+• Legal costs
+
+[If nonCompeteClause is "No":]
+No non-compete restrictions apply after termination of employment."
+
+DATA PROTECTION:
+"10. DATA PROTECTION & PDPL COMPLIANCE
+
+10.1 PERSONAL DATA PROCESSING:
+This contract contains personal data protected under UAE Federal Law No. 45 of 2021 (Personal Data Protection Law).
+
+10.2 EMPLOYEE PERSONAL DATA:
+The Employer will collect and process Employee personal data including:
+• Identification information (name, passport, Emirates ID)
+• Contact details
+• Employment history and qualifications
+• Salary and bank account information
+• Performance and disciplinary records
+
+10.3 PURPOSE:
+Personal data processed for:
+• Employment relationship management
+• Salary payment and benefits administration
+• Compliance with UAE Labor Law and visa regulations
+• HR administration and record-keeping
+
+10.4 DATA RETENTION:
+• During employment: All employment-related data retained
+• After termination: [personalDataRetentionPeriod]
+• Minimum retention: As required by UAE law (typically 5 years)
+
+10.5 EMPLOYEE DATA RIGHTS:
+Employee has the right to:
+• Access personal data held by Employer
+• Request correction of inaccurate data
+• Object to data processing (subject to legal requirements)
+• Lodge complaints with UAE Data Protection Office
+
+10.6 DATA PROTECTION CONTACT:
+For data inquiries, contact: [dataProtectionEmail]
+
+10.7 CONSENT:
+Employee consents to processing of personal data as described above for legitimate employment purposes."
+
+GOVERNING LAW:
+"11. GOVERNING LAW & DISPUTE RESOLUTION
+
+11.1 GOVERNING LAW:
+This employment contract is governed by:
+• UAE Federal Decree-Law No. 33 of 2021 (Labor Law)
+• UAE Civil Transactions Law (Federal Law No. 5 of 1985)
+[If freeZoneEmployment provided: "• [Free zone name] regulations and employment rules"]
+• Any other applicable UAE federal and [emirate]-specific laws
+
+11.2 DISPUTE RESOLUTION:
+Disputes resolved through:
+
+STEP 1 - INTERNAL RESOLUTION:
+• Employee raises concern with HR/management
+• Internal review and resolution attempt
+
+STEP 2 - MINISTRY OF HUMAN RESOURCES AND EMIRATISATION (MOHRE):
+• File complaint with MOHRE if internal resolution fails
+• MOHRE mediation and conciliation services
+
+STEP 3 - LABOR COURTS:
+• If MOHRE mediation unsuccessful, proceed to Labor Courts
+• Jurisdiction: [emirate] Labor Court
+• Appeals: [emirate] Court of Appeal
+• Final appeals: Federal Supreme Court (if applicable)
+
+11.3 JURISDICTION:
+Exclusive jurisdiction: Competent courts of [emirate], United Arab Emirates
+
+11.4 EMPLOYEE RIGHTS:
+Employee retains all rights under UAE Labor Law including:
+• Right to fair treatment and non-discrimination
+• Right to file complaints with MOHRE
+• Right to challenge unfair termination
+• Right to receive all statutory benefits and entitlements"
+
+GENERAL PROVISIONS:
+"12. GENERAL PROVISIONS
+
+12.1 COMPANY PROPERTY:
+Employee must:
+• Use Company property solely for business purposes
+• Maintain property in good condition
+• Return all property upon termination
+
+Failure to return may result in:
+• Deduction from final settlement
+• Legal action for recovery
+
+12.2 AMENDMENTS:
+This contract may only be amended by written agreement signed by both parties.
+
+12.3 SEVERABILITY:
+If any provision is invalid or unenforceable, remaining provisions remain in full effect.
+
+12.4 ENTIRE AGREEMENT:
+This contract constitutes the entire agreement and supersedes all prior agreements, understandings, or representations.
+
+12.5 NOTICES:
+All notices must be in writing and delivered to:
+• Employer: [hrContactEmail] / [companyAddress]
+• Employee: [employeeEmail] / [employeeAddressUAE]
+
+12.6 COMPANY POLICIES:
+Employee acknowledges receipt of and agrees to comply with:
+• Company Employee Handbook
+• Code of Conduct
+• IT and Security Policies
+• Any other company policies
+[If companyPoliciesAcknowledgment provided: "[companyPoliciesAcknowledgment]"]
+
+[If specialConditions provided:]
+12.7 SPECIAL CONDITIONS:
+[specialConditions]
+
+[If attachments provided:]
+12.8 ATTACHMENTS:
+The following documents are attached and form part of this contract:
+[attachments]"
+
+SIGNATURE SECTION:
+"13. SIGNATURES & ACKNOWLEDGMENT
+
+The Parties have read, understood, and voluntarily agree to all terms and conditions of this Employment Contract.
+
+EMPLOYER:
+
+Company Name: [companyName]
+Authorized Signatory: _______________________
+Name: _______________________
+Position: _____________________
+Signature: ____________________
+Company Stamp: [AFFIX COMPANY STAMP]
+Date: ________________________
+
+EMPLOYEE:
+
+Employee Name: [employeeName]
+Passport/Emirates ID: [passportOrEmiratesId]
+Signature: ____________________
+Date: ________________________
+
+ACKNOWLEDGMENT:
+• Employee acknowledges receiving a signed copy of this contract
+• Employee was advised of the right to seek independent legal advice before signing
+• Employee confirms understanding of all terms and voluntarily enters into this employment relationship
+• Employee understands rights and obligations under UAE Labor Law"
+
+PROFESSIONAL FORMATTING:
+- Use proper contract header with "EMPLOYMENT CONTRACT" title
+- Include reference number and date
+- Use clear section numbering (1. 2. 3., etc.)
+- Use subsection numbering (1.1, 1.2, etc.)
+- Use bullet points for lists
+- Include signature pages
+- Professional font and spacing
+- Page numbering
+
+PLACEHOLDERS:
+Replace ALL bracketed placeholders with actual information provided in letter details. Do NOT leave any [bracketed text] in the final output unless explicitly asking parties to provide information.`,
   lease_agreement: `Generate a residential/commercial lease agreement compliant with UAE RERA regulations.`,
   lease_termination: `Generate a formal lease termination notice following UAE tenancy laws.`,
   demand_letter: `Generate a comprehensive formal demand letter for payment or action, compliant with UAE legal requirements.
@@ -1322,6 +2164,36 @@ Any dispute arising out of or in connection with this Agreement shall be resolve
 
 NOTE: The parties should specify their preferred dispute resolution method (courts or arbitration) and the specific Emirate (Dubai, Abu Dhabi, etc.) for jurisdiction.`;
 
+const EMPLOYMENT_TERMINATION_CLAUSES = `
+
+ADDITIONAL LEGAL PROVISIONS FOR EMPLOYMENT TERMINATION:
+
+GOVERNING LAW:
+This employment termination is governed by UAE Federal Decree-Law No. 33 of 2021 on the Regulation of Labor Relations (UAE Labor Law) and any applicable amendments.
+
+EMPLOYEE RIGHTS:
+The employee retains all rights granted under UAE Labor Law, including:
+• Right to receive all end-of-service benefits as calculated per Labor Law Articles 51-56
+• Right to file a complaint with MOHRE if rights are violated
+• Right to challenge unfair termination (if applicable under Articles 44-48)
+• Right to receive employment termination certificate (Article 57)
+
+CERTIFICATE OF EMPLOYMENT:
+Upon request, the Company will provide a Certificate of Employment stating employment period, position held, and final salary (if requested) within specified business days of the final working day.`;
+
+const EMPLOYMENT_CONTRACT_CLAUSES = `
+
+ADDITIONAL LEGAL PROVISIONS FOR EMPLOYMENT CONTRACTS:
+
+GOVERNING LAW:
+This employment contract is governed by UAE Federal Decree-Law No. 33 of 2021 (Labor Law), UAE Civil Transactions Law (Federal Law No. 5 of 1985), and any applicable free zone regulations.
+
+DISCIPLINARY PROCEDURES:
+Company may take disciplinary action for violations per Articles 43-44 including warning, suspension, fine, demotion, or termination for cause. Employee has right to be informed, respond, and appeal decisions.
+
+ENTIRE AGREEMENT:
+This contract constitutes the entire agreement and supersedes all prior agreements. May only be amended by written agreement signed by both parties.`;
+
 const SETTLEMENT_AGREEMENT_CLAUSES = `
 
 ADDITIONAL LEGAL PROVISIONS FOR SETTLEMENT AGREEMENTS:
@@ -1794,9 +2666,17 @@ Generate the complete letter now.`;
       letterContent += DEMAND_LETTER_CLAUSES;
     }
 
-    if (letterType === 'settlement_agreement') {
-      letterContent += SETTLEMENT_AGREEMENT_CLAUSES;
-    }
+  if (letterType === 'employment_termination') {
+    letterContent += EMPLOYMENT_TERMINATION_CLAUSES;
+  }
+  
+  if (letterType === 'employment_contract') {
+    letterContent += EMPLOYMENT_CONTRACT_CLAUSES;
+  }
+
+  if (letterType === 'settlement_agreement') {
+    letterContent += SETTLEMENT_AGREEMENT_CLAUSES;
+  }
 
     // Deduct credits (queries_used is the DB column name)
     await supabase

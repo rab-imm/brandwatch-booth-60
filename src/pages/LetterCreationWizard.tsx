@@ -82,17 +82,181 @@ export default function LetterCreationWizard() {
 
     const specificFields: { [key: string]: any[] } = {
       employment_termination: [
-        { key: "employeeName", label: "Employee Name", placeholder: "Full name" },
-        { key: "position", label: "Position", placeholder: "Job title" },
-        { key: "terminationDate", label: "Termination Date", type: "date", placeholder: "Select date" },
-        { key: "reason", label: "Reason for Termination", placeholder: "Brief explanation", multiline: true },
+        // Company Information
+        { key: "companyName", label: "Company Legal Name *", placeholder: "Full company name", required: true },
+        { key: "companyAddress", label: "Company Address *", placeholder: "Full address", multiline: true, required: true },
+        { key: "hrEmail", label: "HR Department Email *", placeholder: "hr@company.com", required: true },
+        { key: "hrPhone", label: "HR Department Phone *", placeholder: "+971 XX XXX XXXX", required: true },
+        { key: "payrollEmail", label: "Payroll Contact Email *", placeholder: "payroll@company.com", required: true },
+
+        // Employee Information
+        { key: "employeeName", label: "Employee Full Name * (as per passport/Emirates ID)", placeholder: "Full legal name", required: true },
+        { key: "employeeId", label: "Employee ID/Number *", placeholder: "EMP-12345", required: true },
+        { key: "position", label: "Position/Job Title *", placeholder: "Job title", required: true },
+        { key: "department", label: "Department", placeholder: "e.g., Sales, IT, Operations" },
+        { key: "emiratesIdOrPassport", label: "Emirates ID / Passport Number *", placeholder: "784-XXXX-XXXXXXX-X", required: true },
+        { key: "employeeEmail", label: "Employee Email *", placeholder: "employee@example.com", required: true },
+        { key: "employeeAddress", label: "Employee Address *", placeholder: "Full address in UAE", multiline: true, required: true },
+
+        // Termination Details
+        { key: "terminationDate", label: "Termination Date * (effective date)", type: "date", placeholder: "Select termination date", required: true },
+        { key: "noticeDate", label: "Notice Date * (date notice is given)", type: "date", placeholder: "Select notice date", required: true },
+        { key: "finalWorkingDay", label: "Final Working Day *", type: "date", placeholder: "Last day of work", required: true },
+        { key: "terminationReason", label: "Reason for Termination *", type: "select", options: [
+          "End of Contract", "Resignation", "Redundancy", "Performance Issues", "Misconduct", "Mutual Agreement", "Other"
+        ], required: true },
+        { key: "detailedReason", label: "Detailed Reason *", placeholder: "Provide clear explanation", multiline: true, required: true },
+        { key: "noticePeriodRequired", label: "Notice Period Required * (days as per contract)", placeholder: "e.g., 30", required: true },
+        { key: "noticePeriodProvided", label: "Notice Period Provided * (actual notice given in days)", placeholder: "e.g., 30", required: true },
+
+        // End-of-Service Benefits
+        { key: "basicSalary", label: "Basic Monthly Salary * (AED)", placeholder: "e.g., 10000", required: true },
+        { key: "noticePeriodPay", label: "Notice Period Pay Owed * (days)", placeholder: "Days to be paid", required: true },
+        { key: "accruedLeave", label: "Accrued Annual Leave * (unused days)", placeholder: "Number of days", required: true },
+        { key: "annualLeavePayAmount", label: "Annual Leave Pay Amount (AED)", placeholder: "Calculated amount" },
+        { key: "gratuityYears", label: "Gratuity Calculation Basis * (Years of service)", placeholder: "e.g., 3.5", required: true },
+        { key: "gratuityAmount", label: "Gratuity Amount * (AED as per UAE Labor Law)", placeholder: "Calculated gratuity", required: true },
+        { key: "repatriationBenefit", label: "Repatriation Benefit * (Flight ticket or cash)", placeholder: "e.g., Flight ticket to India / Cash equivalent AED 2000", required: true },
+        { key: "repatriationDestination", label: "Repatriation Destination Country", placeholder: "e.g., India" },
+        { key: "otherDues", label: "Other Dues (if any)", placeholder: "Describe any other amounts owed" },
+        { key: "otherDuesAmount", label: "Other Dues Amount (AED)", placeholder: "Amount" },
+        { key: "totalSettlement", label: "Total Final Settlement * (AED - sum of all benefits)", placeholder: "Total amount", required: true },
+
+        // Company Property Return
+        { key: "propertyToReturn", label: "Company Property to Return? *", type: "select", options: ["Yes", "No"], required: true },
+        { key: "laptopDetails", label: "Laptop Details (if applicable)", placeholder: "S/N, model" },
+        { key: "mobilePhone", label: "Mobile Phone Number (if company-issued)", placeholder: "+971 XX XXX XXXX" },
+        { key: "accessCards", label: "Access Cards/Keys (if any)", placeholder: "Describe cards/keys to return" },
+        { key: "documentsToReturn", label: "Documents/Files to Return", placeholder: "List documents" },
+        { key: "otherProperty", label: "Other Company Property", placeholder: "List other items" },
+        { key: "propertyReturnDeadline", label: "Property Return Deadline *", type: "date", placeholder: "Return by date", required: true },
+        { key: "consequencesNonReturn", label: "Consequences of Non-Return *", placeholder: "e.g., Deduction from settlement, legal action", required: true },
+
+        // Final Settlement Process
+        { key: "settlementTimeline", label: "Settlement Payment Timeline *", placeholder: "e.g., Within 14 days of final working day", required: true },
+        { key: "settlementMethod", label: "Settlement Payment Method *", type: "select", options: ["Bank Transfer", "Cheque", "Cash"], required: true },
+        { key: "bankAccountDetails", label: "Employee Bank Account Details (for transfer)", placeholder: "Bank name, account number, IBAN" },
+        { key: "settlementContact", label: "Settlement Contact Person * (name and role)", placeholder: "e.g., John Doe - HR Manager", required: true },
+        { key: "settlementQueriesContact", label: "Settlement Queries Contact * (email and phone)", placeholder: "Email and phone", required: true },
+
+        // Post-Termination Obligations
+        { key: "confidentialityContinues", label: "Confidentiality Obligation Continues? *", type: "select", options: ["Yes - Recommended", "No"], required: true },
+        { key: "ndaSigned", label: "Non-Disclosure Agreement Signed Previously?", type: "select", options: ["Yes", "No"] },
+        { key: "nonCompeteApplicable", label: "Non-Compete Clause Applicable? *", type: "select", options: ["Yes", "No"], required: true },
+        { key: "nonCompeteDuration", label: "Non-Compete Duration (if Yes - months)", placeholder: "e.g., 6" },
+        { key: "nonCompeteScope", label: "Non-Compete Scope (if Yes)", placeholder: "Industries/roles restricted" },
+
+        // Data Protection & PDPL
+        { key: "dataRetentionPeriod", label: "Personal Data Retention Period *", type: "select", options: [
+          "During employment + 1 year", "During employment + 3 years", "During employment + 5 years", "As required by UAE law"
+        ], required: true },
+        { key: "dataProtectionEmail", label: "Data Protection Contact Email *", placeholder: "dpo@company.com", required: true },
+
+        // Legal & Next Steps
+        { key: "certificateRequired", label: "Termination Certificate Required? *", type: "select", options: ["Yes - Recommended", "No"], required: true },
+        { key: "certificateIssuanceTimeline", label: "Certificate Issuance Timeline (days)", placeholder: "e.g., 5" },
+        { key: "emirate", label: "Emirate for Jurisdiction *", placeholder: "e.g., Dubai, Abu Dhabi", required: true },
+        { key: "additionalInstructions", label: "Additional Instructions for Employee *", placeholder: "Next steps, exit interview, etc.", multiline: true, required: true },
       ],
       employment_contract: [
-        { key: "employeeName", label: "Employee Name", placeholder: "Full name" },
-        { key: "position", label: "Position", placeholder: "Job title" },
-        { key: "startDate", label: "Start Date", type: "date", placeholder: "Select date" },
-        { key: "salary", label: "Salary (AED)", placeholder: "Monthly salary" },
-        { key: "benefits", label: "Benefits", placeholder: "Healthcare, housing, etc.", multiline: true },
+        // Employer Information
+        { key: "companyName", label: "Company Legal Name *", placeholder: "Full company name", required: true },
+        { key: "companyAddress", label: "Company Address *", placeholder: "Full address", multiline: true, required: true },
+        { key: "companyLicenseNumber", label: "Company License Number", placeholder: "License number" },
+        { key: "hrContactEmail", label: "HR Department Contact Email *", placeholder: "hr@company.com", required: true },
+        { key: "hrContactPhone", label: "HR Department Phone *", placeholder: "+971 XX XXX XXXX", required: true },
+
+        // Employee Information
+        { key: "employeeName", label: "Employee Full Name * (as per passport)", placeholder: "Full legal name", required: true },
+        { key: "employeeNationality", label: "Employee Nationality *", placeholder: "e.g., Indian, Egyptian", required: true },
+        { key: "passportOrEmiratesId", label: "Passport / Emirates ID Number *", placeholder: "Passport or 784-XXXX-XXXXXXX-X", required: true },
+        { key: "employeeAddressUAE", label: "Employee Address in UAE *", placeholder: "Full address", multiline: true, required: true },
+        { key: "employeeEmail", label: "Employee Email *", placeholder: "employee@example.com", required: true },
+        { key: "employeePhone", label: "Employee Phone *", placeholder: "+971 XX XXX XXXX", required: true },
+        { key: "emergencyContact", label: "Emergency Contact (name and phone)", placeholder: "Contact person and number" },
+
+        // Position & Duties
+        { key: "jobTitle", label: "Job Title / Position *", placeholder: "e.g., Software Engineer", required: true },
+        { key: "department", label: "Department *", placeholder: "e.g., IT, Sales", required: true },
+        { key: "directManager", label: "Direct Manager / Supervisor *", placeholder: "Manager's name", required: true },
+        { key: "jobDescription", label: "Job Description * (key duties and responsibilities)", placeholder: "Describe primary duties", multiline: true, required: true },
+        { key: "reportingStructure", label: "Reporting Structure", placeholder: "Who employee reports to" },
+
+        // Employment Term
+        { key: "contractType", label: "Contract Type *", type: "select", options: ["Limited/Fixed Term", "Unlimited/Indefinite"], required: true },
+        { key: "contractDuration", label: "Contract Duration (if Limited)", placeholder: "e.g., 12 months, 2 years" },
+        { key: "startDate", label: "Employment Start Date *", type: "date", placeholder: "Select start date", required: true },
+        { key: "probationPeriod", label: "Probation Period *", type: "select", options: ["No Probation", "3 months", "6 months"], required: true },
+        { key: "probationNoticePeriod", label: "Probation Notice Period (days)", placeholder: "e.g., 14" },
+        { key: "workLocation", label: "Work Location * (office address / remote / hybrid)", placeholder: "Work location", required: true },
+
+        // Compensation
+        { key: "basicSalary", label: "Basic Monthly Salary * (AED)", placeholder: "e.g., 10000", required: true },
+        { key: "housingAllowance", label: "Housing Allowance", placeholder: "AED amount or 'Accommodation Provided'" },
+        { key: "transportAllowance", label: "Transport Allowance", placeholder: "AED amount or 'Transport Provided'" },
+        { key: "otherAllowances", label: "Other Allowances (describe and amount)", placeholder: "e.g., Mobile allowance AED 500" },
+        { key: "annualBonus", label: "Annual Performance Bonus (if applicable)", placeholder: "Amount or percentage" },
+        { key: "commissionStructure", label: "Commission Structure (if applicable)", placeholder: "Describe commission" },
+        { key: "paymentFrequency", label: "Payment Frequency *", type: "select", options: ["Monthly", "Bi-weekly"], required: true },
+        { key: "paymentMethod", label: "Payment Method *", type: "select", options: ["Bank Transfer", "Cheque", "Cash"], required: true },
+        { key: "salaryReviewFrequency", label: "Salary Review Frequency", placeholder: "e.g., Annual" },
+        { key: "totalMonthlyCompensation", label: "Total Monthly Compensation * (AED - sum of all)", placeholder: "Total", required: true },
+
+        // Benefits
+        { key: "healthInsurance", label: "Health Insurance *", type: "select", options: ["Provided", "Employee Responsible"], required: true },
+        { key: "healthInsuranceCoverage", label: "Health Insurance Coverage (if Provided)", placeholder: "Coverage details" },
+        { key: "annualLeaveEntitlement", label: "Annual Leave Entitlement * (days per year - min 30)", placeholder: "30", required: true },
+        { key: "flightTickets", label: "Flight Tickets *", placeholder: "e.g., 1 ticket per year to India", required: true },
+        { key: "visaWorkPermit", label: "Visa & Work Permit *", type: "select", options: ["Company Provides", "Employee Responsible"], required: true },
+        { key: "endOfServiceGratuity", label: "End-of-Service Gratuity", placeholder: "Auto-populated: As per UAE Labor Law Articles 51-54" },
+        { key: "otherBenefits", label: "Other Benefits", placeholder: "e.g., Education allowance, gym membership", multiline: true },
+        { key: "benefitsCommencementDate", label: "Benefits Commencement Date", placeholder: "e.g., After probation" },
+
+        // Working Hours & Schedule
+        { key: "workingHoursPerDay", label: "Standard Working Hours * (hours per day)", placeholder: "e.g., 8", required: true },
+        { key: "workingDaysPerWeek", label: "Working Days per Week *", placeholder: "e.g., 5 or 6", required: true },
+        { key: "workSchedule", label: "Work Schedule *", placeholder: "e.g., Sunday-Thursday, 9am-6pm", required: true },
+        { key: "overtimePolicy", label: "Overtime Policy *", type: "select", options: ["Paid per Labor Law", "Not Applicable", "Other - Specify"], required: true },
+        { key: "restDaysPerWeek", label: "Rest Days per Week *", placeholder: "Typically 1", required: true },
+        { key: "ramadanWorkingHours", label: "Ramadan Working Hours", placeholder: "Auto-populated: Reduced to 6 hours/day" },
+
+        // Leave Entitlements
+        { key: "annualLeave", label: "Annual Leave (days)", placeholder: "Auto-populated: 30 days minimum" },
+        { key: "sickLeave", label: "Sick Leave", placeholder: "Auto-populated: 90 days per year per Article 31" },
+        { key: "maternityLeave", label: "Maternity Leave (if applicable)", placeholder: "Auto-populated: 60 days per Article 30" },
+        { key: "otherLeaveTypes", label: "Other Leave Types", placeholder: "e.g., Hajj, compassionate" },
+        { key: "leaveApprovalProcess", label: "Leave Approval Process", placeholder: "Who approves" },
+
+        // Termination Provisions
+        { key: "noticePeriodByEmployee", label: "Notice Period by Employee *", placeholder: "e.g., 30 days, 1 month", required: true },
+        { key: "noticePeriodByEmployer", label: "Notice Period by Employer *", placeholder: "e.g., 30 days, 1 month", required: true },
+        { key: "terminationConditions", label: "Termination Conditions *", placeholder: "When contract can be terminated", multiline: true, required: true },
+        { key: "gardenLeaveApplicable", label: "Garden Leave Applicable?", type: "select", options: ["Yes", "No"] },
+        { key: "nonCompeteClause", label: "Non-Compete Clause *", type: "select", options: ["Yes", "No"], required: true },
+        { key: "nonCompeteDuration", label: "Non-Compete Duration (if Yes - months)", placeholder: "e.g., 6" },
+        { key: "nonCompeteScope", label: "Non-Compete Scope (if Yes)", placeholder: "Industries/roles" },
+
+        // Confidentiality & IP
+        { key: "confidentialityObligation", label: "Confidentiality Obligation *", type: "select", options: ["Yes - Recommended", "No"], required: true },
+        { key: "ndaSeparate", label: "Non-Disclosure Agreement Separate?", type: "select", options: ["Yes", "No"] },
+        { key: "intellectualPropertyOwnership", label: "Intellectual Property Ownership", placeholder: "Auto-populated: All work product belongs to Company" },
+        { key: "dataAccessLevel", label: "Data Access Level", placeholder: "Describe if relevant" },
+
+        // Data Protection & PDPL
+        { key: "personalDataRetentionPeriod", label: "Personal Data Retention Period *", type: "select", options: [
+          "During employment + 3 years", "During employment + 5 years", "During employment + 7 years", "As required by law"
+        ], required: true },
+        { key: "dataProtectionEmail", label: "Data Protection Contact Email *", placeholder: "dpo@company.com", required: true },
+
+        // Legal & Governing Law
+        { key: "governingLaw", label: "Governing Law", placeholder: "Auto-populated: UAE Federal Decree-Law No. 33 of 2021" },
+        { key: "emirate", label: "Emirate for Jurisdiction *", placeholder: "e.g., Dubai, Abu Dhabi", required: true },
+        { key: "freeZoneEmployment", label: "Free Zone Employment?", type: "select", options: ["No", "Yes - Specify free zone"] },
+
+        // Additional Terms
+        { key: "specialConditions", label: "Special Conditions", placeholder: "Any additional terms", multiline: true },
+        { key: "attachments", label: "Attachments", placeholder: "List - job description, company handbook, etc." },
+        { key: "companyPoliciesAcknowledgment", label: "Company Policies Acknowledgment", placeholder: "Auto-populated: Employee acknowledges receipt" },
       ],
       lease_agreement: [
         { key: "propertyAddress", label: "Property Address", placeholder: "Full property address" },
@@ -1061,6 +1225,57 @@ export default function LetterCreationWizard() {
             })
             return false
           }
+        }
+      }
+
+      // Employment Termination specific validation
+      if (letterType === 'employment_termination') {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        const phoneRegex = /^\+971\s?\d{1,2}\s?\d{3}\s?\d{4}$/
+        
+        if (!emailRegex.test(details.hrEmail) || !emailRegex.test(details.payrollEmail) || !emailRegex.test(details.dataProtectionEmail)) {
+          toast({ title: "Invalid email", description: "Please enter valid email addresses", variant: "destructive" })
+          return false
+        }
+        
+        if (!phoneRegex.test(details.hrPhone)) {
+          toast({ title: "Invalid phone", description: "HR phone should be UAE format: +971 XX XXX XXXX", variant: "destructive" })
+          return false
+        }
+
+        const salary = parseFloat(details.basicSalary)
+        if (isNaN(salary) || salary <= 0) {
+          toast({ title: "Invalid salary", description: "Please enter valid salary", variant: "destructive" })
+          return false
+        }
+      }
+
+      // Employment Contract specific validation
+      if (letterType === 'employment_contract') {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        const phoneRegex = /^\+971\s?\d{1,2}\s?\d{3}\s?\d{4}$/
+        
+        if (!emailRegex.test(details.hrContactEmail) || !emailRegex.test(details.employeeEmail) || !emailRegex.test(details.dataProtectionEmail)) {
+          toast({ title: "Invalid email", description: "Please enter valid email addresses", variant: "destructive" })
+          return false
+        }
+        
+        if (!phoneRegex.test(details.hrContactPhone) || !phoneRegex.test(details.employeePhone)) {
+          toast({ title: "Invalid phone", description: "Phones should be UAE format: +971 XX XXX XXXX", variant: "destructive" })
+          return false
+        }
+
+        const salary = parseFloat(details.basicSalary)
+        const totalComp = parseFloat(details.totalMonthlyCompensation)
+        if (isNaN(salary) || salary <= 0 || isNaN(totalComp) || totalComp <= 0) {
+          toast({ title: "Invalid compensation", description: "Please enter valid salary amounts", variant: "destructive" })
+          return false
+        }
+
+        const annualLeave = parseInt(details.annualLeaveEntitlement)
+        if (isNaN(annualLeave) || annualLeave < 30) {
+          toast({ title: "Invalid annual leave", description: "Minimum 30 days per UAE Labor Law", variant: "destructive" })
+          return false
         }
       }
 
