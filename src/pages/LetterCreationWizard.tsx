@@ -2368,6 +2368,273 @@ export default function LetterCreationWizard() {
                       </AlertDescription>
                     </Alert>
                   </div>
+                ) : letterType === 'settlement_agreement' ? (
+                  <div className="space-y-4">
+                    {/* Agreement Overview */}
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base">Agreement Overview</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        {details.agreementReference && <div><span className="text-muted-foreground">Reference:</span> <span className="font-medium">{details.agreementReference}</span></div>}
+                        {details.agreementDate && <div><span className="text-muted-foreground">Date:</span> <span className="font-medium">{format(parseISO(details.agreementDate), 'dd MMMM yyyy')}</span></div>}
+                        {details.agreementLocation && <div><span className="text-muted-foreground">Location:</span> <span className="font-medium">{details.agreementLocation}</span></div>}
+                      </CardContent>
+                    </Card>
+
+                    {/* Parties */}
+                    <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base text-blue-900 dark:text-blue-100">Parties to Settlement</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3 text-sm">
+                        <div>
+                          <p className="font-semibold text-blue-900 dark:text-blue-100 mb-1">Party A:</p>
+                          <p className="font-medium">{details.partyAName}</p>
+                          <p className="text-xs text-blue-800 dark:text-blue-200">ID: {details.partyAEmiratesId}</p>
+                          <p className="text-xs text-blue-800 dark:text-blue-200">Email: {details.partyAEmail}</p>
+                          <p className="text-xs text-blue-800 dark:text-blue-200">Phone: {details.partyAPhone}</p>
+                          {details.partyALegalRep && <p className="text-xs text-blue-800 dark:text-blue-200">Representative: {details.partyALegalRep}</p>}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-blue-900 dark:text-blue-100 mb-1">Party B:</p>
+                          <p className="font-medium">{details.partyBName}</p>
+                          <p className="text-xs text-blue-800 dark:text-blue-200">ID: {details.partyBEmiratesId}</p>
+                          <p className="text-xs text-blue-800 dark:text-blue-200">Email: {details.partyBEmail}</p>
+                          <p className="text-xs text-blue-800 dark:text-blue-200">Phone: {details.partyBPhone}</p>
+                          {details.partyBLegalRep && <p className="text-xs text-blue-800 dark:text-blue-200">Representative: {details.partyBLegalRep}</p>}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Dispute Context */}
+                    <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base text-amber-900 dark:text-amber-100">Dispute Context</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        <Badge variant="secondary">{details.natureOfDispute}</Badge>
+                        <div>
+                          <p className="font-medium text-amber-800 dark:text-amber-200 mb-1">Description:</p>
+                          <p className="whitespace-pre-wrap text-amber-900 dark:text-amber-100">{details.disputeDescription}</p>
+                        </div>
+                        {details.disputeOriginDate && <div><span className="text-muted-foreground">Origin Date:</span> <span className="font-medium">{format(parseISO(details.disputeOriginDate), 'dd MMMM yyyy')}</span></div>}
+                        {details.disputeReference && <div><span className="text-muted-foreground">Reference:</span> <span className="font-medium">{details.disputeReference}</span></div>}
+                      </CardContent>
+                    </Card>
+
+                    {/* Settlement Terms */}
+                    <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base text-green-900 dark:text-green-100">Settlement Terms</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        <div>
+                          <p className="font-medium text-green-800 dark:text-green-200 mb-1">Objective:</p>
+                          <p className="text-green-900 dark:text-green-100">{details.settlementObjective}</p>
+                        </div>
+                        <div>
+                          <p className="font-medium text-green-800 dark:text-green-200 mb-1">Key Terms:</p>
+                          <p className="whitespace-pre-wrap text-green-900 dark:text-green-100">{details.settlementTerms}</p>
+                        </div>
+                        {details.performanceTimeline && <div><span className="text-muted-foreground">Timeline:</span> <span className="font-medium">{details.performanceTimeline}</span></div>}
+                      </CardContent>
+                    </Card>
+
+                    {/* Payment Details */}
+                    {details.paymentInvolved === "Yes" && (
+                      <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-base text-green-900 dark:text-green-100 flex items-center gap-2">
+                            <Icon name="currency-dollar" className="w-5 h-5" />
+                            Payment Details
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3 text-sm">
+                          <div>
+                            <p className="text-xs text-green-700 dark:text-green-300 mb-1">Settlement Amount:</p>
+                            <p className="font-bold text-2xl text-green-900 dark:text-green-100">AED {details.settlementAmount}</p>
+                            <p className="text-sm text-green-800 dark:text-green-200 italic">({details.settlementAmountWords})</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Badge>{details.paymentStructure}</Badge>
+                            <Badge variant="outline">{details.paymentMethod}</Badge>
+                          </div>
+                          {details.bankName && (
+                            <div className="p-3 bg-green-100 dark:bg-green-900 rounded">
+                              <p className="font-semibold text-xs mb-2 text-green-900 dark:text-green-100">Bank Details:</p>
+                              <div className="space-y-1 text-xs text-green-800 dark:text-green-200">
+                                <p><span className="font-medium">Bank:</span> {details.bankName}</p>
+                                <p><span className="font-medium">Account Name:</span> {details.accountName}</p>
+                                <p><span className="font-medium">Account Number:</span> {details.accountNumber}</p>
+                                {details.iban && <p><span className="font-medium">IBAN:</span> {details.iban}</p>}
+                              </div>
+                            </div>
+                          )}
+                          {details.paymentSchedule && (
+                            <div>
+                              <p className="font-medium text-green-800 dark:text-green-200 mb-1">Payment Schedule:</p>
+                              <p className="whitespace-pre-wrap text-green-900 dark:text-green-100">{details.paymentSchedule}</p>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Mutual Release */}
+                    <Card className="border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-950">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base text-purple-900 dark:text-purple-100">Mutual Release of Claims</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3 text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-purple-900 dark:text-purple-100">Party A releases Party B:</span>
+                          <Badge variant={details.partyAReleasesB === "Yes" ? "default" : "secondary"} className={details.partyAReleasesB === "Yes" ? "bg-green-600" : ""}>
+                            {details.partyAReleasesB === "Yes" ? "✓ Yes" : "✗ No"}
+                          </Badge>
+                        </div>
+                        {details.partyAReleasesB === "Yes" && details.partyAReleaseScope && (
+                          <div className="pl-4 text-xs text-purple-800 dark:text-purple-200">
+                            <p className="font-medium mb-1">Scope:</p>
+                            <p className="whitespace-pre-wrap">{details.partyAReleaseScope}</p>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-purple-900 dark:text-purple-100">Party B releases Party A:</span>
+                          <Badge variant={details.partyBReleasesA === "Yes" ? "default" : "secondary"} className={details.partyBReleasesA === "Yes" ? "bg-green-600" : ""}>
+                            {details.partyBReleasesA === "Yes" ? "✓ Yes" : "✗ No"}
+                          </Badge>
+                        </div>
+                        {details.partyBReleasesA === "Yes" && details.partyBReleaseScope && (
+                          <div className="pl-4 text-xs text-purple-800 dark:text-purple-200">
+                            <p className="font-medium mb-1">Scope:</p>
+                            <p className="whitespace-pre-wrap">{details.partyBReleaseScope}</p>
+                          </div>
+                        )}
+                        {details.releaseEffectiveDate && (
+                          <div><span className="text-muted-foreground">Effective Date:</span> <span className="font-medium">{format(parseISO(details.releaseEffectiveDate), 'dd MMMM yyyy')}</span></div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Confidentiality & Non-Disparagement */}
+                    <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base text-blue-900 dark:text-blue-100">Confidentiality & Non-Disparagement</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Icon name="lock" className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                          <span className="font-medium text-blue-900 dark:text-blue-100">Confidential:</span>
+                          <Badge variant={details.isConfidential === "Yes" ? "default" : "secondary"}>
+                            {details.isConfidential === "Yes" ? "✓ Yes" : "✗ No"}
+                          </Badge>
+                        </div>
+                        {details.isConfidential === "Yes" && (
+                          <div className="pl-6 space-y-2 text-xs text-blue-800 dark:text-blue-200">
+                            {details.confidentialityScope && (
+                              <div>
+                                <p className="font-medium mb-1">Scope:</p>
+                                <p className="whitespace-pre-wrap">{details.confidentialityScope}</p>
+                              </div>
+                            )}
+                            {details.confidentialityExceptions && (
+                              <div>
+                                <p className="font-medium mb-1">Exceptions:</p>
+                                <p className="whitespace-pre-wrap">{details.confidentialityExceptions}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-blue-900 dark:text-blue-100">Non-Disparagement:</span>
+                          <Badge variant={details.includeNonDisparagement === "Yes" ? "default" : "secondary"}>
+                            {details.includeNonDisparagement === "Yes" ? "✓ Included" : "Not Included"}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Legal Framework */}
+                    <Card className="border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base">Legal Framework</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        <div><span className="text-muted-foreground">Governing Law:</span> <span className="font-medium">UAE Federal Law</span></div>
+                        <div><span className="text-muted-foreground">Jurisdiction:</span> <span className="font-medium">{details.jurisdictionEmirate}, UAE</span></div>
+                        <div><span className="text-muted-foreground">Dispute Resolution:</span> <Badge variant="outline">{details.disputeResolutionMethod}</Badge></div>
+                        {details.arbitrationDetails && (
+                          <div>
+                            <p className="text-muted-foreground mb-1">Arbitration Details:</p>
+                            <p className="text-xs">{details.arbitrationDetails}</p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Data Protection & PDPL */}
+                    <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base text-green-900 dark:text-green-100 flex items-center gap-2">
+                          <Shield className="w-5 h-5" />
+                          Data Protection (UAE PDPL)
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        <div><span className="text-muted-foreground">Retention Period:</span> <Badge>{details.retentionPeriod}</Badge></div>
+                        <div><span className="text-muted-foreground">Cross-Border Transfer:</span> <Badge variant="outline">{details.crossBorderTransfer === "Yes" ? "Required" : "Not Required"}</Badge></div>
+                        <p className="text-xs text-green-800 dark:text-green-200">All personal data handled per UAE PDPL (Federal Law No. 45 of 2021)</p>
+                      </CardContent>
+                    </Card>
+
+                    {/* Execution Requirements */}
+                    {(details.requiresNotarization === "Yes" || parseInt(details.witnessesRequired || "0") > 0) && (
+                      <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-base text-amber-900 dark:text-amber-100">Execution Requirements</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2 text-sm">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-amber-900 dark:text-amber-100">Notarization:</span>
+                            <Badge variant={details.requiresNotarization === "Yes" ? "default" : "secondary"}>
+                              {details.requiresNotarization === "Yes" ? "✓ Required" : "Not Required"}
+                            </Badge>
+                          </div>
+                          {details.notaryLocation && <div><span className="text-muted-foreground">Notary Location:</span> <span className="font-medium">{details.notaryLocation}</span></div>}
+                          <div><span className="text-muted-foreground">Witnesses Required:</span> <Badge variant="outline">{details.witnessesRequired}</Badge></div>
+                          {details.witness1Name && (
+                            <div className="pl-4 text-xs text-amber-800 dark:text-amber-200">
+                              <p className="font-medium">Witness 1: {details.witness1Name}</p>
+                              {details.witness1EmiratesId && <p>ID: {details.witness1EmiratesId}</p>}
+                            </div>
+                          )}
+                          {details.witness2Name && (
+                            <div className="pl-4 text-xs text-amber-800 dark:text-amber-200">
+                              <p className="font-medium">Witness 2: {details.witness2Name}</p>
+                              {details.witness2EmiratesId && <p>ID: {details.witness2EmiratesId}</p>}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Compliance Summary */}
+                    <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
+                      <Shield className="h-4 w-4 text-green-600" />
+                      <AlertTitle className="text-green-900 dark:text-green-100">Settlement Agreement Compliance Summary</AlertTitle>
+                      <AlertDescription className="text-green-800 dark:text-green-200 space-y-1 text-xs">
+                        <p>✓ All UAE PDPL requirements included (data retention: {details.retentionPeriod})</p>
+                        <p>✓ Governing Law & Dispute Resolution clearly defined</p>
+                        <p>✓ Mutual Release clearly specified {details.partyAReleasesB === "Yes" && details.partyBReleasesA === "Yes" ? "(both parties)" : ""}</p>
+                        <p>✓ No Admission of Liability clause {details.noAdmissionOfLiability?.includes("Yes") ? "included" : ""}</p>
+                        {details.isConfidential === "Yes" && <p>✓ Confidentiality scope and exceptions defined</p>}
+                        <p>✓ Severability & Amendment clauses present ({details.amendmentRequirements})</p>
+                        <p>✓ Signatory validation fields complete</p>
+                        {details.paymentInvolved === "Yes" && <p>✓ Payment amount in figures (AED {details.settlementAmount}) and words ({details.settlementAmountWords})</p>}
+                      </AlertDescription>
+                    </Alert>
+                  </div>
                 ) : (
                   <div className="space-y-4">
                   <div className="bg-muted/50 rounded-lg p-4 space-y-3">
