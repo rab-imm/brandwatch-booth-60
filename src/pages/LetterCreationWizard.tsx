@@ -109,12 +109,35 @@ export default function LetterCreationWizard() {
         { key: "consequences", label: "Consequences of Non-Compliance", placeholder: "Legal action, etc.", multiline: true },
       ],
       workplace_complaint: [
-        { key: "complainantName", label: "Your Name", placeholder: "Full name" },
-        { key: "managerName", label: "Manager/Supervisor Name", placeholder: "Full name" },
-        { key: "department", label: "Department", placeholder: "Department name" },
-        { key: "complaintDetails", label: "Complaint Details", placeholder: "Describe the issue in detail", multiline: true },
-        { key: "incidentDate", label: "Date of Incident", type: "date", placeholder: "Select date" },
-        { key: "witnesses", label: "Witnesses (if any)", placeholder: "Names of witnesses", multiline: true },
+        { key: "complainantName", label: "Your Full Name", placeholder: "First and last name" },
+        { key: "complainantPosition", label: "Your Position/Job Title", placeholder: "e.g., Software Engineer, Sales Manager" },
+        { key: "complainantDepartment", label: "Your Department", placeholder: "e.g., IT, Sales, Operations" },
+        { key: "complainantContactEmail", label: "Your Work Email", placeholder: "your.name@company.com" },
+        { key: "complainantContactPhone", label: "Your Contact Phone", placeholder: "+971 XX XXX XXXX" },
+        { key: "employeeId", label: "Employee ID (if applicable)", placeholder: "Your employee identification number" },
+        { key: "managerName", label: "Your Direct Manager's Name", placeholder: "Manager's full name" },
+        { key: "managerPosition", label: "Manager's Position", placeholder: "Manager's job title" },
+        { key: "respondentName", label: "Person Complaint Is Against (if applicable)", placeholder: "Full name or write 'N/A' if general issue" },
+        { key: "respondentPosition", label: "Respondent's Position (if applicable)", placeholder: "Their job title or write 'N/A'" },
+        { key: "department", label: "Department Where Incident Occurred", placeholder: "Department name" },
+        { key: "incidentDate", label: "Date of Primary Incident", type: "date", placeholder: "Select date" },
+        { key: "incidentLocation", label: "Location of Incident", placeholder: "e.g., Office building, specific floor, meeting room" },
+        { key: "complaintCategory", label: "Category of Complaint", placeholder: "e.g., Harassment, Discrimination, Safety Concern, Policy Violation, Bullying" },
+        { key: "complaintDetails", label: "Detailed Description of Incident(s)", placeholder: "Describe what happened. Include: Who was involved, what was said or done, when it occurred, where it happened, and any relevant context. Be specific and factual.", multiline: true },
+        { key: "impactDescription", label: "Impact on You and Your Work", placeholder: "Explain how this incident has affected you emotionally, professionally, or physically. Include any impact on your work performance or well-being.", multiline: true },
+        { key: "priorIncidents", label: "Previous Related Incidents", placeholder: "Have similar incidents occurred before? If yes, provide dates and brief descriptions. Write 'None' if first occurrence.", multiline: true },
+        { key: "evidenceAvailable", label: "Evidence You Have", placeholder: "List any supporting evidence: emails (with dates), text messages, photos, documents, audio recordings, etc. Example: 'Email from John dated 15/03/2025', 'Screenshot of conversation'", multiline: true },
+        { key: "witnessName1", label: "Witness 1 - Full Name (Optional)", placeholder: "Leave blank if no witnesses" },
+        { key: "witnessPosition1", label: "Witness 1 - Position/Department", placeholder: "Their job title and department" },
+        { key: "witnessContact1", label: "Witness 1 - Contact Information", placeholder: "Email or phone number" },
+        { key: "witnessRelation1", label: "Witness 1 - What They Witnessed", placeholder: "Brief description of what this witness observed" },
+        { key: "witnessName2", label: "Witness 2 - Full Name (Optional)", placeholder: "Leave blank if not applicable" },
+        { key: "witnessPosition2", label: "Witness 2 - Position/Department", placeholder: "Their job title and department" },
+        { key: "witnessContact2", label: "Witness 2 - Contact Information", placeholder: "Email or phone number" },
+        { key: "witnessRelation2", label: "Witness 2 - What They Witnessed", placeholder: "Brief description of what this witness observed" },
+        { key: "desiredOutcome", label: "Desired Outcome/Resolution", placeholder: "What resolution are you seeking? e.g., Investigation, disciplinary action, policy change, department transfer, formal apology, training for staff, etc.", multiline: true },
+        { key: "previousReports", label: "Previous Reports to HR or Management", placeholder: "Have you reported this or similar issues before? If yes, provide dates, who you reported to, and any reference numbers. Write 'None' if this is the first report.", multiline: true },
+        { key: "emirate", label: "Emirate (for Jurisdiction)", placeholder: "e.g., Dubai, Abu Dhabi, Sharjah, Ajman" },
       ],
     }
 
@@ -247,9 +270,65 @@ export default function LetterCreationWizard() {
           return false
         }
       }
+
+      // Additional validation for workplace complaint fields
+      if (letterType === 'workplace_complaint') {
+        // Validate email format
+        const emailField = details.complainantContactEmail
+        if (emailField && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailField)) {
+          toast({
+            title: "Invalid email format",
+            description: "Please enter a valid email address",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate UAE phone format
+        const phoneField = details.complainantContactPhone
+        if (phoneField && !/^\+971\s?\d{1,2}\s?\d{3}\s?\d{4}$/.test(phoneField)) {
+          toast({
+            title: "Invalid phone format",
+            description: "Please enter a valid UAE phone number (e.g., +971 50 123 4567)",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Ensure emirate is filled (required for jurisdiction)
+        if (!details.emirate || !details.emirate.trim()) {
+          toast({
+            title: "Emirate required",
+            description: "Please specify the emirate for jurisdictional purposes",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate witness information - if name is provided, require contact info
+        if (details.witnessName1 && details.witnessName1.trim() && 
+            (!details.witnessContact1 || !details.witnessContact1.trim())) {
+          toast({
+            title: "Witness contact required",
+            description: "Please provide contact information for Witness 1",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        if (details.witnessName2 && details.witnessName2.trim() && 
+            (!details.witnessContact2 || !details.witnessContact2.trim())) {
+          toast({
+            title: "Witness contact required",
+            description: "Please provide contact information for Witness 2",
+            variant: "destructive"
+          })
+          return false
+        }
+      }
     }
 
-    if (currentStep === 4 && !dataProtectionConsent) {
+    if (currentStep === 4 && letterType !== 'workplace_complaint' && !dataProtectionConsent) {
       toast({
         title: "Acknowledgment required",
         description: "Please acknowledge data protection compliance to continue",
@@ -474,8 +553,112 @@ export default function LetterCreationWizard() {
             </div>
           )}
 
-          {/* Step 4: Data Protection Consent */}
-          {currentStep === 4 && (
+          {/* Step 4: Workplace Complaint Acknowledgment OR Data Protection Consent */}
+          {currentStep === 4 && letterType === 'workplace_complaint' && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold mb-2 text-amber-600 dark:text-amber-400">
+                  Important Information Before Proceeding
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Please read and acknowledge the following information about filing a workplace complaint
+                </p>
+              </div>
+              
+              <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+                <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                <AlertTitle className="text-amber-900 dark:text-amber-100">
+                  Workplace Complaint - Your Rights and Responsibilities
+                </AlertTitle>
+                <AlertDescription className="text-amber-800 dark:text-amber-200 space-y-4 mt-3">
+                  <div>
+                    <p className="font-semibold mb-2">CONFIDENTIALITY:</p>
+                    <p className="text-sm">
+                      Your complaint will be handled confidentially. However, details may need to be shared with authorized personnel (HR, management, legal counsel) during the investigation. Complete confidentiality cannot be guaranteed if the investigation requires disclosure.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-2">RETALIATION PROTECTION:</p>
+                    <p className="text-sm">
+                      UAE labor law (Federal Decree-Law No. 33 of 2021) protects you from retaliation for filing good-faith complaints. Prohibited retaliation includes: termination, demotion, unfavorable schedule changes, or creating a hostile work environment. Document any retaliation immediately and report it to HR.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-2">INVESTIGATION TIMELINE:</p>
+                    <p className="text-sm">
+                      Workplace complaint investigations typically take 7-14 business days from the date of receipt. You will be updated on progress at least every 5 business days. Complex cases may require additional time.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-2">EVIDENCE PRESERVATION:</p>
+                    <p className="text-sm">
+                      Gather and preserve all evidence that supports your complaint: emails, text messages, documents, photos, audio recordings (if legally obtained). Do not delete or modify any evidence. Make copies and store them securely.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-2">WITNESS COOPERATION:</p>
+                    <p className="text-sm">
+                      Before listing witnesses, inform them that they may be contacted as part of the investigation. Ensure they are willing to participate. Witnesses also have protection from retaliation under UAE law.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-2">ACCURACY AND GOOD FAITH:</p>
+                    <p className="text-sm">
+                      All information provided must be truthful and accurate to the best of your knowledge. Filing false or malicious complaints may result in disciplinary action. The investigation will be conducted impartially based on evidence.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-2">YOUR RIGHTS:</p>
+                    <ul className="text-sm list-disc list-inside space-y-1 mt-2">
+                      <li>Right to be informed of investigation progress</li>
+                      <li>Right to provide additional evidence</li>
+                      <li>Right to escalate to MOHRE if resolution is unsatisfactory</li>
+                      <li>Right to legal representation</li>
+                      <li>Right to confidentiality (within legal limits)</li>
+                    </ul>
+                  </div>
+                </AlertDescription>
+              </Alert>
+
+              <div className="flex items-center space-x-2 p-4 border rounded-lg bg-card">
+                <Checkbox
+                  id="dataProtectionConsent"
+                  checked={dataProtectionConsent}
+                  onCheckedChange={(checked) => setDataProtectionConsent(checked === true)}
+                />
+                <label
+                  htmlFor="dataProtectionConsent"
+                  className="text-sm font-medium leading-relaxed cursor-pointer"
+                >
+                  I have read and understood the information above regarding workplace complaints, including confidentiality limitations, retaliation protection, investigation timelines, and my responsibilities. I confirm that all information provided in this complaint is accurate and truthful to the best of my knowledge, and I am filing this complaint in good faith.
+                </label>
+              </div>
+
+              <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <AlertTitle className="text-blue-900 dark:text-blue-100">
+                  Need Help?
+                </AlertTitle>
+                <AlertDescription className="text-blue-800 dark:text-blue-200 text-sm">
+                  If you need legal advice before filing this complaint, consider consulting with:
+                  <ul className="list-disc list-inside mt-2 space-y-1">
+                    <li>UAE Ministry of Human Resources and Emiratisation (MOHRE) - Free consultation</li>
+                    <li>UAE Labor Offices - Available in each emirate</li>
+                    <li>Licensed employment lawyers specializing in UAE labor law</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
+
+          {/* Step 4: Data Protection Consent (for non-workplace-complaint letters) */}
+          {currentStep === 4 && letterType !== 'workplace_complaint' && (
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold mb-2">Data Protection Acknowledgment</h3>
@@ -531,66 +714,217 @@ export default function LetterCreationWizard() {
                   Please review your information before generating the letter
                 </p>
               </div>
-              <div className="space-y-4">
-                <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Letter Type</p>
-                    <p className="font-medium">
-                      {LETTER_TYPES.find(t => t.value === letterType)?.label}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Title</p>
-                    <p className="font-medium">{title}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-2">Details</p>
-                    <div className="space-y-2">
-                      {Object.entries(details)
-                        .filter(([key]) => key !== 'conversationContext')
-                        .map(([key, value]) => {
-                          // Format date fields
-                          const isDateField = ['terminationDate', 'startDate', 'deadline', 'incidentDate'].includes(key)
-                          const displayValue = isDateField && value
-                            ? (() => {
-                                try {
-                                  return format(parseISO(value), 'dd/MM/yyyy')
-                                } catch {
-                                  return value
-                                }
-                              })()
-                            : value
 
-                          return (
-                            <div key={key} className="flex justify-between text-sm">
-                              <span className="text-muted-foreground capitalize">
-                                {key.replace(/([A-Z])/g, ' $1').trim()}:
-                              </span>
-                              <span className="font-medium">{displayValue}</span>
+              {/* Workplace Complaint Structured Review */}
+              {letterType === 'workplace_complaint' ? (
+                <div className="space-y-4">
+                  {/* Complainant Information */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Complainant Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <span className="text-muted-foreground">Name:</span>
+                        <span className="font-medium">{details.complainantName}</span>
+                        <span className="text-muted-foreground">Position:</span>
+                        <span className="font-medium">{details.complainantPosition}</span>
+                        <span className="text-muted-foreground">Department:</span>
+                        <span className="font-medium">{details.complainantDepartment}</span>
+                        <span className="text-muted-foreground">Email:</span>
+                        <span className="font-medium">{details.complainantContactEmail}</span>
+                        <span className="text-muted-foreground">Phone:</span>
+                        <span className="font-medium">{details.complainantContactPhone}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Incident Details */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Incident Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Date:</p>
+                        <p className="text-sm">{details.incidentDate ? format(parseISO(details.incidentDate), 'dd/MM/yyyy') : 'Not provided'}</p>
+                      </div>
+                      {details.incidentLocation && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Location:</p>
+                          <p className="text-sm">{details.incidentLocation}</p>
+                        </div>
+                      )}
+                      {details.complaintCategory && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Category:</p>
+                          <p className="text-sm">{details.complaintCategory}</p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Description:</p>
+                        <p className="text-sm whitespace-pre-wrap">{details.complaintDetails}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Witness Information */}
+                  {(details.witnessName1 || details.witnessName2) && (
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base">Witness Information</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {details.witnessName1 && (
+                          <div className="p-3 bg-muted/50 rounded">
+                            <p className="font-medium text-sm mb-2">Witness 1:</p>
+                            <div className="space-y-1 text-sm">
+                              <p><span className="text-muted-foreground">Name:</span> {details.witnessName1}</p>
+                              {details.witnessPosition1 && <p><span className="text-muted-foreground">Position:</span> {details.witnessPosition1}</p>}
+                              {details.witnessContact1 && <p><span className="text-muted-foreground">Contact:</span> {details.witnessContact1}</p>}
+                              {details.witnessRelation1 && <p><span className="text-muted-foreground">Witnessed:</span> {details.witnessRelation1}</p>}
                             </div>
-                          )
-                        })}
+                          </div>
+                        )}
+                        {details.witnessName2 && (
+                          <div className="p-3 bg-muted/50 rounded">
+                            <p className="font-medium text-sm mb-2">Witness 2:</p>
+                            <div className="space-y-1 text-sm">
+                              <p><span className="text-muted-foreground">Name:</span> {details.witnessName2}</p>
+                              {details.witnessPosition2 && <p><span className="text-muted-foreground">Position:</span> {details.witnessPosition2}</p>}
+                              {details.witnessContact2 && <p><span className="text-muted-foreground">Contact:</span> {details.witnessContact2}</p>}
+                              {details.witnessRelation2 && <p><span className="text-muted-foreground">Witnessed:</span> {details.witnessRelation2}</p>}
+                            </div>
+                          </div>
+                        )}
+                        {(!details.witnessPosition1 || !details.witnessContact1) && details.witnessName1 && (
+                          <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+                            <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                            <AlertDescription className="text-amber-800 dark:text-amber-200 text-sm">
+                              Incomplete witness information may delay the investigation. HR will follow up to collect missing details.
+                            </AlertDescription>
+                          </Alert>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Evidence & Outcome */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Evidence & Desired Outcome</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {details.evidenceAvailable && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Evidence Available:</p>
+                          <p className="text-sm whitespace-pre-wrap">{details.evidenceAvailable}</p>
+                        </div>
+                      )}
+                      {details.desiredOutcome && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Desired Outcome:</p>
+                          <p className="text-sm whitespace-pre-wrap">{details.desiredOutcome}</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Legal Information */}
+                  <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                    <Shield className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    <AlertTitle className="text-green-900 dark:text-green-100">
+                      Legal Compliance Included
+                    </AlertTitle>
+                    <AlertDescription className="text-green-800 dark:text-green-200 text-sm">
+                      Your complaint letter will automatically include:
+                      <ul className="list-disc list-inside mt-2 space-y-1">
+                        <li>UAE Labor Law (Federal Decree-Law No. 33 of 2021) references</li>
+                        <li>UAE PDPL (Federal Law No. 45 of 2021) data protection notice</li>
+                        <li>Dispute resolution pathway (Internal → MOHRE → Labor Courts)</li>
+                        <li>Retaliation protection information</li>
+                        <li>Investigation timeline and process</li>
+                        <li>Confidentiality statement</li>
+                        <li>Acknowledgment of receipt section</li>
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+
+                  {details.emirate && (
+                    <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                      <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <AlertTitle className="text-blue-900 dark:text-blue-100">
+                        Jurisdiction: {details.emirate}
+                      </AlertTitle>
+                      <AlertDescription className="text-blue-800 dark:text-blue-200 text-sm">
+                        This complaint is filed for jurisdiction in {details.emirate}, UAE. If escalation to labor courts becomes necessary, it will be under the jurisdiction of {details.emirate} Labor Court.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Letter Type</p>
+                      <p className="font-medium">
+                        {LETTER_TYPES.find(t => t.value === letterType)?.label}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Title</p>
+                      <p className="font-medium">{title}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground mb-2">Details</p>
+                      <div className="space-y-2">
+                        {Object.entries(details)
+                          .filter(([key]) => key !== 'conversationContext')
+                          .map(([key, value]) => {
+                            // Format date fields
+                            const isDateField = ['terminationDate', 'startDate', 'deadline', 'incidentDate'].includes(key)
+                            const displayValue = isDateField && value
+                              ? (() => {
+                                  try {
+                                    return format(parseISO(value), 'dd/MM/yyyy')
+                                  } catch {
+                                    return value
+                                  }
+                                })()
+                              : value
+
+                            return (
+                              <div key={key} className="flex justify-between text-sm">
+                                <span className="text-muted-foreground capitalize">
+                                  {key.replace(/([A-Z])/g, ' $1').trim()}:
+                                </span>
+                                <span className="font-medium">{displayValue}</span>
+                              </div>
+                            )
+                          })}
+                      </div>
                     </div>
                   </div>
+
+                  <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                    <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <AlertTitle className="text-blue-900 dark:text-blue-100">Personal Data Notice</AlertTitle>
+                    <AlertDescription className="text-blue-800 dark:text-blue-200">
+                      The information above may include personal data. A data protection notice will be automatically included in your generated letter to ensure UAE PDPL compliance.
+                    </AlertDescription>
+                  </Alert>
                 </div>
+              )}
 
-                <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
-                  <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  <AlertTitle className="text-blue-900 dark:text-blue-100">Personal Data Notice</AlertTitle>
-                  <AlertDescription className="text-blue-800 dark:text-blue-200">
-                    The information above may include personal data. A data protection notice will be automatically included in your generated letter to ensure UAE PDPL compliance.
-                  </AlertDescription>
-                </Alert>
-
-                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-start gap-3">
-                  <Icon name="info" className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div className="text-sm">
-                    <p className="font-medium mb-1">Credit Usage</p>
-                    <p className="text-muted-foreground">
-                      Generating this letter will deduct 5 credits from your account. 
-                      You currently have {profile ? profile.max_credits_per_period - profile.queries_used : 0} credits available.
-                    </p>
-                  </div>
+              {/* Credit usage information - applies to all letter types */}
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-start gap-3">
+                <Icon name="info" className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium mb-1">Credit Usage</p>
+                  <p className="text-muted-foreground">
+                    Generating this letter will deduct 5 credits from your account. 
+                    You currently have {profile ? profile.max_credits_per_period - profile.queries_used : 0} credits available.
+                  </p>
                 </div>
               </div>
             </div>
