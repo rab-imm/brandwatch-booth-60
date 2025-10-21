@@ -139,6 +139,25 @@ export default function LetterCreationWizard() {
         { key: "previousReports", label: "Previous Reports to HR or Management", placeholder: "Have you reported this or similar issues before? If yes, provide dates, who you reported to, and any reference numbers. Write 'None' if this is the first report.", multiline: true },
         { key: "emirate", label: "Emirate (for Jurisdiction)", placeholder: "e.g., Dubai, Abu Dhabi, Sharjah, Ajman" },
       ],
+      general_legal: [
+        { key: "letterPurpose", label: "Purpose of Letter", placeholder: "e.g., Breach of Contract Notice, Cease and Desist, Formal Complaint, Request for Payment", required: true },
+        { key: "referenceNumber", label: "Reference Number (Optional)", placeholder: "e.g., REF/2025/001" },
+        { key: "matterDescription", label: "Description of Matter", placeholder: "Provide a clear, factual description of the situation, issue, or matter being addressed. Include key facts, dates, and relevant background.", multiline: true, required: true },
+        { key: "legalBasis", label: "Legal Basis / Grounds", placeholder: "What is the legal foundation for this letter? (e.g., Breach of contract under UAE Civil Code, violation of agreement, UAE consumer protection law). If unsure, write 'General business matter' and AI will suggest appropriate legal basis.", multiline: true, required: true },
+        { key: "applicableLaws", label: "Applicable UAE Laws (if known)", placeholder: "e.g., Federal Law No. 5 of 1985 (Civil Code), Federal Decree-Law No. 32 of 2021 (Commercial Companies). Leave blank if unsure and AI will suggest appropriate laws.", multiline: true },
+        { key: "breachDetails", label: "Breach/Violation Details (if applicable)", placeholder: "If alleging a breach or violation: What was breached? When? What were the obligations that were not fulfilled? Leave blank if not applicable.", multiline: true },
+        { key: "requiredAction", label: "Required Action from Recipient", placeholder: "What specific action do you require the recipient to take? Be clear and specific (e.g., Pay outstanding amount of AED 50,000, cease infringing activities, provide requested documents, issue formal apology)", multiline: true, required: true },
+        { key: "actionDeadline", label: "Deadline for Action", type: "date", placeholder: "Select deadline date" },
+        { key: "deadlineCalendarDays", label: "Or Specify Calendar Days", placeholder: "e.g., 14 (if you prefer to state 'within 14 calendar days from receipt')" },
+        { key: "consequences", label: "Consequences of Non-Compliance", placeholder: "What will happen if the recipient does not comply? (e.g., Legal proceedings will be initiated in Dubai Courts, claim for damages of AED X, contract termination, reporting to authorities)", multiline: true, required: true },
+        { key: "monetaryAmount", label: "Monetary Amount (if applicable)", placeholder: "AED amount (e.g., 50000.00)" },
+        { key: "emirate", label: "Emirate for Jurisdiction", placeholder: "e.g., Dubai, Abu Dhabi, Sharjah (for court jurisdiction clause)", required: true },
+        { key: "disputeResolutionPreference", label: "Dispute Resolution Preference", placeholder: "Select preference: Courts, Arbitration, or leave blank for default (courts)" },
+        { key: "isConfidential", label: "Is this matter confidential/sensitive?", type: "select", options: ["Yes - Include confidentiality clause", "No - Standard letter"], required: true },
+        { key: "attachedDocuments", label: "Attached/Enclosed Documents (if any)", placeholder: "List any documents enclosed or referenced (e.g., Copy of contract dated 15/01/2024, Invoice No. 12345, Previous correspondence dated 01/03/2025)", multiline: true },
+        { key: "previousCorrespondence", label: "Previous Correspondence/Attempts to Resolve", placeholder: "Describe any previous attempts to resolve this matter (dates, methods, outcomes). This strengthens your position.", multiline: true },
+        { key: "urgency", label: "Urgency Level", type: "select", options: ["Standard", "Urgent - Time-sensitive matter", "Extremely Urgent - Immediate action required"], required: true },
+      ],
     }
 
     return [...commonFields, ...(specificFields[letterType] || [])]
@@ -321,6 +340,56 @@ export default function LetterCreationWizard() {
           toast({
             title: "Witness contact required",
             description: "Please provide contact information for Witness 2",
+            variant: "destructive"
+          })
+          return false
+        }
+      }
+
+      // Additional validation for general_legal fields
+      if (letterType === 'general_legal') {
+        // Validate emirate (required for jurisdiction)
+        if (!details.emirate || !details.emirate.trim()) {
+          toast({
+            title: "Emirate required",
+            description: "Please specify the emirate for jurisdictional purposes",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate monetary amount format if provided
+        if (details.monetaryAmount && details.monetaryAmount.trim()) {
+          const amountValue = parseFloat(details.monetaryAmount.replace(/[^0-9.]/g, ''))
+          if (isNaN(amountValue) || amountValue < 0) {
+            toast({
+              title: "Invalid amount",
+              description: "Please enter a valid monetary amount (numbers only)",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // Validate deadline calendar days if provided (instead of date)
+        if (details.deadlineCalendarDays && details.deadlineCalendarDays.trim()) {
+          const days = parseInt(details.deadlineCalendarDays)
+          if (isNaN(days) || days < 1 || days > 365) {
+            toast({
+              title: "Invalid calendar days",
+              description: "Please enter a valid number of days between 1 and 365",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // Ensure either actionDeadline (date) OR deadlineCalendarDays is provided
+        if ((!details.actionDeadline || !details.actionDeadline.trim()) && 
+            (!details.deadlineCalendarDays || !details.deadlineCalendarDays.trim())) {
+          toast({
+            title: "Deadline required",
+            description: "Please specify either a deadline date or number of calendar days",
             variant: "destructive"
           })
           return false
@@ -861,6 +930,165 @@ export default function LetterCreationWizard() {
                       </AlertDescription>
                     </Alert>
                   )}
+                </div>
+              ) : letterType === 'general_legal' ? (
+                <div className="space-y-4">
+                  {/* Letter Purpose & Context */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Letter Purpose & Context</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Purpose:</p>
+                        <p className="text-sm font-semibold">{details.letterPurpose}</p>
+                      </div>
+                      {details.referenceNumber && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Reference:</p>
+                          <p className="text-sm">{details.referenceNumber}</p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Matter Description:</p>
+                        <p className="text-sm whitespace-pre-wrap">{details.matterDescription}</p>
+                      </div>
+                      {details.urgency && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Urgency:</p>
+                          <Badge variant={details.urgency.includes('Extremely') ? 'destructive' : details.urgency.includes('Urgent') ? 'default' : 'secondary'}>
+                            {details.urgency}
+                          </Badge>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Legal Basis */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Legal Basis & Applicable Law</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Legal Grounds:</p>
+                        <p className="text-sm whitespace-pre-wrap">{details.legalBasis}</p>
+                      </div>
+                      {details.applicableLaws && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Applicable UAE Laws:</p>
+                          <p className="text-sm whitespace-pre-wrap">{details.applicableLaws}</p>
+                        </div>
+                      )}
+                      {details.breachDetails && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Breach/Violation:</p>
+                          <p className="text-sm whitespace-pre-wrap">{details.breachDetails}</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Required Action & Deadline */}
+                  <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base text-amber-900 dark:text-amber-100">Required Action & Timeline</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div>
+                        <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Action Required:</p>
+                        <p className="text-sm whitespace-pre-wrap text-amber-900 dark:text-amber-100">{details.requiredAction}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Icon name="calendar" className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <div>
+                          <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Deadline:</p>
+                          <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                            {details.actionDeadline ? format(parseISO(details.actionDeadline), 'dd/MM/yyyy') : 
+                             `Within ${details.deadlineCalendarDays} calendar days from receipt`}
+                          </p>
+                        </div>
+                      </div>
+                      {details.monetaryAmount && (
+                        <div>
+                          <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Amount:</p>
+                          <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">AED {parseFloat(details.monetaryAmount).toLocaleString('en-AE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Consequences of Non-Compliance:</p>
+                        <p className="text-sm whitespace-pre-wrap text-amber-900 dark:text-amber-100">{details.consequences}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Supporting Information */}
+                  {(details.attachedDocuments || details.previousCorrespondence) && (
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base">Supporting Information</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {details.attachedDocuments && (
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Attached Documents:</p>
+                            <p className="text-sm whitespace-pre-wrap">{details.attachedDocuments}</p>
+                          </div>
+                        )}
+                        {details.previousCorrespondence && (
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Previous Correspondence:</p>
+                            <p className="text-sm whitespace-pre-wrap">{details.previousCorrespondence}</p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Legal Compliance Summary */}
+                  <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                    <Shield className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    <AlertTitle className="text-green-900 dark:text-green-100">
+                      Legal Compliance Included
+                    </AlertTitle>
+                    <AlertDescription className="text-green-800 dark:text-green-200 text-sm">
+                      Your letter will automatically include:
+                      <ul className="list-disc list-inside mt-2 space-y-1">
+                        <li>Governing Law: UAE federal laws (with specific law references if provided)</li>
+                        <li>Dispute Resolution: Jurisdiction in {details.emirate} Courts {details.disputeResolutionPreference && `(${details.disputeResolutionPreference})`}</li>
+                        <li>UAE PDPL (Federal Law No. 45 of 2021) data protection compliance</li>
+                        <li>Actionable deadline: {details.actionDeadline ? format(parseISO(details.actionDeadline), 'dd MMMM yyyy') : `${details.deadlineCalendarDays} calendar days from receipt`}</li>
+                        <li>Clear consequences of non-compliance</li>
+                        {details.isConfidential === "Yes - Include confidentiality clause" && <li>Confidentiality clause (strict confidentiality provisions)</li>}
+                        <li>Reservation of rights clause</li>
+                        <li>Professional formatting with standardized section headers</li>
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+
+                  {/* Confidentiality Notice */}
+                  {details.isConfidential === "Yes - Include confidentiality clause" && (
+                    <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+                      <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                      <AlertTitle className="text-red-900 dark:text-red-100">
+                        Confidential Matter
+                      </AlertTitle>
+                      <AlertDescription className="text-red-800 dark:text-red-200 text-sm">
+                        This letter will include a comprehensive confidentiality clause stating that the letter and its contents are strictly confidential and intended solely for the addressee. Unauthorized disclosure is prohibited and may result in legal action.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {/* Jurisdiction Notice */}
+                  <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                    <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <AlertTitle className="text-blue-900 dark:text-blue-100">
+                      Jurisdiction: {details.emirate}, UAE
+                    </AlertTitle>
+                    <AlertDescription className="text-blue-800 dark:text-blue-200 text-sm">
+                      This letter specifies that disputes will be subject to the exclusive jurisdiction of the courts of {details.emirate}, United Arab Emirates. {details.disputeResolutionPreference === "Arbitration" && "The letter also mentions the option of arbitration under UAE Arbitration Law (Federal Law No. 6 of 2018)."}
+                    </AlertDescription>
+                  </Alert>
                 </div>
               ) : (
                 <div className="space-y-4">

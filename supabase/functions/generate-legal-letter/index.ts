@@ -91,7 +91,102 @@ Time of Receipt: ________________________
 Signature: ____________________
 
 A copy of this acknowledgment will be provided to the complainant within 24 hours of receipt."`,
-  general_legal: `Generate a formal legal letter.`
+  general_legal: `Generate a comprehensive formal legal letter following UAE legal standards and best practices.
+
+CRITICAL REQUIREMENTS - MUST INCLUDE ALL OF THESE:
+
+STRUCTURE & FORMATTING:
+Use these EXACT section headers (include only those relevant to the letter purpose):
+1. REFERENCE & DATE
+2. PARTIES
+3. BACKGROUND / CONTEXT
+4. NATURE OF MATTER / ISSUE
+5. LEGAL BASIS & APPLICABLE LAW
+6. BREACH / VIOLATION / GROUNDS (if applicable)
+7. REQUIRED ACTION & ACTIONABLE TIMELINE
+8. LEGAL CONSEQUENCES OF NON-COMPLIANCE (if applicable)
+9. GOVERNING LAW & DISPUTE RESOLUTION
+10. CONFIDENTIALITY CLAUSE
+11. DATA PROTECTION NOTICE
+12. RESERVATION OF RIGHTS
+13. SIGNATURE SECTION
+
+LANGUAGE REQUIREMENTS:
+- Use simple, clear sentences (maximum 20 words per sentence where possible)
+- Avoid unnecessary legal jargon; use plain business language
+- Use bullet points for lists of demands, actions, or consequences
+- Write in active voice, not passive
+- Keep paragraphs short (3-4 sentences maximum)
+- Use formal but accessible tone suitable for business correspondence
+
+LEGAL REFERENCES - UAE LAW ACCURACY:
+When citing UAE laws, you MUST:
+- Verify the law number and year (e.g., Federal Law No. 5 of 1985 is Civil Transactions Law)
+- Use current, applicable legislation (check if laws have been amended or replaced)
+- Common UAE laws to reference correctly:
+  * Civil Transactions Law: Federal Law No. 5 of 1985 (Civil Code) - as amended
+  * Commercial Companies Law: Federal Law No. 2 of 2015 - as amended by Federal Decree-Law No. 32 of 2021
+  * Commercial Transactions Law: Federal Law No. 18 of 1993
+  * UAE Labor Law: Federal Decree-Law No. 33 of 2021
+  * Personal Data Protection Law (PDPL): Federal Law No. 45 of 2021
+  * Consumer Protection Law: Federal Law No. 15 of 2020
+  * Penal Code: Federal Law No. 31 of 2021
+- Only cite laws that are directly relevant to the matter at hand
+- If law citation is uncertain, use general language: "in accordance with applicable UAE federal and emirate laws"
+
+ACTIONABLE DEADLINES & CONSEQUENCES:
+- Specify exact dates (e.g., "by 15th April 2025") OR calendar days (e.g., "within 14 calendar days from receipt of this letter")
+- Ensure deadlines are realistic and reasonable (typically 7-30 calendar days for compliance)
+- Clearly state what action is required within the deadline
+- Specify measurable compliance criteria
+- Detail consequences of non-compliance (e.g., "legal proceedings will be initiated," "damages will be claimed," "contract termination")
+- Use this format:
+  "REQUIRED ACTION:
+  You are hereby required to [specific action] by [exact date] or within [X calendar days] from receipt of this letter.
+  
+  CONSEQUENCES OF NON-COMPLIANCE:
+  Failure to comply within the specified timeline will result in:
+  • [Consequence 1]
+  • [Consequence 2]
+  • [Legal action without further notice]"
+
+GOVERNING LAW & DISPUTE RESOLUTION:
+ALWAYS include this section near the end:
+"GOVERNING LAW:
+This matter is governed by the laws of the United Arab Emirates, specifically [applicable UAE federal laws and relevant emirate-specific regulations].
+
+DISPUTE RESOLUTION:
+In the event this matter is not resolved amicably, disputes shall be subject to the exclusive jurisdiction of the courts of [Emirate: Dubai, Abu Dhabi, etc.], United Arab Emirates. [Alternative: Parties may agree to resolve disputes through arbitration under the UAE Arbitration Law (Federal Law No. 6 of 2018)]."
+
+CONFIDENTIALITY CLAUSE:
+For sensitive matters, ALWAYS include:
+"CONFIDENTIALITY:
+This letter and its contents are strictly confidential and intended solely for the addressee named above. Unauthorized disclosure, copying, distribution, or use of this letter by any person other than the intended recipient is strictly prohibited and may constitute a breach of confidentiality. If you have received this letter in error, please notify the sender immediately and destroy all copies."
+
+DATA PROTECTION:
+Include reference to UAE PDPL:
+"This letter contains personal and/or business information protected under UAE Federal Law No. 45 of 2021 (PDPL). All parties must handle this information in accordance with applicable data protection regulations."
+
+RESERVATION OF RIGHTS:
+End with:
+"RESERVATION OF RIGHTS:
+Nothing in this letter shall be construed as a waiver of any rights, remedies, or defenses available to [Sender Name] under UAE law. All rights are expressly reserved, including but not limited to the right to seek damages, specific performance, injunctive relief, or any other legal or equitable remedies."
+
+PROFESSIONAL FORMATTING:
+- Use proper formal letter header with sender details, recipient details, date, and reference number
+- Include clear subject line summarizing the matter
+- Use "Dear [Title] [Name]," salutation
+- End with "Yours faithfully," or "Yours sincerely," followed by signature section
+- Include sender contact information at the bottom
+
+PLACEHOLDERS:
+Replace ALL bracketed placeholders with actual information provided in the letter details:
+- [Sender Name] → actual sender name
+- [Recipient Name] → actual recipient name
+- [Specific date] → actual deadline date
+- [Emirate] → actual emirate for jurisdiction
+- [Amount] → actual monetary amount if applicable
+- Do NOT leave any [bracketed text] in the final output unless explicitly asking recipient to fill it in`
 };
 
 const DATA_PROTECTION_CLAUSES = {
@@ -205,6 +300,62 @@ ADDITIONAL NOTES:
 - The complainant should preserve all relevant evidence (emails, messages, documents)
 - This complaint does not waive any legal rights the complainant may have under UAE law
 - Time limits for filing complaints with MOHRE or courts may apply - seek legal advice if needed`;
+
+const GENERAL_LEGAL_CLAUSES = `
+
+GOVERNING LAW & DISPUTE RESOLUTION:
+
+GOVERNING LAW:
+This matter, and any disputes arising from or related to it, shall be governed by and construed in accordance with the laws of the United Arab Emirates. Applicable UAE federal laws include but are not limited to:
+- Federal Law No. 5 of 1985 (Civil Transactions Law - Civil Code), as amended
+- Federal Law No. 18 of 1993 (Commercial Transactions Law), as amended
+- Other relevant federal and emirate-specific legislation as applicable to this matter
+
+DISPUTE RESOLUTION:
+In the event that this matter cannot be resolved amicably between the parties, any disputes, claims, or controversies arising from or relating to this matter shall be subject to the exclusive jurisdiction of the competent courts of [EMIRATE], United Arab Emirates.
+
+Alternative Dispute Resolution (Optional): The parties may, by mutual written agreement, elect to resolve disputes through:
+- Mediation: Under the rules of an accredited UAE mediation center
+- Arbitration: In accordance with UAE Federal Law No. 6 of 2018 on Arbitration, conducted in the UAE
+
+CONFIDENTIALITY:
+
+This letter and all information contained herein are strictly confidential and are intended solely for the use of the addressee named above ("Intended Recipient").
+
+CONFIDENTIALITY OBLIGATIONS:
+- This letter may not be disclosed, reproduced, distributed, or used by any person or entity other than the Intended Recipient without the express prior written consent of the sender.
+- Unauthorized disclosure or use of this letter may result in legal action for breach of confidentiality, breach of privacy, or other applicable legal remedies under UAE law.
+- If you are not the Intended Recipient, you are hereby notified that any review, dissemination, distribution, copying, or other use of this letter is strictly prohibited.
+
+ERROR RECEIPT NOTIFICATION:
+If you have received this letter in error, please:
+1. Notify the sender immediately via the contact details provided
+2. Destroy or permanently delete all copies of this letter
+3. Refrain from using or disclosing any information contained herein
+
+RESERVATION OF RIGHTS:
+
+The sender expressly reserves all rights, remedies, defenses, and claims available under UAE law and applicable international conventions to which the UAE is a signatory.
+
+RIGHTS RESERVED INCLUDE:
+- The right to seek monetary damages, compensation, or restitution
+- The right to seek specific performance or injunctive relief
+- The right to pursue civil or criminal proceedings as applicable
+- The right to seek interest, costs, and legal fees
+- The right to pursue alternative dispute resolution mechanisms
+- The right to amend or supplement claims based on subsequently discovered facts
+
+WAIVER DISCLAIMER:
+Nothing in this letter shall be construed as:
+- A waiver of any rights or remedies
+- An admission of liability or wrongdoing (unless explicitly stated)
+- A release of any claims or defenses
+- An agreement to terms not expressly stated herein
+
+TIME LIMITATION:
+All rights and remedies shall be preserved regardless of the passage of time, subject only to applicable statutory limitation periods under UAE law.
+
+This letter does not constitute a complete or final settlement of any matters discussed herein unless explicitly stated otherwise. All rights not expressly waived or released remain in full force and effect.`;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -374,18 +525,22 @@ Generate the complete letter now.`;
       letterType.includes('lease') ? DATA_PROTECTION_CLAUSES.lease :
       letterType === 'nda' ? DATA_PROTECTION_CLAUSES.nda :
       letterType === 'workplace_complaint' ? DATA_PROTECTION_CLAUSES.workplace_complaint :
+      letterType === 'general_legal' ? DATA_PROTECTION_CLAUSES.general :
       DATA_PROTECTION_CLAUSES.general;
     
     letterContent += dataProtectionClause;
 
-    // Add NDA-specific legal clauses if this is an NDA
+    // Add letter-type-specific legal clauses
     if (letterType === 'nda') {
       letterContent += NDA_LEGAL_CLAUSES;
     }
 
-    // Add workplace complaint legal clauses
     if (letterType === 'workplace_complaint') {
       letterContent += WORKPLACE_COMPLAINT_LEGAL_CLAUSES;
+    }
+
+    if (letterType === 'general_legal') {
+      letterContent += GENERAL_LEGAL_CLAUSES;
     }
 
     // Deduct credits (queries_used is the DB column name)
