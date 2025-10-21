@@ -893,7 +893,758 @@ PROFESSIONAL FORMATTING:
 
 PLACEHOLDERS:
 Replace ALL bracketed placeholders with actual information provided in letter details. Do NOT leave any [bracketed text] in the final output unless explicitly asking parties to provide information.`,
-  lease_agreement: `Generate a residential/commercial lease agreement compliant with UAE RERA regulations.`,
+  lease_agreement: `Generate a comprehensive residential or commercial lease agreement compliant with UAE tenancy law and RERA regulations.
+
+CRITICAL REQUIREMENTS - MUST INCLUDE ALL OF THESE:
+
+STRUCTURE & FORMATTING:
+Use these EXACT section headers in order:
+1. LEASE AGREEMENT HEADER
+2. PARTIES TO THE AGREEMENT
+3. PROPERTY DESCRIPTION
+4. LEASE TERM
+5. RENT & PAYMENT TERMS
+6. SECURITY DEPOSIT
+7. PROPERTY USE
+8. MAINTENANCE & REPAIRS
+9. UTILITIES & SERVICES
+10. ALTERATIONS & IMPROVEMENTS
+11. INSURANCE REQUIREMENTS
+12. ACCESS & INSPECTIONS
+13. SUBLETTING & ASSIGNMENT
+14. TERMINATION CONDITIONS
+15. EJARI/TAWTHEEQ REGISTRATION
+16. GOVERNING LAW & DISPUTE RESOLUTION
+17. DATA PROTECTION & PDPL COMPLIANCE
+18. ADDITIONAL TERMS & GENERAL PROVISIONS
+
+LANGUAGE REQUIREMENTS:
+- Use simple, clear sentences (maximum 20 words per sentence where possible)
+- Use bullet points for lists (utilities, maintenance responsibilities, prohibited activities)
+- Use clear section headers with numbering
+- Use active voice
+- Keep paragraphs short (3-4 sentences maximum)
+- Avoid unnecessary legal jargon
+
+DOCUMENT SECTIONS (DETAILED):
+
+1. LEASE AGREEMENT HEADER
+===========================
+
+RESIDENTIAL/COMMERCIAL LEASE AGREEMENT
+[Use "RESIDENTIAL LEASE AGREEMENT" if propertyType is Apartment/Villa/Townhouse, otherwise "COMMERCIAL LEASE AGREEMENT"]
+
+Agreement Reference: [agreementReference or auto-generate: LA-UAE-YYYY-XXXX]
+Execution Date: [executionDate or today's date]
+Execution Place: [emirate], United Arab Emirates
+
+2. PARTIES TO THE AGREEMENT
+============================
+
+This Lease Agreement is entered into on [leaseStartDate or executionDate] between:
+
+LANDLORD (LESSOR):
+Full Legal Name: [landlordName]
+Emirates ID/Passport: [landlordId]
+Address: [landlordAddress]
+Phone: [landlordPhone]
+Email: [landlordEmail]
+[If landlordLegalRep provided]
+Legal Representative: [landlordLegalRep]
+Representative Emirates ID: [landlordRepId]
+
+AND
+
+TENANT (LESSEE):
+Full Legal Name: [tenantName]
+Emirates ID/Passport: [tenantId]
+Address: [tenantAddress]
+Phone: [tenantPhone]
+Email: [tenantEmail]
+[If tenantLegalRep provided]
+Legal Representative: [tenantLegalRep]
+Representative Emirates ID: [tenantRepId]
+
+Collectively referred to as "the Parties" and individually as "a Party".
+
+3. PROPERTY DESCRIPTION
+========================
+
+The Landlord agrees to lease to the Tenant the following property:
+
+LOCATION:
+[propertyAddress]
+
+PROPERTY DETAILS:
+• Property Type: [propertyType]
+• Unit/Plot Number: [unitNumber]
+• Total Area: [propertyAreaSqm] square meters ([propertyAreaSqft] square feet)
+[If numberOfBedrooms provided]
+• Bedrooms: [numberOfBedrooms]
+• Bathrooms: [numberOfBathrooms]
+[End if]
+
+PARKING:
+• Parking Spaces: [parkingSpaces]
+[If parkingLocation provided]
+• Parking Location: [parkingLocation]
+[End if]
+
+STORAGE:
+[If storageUnit is "Yes"]
+• Storage Unit Included: Yes
+• Storage Details: [storageUnitDetails]
+[Else]
+• Storage Unit: Not included
+[End if]
+
+PROPERTY CONDITION:
+The property is leased in [propertyCondition] condition as inspected and accepted by the Tenant.
+
+FURNISHING:
+[furnished]
+[If furnitureList provided]
+
+FURNITURE INCLUDED:
+[furnitureList]
+[End if]
+
+APPLIANCES:
+[If appliancesIncluded is "Yes"]
+The following appliances are included with the property:
+[appliancesList]
+
+The Tenant agrees to maintain all included appliances in good working condition. Normal wear and tear excepted.
+[Else]
+No appliances included with the property.
+[End if]
+
+4. LEASE TERM
+==============
+
+START DATE: [leaseStartDate]
+END DATE: [leaseEndDate]
+TOTAL DURATION: [leaseDuration] months
+
+AUTOMATIC RENEWAL:
+[If autoRenewal is "Yes"]
+This lease will automatically renew for successive periods of [leaseDuration] months unless either Party provides written notice of non-renewal at least [renewalNoticePeriod] days before the lease end date.
+
+RENEWAL TERMS:
+• Rent increase upon renewal: Maximum [renewalRentIncrease]% (subject to RERA Index compliance)
+• All other terms remain the same unless mutually agreed otherwise in writing
+[If renewalTerms provided]
+• Additional renewal terms: [renewalTerms]
+[End if]
+[Else]
+This lease does NOT automatically renew. Upon expiration, the Tenant must vacate the property or negotiate a new lease agreement.
+[End if]
+
+5. RENT & PAYMENT TERMS
+========================
+
+ANNUAL RENT: AED [annualRent]
+
+PAYMENT STRUCTURE:
+• Payment Frequency: [paymentFrequency]
+• Payment Method: [paymentMethod]
+
+[If paymentMethod includes "Cheque"]
+CHEQUE PAYMENT DETAILS:
+• Total Number of Cheques Required: [numberOfCheques]
+• Cheque Schedule:
+[chequeDatesAmounts]
+
+All cheques must be:
+• Made payable to: [landlordName]
+• Dated as per the schedule above
+• Delivered to Landlord on or before lease commencement
+[End if]
+
+[If paymentMethod includes "Bank Transfer"]
+BANK TRANSFER DETAILS:
+• Bank Name: [bankName]
+• Account Name: [accountName]
+• Account Number: [accountNumber]
+• IBAN: [iban]
+• Transfer must include: Unit number and tenant name as reference
+[End if]
+
+PAYMENT SCHEDULE:
+• First Payment Due Date: [firstPaymentDueDate]
+• Payment must be received by due date (not postmarked)
+
+LATE PAYMENT:
+[If latePaymentPenalty is "Yes"]
+• Late Payment Penalty: [latePaymentRate]% per day after grace period
+• Grace Period: [gracePeriod] days
+• Accrual starts from day after grace period expires
+[Else]
+• Grace Period: [gracePeriod] days
+• Late payment may result in legal action after grace period
+[End if]
+
+BOUNCED CHEQUE:
+• Penalty for bounced cheque: AED [bouncedChequePenalty]
+• Bounced cheque is a criminal offense in UAE and may result in legal action
+• Tenant remains liable for original rent amount plus penalty
+
+MUNICIPALITY FEES:
+[If rentIncludesMunicipalityFees is "Yes"]
+Annual rent includes Dubai Municipality housing fee (5%) or equivalent emirate fee.
+[Else]
+Municipality housing fee is NOT included in rent. Tenant is responsible for payment.
+[End if]
+
+6. SECURITY DEPOSIT
+===================
+
+DEPOSIT AMOUNT: AED [securityDeposit]
+
+PAYMENT:
+• Payment Method: [securityDepositPaymentMethod]
+• Payment Date: [securityDepositPaymentDate]
+• Must be paid before taking possession of property
+
+[If depositSeparateAccount is "Yes"]
+DEPOSIT HOLDING:
+Landlord will hold security deposit in separate bank account:
+[depositBankDetails]
+[End if]
+
+PURPOSE OF DEPOSIT:
+The security deposit serves as protection against:
+• Unpaid rent
+• Property damage beyond normal wear and tear
+• Unpaid utility bills
+• Cleaning costs (if property not returned in clean condition)
+• Early termination costs
+• Breach of lease terms
+
+PERMITTED DEDUCTIONS:
+Landlord may deduct from security deposit for:
+[List each item from permittedDeductions]
+
+RETURN OF DEPOSIT:
+• Timeline: Within [depositReturnTimeline] days after lease end and property handover
+• Return Method: [depositReturnMethod]
+• Landlord must provide itemized list of any deductions
+• Tenant must provide forwarding address for deposit return
+
+If Tenant disputes deductions, matter can be referred to Dubai Rental Dispute Centre (RDC) or equivalent authority.
+
+7. PROPERTY USE
+================
+
+PERMITTED USE:
+This property is leased for: [permittedUse]
+
+OCCUPANCY:
+• Maximum number of occupants: [numberOfOccupants] persons
+
+PETS:
+[If petsAllowed is "Yes"]
+Pets are ALLOWED in the property.
+[If petDepositRequired is "Yes"]
+• Pet deposit required: AED [petDepositAmount]
+• Pet deposit is refundable subject to no pet-related damage
+[End if]
+• Tenant responsible for all pet-related damage
+• Tenant must comply with building/community pet regulations
+[ElseIf petsAllowed is "With Consent"]
+Pets are ALLOWED only with prior written consent from Landlord.
+• Tenant must request permission in writing
+• Landlord may impose conditions or require additional deposit
+[Else]
+NO PETS are allowed in the property.
+[End if]
+
+PROHIBITED ACTIVITIES:
+The following activities are strictly PROHIBITED:
+
+[prohibitedActivities]
+
+Engaging in any prohibited activity constitutes a material breach of this lease and may result in immediate termination.
+
+8. MAINTENANCE & REPAIRS
+=========================
+
+LANDLORD'S RESPONSIBILITIES:
+
+The Landlord is responsible for:
+[landlordMaintenanceResponsibilities]
+
+TENANT'S RESPONSIBILITIES:
+
+The Tenant is responsible for:
+[tenantMaintenanceResponsibilities]
+
+REPAIR REQUEST PROCEDURE:
+[repairRequestProcedure]
+
+EMERGENCY REPAIRS:
+[emergencyRepairProtocol]
+
+RESPONSE TIMELINE:
+• Landlord must respond to repair requests within [repairResponseTimeline] days
+• Emergency repairs: Immediate response required
+• If Landlord fails to complete necessary repairs within reasonable time, Tenant may:
+  - Arrange repair and deduct cost from rent (with proper documentation)
+  - File complaint with RERA/RDC
+
+COST ALLOCATION:
+[repairCostAllocation]
+
+9. UTILITIES & SERVICES
+========================
+
+RESPONSIBILITY FOR UTILITIES:
+
+The following table shows who is responsible for each utility/service:
+
+Electricity (DEWA/FEWA/SEWA): [electricityResponsibility]
+Water: [waterResponsibility]
+Gas: [gasResponsibility]
+District Cooling/Heating: [coolingResponsibility]
+Internet/Cable: [internetResponsibility]
+Service Charges/Management Fees: [serviceChargesResponsibility]
+Municipality Housing Fee: [municipalityFeeResponsibility]
+Chiller Maintenance: [chillerMaintenanceResponsibility]
+
+UTILITY CONNECTION:
+[utilityConnectionProcedure]
+
+FINAL SETTLEMENT:
+[finalUtilitySettlement]
+
+TENANT OBLIGATIONS:
+• Pay all assigned utilities on time
+• Maintain service accounts in good standing
+• Not disconnect or tamper with utility services
+• Provide proof of utility payments upon request
+
+10. ALTERATIONS & IMPROVEMENTS
+===============================
+
+[If alterationsAllowed is "No Alterations"]
+NO ALTERATIONS ALLOWED:
+Tenant may NOT make any alterations, modifications, or improvements to the property without prior written consent from Landlord.
+
+Any unauthorized alterations may result in:
+• Requirement to restore property to original condition at Tenant's expense
+• Deduction from security deposit
+• Lease termination
+[Else]
+ALTERATIONS WITH CONSENT:
+Tenant may make alterations only with prior written consent from Landlord.
+
+EXPLICITLY PROHIBITED ALTERATIONS:
+[alterationsProhibited]
+
+APPROVAL PROCESS:
+• Tenant must submit written request describing proposed alteration
+• Include drawings, specifications, contractor details
+• Landlord will respond within 14 days
+• Approved alterations must comply with building codes
+
+COST ALLOCATION:
+[whoPaysAlterations]
+
+RESTORATION REQUIREMENT:
+[If restorationRequired is "Yes"]
+At lease end, Tenant MUST restore property to original condition at Tenant's expense.
+[ElseIf restorationRequired is "No"]
+Approved alterations become part of the property. No restoration required.
+[Else]
+Restoration requirement will be determined on case-by-case basis as agreed in writing.
+[End if]
+[End if]
+
+11. INSURANCE REQUIREMENTS
+===========================
+
+LANDLORD INSURANCE:
+[If landlordBuildingInsurance is "Yes"]
+Landlord MUST maintain building/property insurance.
+• Coverage Amount: Minimum AED [landlordInsuranceCoverage]
+• Coverage: Building structure, common areas, landlord's property
+• Landlord must provide proof of insurance upon Tenant's request
+[Else]
+Landlord is not required to maintain building insurance.
+Tenant advised to obtain comprehensive insurance coverage.
+[End if]
+
+TENANT INSURANCE:
+[If tenantContentsInsuranceRequired includes "Required"]
+Tenant MUST obtain contents insurance covering personal belongings.
+• Required before taking possession
+• Must provide proof of insurance to Landlord
+• Minimum coverage: Replacement value of contents
+[ElseIf tenantContentsInsuranceRequired includes "Recommended"]
+Tenant is RECOMMENDED to obtain contents insurance.
+Landlord is not liable for damage to Tenant's personal property.
+[Else]
+Contents insurance is optional but recommended.
+[End if]
+
+[If tenantLiabilityInsuranceRequired is "Yes"]
+LIABILITY INSURANCE:
+Tenant MUST obtain liability insurance covering:
+• Personal liability for injuries to third parties
+• Damage to Landlord's property caused by Tenant
+• Minimum coverage: AED 500,000
+[End if]
+
+12. ACCESS & INSPECTIONS
+=========================
+
+LANDLORD'S RIGHT OF ACCESS:
+Landlord has right to access property for following reasons:
+[permittedAccessReasons]
+
+NOTICE REQUIREMENT:
+• Landlord must provide [landlordAccessNotice] hours advance written notice
+• Notice may be by phone, email, or in person
+• Tenant must reasonably accommodate access requests
+
+EMERGENCY ACCESS:
+[emergencyAccess]
+
+INSPECTIONS:
+• Inspection Frequency: [inspectionFrequency]
+• Purpose: Verify property condition, check for maintenance needs, ensure compliance
+• Landlord will provide reasonable notice except for emergencies
+
+SHOWING TO PROSPECTIVE TENANTS:
+During last 60 days of lease, Landlord may show property to prospective tenants with reasonable notice.
+
+13. SUBLETTING & ASSIGNMENT
+============================
+
+SUBLETTING:
+[If sublettingAllowed is "No"]
+Subletting is STRICTLY PROHIBITED.
+Tenant may NOT sublet, rent, or allow any third party to occupy the property without Landlord's written consent.
+Unauthorized subletting is grounds for immediate lease termination.
+[ElseIf sublettingAllowed is "Yes with Written Consent"]
+Subletting is ALLOWED only with prior written consent from Landlord.
+
+CONDITIONS FOR SUBLETTING:
+[sublettingConditions]
+
+• Tenant must submit written request including subtenant details
+• Landlord has sole discretion to approve or deny
+• Tenant remains fully liable for rent and property condition
+• Subtenant must comply with all lease terms
+[Else]
+Subletting is ALLOWED.
+[sublettingConditions]
+• Tenant remains fully liable under this lease
+[End if]
+
+ASSIGNMENT:
+[If assignmentAllowed is "No"]
+Assignment of this lease is STRICTLY PROHIBITED.
+Tenant may NOT assign, transfer, or convey this lease to any third party.
+[ElseIf assignmentAllowed is "Yes with Written Consent"]
+Assignment is ALLOWED only with prior written consent from Landlord.
+
+ASSIGNMENT PROCESS:
+[assignmentProcess]
+[Else]
+Assignment is ALLOWED.
+[assignmentProcess]
+[End if]
+
+14. TERMINATION CONDITIONS
+===========================
+
+TERMINATION BY TENANT:
+
+NOTICE PERIOD: [tenantNoticePeriod] days written notice required
+
+EARLY TERMINATION:
+If Tenant terminates lease before end date:
+• Early termination penalty: [earlyTerminationPenalty] month(s) rent
+• Tenant must pay all rent until replacement tenant found or lease end (whichever is earlier)
+• Security deposit may be forfeited
+
+[If earlyTerminationPenaltyWaiver provided]
+PENALTY WAIVER CONDITIONS:
+[earlyTerminationPenaltyWaiver]
+[End if]
+
+TERMINATION BY LANDLORD:
+
+NOTICE PERIOD: [landlordNoticePeriod] days written notice required
+
+VALID GROUNDS FOR TERMINATION:
+[validGroundsLandlordTermination]
+
+IMPORTANT: Under UAE law, Landlord must provide:
+• 12 months notice for termination due to personal use (residential)
+• 12 months notice for demolition/major renovation
+• 90 days notice for commercial properties (unless otherwise specified)
+• Proper legal process through RERA/RDC for breach of lease
+
+MOVE-OUT PROCEDURE:
+[moveOutProcedure]
+
+FINAL INSPECTION:
+[finalInspectionProcess]
+
+HANDOVER REQUIREMENTS:
+• Return all keys and access cards
+• Property must be in same condition as move-in (normal wear and tear excepted)
+• All utilities paid and final bills settled
+• Property professionally cleaned
+• All personal belongings removed
+• All Tenant's contact information removed from property
+
+15. EJARI/TAWTHEEQ REGISTRATION
+================================
+
+REGISTRATION REQUIREMENT:
+[If registrationRequired includes "Ejari"]
+This lease MUST be registered with Ejari (Dubai) within [registrationTimeline] days of signing.
+Registration is a legal requirement under Dubai Law No. 26 of 2007.
+Unregistered lease may not be enforceable.
+[ElseIf registrationRequired includes "Tawtheeq"]
+This lease MUST be registered with Tawtheeq (Abu Dhabi) within [registrationTimeline] days of signing.
+Registration is a legal requirement under Abu Dhabi Law No. 20 of 2006.
+[ElseIf registrationRequired includes "Other"]
+This lease must be registered with relevant emirate authority within [registrationTimeline] days.
+[Else]
+Registration requirements as per local emirate regulations apply.
+[End if]
+
+REGISTRATION FEES:
+Registration fees will be paid by: [registrationFeesPayer]
+
+REQUIRED DOCUMENTS:
+[registrationDocuments]
+
+BOTH PARTIES' OBLIGATION:
+• Both Landlord and Tenant must cooperate to complete registration
+• Both parties must provide required documents promptly
+• Both parties should retain copy of registration certificate
+• Renewal must also be registered
+
+16. GOVERNING LAW & DISPUTE RESOLUTION
+=======================================
+
+GOVERNING LAW:
+This Lease Agreement is governed by and construed in accordance with:
+• UAE Federal Law No. 26 of 2007 (Regulating Relationship between Landlords and Tenants)
+[If emirate is "Dubai"]
+• Dubai Law No. 26 of 2007 and RERA (Real Estate Regulatory Agency) regulations
+• RERA Rental Index for rent increase limitations
+[ElseIf emirate is "Abu Dhabi"]
+• Abu Dhabi Law No. 20 of 2006
+• Tawtheeq rental contract regulations
+[Else]
+• [emirate] specific tenancy regulations
+[End if]
+
+DISPUTE RESOLUTION AUTHORITY:
+[disputeResolutionAuthority]
+
+DISPUTE RESOLUTION PROCESS:
+
+Step 1: AMICABLE RESOLUTION (30 days)
+• Parties will attempt to resolve dispute through good faith negotiation
+• All communications should be in writing
+• Each party should clearly state their position and proposed resolution
+
+Step 2: MEDIATION/OFFICIAL AUTHORITY
+[If emirate is "Dubai"]
+• File case with Dubai Rental Dispute Centre (RDC)
+• Website: www.rdc.ae
+• RDC will attempt mediation first
+• If mediation fails, RDC will issue binding decision
+[ElseIf emirate is "Abu Dhabi"]
+• File case with Abu Dhabi Judicial Department
+• Mediation will be attempted
+• If mediation fails, case proceeds to court
+[Else]
+• File case with relevant emirate municipality or court
+• Follow emirate-specific dispute resolution procedures
+[End if]
+
+Step 3: COURTS (if necessary)
+• Either party may appeal RDC/authority decision to courts
+• Courts have final jurisdiction
+
+RENT INCREASE RESTRICTIONS:
+[If emirate is "Dubai"]
+• Rent increases must comply with RERA Rental Index
+• Maximum increase based on property type and current rent vs. market rate
+• No increase if current rent within 10% of market rate
+• Increases allowed only at lease renewal
+• 90 days advance notice required for rent increase
+[Else]
+• Rent increases subject to emirate regulations
+• Cannot increase during lease term
+• Advance notice required for increase at renewal
+[End if]
+
+17. DATA PROTECTION & PDPL COMPLIANCE
+======================================
+
+PERSONAL DATA PROTECTION:
+This Lease Agreement contains personal data protected under UAE Federal Law No. 45 of 2021 (Personal Data Protection Law - PDPL).
+
+PERSONAL DATA COLLECTED:
+• Landlord's name, Emirates ID/passport, address, contact details
+• Tenant's name, Emirates ID/passport, address, contact details, employment information
+• Financial information (rent amounts, bank details, security deposit)
+• Property access information
+• Communication records
+
+PURPOSE OF DATA PROCESSING:
+Personal data is processed solely for:
+• Executing this lease agreement
+• Property management and maintenance
+• Rent collection and financial obligations
+• Compliance with legal and regulatory requirements (Ejari, municipality)
+• Communication between parties
+• Dispute resolution if necessary
+
+WHO CAN ACCESS THIS DATA:
+Access is restricted to:
+• The Landlord and Tenant (parties to agreement)
+• Property management company (if applicable)
+• Ejari/Tawtheeq registration authority
+• Utility companies (for service setup)
+• RERA/RDC or courts (if dispute arises)
+• UAE government authorities (as required by law)
+
+DATA RETENTION:
+[dataRetentionPeriod]
+
+YOUR DATA RIGHTS UNDER UAE PDPL:
+
+RIGHT TO ACCESS:
+• You may request access to your personal data held by the other Party
+• Request copy of lease and related documents
+• Response within 15 business days
+
+RIGHT TO CORRECTION:
+• You may request correction of inaccurate personal data
+• Updated documents will be provided within 10 business days
+
+RIGHT TO DELETION:
+• You may request deletion of personal data after lease ends
+• Note: Parties must retain certain data as required by UAE law for record-keeping
+
+RIGHT TO OBJECT:
+• You may object to certain types of data processing
+• Other party will review and respond within 30 days
+
+HOW TO EXERCISE YOUR RIGHTS:
+Contact: [dataProtectionEmail]
+Include: Your name, property address, and specific request
+
+18. ADDITIONAL TERMS & GENERAL PROVISIONS
+==========================================
+
+[If specialConditions provided]
+SPECIAL CONDITIONS:
+[specialConditions]
+[End if]
+
+[If attachments provided]
+ATTACHMENTS:
+The following documents are attached and form part of this agreement:
+[attachments]
+[End if]
+
+FORCE MAJEURE:
+Neither party is liable for failure to perform due to circumstances beyond reasonable control including:
+• Natural disasters (flood, earthquake, fire)
+• Government actions or regulations
+• War, civil unrest, or terrorism
+• Pandemics or health emergencies
+
+However, rent obligations typically continue unless property becomes uninhabitable.
+
+NOTICES:
+All notices under this agreement must be in writing and delivered by:
+• Email to addresses listed above (with read receipt)
+• Registered mail to addresses listed above
+• Hand delivery with signed receipt
+
+Notices are deemed received:
+• Email: Upon delivery confirmation
+• Registered mail: 3 business days after posting
+• Hand delivery: Upon receipt
+
+ENTIRE AGREEMENT:
+This lease agreement constitutes the entire agreement between parties. No verbal agreements or representations are binding.
+
+AMENDMENTS:
+Any amendments must be in writing and signed by both parties. Verbal modifications are not enforceable.
+
+SEVERABILITY:
+If any provision is found invalid, remaining provisions remain in full force and effect.
+
+WAIVER:
+Failure to enforce any provision does not constitute waiver of right to enforce in future.
+
+BINDING EFFECT:
+This agreement binds and benefits parties and their respective heirs, successors, and permitted assigns.
+
+LANGUAGE:
+This agreement is executed in English. If translated, English version prevails in case of conflict.
+
+NUMBER OF ORIGINALS:
+This agreement is executed in [2 or 3] original copies:
+• One for Landlord
+• One for Tenant
+• One for Ejari/Tawtheeq registration
+
+SIGNATURE SECTION
+=================
+
+By signing below, both parties acknowledge:
+• Reading and understanding all terms of this lease
+• Voluntary entry into this agreement
+• Receiving copy of signed lease
+• Understanding rights and obligations under UAE tenancy law
+• Opportunity to seek independent legal advice
+
+LANDLORD:
+_______________________
+Signature: [landlordName]
+Emirates ID: [landlordId]
+Date: _________________
+
+TENANT:
+_______________________
+Signature: [tenantName]
+Emirates ID: [tenantId]
+Date: _________________
+
+[If witnesses required]
+WITNESSES:
+
+Witness 1:
+Name: _______________________
+Emirates ID: _________________
+Signature: ___________________
+Date: _______________________
+
+Witness 2:
+Name: _______________________
+Emirates ID: _________________
+Signature: ___________________
+Date: _______________________
+[End if]
+
+---END OF LEASE AGREEMENT---
+
+PLACEHOLDERS:
+Replace ALL bracketed placeholders with actual information. Do NOT leave any [bracketed text] in final output.`,
   lease_termination: `Generate a formal lease termination notice following UAE tenancy laws.`,
   demand_letter: `Generate a comprehensive formal demand letter for payment or action, compliant with UAE legal requirements.
 
@@ -1455,9 +2206,134 @@ The Parties agree:
 • This obligation extends to statements made publicly, privately, orally, in writing, or through any media
 • Each Party shall refrain from actions that harm the reputation, business, or standing of the other Party
 
-[If nonDisparagementDetails provided]
-SPECIFIC TERMS:
-[nonDisparagementDetails]
+  [If nonDisparagementDetails provided]
+  SPECIFIC TERMS:
+  [nonDisparagementDetails]
+
+const LEASE_AGREEMENT_LEGAL_CLAUSES = `
+
+ADDITIONAL LEGAL PROVISIONS FOR LEASE AGREEMENTS:
+
+UAE TENANCY LAW COMPLIANCE:
+This lease agreement is governed by:
+• UAE Federal Law No. 26 of 2007 (Regulating the Relationship between Landlords and Tenants)
+• Dubai Law No. 26 of 2007 and RERA regulations (if Dubai property)
+• Abu Dhabi Law No. 20 of 2006 and Tawtheeq regulations (if Abu Dhabi property)
+• Relevant emirate-specific tenancy regulations
+
+RENT INCREASE RESTRICTIONS:
+• Rent increases are subject to RERA Rent Index (Dubai) or equivalent emirate regulations
+• Rent cannot be increased during the lease term
+• Rent increase allowed only upon renewal and must comply with:
+  - Maximum increase as per RERA calculator/index
+  - 90 days advance written notice required
+  - No increase if current rent is within 10% of market rate (Dubai)
+
+EVICTION PROCEDURES:
+Landlord may only evict tenant through proper legal channels:
+• Non-payment of rent: 30 days written notice required
+• Breach of lease terms: Opportunity to remedy breach must be given
+• Landlord personal use: 12 months written notice required
+• Property demolition/renovation: 12 months written notice + compensation
+• All evictions must be processed through Rental Dispute Centre (Dubai) or equivalent
+• Self-help eviction is illegal and may result in penalties
+
+TENANT PROTECTION RIGHTS:
+• Tenant cannot be evicted without court order
+• Tenant has right to renew lease at market rate (unless landlord has valid reason)
+• Security deposit protected by law - must be returned within reasonable time
+• Tenant has right to file complaint with RERA/Municipality if rights violated
+• Rent cannot be demanded in advance beyond contract terms
+
+EJARI/TAWTHEEQ REGISTRATION:
+• Dubai properties: MUST be registered with Ejari within 30 days
+• Abu Dhabi properties: MUST be registered with Tawtheeq
+• Registration is legal requirement - unregistered lease may not be enforceable
+• Both parties should retain copy of registration certificate
+• Renewal must also be registered
+
+LANDLORD OBLIGATIONS:
+• Provide habitable property meeting safety and health standards
+• Complete agreed repairs within reasonable timeframe
+• Not interfere with tenant's peaceful enjoyment of property
+• Maintain building structure and common areas
+• Comply with all building codes and regulations
+• Cannot enter property without proper notice (except emergency)
+
+TENANT OBLIGATIONS:
+• Pay rent on time as per agreement
+• Maintain property in good condition
+• Use property only for permitted purpose
+• Not cause damage or nuisance
+• Allow landlord access for repairs/inspections with proper notice
+• Return property in same condition (normal wear and tear excepted)
+• Comply with building rules and community regulations
+
+RENT PAYMENT RULES:
+• Post-dated cheques are common practice in UAE but not legally required
+• Payment by bank transfer is acceptable alternative
+• Cash payment allowed but receipt must be provided
+• Rent must be paid on due date - late payment may incur penalties
+• Bounced cheque is criminal offense in UAE and may result in:
+  - Legal action by landlord
+  - Travel ban
+  - Criminal case
+  - Additional financial penalties
+
+SECURITY DEPOSIT REGULATIONS:
+• Typical security deposit: 5-10% of annual rent
+• Must be held in separate account (best practice)
+• Can only be deducted for:
+  - Actual damages beyond normal wear and tear
+  - Unpaid rent
+  - Unpaid utilities
+  - Cleaning costs (if property left in poor condition)
+• Itemized deduction list must be provided to tenant
+• Must be returned within reasonable time (typically 30-60 days)
+• Disputes over deposit can be filed with RERA/RDC
+
+MAINTENANCE & REPAIR LEGAL FRAMEWORK:
+• Landlord responsible for structural and major repairs
+• Tenant responsible for minor repairs and maintenance
+• Emergency repairs: Tenant may arrange and deduct from rent if landlord unresponsive
+• Cost disputes can be resolved through RERA/RDC
+• Landlord must maintain property to habitable standard
+
+FORCE MAJEURE:
+Neither party liable for failure to perform due to circumstances beyond control:
+• Natural disasters
+• Government actions/regulations
+• Pandemics
+• War or civil unrest
+However, rent obligations typically continue unless property uninhabitable
+
+JURISDICTION & DISPUTE RESOLUTION:
+Step 1: Amicable Resolution (30 days)
+- Parties attempt to resolve dispute directly
+- Written communication recommended
+
+Step 2: Rental Dispute Centre (Dubai) / Equivalent
+- File case with RDC (Dubai) or relevant authority
+- Mediation attempted first
+- Binding decision if mediation fails
+
+Step 3: Courts (if necessary)
+- Appeal RDC decision to courts
+- Final judicial determination
+
+APPLICABLE LAWS BY EMIRATE:
+• Dubai: RERA (Real Estate Regulatory Agency) - www.rdc.ae
+• Abu Dhabi: Tawtheeq (Rental Contract Authentication System)
+• Other Emirates: Respective municipality regulations
+
+ACKNOWLEDGMENT OF LEGAL ADVICE:
+Both parties acknowledge:
+• Understanding all terms and conditions of this lease
+• Opportunity to seek independent legal advice before signing
+• Voluntary entry into this agreement
+• Receipt of copy of signed lease agreement
+• Awareness of rights and obligations under UAE tenancy law`;
+
 
 This non-disparagement obligation survives the termination or completion of this Settlement Agreement.]"
 
@@ -2726,6 +3602,10 @@ Generate the complete letter now.`;
 
   if (letterType === 'settlement_agreement') {
     letterContent += SETTLEMENT_AGREEMENT_CLAUSES;
+  }
+
+  if (letterType === 'lease_agreement') {
+    letterContent += LEASE_AGREEMENT_LEGAL_CLAUSES;
   }
 
     // Deduct credits (queries_used is the DB column name)

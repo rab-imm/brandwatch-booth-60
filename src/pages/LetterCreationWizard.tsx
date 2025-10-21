@@ -40,6 +40,7 @@ const LETTER_TYPES = [
   { value: "settlement_agreement", label: "Settlement Agreement" },
   { value: "employment_termination", label: "Employment Termination Letter" },
   { value: "employment_contract", label: "Employment Contract" },
+  { value: "lease_agreement", label: "Lease Agreement (Residential/Commercial)" },
   { value: "nda", label: "Non-Disclosure Agreement" },
   { value: "workplace_complaint", label: "Workplace Complaint" },
   { value: "power_of_attorney", label: "Power of Attorney" },
@@ -502,6 +503,154 @@ export default function LetterCreationWizard() {
           { name: "compensationAmount", label: "Compensation Amount (AED)", type: "number", required: false },
           { name: "accountingFrequency", label: "Accounting Frequency", type: "text", required: false },
           { name: "purposeContext", label: "Purpose/Context", type: "textarea", required: false },
+        ];
+      case "lease_agreement":
+        return [
+          // Landlord Information
+          { name: "landlordName", label: "Landlord Full Legal Name", type: "text", required: true },
+          { name: "landlordId", label: "Landlord Emirates ID/Passport", type: "text", required: true },
+          { name: "landlordAddress", label: "Landlord Address", type: "textarea", required: true },
+          { name: "landlordPhone", label: "Landlord Phone (UAE format: +971 XX XXX XXXX)", type: "tel", required: true },
+          { name: "landlordEmail", label: "Landlord Email", type: "email", required: true },
+          { name: "landlordLegalRep", label: "Landlord Legal Representative (if company)", type: "text", required: false },
+          { name: "landlordRepId", label: "Landlord Rep Emirates ID", type: "text", required: false },
+          
+          // Tenant Information
+          { name: "tenantName", label: "Tenant Full Legal Name", type: "text", required: true },
+          { name: "tenantId", label: "Tenant Emirates ID/Passport", type: "text", required: true },
+          { name: "tenantAddress", label: "Tenant Address", type: "textarea", required: true },
+          { name: "tenantPhone", label: "Tenant Phone (UAE format: +971 XX XXX XXXX)", type: "tel", required: true },
+          { name: "tenantEmail", label: "Tenant Email", type: "email", required: true },
+          { name: "tenantLegalRep", label: "Tenant Legal Representative", type: "text", required: false },
+          { name: "tenantRepId", label: "Tenant Rep Emirates ID", type: "text", required: false },
+          
+          // Property Details
+          { name: "propertyAddress", label: "Property Full Address", type: "textarea", required: true },
+          { name: "propertyType", label: "Property Type", type: "select", required: true, options: ["Apartment", "Villa", "Townhouse", "Office", "Warehouse", "Shop", "Land", "Other"] },
+          { name: "unitNumber", label: "Unit/Plot Number", type: "text", required: true },
+          { name: "propertyAreaSqm", label: "Property Area (sq. meters)", type: "number", required: true },
+          { name: "propertyAreaSqft", label: "Property Area (sq. feet)", type: "number", required: false },
+          { name: "numberOfBedrooms", label: "Number of Bedrooms (residential)", type: "number", required: false },
+          { name: "numberOfBathrooms", label: "Number of Bathrooms (residential)", type: "number", required: false },
+          { name: "parkingSpaces", label: "Parking Spaces (0 if none)", type: "number", required: true },
+          { name: "parkingLocation", label: "Parking Location", type: "text", required: false },
+          { name: "storageUnit", label: "Storage Unit?", type: "select", required: true, options: ["Yes", "No"] },
+          { name: "storageUnitDetails", label: "Storage Unit Details", type: "text", required: false },
+          
+          // Property Condition
+          { name: "propertyCondition", label: "Property Condition", type: "select", required: true, options: ["Excellent", "Good", "Fair", "Needs Repair"] },
+          { name: "furnished", label: "Furnished?", type: "select", required: true, options: ["Fully Furnished", "Semi-Furnished", "Unfurnished"] },
+          { name: "furnitureList", label: "Furniture List (if furnished)", type: "textarea", required: false },
+          { name: "appliancesIncluded", label: "Appliances Included?", type: "select", required: true, options: ["Yes", "No"] },
+          { name: "appliancesList", label: "Appliances List", type: "textarea", required: false },
+          
+          // Lease Term
+          { name: "leaseStartDate", label: "Lease Start Date", type: "date", required: true },
+          { name: "leaseEndDate", label: "Lease End Date", type: "date", required: true },
+          { name: "autoRenewal", label: "Automatic Renewal?", type: "select", required: true, options: ["Yes", "No"] },
+          { name: "renewalNoticePeriod", label: "Renewal Notice Period (days)", type: "number", required: false },
+          { name: "renewalRentIncrease", label: "Renewal Rent Increase (%)", type: "number", required: false },
+          { name: "renewalTerms", label: "Additional Renewal Terms", type: "textarea", required: false },
+          
+          // Rent & Payment
+          { name: "annualRent", label: "Annual Rent Amount (AED)", type: "number", required: true },
+          { name: "paymentFrequency", label: "Payment Frequency", type: "select", required: true, options: ["Annual (1 cheque)", "Semi-Annual (2 cheques)", "Quarterly (4 cheques)", "Monthly (12 cheques)"] },
+          { name: "paymentMethod", label: "Payment Method", type: "select", required: true, options: ["Post-dated Cheques", "Bank Transfer", "Cash", "Mixed"] },
+          { name: "numberOfCheques", label: "Number of Cheques", type: "number", required: false },
+          { name: "chequeDatesAmounts", label: "Cheque Dates & Amounts (list each)", type: "textarea", required: false },
+          { name: "bankName", label: "Bank Name (for transfer)", type: "text", required: false },
+          { name: "accountName", label: "Account Name", type: "text", required: false },
+          { name: "accountNumber", label: "Account Number", type: "text", required: false },
+          { name: "iban", label: "IBAN", type: "text", required: false },
+          { name: "firstPaymentDueDate", label: "First Payment Due Date", type: "date", required: true },
+          { name: "latePaymentPenalty", label: "Late Payment Penalty?", type: "select", required: true, options: ["Yes", "No"] },
+          { name: "latePaymentRate", label: "Late Payment Rate (% per day)", type: "number", required: false },
+          { name: "gracePeriod", label: "Grace Period (days)", type: "number", required: true },
+          { name: "bouncedChequePenalty", label: "Bounced Cheque Penalty (AED)", type: "number", required: true },
+          { name: "rentIncludesMunicipalityFees", label: "Rent Includes Municipality Fees?", type: "select", required: true, options: ["Yes", "No"] },
+          
+          // Security Deposit
+          { name: "securityDeposit", label: "Security Deposit Amount (AED)", type: "number", required: true },
+          { name: "securityDepositPaymentMethod", label: "Security Deposit Payment Method", type: "select", required: true, options: ["Cheque", "Bank Transfer", "Cash"] },
+          { name: "securityDepositPaymentDate", label: "Security Deposit Payment Date", type: "date", required: true },
+          { name: "depositSeparateAccount", label: "Deposit Held In Separate Account?", type: "select", required: true, options: ["Yes", "No"] },
+          { name: "depositBankDetails", label: "Deposit Bank Details", type: "text", required: false },
+          { name: "depositReturnTimeline", label: "Deposit Return Timeline (days)", type: "number", required: true },
+          { name: "depositReturnMethod", label: "Deposit Return Method", type: "select", required: true, options: ["Bank Transfer", "Cheque"] },
+          
+          // Property Use
+          { name: "permittedUse", label: "Permitted Use", type: "select", required: true, options: ["Residential Only", "Commercial Only", "Mixed Use"] },
+          { name: "numberOfOccupants", label: "Number of Occupants Allowed", type: "number", required: true },
+          { name: "petsAllowed", label: "Pets Allowed?", type: "select", required: true, options: ["Yes", "No", "With Consent"] },
+          { name: "petDepositRequired", label: "Pet Deposit Required?", type: "select", required: false, options: ["Yes", "No"] },
+          { name: "petDepositAmount", label: "Pet Deposit Amount (AED)", type: "number", required: false },
+          { name: "prohibitedActivities", label: "Prohibited Activities (list each)", type: "textarea", required: true },
+          
+          // Maintenance
+          { name: "landlordMaintenanceResponsibilities", label: "Landlord Maintenance Responsibilities", type: "textarea", required: true },
+          { name: "tenantMaintenanceResponsibilities", label: "Tenant Maintenance Responsibilities", type: "textarea", required: true },
+          { name: "repairRequestProcedure", label: "Repair Request Procedure", type: "textarea", required: true },
+          { name: "emergencyRepairProtocol", label: "Emergency Repair Protocol", type: "textarea", required: true },
+          { name: "repairResponseTimeline", label: "Repair Response Timeline (days)", type: "number", required: true },
+          { name: "repairCostAllocation", label: "Repair Cost Allocation", type: "textarea", required: true },
+          
+          // Utilities
+          { name: "electricityResponsibility", label: "Electricity", type: "select", required: true, options: ["Landlord Pays", "Tenant Pays", "Included in Rent"] },
+          { name: "waterResponsibility", label: "Water", type: "select", required: true, options: ["Landlord Pays", "Tenant Pays", "Included in Rent"] },
+          { name: "gasResponsibility", label: "Gas", type: "select", required: true, options: ["Landlord Pays", "Tenant Pays", "Included in Rent", "N/A"] },
+          { name: "coolingResponsibility", label: "District Cooling/Heating", type: "select", required: true, options: ["Landlord Pays", "Tenant Pays", "Included in Rent", "N/A"] },
+          { name: "internetResponsibility", label: "Internet/Cable", type: "select", required: true, options: ["Landlord Pays", "Tenant Pays", "Not Included"] },
+          { name: "serviceChargesResponsibility", label: "Service Charges/Management Fees", type: "select", required: true, options: ["Landlord Pays", "Tenant Pays", "Included in Rent"] },
+          { name: "municipalityFeeResponsibility", label: "Municipality Housing Fee", type: "select", required: true, options: ["Landlord Pays", "Tenant Pays"] },
+          { name: "chillerMaintenanceResponsibility", label: "Chiller Maintenance", type: "select", required: true, options: ["Landlord Pays", "Tenant Pays", "N/A"] },
+          { name: "utilityConnectionProcedure", label: "Utility Connection Procedure", type: "textarea", required: true },
+          { name: "finalUtilitySettlement", label: "Final Utility Settlement Procedure", type: "textarea", required: true },
+          
+          // Alterations & Insurance
+          { name: "alterationsAllowed", label: "Alterations Allowed?", type: "select", required: true, options: ["No Alterations", "Minor with Consent", "Major with Consent"] },
+          { name: "alterationsProhibited", label: "Explicitly Prohibited Alterations", type: "textarea", required: false },
+          { name: "whoPaysAlterations", label: "Who Pays for Alterations?", type: "select", required: false, options: ["Tenant", "Landlord", "Negotiable"] },
+          { name: "restorationRequired", label: "Restoration Required at Lease End?", type: "select", required: false, options: ["Yes", "No", "Negotiable"] },
+          { name: "landlordBuildingInsurance", label: "Landlord Building Insurance", type: "select", required: true, options: ["Yes", "No"] },
+          { name: "landlordInsuranceCoverage", label: "Landlord Insurance Coverage (AED)", type: "number", required: false },
+          { name: "tenantContentsInsuranceRequired", label: "Tenant Contents Insurance", type: "select", required: true, options: ["Yes - Required", "Yes - Recommended", "No"] },
+          { name: "tenantLiabilityInsuranceRequired", label: "Tenant Liability Insurance Required?", type: "select", required: true, options: ["Yes", "No"] },
+          
+          // Access & Subletting
+          { name: "landlordAccessNotice", label: "Landlord Access Notice Period (hours)", type: "number", required: true },
+          { name: "permittedAccessReasons", label: "Permitted Access Reasons", type: "textarea", required: true },
+          { name: "inspectionFrequency", label: "Inspection Frequency", type: "select", required: true, options: ["Monthly", "Quarterly", "Semi-Annual", "Annual", "As Needed"] },
+          { name: "emergencyAccess", label: "Emergency Access Rights", type: "text", required: true },
+          { name: "sublettingAllowed", label: "Subletting Allowed?", type: "select", required: true, options: ["No", "Yes with Written Consent", "Yes"] },
+          { name: "sublettingConditions", label: "Subletting Conditions", type: "textarea", required: false },
+          { name: "assignmentAllowed", label: "Assignment Allowed?", type: "select", required: true, options: ["No", "Yes with Written Consent", "Yes"] },
+          { name: "assignmentProcess", label: "Assignment Process", type: "textarea", required: false },
+          
+          // Termination
+          { name: "tenantNoticePeriod", label: "Tenant Notice Period (days)", type: "number", required: true },
+          { name: "earlyTerminationPenalty", label: "Early Termination Penalty (months of rent)", type: "number", required: true },
+          { name: "earlyTerminationPenaltyWaiver", label: "Penalty Waiver Conditions", type: "textarea", required: false },
+          { name: "landlordNoticePeriod", label: "Landlord Notice Period (days)", type: "number", required: true },
+          { name: "validGroundsLandlordTermination", label: "Valid Grounds for Landlord Termination", type: "textarea", required: true },
+          { name: "moveOutProcedure", label: "Move-Out Procedure", type: "textarea", required: true },
+          { name: "finalInspectionProcess", label: "Final Inspection Process", type: "textarea", required: true },
+          
+          // Registration & Legal
+          { name: "registrationRequired", label: "Registration Required?", type: "select", required: true, options: ["Yes - Ejari (Dubai)", "Yes - Tawtheeq (Abu Dhabi)", "Yes - Other", "N/A"] },
+          { name: "registrationFeesPayer", label: "Who Pays Registration Fees?", type: "select", required: true, options: ["Landlord", "Tenant", "Split"] },
+          { name: "registrationTimeline", label: "Registration Timeline (days)", type: "number", required: true },
+          { name: "registrationDocuments", label: "Required Documents for Registration", type: "textarea", required: true },
+          { name: "emirate", label: "Jurisdiction (Emirate)", type: "select", required: true, options: ["Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Umm Al Quwain", "Ras Al Khaimah", "Fujairah"] },
+          { name: "disputeResolutionAuthority", label: "Dispute Resolution Authority", type: "text", required: true },
+          { name: "governingLaw", label: "Governing Law", type: "text", required: true },
+          
+          // Data Protection
+          { name: "dataRetentionPeriod", label: "Data Retention Period", type: "select", required: true, options: ["Lease duration + 5 years", "Lease duration + 7 years", "As required by UAE law"] },
+          { name: "dataProtectionEmail", label: "Data Protection Contact Email", type: "email", required: true },
+          
+          // Additional
+          { name: "specialConditions", label: "Special Conditions", type: "textarea", required: false },
+          { name: "attachments", label: "Attachments (list)", type: "textarea", required: false },
         ];
       case "general_legal":
         return [
