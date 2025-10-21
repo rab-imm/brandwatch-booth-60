@@ -2654,6 +2654,14 @@ Generate the complete letter now.`;
       letterContent += WORKPLACE_COMPLAINT_LEGAL_CLAUSES;
     }
 
+    if (letterType === 'employment_termination') {
+      letterContent += EMPLOYMENT_TERMINATION_CLAUSES;
+    }
+
+    if (letterType === 'employment_contract') {
+      letterContent += EMPLOYMENT_CONTRACT_CLAUSES;
+    }
+
     if (letterType === 'general_legal') {
       letterContent += GENERAL_LEGAL_CLAUSES;
     }
