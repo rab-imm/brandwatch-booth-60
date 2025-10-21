@@ -29,7 +29,7 @@ const LETTER_TYPES = [
   { value: "settlement_agreement", label: "Settlement Agreement", icon: "handshake" },
   { value: "power_of_attorney", label: "Power of Attorney", icon: "shield" },
   { value: "workplace_complaint", label: "Workplace Complaint", icon: "alert-triangle" },
-  { value: "general_legal", label: "General Legal Letter", icon: "mail" },
+  { value: "general_legal", label: "General Legal Letter", icon: "file-text" },
 ]
 
 interface LetterDetails {
