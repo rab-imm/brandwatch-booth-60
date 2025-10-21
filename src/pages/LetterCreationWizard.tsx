@@ -1222,6 +1222,8 @@ export default function LetterCreationWizard() {
       if (details.depositReturnDays > 90) toast({ title: "Long deposit return period", description: "Deposit return period exceeds typical 30-60 days", variant: "default" });
     }
 
+    if (letterType === 'lease_agreement') {
+
       // === CONDITIONAL REQUIRED FIELDS ===
       if (details.autoRenewal === 'Yes') {
         if (!details.renewalNoticePeriod) errors.push("Renewal notice period is required when auto-renewal is enabled");
