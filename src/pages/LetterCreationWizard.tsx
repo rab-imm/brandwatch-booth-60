@@ -158,6 +158,90 @@ export default function LetterCreationWizard() {
         { key: "previousCorrespondence", label: "Previous Correspondence/Attempts to Resolve", placeholder: "Describe any previous attempts to resolve this matter (dates, methods, outcomes). This strengthens your position.", multiline: true },
         { key: "urgency", label: "Urgency Level", type: "select", options: ["Standard", "Urgent - Time-sensitive matter", "Extremely Urgent - Immediate action required"], required: true },
       ],
+      power_of_attorney: [
+        // PRINCIPAL (Grantor) Information
+        { key: "principalFullName", label: "Principal's Full Legal Name", placeholder: "Full name as appears on Emirates ID", required: true },
+        { key: "principalEmiratesId", label: "Principal's Emirates ID / Passport Number", placeholder: "784-XXXX-XXXXXXX-X or Passport", required: true },
+        { key: "principalAddress", label: "Principal's Residential Address", placeholder: "Full address in UAE", multiline: true, required: true },
+        { key: "principalPhone", label: "Principal's Contact Phone", placeholder: "+971 XX XXX XXXX", required: true },
+        { key: "principalEmail", label: "Principal's Email Address", placeholder: "email@example.com", required: true },
+
+        // ATTORNEY-IN-FACT (Agent) Information
+        { key: "attorneyFullName", label: "Attorney-in-Fact's Full Legal Name", placeholder: "Full name as appears on Emirates ID", required: true },
+        { key: "attorneyEmiratesId", label: "Attorney-in-Fact's Emirates ID / Passport", placeholder: "784-XXXX-XXXXXXX-X or Passport", required: true },
+        { key: "attorneyAddress", label: "Attorney-in-Fact's Address", placeholder: "Full address", multiline: true, required: true },
+        { key: "attorneyPhone", label: "Attorney-in-Fact's Contact Phone", placeholder: "+971 XX XXX XXXX", required: true },
+        { key: "attorneyEmail", label: "Attorney-in-Fact's Email", placeholder: "email@example.com", required: true },
+        { key: "attorneyRelationship", label: "Relationship to Principal", placeholder: "e.g., Spouse, Business Partner, Family Member, Legal Representative", required: true },
+
+        // SCOPE OF POWERS (Checkboxes via select fields)
+        { key: "financialPowers", label: "Grant Financial Powers?", type: "select", options: ["Yes - Grant financial powers (banking, investments, payments)", "No - Do not grant financial powers"], required: true },
+        { key: "propertyPowers", label: "Grant Property Powers?", type: "select", options: ["Yes - Grant property powers (buy, sell, lease, mortgage)", "No - Do not grant property powers"], required: true },
+        { key: "legalPowers", label: "Grant Legal Powers?", type: "select", options: ["Yes - Grant legal powers (sign contracts, legal proceedings)", "No - Do not grant legal powers"], required: true },
+        { key: "businessPowers", label: "Grant Business Powers?", type: "select", options: ["Yes - Grant business powers (operate business, sign business contracts)", "No - Do not grant business powers"], required: true },
+        { key: "healthcarePowers", label: "Grant Healthcare Powers?", type: "select", options: ["Yes - Grant healthcare powers (medical decisions, access records)*", "No - Do not grant healthcare powers", "*Note: Healthcare powers may be limited by UAE law"], required: true },
+        { key: "govPowers", label: "Grant Government/Administrative Powers?", type: "select", options: ["Yes - Grant gov powers (interact with ministries, obtain licenses)", "No - Do not grant government powers"], required: true },
+
+        // Additional Specific Powers or Limitations
+        { key: "additionalPowers", label: "Additional Specific Powers (Optional)", placeholder: "List any additional specific powers not covered above, e.g., 'Manage cryptocurrency accounts', 'Sign immigration documents'", multiline: true },
+        { key: "explicitLimitations", label: "Explicit Limitations/Restrictions (Optional)", placeholder: "List any specific restrictions, e.g., 'Cannot sell the family home', 'Cannot make gifts exceeding AED 10,000'", multiline: true },
+
+        // SUB-DELEGATION
+        { key: "subDelegation", label: "Sub-Delegation Authority", type: "select", options: [
+          "Not allowed - Attorney must act personally",
+          "Allowed with restrictions - Requires Principal's written consent",
+          "Allowed without restrictions - Attorney may sub-delegate at discretion"
+        ], required: true },
+
+        // EFFECTIVE DATE & DURATION
+        { key: "effectiveDate", label: "Effective Date (When PoA Becomes Active)", type: "date", placeholder: "Select start date", required: true },
+        { key: "durationType", label: "Duration Type", type: "select", options: [
+          "Permanent - Remains valid until revoked",
+          "Fixed term - Expires on specific date",
+          "Event-based - Terminates upon specific event"
+        ], required: true },
+        { key: "expiryDate", label: "Expiry Date (if Fixed Term)", type: "date", placeholder: "Leave blank if permanent or event-based" },
+        { key: "terminationEvent", label: "Termination Event (if Event-Based)", placeholder: "e.g., 'Upon my return to UAE', 'Upon completion of property sale'", multiline: true },
+
+        // REVOCATION PROVISIONS
+        { key: "revocationNotice", label: "Revocation Notice Method", placeholder: "How will revocation be communicated? e.g., 'Registered mail', 'Email + notarized letter', 'In-person delivery'", required: true },
+
+        // COMPENSATION
+        { key: "compensation", label: "Attorney-in-Fact Compensation", type: "select", options: [
+          "No compensation - Serving without payment",
+          "Reasonable expenses reimbursed only",
+          "Fixed compensation - Specify amount",
+          "Hourly rate - Specify rate"
+        ], required: true },
+        { key: "compensationAmount", label: "Compensation Amount/Rate (if applicable)", placeholder: "e.g., 'AED 5,000 per month' or 'AED 200 per hour'" },
+
+        // RECORD-KEEPING
+        { key: "accountingFrequency", label: "Accounting/Reporting Frequency", type: "select", options: [
+          "Upon request only",
+          "Monthly accounting",
+          "Quarterly accounting",
+          "Annual accounting",
+          "No formal accounting required"
+        ], required: true },
+
+        // JURISDICTION
+        { key: "emirate", label: "Emirate (for Jurisdiction & Notarization)", placeholder: "e.g., Dubai, Abu Dhabi, Sharjah", required: true },
+
+        // WITNESS INFORMATION (2 witnesses required)
+        { key: "witness1Name", label: "Witness 1 - Full Legal Name", placeholder: "Full name", required: true },
+        { key: "witness1EmiratesId", label: "Witness 1 - Emirates ID / Passport", placeholder: "784-XXXX-XXXXXXX-X", required: true },
+        { key: "witness1Phone", label: "Witness 1 - Contact Phone", placeholder: "+971 XX XXX XXXX", required: true },
+        { key: "witness1Address", label: "Witness 1 - Address", placeholder: "Full address", multiline: true, required: true },
+
+        { key: "witness2Name", label: "Witness 2 - Full Legal Name", placeholder: "Full name", required: true },
+        { key: "witness2EmiratesId", label: "Witness 2 - Emirates ID / Passport", placeholder: "784-XXXX-XXXXXXX-X", required: true },
+        { key: "witness2Phone", label: "Witness 2 - Contact Phone", placeholder: "+971 XX XXX XXXX", required: true },
+        { key: "witness2Address", label: "Witness 2 - Address", placeholder: "Full address", multiline: true, required: true },
+
+        // ADDITIONAL CONTEXT
+        { key: "purposeContext", label: "Purpose/Context of Power of Attorney", placeholder: "Why is this PoA being created? e.g., 'Traveling abroad for 6 months', 'Managing business during absence', 'Healthcare planning'", multiline: true, required: true },
+        { key: "urgency", label: "Urgency Level", type: "select", options: ["Standard", "Urgent - Time-sensitive", "Extremely Urgent - Immediate notarization needed"], required: true },
+      ],
     }
 
     return [...commonFields, ...(specificFields[letterType] || [])]
@@ -390,6 +474,151 @@ export default function LetterCreationWizard() {
           toast({
             title: "Deadline required",
             description: "Please specify either a deadline date or number of calendar days",
+            variant: "destructive"
+          })
+          return false
+        }
+      }
+
+      // Additional validation for power_of_attorney fields
+      if (letterType === 'power_of_attorney') {
+        // Validate emirate (required for jurisdiction and notarization)
+        if (!details.emirate || !details.emirate.trim()) {
+          toast({
+            title: "Emirate required",
+            description: "Please specify the emirate for jurisdiction and notarization",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate Emirates ID format for Principal
+        const principalId = details.principalEmiratesId
+        if (principalId && !/^(784-\d{4}-\d{7}-\d|[A-Z0-9]{6,12})$/.test(principalId.replace(/\s/g, ''))) {
+          toast({
+            title: "Invalid Emirates ID format",
+            description: "Principal's Emirates ID should be in format: 784-XXXX-XXXXXXX-X or valid passport number",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate Emirates ID format for Attorney-in-Fact
+        const attorneyId = details.attorneyEmiratesId
+        if (attorneyId && !/^(784-\d{4}-\d{7}-\d|[A-Z0-9]{6,12})$/.test(attorneyId.replace(/\s/g, ''))) {
+          toast({
+            title: "Invalid Emirates ID format",
+            description: "Attorney-in-Fact's Emirates ID should be in format: 784-XXXX-XXXXXXX-X or valid passport number",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate UAE phone format for Principal
+        const principalPhone = details.principalPhone
+        if (principalPhone && !/^\+971\s?\d{1,2}\s?\d{3}\s?\d{4}$/.test(principalPhone)) {
+          toast({
+            title: "Invalid phone format",
+            description: "Principal's phone should be in UAE format: +971 XX XXX XXXX",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate UAE phone format for Attorney
+        const attorneyPhone = details.attorneyPhone
+        if (attorneyPhone && !/^\+971\s?\d{1,2}\s?\d{3}\s?\d{4}$/.test(attorneyPhone)) {
+          toast({
+            title: "Invalid phone format",
+            description: "Attorney-in-Fact's phone should be in UAE format: +971 XX XXX XXXX",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate email formats
+        const principalEmail = details.principalEmail
+        if (principalEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(principalEmail)) {
+          toast({
+            title: "Invalid email format",
+            description: "Please enter a valid email address for Principal",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        const attorneyEmail = details.attorneyEmail
+        if (attorneyEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(attorneyEmail)) {
+          toast({
+            title: "Invalid email format",
+            description: "Please enter a valid email address for Attorney-in-Fact",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate expiry date if duration type is "Fixed term"
+        if (details.durationType && details.durationType.includes("Fixed term")) {
+          if (!details.expiryDate || !details.expiryDate.trim()) {
+            toast({
+              title: "Expiry date required",
+              description: "Please specify an expiry date for fixed-term Power of Attorney",
+              variant: "destructive"
+            })
+            return false
+          }
+
+          // Ensure expiry date is after effective date
+          const effectiveDate = parseISO(details.effectiveDate)
+          const expiryDate = parseISO(details.expiryDate)
+          if (isValid(effectiveDate) && isValid(expiryDate) && !isAfter(expiryDate, effectiveDate)) {
+            toast({
+              title: "Invalid expiry date",
+              description: "Expiry date must be after the effective date",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // Validate termination event if duration type is "Event-based"
+        if (details.durationType && details.durationType.includes("Event-based")) {
+          if (!details.terminationEvent || !details.terminationEvent.trim()) {
+            toast({
+              title: "Termination event required",
+              description: "Please specify the termination event for event-based Power of Attorney",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // Validate compensation amount if compensation type requires it
+        if (details.compensation && (details.compensation.includes("Fixed compensation") || details.compensation.includes("Hourly rate"))) {
+          if (!details.compensationAmount || !details.compensationAmount.trim()) {
+            toast({
+              title: "Compensation amount required",
+              description: "Please specify the compensation amount or rate",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // Ensure at least one power is granted
+        const powersGranted = [
+          details.financialPowers?.includes("Yes"),
+          details.propertyPowers?.includes("Yes"),
+          details.legalPowers?.includes("Yes"),
+          details.businessPowers?.includes("Yes"),
+          details.healthcarePowers?.includes("Yes"),
+          details.govPowers?.includes("Yes")
+        ].some(Boolean)
+
+        if (!powersGranted) {
+          toast({
+            title: "No powers granted",
+            description: "You must grant at least one type of power to the Attorney-in-Fact",
             variant: "destructive"
           })
           return false
@@ -929,6 +1158,281 @@ export default function LetterCreationWizard() {
                         This complaint is filed for jurisdiction in {details.emirate}, UAE. If escalation to labor courts becomes necessary, it will be under the jurisdiction of {details.emirate} Labor Court.
                       </AlertDescription>
                     </Alert>
+                  )}
+                </div>
+              ) : letterType === 'power_of_attorney' ? (
+                <div className="space-y-4">
+                  {/* Principal Information */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Principal (Grantor) Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <span className="text-muted-foreground">Full Name:</span>
+                        <span className="font-medium">{details.principalFullName}</span>
+                        <span className="text-muted-foreground">Emirates ID/Passport:</span>
+                        <span className="font-medium">{details.principalEmiratesId}</span>
+                        <span className="text-muted-foreground">Phone:</span>
+                        <span className="font-medium">{details.principalPhone}</span>
+                        <span className="text-muted-foreground">Email:</span>
+                        <span className="font-medium">{details.principalEmail}</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Address:</p>
+                        <p className="text-sm">{details.principalAddress}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Attorney-in-Fact Information */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Attorney-in-Fact (Agent) Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <span className="text-muted-foreground">Full Name:</span>
+                        <span className="font-medium">{details.attorneyFullName}</span>
+                        <span className="text-muted-foreground">Emirates ID/Passport:</span>
+                        <span className="font-medium">{details.attorneyEmiratesId}</span>
+                        <span className="text-muted-foreground">Relationship:</span>
+                        <span className="font-medium">{details.attorneyRelationship}</span>
+                        <span className="text-muted-foreground">Phone:</span>
+                        <span className="font-medium">{details.attorneyPhone}</span>
+                        <span className="text-muted-foreground">Email:</span>
+                        <span className="font-medium">{details.attorneyEmail}</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Address:</p>
+                        <p className="text-sm">{details.attorneyAddress}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Scope of Powers */}
+                  <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base text-blue-900 dark:text-blue-100">Scope of Powers Granted</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          {details.financialPowers?.includes("Yes") ? 
+                            <Icon name="check-circle" className="w-4 h-4 text-green-600" /> : 
+                            <Icon name="x-circle" className="w-4 h-4 text-red-600" />
+                          }
+                          <span className={details.financialPowers?.includes("Yes") ? "font-semibold text-blue-900 dark:text-blue-100" : "text-muted-foreground"}>
+                            Financial Powers (banking, investments, payments)
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {details.propertyPowers?.includes("Yes") ? 
+                            <Icon name="check-circle" className="w-4 h-4 text-green-600" /> : 
+                            <Icon name="x-circle" className="w-4 h-4 text-red-600" />
+                          }
+                          <span className={details.propertyPowers?.includes("Yes") ? "font-semibold text-blue-900 dark:text-blue-100" : "text-muted-foreground"}>
+                            Property Powers (buy, sell, lease, mortgage)
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {details.legalPowers?.includes("Yes") ? 
+                            <Icon name="check-circle" className="w-4 h-4 text-green-600" /> : 
+                            <Icon name="x-circle" className="w-4 h-4 text-red-600" />
+                          }
+                          <span className={details.legalPowers?.includes("Yes") ? "font-semibold text-blue-900 dark:text-blue-100" : "text-muted-foreground"}>
+                            Legal Powers (contracts, legal proceedings)
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {details.businessPowers?.includes("Yes") ? 
+                            <Icon name="check-circle" className="w-4 h-4 text-green-600" /> : 
+                            <Icon name="x-circle" className="w-4 h-4 text-red-600" />
+                          }
+                          <span className={details.businessPowers?.includes("Yes") ? "font-semibold text-blue-900 dark:text-blue-100" : "text-muted-foreground"}>
+                            Business Powers (operate business, sign contracts)
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {details.healthcarePowers?.includes("Yes") ? 
+                            <Icon name="check-circle" className="w-4 h-4 text-green-600" /> : 
+                            <Icon name="x-circle" className="w-4 h-4 text-red-600" />
+                          }
+                          <span className={details.healthcarePowers?.includes("Yes") ? "font-semibold text-blue-900 dark:text-blue-100" : "text-muted-foreground"}>
+                            Healthcare Powers (medical decisions)*
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {details.govPowers?.includes("Yes") ? 
+                            <Icon name="check-circle" className="w-4 h-4 text-green-600" /> : 
+                            <Icon name="x-circle" className="w-4 h-4 text-red-600" />
+                          }
+                          <span className={details.govPowers?.includes("Yes") ? "font-semibold text-blue-900 dark:text-blue-100" : "text-muted-foreground"}>
+                            Government/Administrative Powers (ministries, licenses)
+                          </span>
+                        </div>
+                      </div>
+                      {details.additionalPowers && (
+                        <div className="mt-3 p-2 bg-blue-100 dark:bg-blue-900 rounded">
+                          <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Additional Powers:</p>
+                          <p className="text-sm text-blue-800 dark:text-blue-200 whitespace-pre-wrap">{details.additionalPowers}</p>
+                        </div>
+                      )}
+                      {details.explicitLimitations && (
+                        <div className="mt-3 p-2 bg-amber-100 dark:bg-amber-900 rounded">
+                          <p className="text-sm font-medium text-amber-900 dark:text-amber-100">Limitations/Restrictions:</p>
+                          <p className="text-sm text-amber-800 dark:text-amber-200 whitespace-pre-wrap">{details.explicitLimitations}</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Duration & Sub-Delegation */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Duration, Sub-Delegation & Compensation</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Effective Date:</p>
+                        <p className="text-sm font-semibold">{details.effectiveDate ? format(parseISO(details.effectiveDate), 'dd MMMM yyyy') : 'Not specified'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Duration Type:</p>
+                        <Badge variant={details.durationType?.includes("Permanent") ? "default" : "secondary"}>{details.durationType}</Badge>
+                      </div>
+                      {details.expiryDate && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Expiry Date:</p>
+                          <p className="text-sm">{format(parseISO(details.expiryDate), 'dd MMMM yyyy')}</p>
+                        </div>
+                      )}
+                      {details.terminationEvent && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Termination Event:</p>
+                          <p className="text-sm whitespace-pre-wrap">{details.terminationEvent}</p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Sub-Delegation:</p>
+                        <p className="text-sm">{details.subDelegation}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Compensation:</p>
+                        <p className="text-sm">{details.compensation}</p>
+                        {details.compensationAmount && <p className="text-sm font-semibold">{details.compensationAmount}</p>}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Accounting Frequency:</p>
+                        <p className="text-sm">{details.accountingFrequency}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Witnesses */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Witness Information (Required for Notarization)</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="p-3 bg-muted/50 rounded">
+                        <p className="font-medium text-sm mb-2">Witness 1:</p>
+                        <div className="space-y-1 text-sm">
+                          <p><span className="text-muted-foreground">Name:</span> {details.witness1Name}</p>
+                          <p><span className="text-muted-foreground">Emirates ID/Passport:</span> {details.witness1EmiratesId}</p>
+                          <p><span className="text-muted-foreground">Phone:</span> {details.witness1Phone}</p>
+                          <p><span className="text-muted-foreground">Address:</span> {details.witness1Address}</p>
+                        </div>
+                      </div>
+                      <div className="p-3 bg-muted/50 rounded">
+                        <p className="font-medium text-sm mb-2">Witness 2:</p>
+                        <div className="space-y-1 text-sm">
+                          <p><span className="text-muted-foreground">Name:</span> {details.witness2Name}</p>
+                          <p><span className="text-muted-foreground">Emirates ID/Passport:</span> {details.witness2EmiratesId}</p>
+                          <p><span className="text-muted-foreground">Phone:</span> {details.witness2Phone}</p>
+                          <p><span className="text-muted-foreground">Address:</span> {details.witness2Address}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Purpose/Context */}
+                  {details.purposeContext && (
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base">Purpose & Context</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm whitespace-pre-wrap">{details.purposeContext}</p>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Legal Compliance Summary */}
+                  <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                    <Shield className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    <AlertTitle className="text-green-900 dark:text-green-100">
+                      Legal Compliance & Requirements Included
+                    </AlertTitle>
+                    <AlertDescription className="text-green-800 dark:text-green-200 text-sm">
+                      Your Power of Attorney will automatically include:
+                      <ul className="list-disc list-inside mt-2 space-y-1">
+                        <li>Governing Law: UAE Federal Law No. 5 of 1985 (Civil Transactions Law)</li>
+                        <li>Dispute Resolution: Jurisdiction in {details.emirate} Courts</li>
+                        <li>Detailed notarization requirements (notary, 2 witnesses, ID verification)</li>
+                        <li>Data Protection: UAE PDPL (Federal Law No. 45 of 2021) compliance</li>
+                        <li>Confidentiality provisions and access restrictions</li>
+                        <li>Fiduciary duty obligations for Attorney-in-Fact</li>
+                        <li>Clear revocation provisions and procedures</li>
+                        <li>Ratification clause (simplified language)</li>
+                        <li>Conflict with UAE Law clause (supremacy of UAE law)</li>
+                        <li>Record-keeping requirements</li>
+                        <li>Third-party reliance provisions</li>
+                        <li>Liability and indemnification terms</li>
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+
+                  {/* Notarization Requirements Alert */}
+                  <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+                    <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                    <AlertTitle className="text-amber-900 dark:text-amber-100">
+                      Notarization Required for Legal Validity
+                    </AlertTitle>
+                    <AlertDescription className="text-amber-800 dark:text-amber-200 text-sm">
+                      <p className="font-semibold mb-2">This Power of Attorney MUST be notarized to be legally valid in the UAE.</p>
+                      <p className="mb-2">Steps to notarize:</p>
+                      <ol className="list-decimal list-inside space-y-1">
+                        <li>Print the generated Power of Attorney document</li>
+                        <li>Bring both Principal and Attorney-in-Fact to a UAE notary public office in {details.emirate}</li>
+                        <li>Bring 2 witnesses (adults with valid ID, not family members)</li>
+                        <li>All parties must bring original Emirates ID or passport</li>
+                        <li>Sign in the presence of the notary and witnesses</li>
+                        <li>Notary will verify identities, witness signatures, and affix official stamp</li>
+                        <li>Pay notary fees (typically AED 50-200)</li>
+                      </ol>
+                      <p className="mt-2 font-medium">The document is NOT legally binding until notarized.</p>
+                    </AlertDescription>
+                  </Alert>
+
+                  {/* Jurisdiction Notice */}
+                  <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                    <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <AlertTitle className="text-blue-900 dark:text-blue-100">
+                      Jurisdiction: {details.emirate}, UAE
+                    </AlertTitle>
+                    <AlertDescription className="text-blue-800 dark:text-blue-200 text-sm">
+                      This Power of Attorney will be notarized in {details.emirate} and disputes will be subject to the jurisdiction of {details.emirate} courts. The document is governed by UAE federal and {details.emirate}-specific laws.
+                    </AlertDescription>
+                  </Alert>
+
+                  {/* Urgency Badge */}
+                  {details.urgency && (
+                    <div className="flex items-center gap-2">
+                      <Badge variant={details.urgency.includes("Extremely") ? "destructive" : details.urgency.includes("Urgent") ? "default" : "secondary"}>
+                        {details.urgency}
+                      </Badge>
+                    </div>
                   )}
                 </div>
               ) : letterType === 'general_legal' ? (

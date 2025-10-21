@@ -18,7 +18,326 @@ MUST include these mandatory clauses:
 - Dispute Resolution: "Any dispute arising out of or in connection with this Agreement shall be resolved through [UAE courts/arbitration], with jurisdiction in [specific Emirate]."
 Ensure these clauses are prominently placed near the end of the agreement, before the signature section.`,
   settlement_agreement: `Generate a settlement agreement for dispute resolution.`,
-  power_of_attorney: `Generate a power of attorney document.`,
+  power_of_attorney: `Generate a comprehensive Power of Attorney document compliant with UAE legal requirements and notarization standards.
+
+CRITICAL REQUIREMENTS - MUST INCLUDE ALL OF THESE:
+
+STRUCTURE & FORMATTING:
+Use these EXACT section headers in order:
+1. DOCUMENT TITLE & REFERENCE
+2. PARTIES TO THE POWER OF ATTORNEY
+3. RECITALS & BACKGROUND (Brief context)
+4. APPOINTMENT OF ATTORNEY-IN-FACT
+5. SCOPE OF POWERS GRANTED
+6. LIMITATIONS & RESTRICTIONS
+7. SUB-DELEGATION AUTHORITY
+8. EFFECTIVE DATE & DURATION
+9. REVOCATION PROVISIONS
+10. RATIFICATION CLAUSE
+11. CONFLICT WITH UAE LAW CLAUSE
+12. GOVERNING LAW & DISPUTE RESOLUTION
+13. DATA PROTECTION & CONFIDENTIALITY
+14. NOTARIZATION & WITNESS REQUIREMENTS
+15. SIGNATURE SECTION
+
+LANGUAGE REQUIREMENTS:
+- Use simple, clear sentences (maximum 20 words per sentence)
+- Avoid complex legal jargon where possible - use plain business language
+- Use bullet points and numbered lists for powers, limitations, and procedures
+- Write in active voice
+- Keep paragraphs short (3-4 sentences maximum)
+- Use formal tone but ensure the Principal (grantor) can easily understand their rights and obligations
+
+SCOPE OF POWERS - CLEAR CHECKBOX STRUCTURE:
+Create a clear section listing powers with YES/NO indication for each:
+
+"SCOPE OF POWERS GRANTED:
+
+The Principal hereby grants the Attorney-in-Fact the following powers (as specifically indicated):
+
+A. FINANCIAL POWERS: [YES/NO based on financialPowers field]
+   ☑ Manage bank accounts, deposits, and withdrawals
+   ☑ Pay bills, taxes, and financial obligations
+   ☑ Invest, buy, or sell securities
+   ☑ Access safe deposit boxes
+   [Only include if financialPowers contains "Yes"]
+
+B. PROPERTY POWERS: [YES/NO based on propertyPowers field]
+   ☑ Buy, sell, lease, or mortgage real property
+   ☑ Manage rental properties and collect rent
+   ☑ Sign property documents and deeds
+   ☑ Handle property maintenance and repairs
+   [Only include if propertyPowers contains "Yes"]
+
+C. LEGAL POWERS: [YES/NO based on legalPowers field]
+   ☑ Sign contracts and legal agreements
+   ☑ Initiate or defend legal proceedings
+   ☑ Hire attorneys and legal representatives
+   ☑ Settle legal disputes
+   [Only include if legalPowers contains "Yes"]
+
+D. BUSINESS POWERS: [YES/NO based on businessPowers field]
+   ☑ Operate and manage business entities
+   ☑ Sign business contracts and agreements
+   ☑ Hire and terminate employees
+   ☑ Make business decisions on behalf of the Principal
+   [Only include if businessPowers contains "Yes"]
+
+E. HEALTHCARE POWERS: [YES/NO based on healthcarePowers field]
+   ☑ Make healthcare decisions (if permitted by UAE law)
+   ☑ Access medical records
+   ☑ Consent to medical treatment
+   NOTE: Healthcare decisions may be limited under UAE law - confirm local jurisdiction requirements
+   [Only include if healthcarePowers contains "Yes"]
+
+F. GOVERNMENT & ADMINISTRATIVE POWERS: [YES/NO based on govPowers field]
+   ☑ Interact with government authorities
+   ☑ Submit applications and documents to ministries
+   ☑ Obtain licenses, permits, and certificates
+   ☑ Represent Principal in administrative matters
+   [Only include if govPowers contains "Yes"]
+
+POWERS EXPLICITLY EXCLUDED:
+[List any powers that are NOT granted - based on fields that contain "No"]"
+
+DELEGATION LIMITS & SUB-DELEGATION:
+"SUB-DELEGATION AUTHORITY:
+
+[If subDelegation contains "Allowed with restrictions"]
+The Attorney-in-Fact MAY sub-delegate specific powers to third parties under the following conditions:
+• Sub-delegation is permitted only for: [specific powers listed in additionalPowers if provided]
+• Written consent from the Principal is required before any sub-delegation
+• The Attorney-in-Fact remains fully responsible for acts of any sub-delegate
+• Sub-delegation must be documented in writing and notarized
+• The Principal must be notified within 7 days of any sub-delegation
+
+[If subDelegation contains "Not allowed"]
+The Attorney-in-Fact MAY NOT sub-delegate any powers granted under this Power of Attorney. All actions must be performed personally by the named Attorney-in-Fact.
+
+[If subDelegation contains "Allowed without restrictions"]
+The Attorney-in-Fact MAY sub-delegate powers to third parties at their discretion. However, the Attorney-in-Fact remains ultimately responsible for all acts performed under this Power of Attorney."
+
+EFFECTIVE DATE & TERMINATION:
+"EFFECTIVE DATE:
+This Power of Attorney becomes effective on: [effectiveDate - format as DD MMMM YYYY]
+
+[If durationType contains "Permanent"] This Power of Attorney remains in effect indefinitely until formally revoked by the Principal.
+[If durationType contains "Fixed term"] This Power of Attorney expires automatically on: [expiryDate - format as DD MMMM YYYY]
+[If durationType contains "Event-based"] This Power of Attorney terminates upon: [terminationEvent]
+
+AUTOMATIC TERMINATION:
+This Power of Attorney shall automatically terminate upon:
+• Death of the Principal
+• Mental incapacity of the Principal (unless this is a Durable Power of Attorney)
+• Revocation by the Principal (see Revocation Provisions below)
+[If expiryDate provided] • Expiry date: [expiryDate]
+[If terminationEvent provided] • Occurrence of the specified termination event: [terminationEvent]
+
+REVOCATION PROVISIONS:
+The Principal reserves the right to revoke this Power of Attorney at any time by:
+1. Providing written notice of revocation to the Attorney-in-Fact ([revocationNotice])
+2. Having the revocation notarized by a UAE notary public
+3. Notifying all third parties who have been provided copies of this Power of Attorney
+4. Filing the revocation with relevant authorities (if originally filed)
+
+Revocation becomes effective upon delivery of written notice to the Attorney-in-Fact, but the Principal should ensure all copies are retrieved and third parties are notified to prevent unauthorized use."
+
+NOTARY & WITNESS REQUIREMENTS:
+"NOTARIZATION & WITNESS REQUIREMENTS:
+
+FOR LEGAL VALIDITY IN THE UAE, THIS POWER OF ATTORNEY MUST BE:
+
+1. NOTARIZATION (MANDATORY):
+   • This document must be notarized by a licensed UAE notary public or at a UAE notary public office in [emirate]
+   • Both the Principal and Attorney-in-Fact should appear before the notary (or as required by local jurisdiction)
+   • The notary will verify the identity of all parties using valid Emirates ID or passport
+   • Notary fees apply (typically AED 50-200 depending on emirate and document complexity)
+
+2. WITNESSES (REQUIRED):
+   • Minimum of TWO (2) competent witnesses must be present during signing
+   • Witnesses must be adults (18+ years old)
+   • Witnesses must provide valid identification (Emirates ID or passport)
+   • Witnesses should not be:
+     - Family members of the Principal or Attorney-in-Fact
+     - Beneficiaries of the Power of Attorney
+     - Employees of the Principal (to avoid conflict of interest)
+
+3. WITNESS INFORMATION:
+   
+   WITNESS 1:
+   Name: [witness1Name]
+   Emirates ID/Passport: [witness1EmiratesId]
+   Contact Phone: [witness1Phone]
+   Address: [witness1Address]
+   Signature: ____________________
+
+   WITNESS 2:
+   Name: [witness2Name]
+   Emirates ID/Passport: [witness2EmiratesId]
+   Contact Phone: [witness2Phone]
+   Address: [witness2Address]
+   Signature: ____________________
+
+4. ATTESTATION & LEGALIZATION (if applicable):
+   • If this Power of Attorney will be used outside the UAE, it may require:
+     - UAE Ministry of Foreign Affairs (MOFA) attestation
+     - Embassy legalization of the destination country
+   • Consult with the notary or legal advisor if international use is intended
+
+5. NOTARY'S CERTIFICATION:
+   The notary will affix an official stamp and signature certifying:
+   • Identity verification of all parties
+   • Voluntary signing by the Principal
+   • Witnesses' attestation
+   • Compliance with UAE notarization requirements"
+
+DATA PROTECTION & CONFIDENTIALITY:
+"DATA PROTECTION & CONFIDENTIALITY:
+
+This Power of Attorney contains personal data protected under UAE Federal Law No. 45 of 2021 (Personal Data Protection Law - PDPL).
+
+PERSONAL DATA COLLECTED:
+• Principal's full name, Emirates ID/passport number, contact details
+• Attorney-in-Fact's full name, Emirates ID/passport number, contact details
+• Witnesses' identification and contact information
+• Scope of powers and any financial/property information disclosed
+
+WHO CAN ACCESS THIS DATA:
+Access to this Power of Attorney and the personal data contained herein is restricted to:
+• The Principal (grantor)
+• The Attorney-in-Fact (agent)
+• Authorized legal representatives of the Principal
+• UAE notary public and government authorities (as required by law)
+• Third parties specifically authorized in writing by the Principal for legitimate purposes related to the powers granted
+• Courts and law enforcement (if legally required)
+
+PURPOSE OF DATA PROCESSING:
+Personal data is processed solely for the purpose of:
+• Executing the powers granted in this Power of Attorney
+• Verifying identity of parties for legal and notarization purposes
+• Fulfilling legal and regulatory obligations
+• Maintaining records as required by UAE law
+
+DATA RETENTION:
+• This Power of Attorney and associated personal data will be retained for the duration of the power of attorney plus a minimum of 5 years as required by UAE legal record-keeping requirements
+• Upon revocation, the Principal may request return or destruction of copies, subject to mandatory legal retention periods
+
+DATA SUBJECT RIGHTS:
+Under UAE PDPL, parties have the right to:
+• Access their personal data contained in this document
+• Request correction of inaccurate data
+• Object to data processing (subject to legal requirements)
+• Lodge complaints with the UAE Data Protection Office
+
+CONFIDENTIALITY:
+The Attorney-in-Fact agrees to:
+• Keep all information obtained through this Power of Attorney strictly confidential
+• Not disclose the Principal's personal, financial, or business information to unauthorized parties
+• Use information solely for purposes authorized by this Power of Attorney
+• Take reasonable security measures to protect confidential information"
+
+RATIFICATION CLAUSE (SIMPLIFIED):
+"RATIFICATION OF ACTS:
+
+The Principal hereby ratifies and confirms all acts lawfully performed by the Attorney-in-Fact under this Power of Attorney.
+
+WHAT THIS MEANS:
+• The Principal agrees in advance that any actions taken by the Attorney-in-Fact within the scope of granted powers are legally binding on the Principal
+• The Principal accepts responsibility for the Attorney-in-Fact's actions as if the Principal had performed them personally
+• This ratification applies ONLY to actions within the scope of powers granted - it does not cover unauthorized acts
+
+LIMITATION:
+• Actions taken outside the scope of granted powers are NOT ratified
+• Fraudulent or illegal acts are NOT ratified
+• Acts performed after revocation or expiry are NOT ratified"
+
+CONFLICT WITH UAE LAW CLAUSE:
+"CONFLICT WITH UAE LAW:
+
+SUPREMACY OF UAE LAW:
+This Power of Attorney is subject to the laws of the United Arab Emirates. Any provision of this Power of Attorney that conflicts with, violates, or is prohibited by UAE federal or emirate-specific laws is:
+• Void and unenforceable
+• Automatically severed from this document
+• Not binding on any party
+
+The remaining provisions of this Power of Attorney shall remain in full force and effect.
+
+PROHIBITED ACTS:
+The Attorney-in-Fact may NOT use this Power of Attorney to perform any act that:
+• Violates UAE criminal law (Federal Law No. 31 of 2021 - UAE Penal Code)
+• Violates UAE civil law (Federal Law No. 5 of 1985 - Civil Transactions Law)
+• Breaches public policy or Islamic Sharia principles as applied in the UAE
+• Involves illegal transactions, money laundering, or fraud
+• Violates regulatory requirements of UAE government authorities
+
+Any such act is void and provides grounds for immediate revocation and potential legal liability."
+
+GOVERNING LAW & DISPUTE RESOLUTION:
+"GOVERNING LAW:
+This Power of Attorney is governed by and construed in accordance with:
+• UAE Federal Law No. 5 of 1985 (Civil Transactions Law - Civil Code), as amended
+• UAE Federal Law No. 10 of 1993 (Civil Procedure Law), as amended
+• Any other applicable UAE federal and [emirate]-specific laws and regulations
+
+DISPUTE RESOLUTION:
+In the event of any dispute arising from or relating to this Power of Attorney:
+
+1. NEGOTIATION (First Step):
+   Parties agree to attempt to resolve disputes through good-faith negotiation
+
+2. MEDIATION (Optional Second Step):
+   If negotiation fails, parties may agree to mediation through an accredited UAE mediation center
+
+3. JURISDICTION (Final Step):
+   Any unresolved disputes shall be subject to the exclusive jurisdiction of the competent courts of [emirate], United Arab Emirates
+
+APPLICABLE COURT:
+• Civil disputes: [emirate] Court of First Instance
+• Appeals: [emirate] Court of Appeal
+• Final appeals: Federal Supreme Court (if applicable)
+
+NOTE: The Attorney-in-Fact may not use this Power of Attorney to waive the Principal's right to bring legal claims or to settle disputes without the Principal's express written consent (unless such power is explicitly granted)."
+
+PROFESSIONAL FORMATTING:
+- Use proper document header with "POWER OF ATTORNEY" title
+- Include reference number if provided
+- Use clear section headers (UPPERCASE, bold)
+- Use numbered lists and bullet points
+- Include signature lines for:
+  * Principal (Grantor): [principalFullName]
+  * Attorney-in-Fact (Agent): [attorneyFullName]
+  * Witness 1: [witness1Name]
+  * Witness 2: [witness2Name]
+  * Notary Public
+- Include spaces for Emirates ID/Passport numbers, dates, and contact information
+
+PLACEHOLDERS:
+Replace ALL bracketed placeholders with actual information provided:
+- [principalFullName] → actual principal name
+- [principalEmiratesId] → actual principal Emirates ID/Passport
+- [principalAddress] → actual principal address
+- [principalPhone] → actual principal phone
+- [principalEmail] → actual principal email
+- [attorneyFullName] → actual attorney-in-fact name
+- [attorneyEmiratesId] → actual attorney Emirates ID/Passport
+- [attorneyAddress] → actual attorney address
+- [attorneyPhone] → actual attorney phone
+- [attorneyEmail] → actual attorney email
+- [attorneyRelationship] → actual relationship
+- [emirate] → actual emirate for jurisdiction
+- [effectiveDate] → actual start date (format: DD MMMM YYYY)
+- [expiryDate] → actual expiry date if provided (format: DD MMMM YYYY)
+- [terminationEvent] → specific event if provided
+- [compensation] → compensation arrangement
+- [compensationAmount] → specific amount if provided
+- [accountingFrequency] → accounting frequency
+- [purposeContext] → purpose/context
+- Do NOT leave any [bracketed text] in the final output
+
+ADDITIONAL CONTEXT:
+Include purposeContext field content in the RECITALS & BACKGROUND section.
+If additionalPowers field is provided, include in SCOPE OF POWERS section.
+If explicitLimitations field is provided, include in LIMITATIONS & RESTRICTIONS section.`,
   workplace_complaint: `Generate a formal workplace complaint letter following UAE Federal Decree-Law No. 33 of 2021 (Labor Law) and HR best practices.
 
 CRITICAL REQUIREMENTS - MUST INCLUDE ALL OF THESE:
@@ -357,6 +676,69 @@ All rights and remedies shall be preserved regardless of the passage of time, su
 
 This letter does not constitute a complete or final settlement of any matters discussed herein unless explicitly stated otherwise. All rights not expressly waived or released remain in full force and effect.`;
 
+const POWER_OF_ATTORNEY_CLAUSES = `
+
+ADDITIONAL LEGAL PROVISIONS FOR POWER OF ATTORNEY:
+
+FIDUCIARY DUTY:
+The Attorney-in-Fact acknowledges and agrees that they owe a fiduciary duty to the Principal, which includes:
+• Duty of Loyalty: Acting in the Principal's best interests at all times
+• Duty of Care: Exercising reasonable care, skill, and diligence
+• Duty of Good Faith: Acting honestly and transparently
+• Duty to Account: Maintaining accurate records of all transactions and providing accountings upon request
+• Duty to Avoid Conflicts of Interest: Not using the power for personal benefit unless explicitly authorized
+
+RECORD-KEEPING REQUIREMENTS:
+The Attorney-in-Fact shall:
+• Maintain detailed records of all transactions performed under this Power of Attorney
+• Keep the Principal's funds and property separate from the Attorney-in-Fact's personal funds
+• Provide written accountings to the Principal upon request (or at regular intervals if specified)
+• Retain all receipts, contracts, and documentation for a minimum of 5 years
+
+PROHIBITED SELF-DEALING:
+Unless explicitly authorized in writing, the Attorney-in-Fact may NOT:
+• Make gifts of the Principal's property to themselves or their family members
+• Borrow money from the Principal or use the Principal's assets as collateral
+• Enter into contracts where the Attorney-in-Fact has a personal interest
+• Transfer the Principal's property to the Attorney-in-Fact except for reasonable compensation
+
+THIRD PARTY RELIANCE:
+Third parties (banks, government agencies, businesses) may rely on this Power of Attorney if:
+• It appears genuine and has been properly notarized
+• The third party has no actual knowledge of revocation
+• The third party acts in good faith
+• The action requested is within the scope of granted powers
+
+The Principal agrees that third parties who rely on this Power of Attorney in good faith shall not be liable for actions taken before receiving notice of revocation.
+
+LIABILITY & INDEMNIFICATION:
+• The Attorney-in-Fact is personally liable for:
+  - Fraudulent acts or willful misconduct
+  - Gross negligence in performing duties
+  - Acts outside the scope of granted powers
+  - Acts performed after revocation or expiry
+
+• The Principal agrees to indemnify and hold harmless the Attorney-in-Fact for reasonable acts performed in good faith within the scope of authority, provided such acts do not constitute fraud, gross negligence, or willful misconduct.
+
+COMPENSATION:
+[Insert compensation details based on compensation field]
+
+COPIES & VALIDITY:
+• Photocopies, scanned copies, and certified copies of this Power of Attorney shall have the same legal effect as the original
+• The Principal may execute multiple originals, all of which shall be considered one instrument
+• If any copy is lost or destroyed, the Principal may execute a replacement copy with the same effective date
+
+AMENDMENTS:
+This Power of Attorney may only be amended by:
+• Written agreement signed by both the Principal and Attorney-in-Fact
+• Notarization of the amendment
+• Notification to all parties who received copies of the original
+
+No oral amendments or modifications are valid.
+
+SURVIVAL:
+The provisions regarding record-keeping, confidentiality, data protection, and liability shall survive the termination or revocation of this Power of Attorney.`;
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -541,6 +923,10 @@ Generate the complete letter now.`;
 
     if (letterType === 'general_legal') {
       letterContent += GENERAL_LEGAL_CLAUSES;
+    }
+
+    if (letterType === 'power_of_attorney') {
+      letterContent += POWER_OF_ATTORNEY_CLAUSES;
     }
 
     // Deduct credits (queries_used is the DB column name)
