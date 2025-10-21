@@ -717,12 +717,35 @@ Personal data processed for:
 • After termination: [personalDataRetentionPeriod]
 • Minimum retention: As required by UAE law (typically 5 years)
 
-10.5 EMPLOYEE DATA RIGHTS:
-Employee has the right to:
-• Access personal data held by Employer
-• Request correction of inaccurate data
-• Object to data processing (subject to legal requirements)
-• Lodge complaints with UAE Data Protection Office
+10.5 YOUR DATA RIGHTS UNDER UAE PDPL:
+
+As an employee, you have the following rights regarding your personal data:
+
+RIGHT TO ACCESS:
+• You may request access to your personal data held by the Company
+• You may request copies of your employment records
+• Company will respond within 15 business days
+
+RIGHT TO CORRECTION:
+• You may request correction of inaccurate or incomplete personal data
+• Company will update records within 10 business days of verification
+
+RIGHT TO DELETION:
+• You may request deletion of your personal data (subject to legal retention requirements)
+• Note: Company must retain certain employment data as required by UAE Labor Law and tax regulations
+
+RIGHT TO OBJECT:
+• You may object to certain types of data processing
+• Company will review objections and respond within 30 days
+
+RIGHT TO LODGE COMPLAINTS:
+• You may lodge complaints with the UAE Data Protection Office if your data rights are violated
+• Website: www.uaedpo.gov.ae
+
+HOW TO EXERCISE YOUR RIGHTS:
+• Submit requests to: [dataProtectionEmail]
+• Include: Your name, employee ID, and specific request
+• Company will respond within 30 days
 
 10.6 DATA PROTECTION CONTACT:
 For data inquiries, contact: [dataProtectionEmail]
@@ -771,14 +794,33 @@ GENERAL PROVISIONS:
 "12. GENERAL PROVISIONS
 
 12.1 COMPANY PROPERTY:
-Employee must:
-• Use Company property solely for business purposes
-• Maintain property in good condition
-• Return all property upon termination
 
-Failure to return may result in:
-• Deduction from final settlement
-• Legal action for recovery
+ITEMS THAT MUST BE RETURNED:
+Employee must return all Company property upon termination, including but not limited to:
+• Laptop, desktop computer, or any computing devices
+• Mobile phone(s), tablets, or other electronic devices
+• Access cards, building keys, parking permits
+• Company credit cards or purchasing cards
+• Company vehicles (if provided)
+• Confidential documents, files, and records (physical and digital)
+• Client lists, contact information, and business records
+• Proprietary software, data, or intellectual property
+• Uniforms, safety equipment, or other company-issued items
+• Any other property belonging to the Company
+
+OBLIGATIONS:
+Employee must:
+• Use Company property solely for legitimate business purposes
+• Maintain property in good working condition
+• Not remove Company property from premises without authorization
+• Return all property in good condition upon termination (normal wear and tear excepted)
+
+CONSEQUENCES OF NON-RETURN:
+Failure to return Company property may result in:
+• Deduction from final settlement (for value of unreturned items)
+• Legal action for recovery of property
+• Filing of police report (if applicable)
+• Withholding of employment certificate until property returned
 
 12.2 AMENDMENTS:
 This contract may only be amended by written agreement signed by both parties.

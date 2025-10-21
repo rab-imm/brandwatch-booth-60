@@ -29,7 +29,9 @@ import {
   IconGift,
   IconClock,
   IconCalendar,
-  IconAlertTriangle
+  IconAlertTriangle,
+  IconBan,
+  IconFileText
 } from "@tabler/icons-react";
 import { Icon } from "@/components/ui/Icon";
 
@@ -594,6 +596,23 @@ export default function LetterCreationWizard() {
     }
 
     if (letterType === 'employment_contract') {
+      // Required fields validation
+      if (!details.companyName || !details.companyAddress || !details.companyLicense) {
+        errors.push("Company details (name, address, license) are required");
+      }
+      
+      if (!details.employeeName || !details.employeeNationality || !details.passportOrId) {
+        errors.push("Employee identification details are required");
+      }
+      
+      if (!details.jobTitle || !details.department || !details.directManager) {
+        errors.push("Position details are required");
+      }
+
+      if (!details.contractType) {
+        errors.push("Contract type is required");
+      }
+
       if (details.startDate) {
         const start = new Date(details.startDate);
         const today = startOfDay(new Date());
@@ -614,6 +633,15 @@ export default function LetterCreationWizard() {
         if (!details.probationNotice) {
           errors.push("Probation notice period is required when probation period is set");
         }
+        
+        const probationNotice = parseInt(details.probationNotice || '0');
+        if (probationNotice < 7 || probationNotice > 30) {
+          toast({
+            title: "Probation Notice Warning",
+            description: "Probation notice period is typically 7-30 days. Please verify this is correct.",
+            variant: "default",
+          });
+        }
       }
 
       if (details.nonCompeteClause === 'Yes') {
@@ -623,15 +651,115 @@ export default function LetterCreationWizard() {
         if (!details.nonCompeteScope) {
           errors.push("Non-compete scope is required when non-compete clause is 'Yes'");
         }
+        
+        const duration = parseInt(details.nonCompeteDuration || '0');
+        if (duration > 24) {
+          toast({
+            title: "Non-Compete Duration Notice",
+            description: "Non-compete periods over 24 months may not be enforceable under UAE law. Please consult legal counsel.",
+            variant: "destructive",
+          });
+        }
+      }
+
+      // === EMAIL FORMAT VALIDATION ===
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      
+      if (details.hrEmail && !emailRegex.test(details.hrEmail)) {
+        errors.push("HR Contact Email must be a valid email address");
+      }
+      
+      if (details.employeeEmail && !emailRegex.test(details.employeeEmail)) {
+        errors.push("Employee Email must be a valid email address");
+      }
+      
+      if (details.dataProtectionEmail && !emailRegex.test(details.dataProtectionEmail)) {
+        errors.push("Data Protection Contact Email must be a valid email address");
+      }
+      
+      // === UAE PHONE FORMAT VALIDATION ===
+      const uaePhoneRegex = /^\+971\s?\d{1,2}\s?\d{3}\s?\d{4}$/;
+      
+      if (details.hrPhone && !uaePhoneRegex.test(details.hrPhone)) {
+        errors.push("HR Contact Phone must be in UAE format: +971 XX XXX XXXX");
+      }
+      
+      if (details.employeePhone && !uaePhoneRegex.test(details.employeePhone)) {
+        errors.push("Employee Phone must be in UAE format: +971 XX XXX XXXX");
+      }
+      
+      // === EMIRATES ID / PASSPORT VALIDATION ===
+      const emiratesIdRegex = /^784-\d{4}-\d{7}-\d{1}$/;
+      const passportRegex = /^[A-Z0-9]{6,9}$/;
+      
+      if (details.passportOrId) {
+        const isEmiratesId = emiratesIdRegex.test(details.passportOrId);
+        const isPassport = passportRegex.test(details.passportOrId);
+        
+        if (!isEmiratesId && !isPassport) {
+          errors.push("Passport/Emirates ID must be valid format (Emirates ID: 784-XXXX-XXXXXXX-X or Passport: 6-9 alphanumeric characters)");
+        }
       }
 
       const basicSalary = parseFloat(details.basicSalary || 0);
       const totalComp = parseFloat(details.totalMonthlyCompensation || 0);
+      
+      // === SALARY AND AMOUNTS VALIDATION ===
+      if (basicSalary <= 0) {
+        errors.push("Basic Monthly Salary must be a positive number");
+      }
+      
+      if (totalComp <= 0) {
+        errors.push("Total Monthly Compensation must be a positive number");
+      }
+      
       if (basicSalary > totalComp) {
         errors.push("Basic salary cannot exceed total monthly compensation");
       }
+      
+      // === NOTICE PERIOD VALIDATION ===
+      const employeeNotice = parseInt(details.noticePeriodByEmployee || '0');
+      const employerNotice = parseInt(details.noticePeriodByEmployer || '0');
+      
+      if (employeeNotice < 30 || employeeNotice > 90) {
+        toast({
+          title: "Notice Period Warning",
+          description: "Employee notice period is typically 30-90 days in UAE. Please verify this is correct.",
+          variant: "default",
+        });
+      }
+      
+      if (employerNotice < 30 || employerNotice > 90) {
+        toast({
+          title: "Notice Period Warning",
+          description: "Employer notice period is typically 30-90 days in UAE. Please verify this is correct.",
+          variant: "default",
+        });
+      }
+      
+      // === WORKING DAYS VALIDATION ===
+      const workingDays = parseInt(details.workingDaysPerWeek || '0');
+      if (workingDays < 5 || workingDays > 6) {
+        errors.push("Working days per week must be between 5 and 6 (UAE Labor Law standard)");
+      }
+      
+      // === REST DAYS VALIDATION ===
+      const restDays = parseInt(details.restDaysPerWeek || '0');
+      if (restDays < 1) {
+        errors.push("Rest days per week must be at least 1 (UAE Labor Law requirement)");
+      }
+      
+      if (workingDays + restDays > 7) {
+        errors.push("Working days + rest days cannot exceed 7 days per week");
+      }
 
       const workingHours = parseFloat(details.workingHoursPerDay || 0);
+      
+      // === WORKING HOURS VALIDATION ===
+      if (workingHours <= 0 || workingHours > 12) {
+        errors.push("Working hours per day must be between 1 and 12 hours");
+      }
+      
       if (workingHours > 8) {
         toast({
           title: "Working Hours Warning",
@@ -643,6 +771,11 @@ export default function LetterCreationWizard() {
       const annualLeave = parseFloat(details.annualLeaveEntitlement || 0);
       if (annualLeave < 30) {
         errors.push("Annual leave entitlement must be at least 30 days per UAE Labor Law");
+      }
+      
+      // === CONDITIONAL FIELD VALIDATION ===
+      if (details.healthInsurance === 'Provided by Company' && !details.healthInsuranceCoverage) {
+        errors.push("Health insurance coverage details are required when insurance is provided by company");
       }
     }
 
@@ -1620,14 +1753,15 @@ export default function LetterCreationWizard() {
             <div className="space-y-4 mt-6">
               <Alert className="bg-blue-50 border-blue-200">
                 <AlertDescription className="text-sm text-blue-900">
-                  <strong>Review all contract details carefully before generating.</strong>
+                  <strong>Review all contract terms carefully before generating the employment offer.</strong>
                 </AlertDescription>
               </Alert>
 
+              {/* 1. PARTIES TO CONTRACT */}
               <Card className="border-blue-200">
                 <CardHeader className="bg-blue-50">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <IconUsers className="h-5 w-5" />
+                    <IconBuilding className="h-5 w-5" />
                     Parties to Contract
                   </CardTitle>
                 </CardHeader>
@@ -1635,8 +1769,8 @@ export default function LetterCreationWizard() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Employer</p>
                     <p className="font-medium">{details.companyName}</p>
-                    <p className="text-sm text-muted-foreground">{details.companyAddress}</p>
                     {details.companyLicense && <p className="text-sm text-muted-foreground">License: {details.companyLicense}</p>}
+                    <p className="text-sm text-muted-foreground">{details.companyAddress}</p>
                     <p className="text-sm text-muted-foreground">HR: {details.hrEmail} / {details.hrPhone}</p>
                   </div>
                   <Separator />
@@ -1644,13 +1778,14 @@ export default function LetterCreationWizard() {
                     <p className="text-sm font-medium text-muted-foreground">Employee</p>
                     <p className="font-medium">{details.employeeName}</p>
                     <p className="text-sm text-muted-foreground">Nationality: {details.employeeNationality}</p>
-                    <p className="text-sm text-muted-foreground">Passport/ID: {details.passportOrId}</p>
+                    <p className="text-sm text-muted-foreground">ID: {details.passportOrId}</p>
                     <p className="text-sm text-muted-foreground">{details.employeeEmail} / {details.employeePhone}</p>
-                    <p className="text-sm text-muted-foreground">{details.employeeAddress}</p>
+                    {details.emergencyContact && <p className="text-sm text-muted-foreground">Emergency: {details.emergencyContact}</p>}
                   </div>
                 </CardContent>
               </Card>
 
+              {/* 2. POSITION & EMPLOYMENT TERMS */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -1669,12 +1804,13 @@ export default function LetterCreationWizard() {
                       <p className="font-medium">{details.department}</p>
                     </div>
                   </div>
+                  <Separator />
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Reports To</p>
-                    <p className="font-medium">{details.directManager}</p>
+                    <p className="text-sm">{details.directManager}</p>
                   </div>
                   <Separator />
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Contract Type</p>
                       <Badge>{details.contractType}</Badge>
@@ -1682,28 +1818,37 @@ export default function LetterCreationWizard() {
                     {details.contractDuration && (
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Duration</p>
-                        <p className="font-medium">{details.contractDuration}</p>
+                        <Badge variant="outline">{details.contractDuration}</Badge>
                       </div>
                     )}
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Start Date</p>
                       <p className="font-medium">{format(new Date(details.startDate), 'PPP')}</p>
                     </div>
-                  </div>
-                  {details.probationPeriod && details.probationPeriod !== 'No Probation' && (
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Probation Period</p>
-                      <Badge variant="secondary">{details.probationPeriod}</Badge>
-                      {details.probationNotice && <span className="text-sm text-muted-foreground ml-2">({details.probationNotice} days notice)</span>}
+                      <p className="text-sm font-medium text-muted-foreground">Location</p>
+                      <p className="text-sm">{details.workLocation}</p>
                     </div>
-                  )}
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Work Location</p>
-                    <p className="font-medium">{details.workLocation}</p>
                   </div>
+                  {details.probationPeriod !== 'No Probation' && (
+                    <>
+                      <Separator />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Probation Period</p>
+                        <Badge variant="secondary">{details.probationPeriod}</Badge>
+                        {details.probationNotice && (
+                          <p className="text-sm text-muted-foreground mt-1">Notice during probation: {details.probationNotice} days</p>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
 
+              {/* 3. COMPENSATION PACKAGE */}
               <Card className="border-green-200">
                 <CardHeader className="bg-green-50">
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -1711,139 +1856,247 @@ export default function LetterCreationWizard() {
                     Compensation Package
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4 space-y-2">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Basic Salary:</span>
-                      <span className="font-medium">AED {details.basicSalary}</span>
+                <CardContent className="pt-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Basic Salary</p>
+                    <p className="text-xl font-bold">AED {details.basicSalary}</p>
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Housing</p>
+                      <p className="text-sm">{details.housingAllowance}</p>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Housing Allowance:</span>
-                      <span className="font-medium">{details.housingAllowance}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Transport Allowance:</span>
-                      <span className="font-medium">{details.transportAllowance}</span>
-                    </div>
-                    {details.otherAllowances && (
-                      <div className="flex justify-between">
-                        <span>Other Allowances:</span>
-                        <span className="font-medium">{details.otherAllowances}</span>
-                      </div>
-                    )}
-                    <Separator className="my-2" />
-                    <div className="flex justify-between text-base font-bold">
-                      <span>Total Monthly:</span>
-                      <span>AED {details.totalMonthlyCompensation}</span>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Transport</p>
+                      <p className="text-sm">{details.transportAllowance}</p>
                     </div>
                   </div>
-                  <Separator className="my-2" />
+                  {details.otherAllowances && (
+                    <>
+                      <Separator />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Other Allowances</p>
+                        <p className="text-sm whitespace-pre-wrap">{details.otherAllowances}</p>
+                      </div>
+                    </>
+                  )}
+                  {details.annualBonus && (
+                    <>
+                      <Separator />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Annual Bonus</p>
+                        <p className="text-sm">{details.annualBonus}</p>
+                      </div>
+                    </>
+                  )}
+                  {details.commissionStructure && (
+                    <>
+                      <Separator />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Commission</p>
+                        <p className="text-sm">{details.commissionStructure}</p>
+                      </div>
+                    </>
+                  )}
+                  <Separator className="border-green-300" />
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold">Total Monthly Compensation:</span>
+                    <span className="text-2xl font-bold text-primary">AED {details.totalMonthlyCompensation}</span>
+                  </div>
+                  <Separator />
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="font-medium">Payment Frequency</p>
-                      <p className="text-muted-foreground">{details.paymentFrequency}</p>
+                      <p className="text-muted-foreground">Payment Frequency</p>
+                      <Badge variant="outline">{details.paymentFrequency}</Badge>
                     </div>
                     <div>
-                      <p className="font-medium">Payment Method</p>
-                      <p className="text-muted-foreground">{details.paymentMethod}</p>
+                      <p className="text-muted-foreground">Payment Method</p>
+                      <Badge variant="outline">{details.paymentMethod}</Badge>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
+              {/* 4. BENEFITS */}
+              <Card className="border-green-200">
+                <CardHeader className="bg-green-50">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <IconGift className="h-5 w-5" />
-                    Benefits
+                    Benefits & Entitlements
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Health Insurance:</span>
-                    <Badge>{details.healthInsurance}</Badge>
+                <CardContent className="pt-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Health Insurance</p>
+                      <Badge>{details.healthInsurance}</Badge>
+                      {details.healthInsuranceCoverage && (
+                        <p className="text-sm text-muted-foreground mt-1">{details.healthInsuranceCoverage}</p>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Visa & Work Permit</p>
+                      <Badge>{details.visaWorkPermit}</Badge>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Annual Leave:</span>
-                    <span>{details.annualLeaveEntitlement} days</span>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Annual Leave</p>
+                      <p className="text-sm">{details.annualLeaveEntitlement} days/year</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Flight Tickets</p>
+                      <p className="text-sm">{details.flightTickets}</p>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Flight Tickets:</span>
-                    <span>{details.flightTickets}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Visa & Work Permit:</span>
-                    <Badge>{details.visaWorkPermit}</Badge>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">End-of-Service Gratuity</p>
+                    <p className="text-sm">As per UAE Labor Law Articles 51-54</p>
                   </div>
                   {details.otherBenefits && (
                     <>
-                      <Separator className="my-2" />
+                      <Separator />
                       <div>
-                        <p className="font-medium">Other Benefits:</p>
-                        <p className="text-muted-foreground">{details.otherBenefits}</p>
+                        <p className="text-sm font-medium text-muted-foreground">Other Benefits</p>
+                        <p className="text-sm whitespace-pre-wrap">{details.otherBenefits}</p>
+                      </div>
+                    </>
+                  )}
+                  {details.benefitsCommencementDate && (
+                    <>
+                      <Separator />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Benefits Start Date</p>
+                        <p className="text-sm">{format(new Date(details.benefitsCommencementDate), 'PPP')}</p>
                       </div>
                     </>
                   )}
                 </CardContent>
               </Card>
 
+              {/* 5. WORKING HOURS & SCHEDULE */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <IconClock className="h-5 w-5" />
-                    Working Hours & Leave
+                    Working Hours & Schedule
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4 space-y-2 text-sm">
-                  <div className="grid grid-cols-3 gap-4">
+                <CardContent className="pt-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="font-medium">Hours/Day</p>
-                      <p className="text-muted-foreground">{details.workingHoursPerDay} hours</p>
+                      <p className="text-sm font-medium text-muted-foreground">Working Hours</p>
+                      <p className="text-sm">{details.workingHoursPerDay} hours/day</p>
                     </div>
                     <div>
-                      <p className="font-medium">Days/Week</p>
-                      <p className="text-muted-foreground">{details.workingDaysPerWeek} days</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Rest Days</p>
-                      <p className="text-muted-foreground">{details.restDaysPerWeek} day(s)</p>
+                      <p className="text-sm font-medium text-muted-foreground">Working Days</p>
+                      <p className="text-sm">{details.workingDaysPerWeek} days/week</p>
                     </div>
                   </div>
-                  <Separator className="my-2" />
+                  <Separator />
                   <div>
-                    <p className="font-medium">Work Schedule</p>
-                    <p className="text-muted-foreground">{details.workSchedule}</p>
+                    <p className="text-sm font-medium text-muted-foreground">Schedule</p>
+                    <p className="text-sm">{details.workSchedule}</p>
                   </div>
-                  <div>
-                    <p className="font-medium">Ramadan Hours</p>
-                    <p className="text-muted-foreground">{details.ramadanWorkingHours}</p>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Rest Days</p>
+                      <p className="text-sm">{details.restDaysPerWeek} day(s)/week</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Ramadan Hours</p>
+                      <p className="text-sm">{details.ramadanWorkingHours}</p>
+                    </div>
                   </div>
+                  {details.overtimePolicy && (
+                    <>
+                      <Separator />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Overtime Policy</p>
+                        <p className="text-sm whitespace-pre-wrap">{details.overtimePolicy}</p>
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
 
+              {/* 6. LEAVE ENTITLEMENTS */}
+              <Card className="border-purple-200">
+                <CardHeader className="bg-purple-50">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <IconCalendar className="h-5 w-5" />
+                    Leave Entitlements
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Annual Leave</p>
+                    <p className="font-medium">{details.annualLeaveEntitlement} days/year (minimum 30 days per UAE Labor Law)</p>
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Sick Leave</p>
+                    <p className="text-sm">90 days/year per UAE Labor Law Article 31</p>
+                    <p className="text-xs text-muted-foreground">First 15 days: Full pay | Next 30 days: Half pay | Next 45 days: Unpaid</p>
+                  </div>
+                  {details.otherLeaveTypes && (
+                    <>
+                      <Separator />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Other Leave Types</p>
+                        <p className="text-sm whitespace-pre-wrap">{details.otherLeaveTypes}</p>
+                      </div>
+                    </>
+                  )}
+                  {details.leaveApprovalProcess && (
+                    <>
+                      <Separator />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Approval Process</p>
+                        <p className="text-sm">{details.leaveApprovalProcess}</p>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* 7. TERMINATION & NOTICE */}
               <Card className="border-amber-200">
                 <CardHeader className="bg-amber-50">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <IconAlertCircle className="h-5 w-5" />
+                    <IconAlertTriangle className="h-5 w-5" />
                     Termination Provisions
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4 space-y-2 text-sm">
+                <CardContent className="pt-4 space-y-3">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="font-medium">Notice by Employee</p>
-                      <p className="text-muted-foreground">{details.noticePeriodByEmployee} days</p>
+                      <p className="text-sm font-medium text-muted-foreground">Notice by Employee</p>
+                      <Badge>{details.noticePeriodByEmployee} days</Badge>
                     </div>
                     <div>
-                      <p className="font-medium">Notice by Employer</p>
-                      <p className="text-muted-foreground">{details.noticePeriodByEmployer} days</p>
+                      <p className="text-sm font-medium text-muted-foreground">Notice by Employer</p>
+                      <Badge>{details.noticePeriodByEmployer} days</Badge>
                     </div>
                   </div>
+                  {details.terminationConditions && (
+                    <>
+                      <Separator />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Additional Conditions</p>
+                        <p className="text-sm whitespace-pre-wrap">{details.terminationConditions}</p>
+                      </div>
+                    </>
+                  )}
                   {details.gardenLeaveApplicable === 'Yes' && (
                     <>
-                      <Separator className="my-2" />
+                      <Separator />
                       <div>
-                        <p className="font-medium">Garden Leave</p>
+                        <p className="text-sm font-medium text-muted-foreground">Garden Leave</p>
                         <Badge>Applicable</Badge>
                       </div>
                     </>
@@ -1851,71 +2104,168 @@ export default function LetterCreationWizard() {
                 </CardContent>
               </Card>
 
+              {/* 8. CONFIDENTIALITY & IP */}
               <Card className="border-purple-200">
                 <CardHeader className="bg-purple-50">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <IconLock className="h-5 w-5" />
-                    Confidentiality & Non-Compete
+                    Confidentiality & Intellectual Property
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4 space-y-2 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span>Confidentiality Obligation:</span>
-                    <Badge variant={details.confidentialityObligation === 'Yes' ? "default" : "secondary"}>
-                      {details.confidentialityObligation === 'Yes' ? '✓' : '✗'}
-                    </Badge>
+                <CardContent className="pt-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Confidentiality</p>
+                      <Badge variant={details.confidentialityObligation === 'Yes' ? "default" : "secondary"}>
+                        {details.confidentialityObligation === 'Yes' ? '✓ Required' : '✗ Not Required'}
+                      </Badge>
+                    </div>
+                    {details.ndaSeparate && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Separate NDA</p>
+                        <Badge variant="outline">{details.ndaSeparate}</Badge>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span>Non-Compete Clause:</span>
-                    <Badge variant={details.nonCompeteClause === 'Yes' ? "default" : "secondary"}>
-                      {details.nonCompeteClause === 'Yes' ? '✓' : '✗'}
-                    </Badge>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Intellectual Property Ownership</p>
+                    <p className="text-sm">All work product belongs to Company</p>
                   </div>
-                  {details.nonCompeteClause === 'Yes' && (
+                  {details.dataAccessLevel && (
                     <>
-                      <p className="text-muted-foreground">Duration: {details.nonCompeteDuration} months</p>
-                      <p className="text-muted-foreground">Scope: {details.nonCompeteScope}</p>
+                      <Separator />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Data Access Level</p>
+                        <p className="text-sm">{details.dataAccessLevel}</p>
+                      </div>
                     </>
                   )}
                 </CardContent>
               </Card>
 
+              {/* 9. NON-COMPETE */}
+              {details.nonCompeteClause === 'Yes' && (
+                <Card className="border-amber-200">
+                  <CardHeader className="bg-amber-50">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <IconBan className="h-5 w-5" />
+                      Non-Compete Clause
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4 space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Duration</p>
+                        <Badge>{details.nonCompeteDuration} months</Badge>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Geographic Area</p>
+                        <Badge variant="outline">United Arab Emirates</Badge>
+                      </div>
+                    </div>
+                    <Separator />
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Scope</p>
+                      <p className="text-sm whitespace-pre-wrap">{details.nonCompeteScope}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* 10. DATA PROTECTION & LEGAL */}
               <Card className="border-green-200">
                 <CardHeader className="bg-green-50">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <IconShieldCheck className="h-5 w-5" />
-                    Data Protection & Legal
+                    Data Protection & Legal Framework
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Data Retention:</span>
-                    <span>{details.personalDataRetentionPeriod}</span>
+                <CardContent className="pt-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Personal Data Retention</p>
+                    <p className="text-sm">{details.personalDataRetentionPeriod}</p>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Data Protection Contact:</span>
-                    <span>{details.dataProtectionEmail}</span>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Data Protection Contact</p>
+                    <p className="text-sm">{details.dataProtectionEmail}</p>
                   </div>
-                  <Separator className="my-2" />
-                  <div className="flex justify-between">
-                    <span className="font-medium">Jurisdiction:</span>
-                    <span>{details.emirate}</span>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Employee Data Rights (UAE PDPL)</p>
+                    <p className="text-sm">Right to access, correct, and request deletion of personal data</p>
                   </div>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Governing Law</p>
+                      <Badge>UAE Federal Decree-Law No. 33 of 2021</Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Jurisdiction</p>
+                      <Badge>{details.emirate}</Badge>
+                    </div>
+                  </div>
+                  {details.freeZoneEmployment && (
+                    <>
+                      <Separator />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Free Zone</p>
+                        <Badge variant="outline">{details.freeZoneEmployment}</Badge>
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
 
+              {/* 11. ADDITIONAL TERMS */}
+              {(details.specialConditions || details.attachments) && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <IconFileText className="h-5 w-5" />
+                      Additional Terms
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4 space-y-3">
+                    {details.specialConditions && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Special Conditions</p>
+                        <p className="text-sm whitespace-pre-wrap">{details.specialConditions}</p>
+                      </div>
+                    )}
+                    {details.attachments && (
+                      <>
+                        <Separator />
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Attachments</p>
+                          <p className="text-sm whitespace-pre-wrap">{details.attachments}</p>
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* 12. COMPLIANCE SUMMARY */}
               <Alert className="bg-green-50 border-green-200">
                 <IconCircleCheck className="h-5 w-5 text-green-600" />
-                <AlertTitle className="text-green-900">Compliance Summary</AlertTitle>
+                <AlertTitle className="text-green-900">Employment Contract Compliance Summary</AlertTitle>
                 <AlertDescription className="text-sm text-green-800 space-y-1 mt-2">
                   <div className="grid grid-cols-2 gap-2">
                     <span>✓ All required fields completed</span>
+                    <span>✓ Parties clearly identified</span>
+                    <span>✓ Compensation breakdown detailed</span>
+                    <span>✓ Benefits explicitly listed</span>
+                    <span>✓ Working hours & leave clear</span>
+                    <span>✓ Termination provisions included</span>
+                    <span>✓ Probation details specified</span>
+                    <span>✓ IP ownership explicit</span>
+                    <span>✓ PDPL compliant</span>
                     <span>✓ UAE Labor Law compliant</span>
-                    <span>✓ PDPL notice included</span>
-                    <span>✓ Legal disclaimer included</span>
-                    <span>✓ Clear compensation breakdown</span>
-                    <span>✓ Benefits clearly listed</span>
-                    <span>✓ Termination provisions clear</span>
+                    <span>✓ Employee data rights included</span>
+                    <span>✓ Governing law established</span>
                   </div>
                 </AlertDescription>
               </Alert>
