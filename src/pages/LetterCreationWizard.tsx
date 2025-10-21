@@ -48,6 +48,7 @@ const LETTER_TYPES = [
   { value: "employment_termination", label: "Employment Termination Letter" },
   { value: "employment_contract", label: "Employment Contract" },
   { value: "lease_agreement", label: "Lease Agreement (Residential/Commercial)" },
+  { value: "lease_termination", label: "Lease Termination Notice" },
   { value: "nda", label: "Non-Disclosure Agreement" },
   { value: "workplace_complaint", label: "Workplace Complaint" },
   { value: "power_of_attorney", label: "Power of Attorney" },
@@ -659,6 +660,122 @@ export default function LetterCreationWizard() {
           { name: "specialConditions", label: "Special Conditions", type: "textarea", required: false },
           { name: "attachments", label: "Attachments (list)", type: "textarea", required: false },
         ];
+      case "lease_termination":
+        return [
+          // 1. Notice Information
+          { name: "noticeReference", label: "Notice Reference Number (optional)", type: "text", required: false, placeholder: "LTN-UAE-2025-0001" },
+          { name: "noticeDate", label: "Notice Date", type: "date", required: true },
+          { name: "deliveryMethod", label: "Delivery Method", type: "select", required: true, options: ["Registered Mail", "Hand Delivery", "Email", "Courier"] },
+          { name: "courierName", label: "Courier Name", type: "text", required: false },
+          { name: "trackingNumber", label: "Tracking Number", type: "text", required: false },
+          
+          // 2. Landlord Information
+          { name: "landlordName", label: "Landlord Full Legal Name", type: "text", required: true },
+          { name: "landlordId", label: "Landlord Emirates ID/Passport", type: "text", required: true },
+          { name: "landlordAddress", label: "Landlord Address", type: "textarea", required: true },
+          { name: "landlordPhone", label: "Landlord Phone", type: "tel", required: true, placeholder: "+971 XX XXX XXXX" },
+          { name: "landlordEmail", label: "Landlord Email", type: "email", required: true },
+          
+          // 3. Tenant Information
+          { name: "tenantName", label: "Tenant Full Legal Name", type: "text", required: true },
+          { name: "tenantId", label: "Tenant Emirates ID/Passport", type: "text", required: true },
+          { name: "tenantAddress", label: "Tenant Current Address (Property Address)", type: "textarea", required: true },
+          { name: "tenantPhone", label: "Tenant Phone", type: "tel", required: true, placeholder: "+971 XX XXX XXXX" },
+          { name: "tenantEmail", label: "Tenant Email", type: "email", required: true },
+          
+          // 4. Property Details
+          { name: "propertyAddress", label: "Property Full Address", type: "textarea", required: true },
+          { name: "propertyType", label: "Property Type", type: "select", required: true, options: ["Apartment", "Villa", "Townhouse", "Office", "Warehouse", "Shop", "Other"] },
+          { name: "unitNumber", label: "Unit/Plot Number", type: "text", required: true },
+          { name: "propertyArea", label: "Property Area (sq. meters)", type: "number", required: false },
+          { name: "propertyFeatures", label: "Property Identifying Features", type: "text", required: false },
+          
+          // 5. Original Lease Reference
+          { name: "originalLeaseDate", label: "Original Lease Date", type: "date", required: true },
+          { name: "leaseStartDate", label: "Lease Start Date", type: "date", required: true },
+          { name: "leaseEndDate", label: "Lease End Date", type: "date", required: true },
+          { name: "ejariNumber", label: "Ejari/Tawtheeq Registration Number", type: "text", required: false },
+          { name: "currentLeaseStatus", label: "Current Lease Status", type: "select", required: true, options: ["Active", "Expired", "Month-to-Month"] },
+          
+          // 6. Termination Reason & Grounds
+          { name: "terminationReason", label: "Termination Reason", type: "select", required: true, options: [
+            "Owner-Occupation (Personal Use)",
+            "Property Demolition",
+            "Major Renovation/Reconstruction",
+            "Property Sale",
+            "Non-Payment of Rent",
+            "Property Damage/Misuse",
+            "Unauthorized Subletting",
+            "Breach of Lease Terms",
+            "Mutual Agreement",
+            "Lease Expiry (Non-Renewal)"
+          ]},
+          { name: "legalBasis", label: "Legal Basis/Article Reference", type: "text", required: true, placeholder: "e.g., UAE Federal Law No. 26 of 2007, Article 25(1)(a)" },
+          { name: "terminationDescription", label: "Detailed Reason Description", type: "textarea", required: true },
+          { name: "supportingDocs", label: "Supporting Documentation (list attachments)", type: "textarea", required: false },
+          { name: "priorWarnings", label: "Prior Warnings Issued?", type: "select", required: true, options: ["Yes", "No"] },
+          { name: "priorWarningDates", label: "Prior Warning Dates (if Yes)", type: "textarea", required: false },
+          
+          // 7. Notice Period
+          { name: "noticePeriodDays", label: "Notice Period Provided (days)", type: "number", required: true },
+          { name: "noticeEffectiveDate", label: "Notice Effective Date (date notice delivered)", type: "date", required: true },
+          { name: "terminationDate", label: "Termination Effective Date (vacate date)", type: "date", required: true },
+          { name: "minNoticePeriod", label: "Minimum Legal Notice Period (days)", type: "number", required: true },
+          { name: "noticePeriodCompliance", label: "Notice Period Compliance Statement", type: "textarea", required: true, placeholder: "This notice period complies with UAE Federal Law No. 26 of 2007..." },
+          
+          // 8. Property Handover Requirements
+          { name: "cleanlinessStandard", label: "Cleanliness Standard Required", type: "select", required: true, options: ["Professional Cleaning", "Move-In Standard", "As-Is"] },
+          { name: "keysToReturn", label: "Keys to Return (list all)", type: "textarea", required: true, placeholder: "Main door keys, mailbox keys, storage keys, etc." },
+          { name: "repairsRequired", label: "Repairs Required", type: "textarea", required: true },
+          { name: "utilitiesFinal", label: "Utilities Final Settlement", type: "textarea", required: true },
+          { name: "moveOutInspection", label: "Move-Out Inspection Required?", type: "select", required: true, options: ["Yes", "No"] },
+          { name: "inspectionContact", label: "Inspection Contact Person", type: "text", required: false },
+          { name: "inspectionPhone", label: "Inspection Contact Phone", type: "tel", required: false },
+          { name: "inspectionEmail", label: "Inspection Contact Email", type: "email", required: false },
+          
+          // 9. Security Deposit
+          { name: "securityDeposit", label: "Security Deposit Amount (AED)", type: "number", required: true },
+          { name: "depositReturnDays", label: "Deposit Return Timeline (days)", type: "number", required: true },
+          { name: "depositDeductions", label: "Permitted Deductions (list all)", type: "textarea", required: true },
+          { name: "depositReturnMethod", label: "Deposit Return Method", type: "select", required: true, options: ["Bank Transfer", "Cheque"] },
+          { name: "tenantBankAccount", label: "Tenant Bank Account (for refund)", type: "text", required: false },
+          
+          // 10. Final Account Settlement
+          { name: "finalRentDue", label: "Final Rent Amount Due (AED)", type: "number", required: false },
+          { name: "utilitiesOwed", label: "Outstanding Utilities (AED)", type: "number", required: false },
+          { name: "otherOwed", label: "Other Amounts Owed (AED)", type: "number", required: false },
+          { name: "otherDescription", label: "Other Amounts Description", type: "text", required: false },
+          { name: "totalAmountDue", label: "Total Amount Due (AED)", type: "number", required: true },
+          { name: "paymentDeadline", label: "Payment Deadline", type: "date", required: true },
+          { name: "paymentMethod", label: "Payment Method", type: "select", required: true, options: ["Bank Transfer", "Cheque", "Cash"] },
+          
+          // 11. Consequences of Non-Compliance
+          { name: "dailyOccupationCharge", label: "Daily Occupation Charge (AED)", type: "number", required: true },
+          { name: "legalActionTimeline", label: "Legal Action Timeline", type: "text", required: true },
+          { name: "estimatedFilingDate", label: "Estimated Court Filing Date", type: "date", required: false },
+          { name: "additionalConsequences", label: "Additional Consequences", type: "textarea", required: true },
+          
+          // 12. Tenant Rights
+          { name: "disputeFilingDays", label: "Dispute Filing Deadline (days from notice)", type: "number", required: true },
+          { name: "disputeAuthority", label: "Rental Dispute Centre Contact", type: "text", required: true, placeholder: "Dubai Rental Dispute Centre: 600 522 222 / www.rdc.ae" },
+          { name: "tenantRightsSummary", label: "Tenant Rights Summary", type: "textarea", required: true },
+          
+          // 13. Forwarding Address
+          { name: "forwardingAddressDeadline", label: "Forwarding Address Deadline (days)", type: "number", required: true },
+          
+          // 14. Governing Law
+          { name: "emirate", label: "Emirate (Jurisdiction)", type: "select", required: true, options: ["Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Umm Al Quwain", "Ras Al Khaimah", "Fujairah"] },
+          { name: "applicableLaws", label: "Applicable Laws", type: "textarea", required: true },
+          
+          // 15. Data Protection
+          { name: "dataRetentionPeriod", label: "Data Retention Period", type: "select", required: true, options: ["7 years", "10 years", "As required by law"] },
+          { name: "dataProtectionEmail", label: "Data Protection Contact Email", type: "email", required: true },
+          
+          // 16. Witness & Delivery
+          { name: "witnessName", label: "Witness Name", type: "text", required: false },
+          { name: "deliveryConfirmationMethod", label: "Delivery Confirmation Method", type: "select", required: true, options: ["Registered Mail", "Hand Delivery", "Email", "Courier"] },
+          { name: "tenantReceiptDate", label: "Tenant Receipt Date", type: "date", required: false },
+        ];
       case "general_legal":
         return [
           { name: "senderName", label: "Sender Name", type: "text", required: true },
@@ -1042,6 +1159,68 @@ export default function LetterCreationWizard() {
           errors.push(`Required field missing: ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
         }
       }
+    } else if (letterType === 'lease_termination') {
+      const requiredFields = ['noticeDate', 'deliveryMethod', 'landlordName', 'landlordId', 'landlordAddress', 'landlordPhone', 'landlordEmail',
+        'tenantName', 'tenantId', 'tenantAddress', 'tenantPhone', 'tenantEmail', 'propertyAddress', 'propertyType', 'unitNumber',
+        'originalLeaseDate', 'leaseStartDate', 'leaseEndDate', 'currentLeaseStatus', 'terminationReason', 'legalBasis', 'terminationDescription',
+        'priorWarnings', 'noticePeriodDays', 'noticeEffectiveDate', 'terminationDate', 'minNoticePeriod', 'noticePeriodCompliance',
+        'cleanlinessStandard', 'keysToReturn', 'repairsRequired', 'utilitiesFinal', 'moveOutInspection', 'securityDeposit', 'depositReturnDays',
+        'depositDeductions', 'depositReturnMethod', 'totalAmountDue', 'paymentDeadline', 'paymentMethod', 'dailyOccupationCharge',
+        'legalActionTimeline', 'additionalConsequences', 'disputeFilingDays', 'disputeAuthority', 'tenantRightsSummary',
+        'forwardingAddressDeadline', 'emirate', 'applicableLaws', 'dataRetentionPeriod', 'dataProtectionEmail', 'deliveryConfirmationMethod'];
+      
+      for (const field of requiredFields) {
+        if (!details[field] || (typeof details[field] === 'string' && !details[field].trim())) {
+          errors.push(`Required field missing: ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+        }
+      }
+      
+      if (details.deliveryMethod === 'Courier') {
+        if (!details.courierName) errors.push("Courier name required when delivery method is Courier");
+        if (!details.trackingNumber) errors.push("Tracking number required when delivery method is Courier");
+      }
+      if (details.priorWarnings === 'Yes' && !details.priorWarningDates) errors.push("Prior warning dates required when warnings issued");
+      if (details.moveOutInspection === 'Yes') {
+        if (!details.inspectionContact) errors.push("Inspection contact required when inspection is required");
+        if (!details.inspectionPhone) errors.push("Inspection phone required when inspection is required");
+        if (!details.inspectionEmail) errors.push("Inspection email required when inspection is required");
+      }
+      if (details.depositReturnMethod === 'Bank Transfer' && !details.tenantBankAccount) {
+        toast({ title: "Bank account recommended", description: "Bank account details recommended for deposit refund", variant: "default" });
+      }
+      
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (details.landlordEmail && !emailRegex.test(details.landlordEmail)) errors.push("Landlord email must be valid");
+      if (details.tenantEmail && !emailRegex.test(details.tenantEmail)) errors.push("Tenant email must be valid");
+      if (details.dataProtectionEmail && !emailRegex.test(details.dataProtectionEmail)) errors.push("Data protection email must be valid");
+      if (details.inspectionEmail && !emailRegex.test(details.inspectionEmail)) errors.push("Inspection email must be valid");
+      
+      const uaePhoneRegex = /^\+971\s?\d{1,2}\s?\d{3}\s?\d{4}$/;
+      if (details.landlordPhone && !uaePhoneRegex.test(details.landlordPhone)) errors.push("Landlord phone must be UAE format: +971 XX XXX XXXX");
+      if (details.tenantPhone && !uaePhoneRegex.test(details.tenantPhone)) errors.push("Tenant phone must be UAE format: +971 XX XXX XXXX");
+      if (details.inspectionPhone && !uaePhoneRegex.test(details.inspectionPhone)) errors.push("Inspection phone must be UAE format: +971 XX XXX XXXX");
+      
+      const startDate = new Date(details.leaseStartDate);
+      const endDate = new Date(details.leaseEndDate);
+      const originalDate = new Date(details.originalLeaseDate);
+      const noticeEffective = new Date(details.noticeEffectiveDate);
+      const terminationDate = new Date(details.terminationDate);
+      const today = new Date();
+      
+      if (isAfter(originalDate, startDate)) errors.push("Original lease date cannot be after lease start date");
+      if (!isAfter(endDate, startDate)) errors.push("Lease end date must be after start date");
+      if (isAfter(noticeEffective, today)) errors.push("Notice effective date cannot be in future");
+      if (!isAfter(terminationDate, noticeEffective)) errors.push("Termination date must be after notice effective date");
+      
+      const daysDiff = Math.floor((terminationDate.getTime() - noticeEffective.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysDiff < details.minNoticePeriod) errors.push(`Notice period (${daysDiff} days) is less than minimum required (${details.minNoticePeriod} days)`);
+      if (Math.abs(daysDiff - details.noticePeriodDays) > 1) errors.push("Notice period days doesn't match calculated period between dates");
+      
+      if (details.securityDeposit <= 0) errors.push("Security deposit must be positive");
+      if (details.totalAmountDue < 0) errors.push("Total amount due cannot be negative");
+      if (details.dailyOccupationCharge <= 0) errors.push("Daily occupation charge must be positive");
+      if (details.depositReturnDays > 90) toast({ title: "Long deposit return period", description: "Deposit return period exceeds typical 30-60 days", variant: "default" });
+    }
 
       // === CONDITIONAL REQUIRED FIELDS ===
       if (details.autoRenewal === 'Yes') {

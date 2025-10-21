@@ -1645,7 +1645,290 @@ Date: _______________________
 
 PLACEHOLDERS:
 Replace ALL bracketed placeholders with actual information. Do NOT leave any [bracketed text] in final output.`,
-  lease_termination: `Generate a formal lease termination notice following UAE tenancy laws.`,
+  lease_termination: `LEASE TERMINATION NOTICE
+
+===== DOCUMENT HEADER =====
+
+LEASE TERMINATION NOTICE
+[If noticeReference provided: "Reference: [noticeReference]", else: "Reference: LTN-UAE-[CURRENT_YEAR]-AUTO"]
+Date: [noticeDate format: DD MMMM YYYY]
+Delivery Method: [deliveryMethod]
+[If deliveryMethod is "Courier": "Courier: [courierName] | Tracking: [trackingNumber]"]
+
+===== SECTION 1: PARTIES IDENTIFICATION =====
+
+LANDLORD (Terminating Party):
+• Name: [landlordName]
+• Emirates ID/Passport: [landlordId]
+• Address: [landlordAddress]
+• Phone: [landlordPhone]
+• Email: [landlordEmail]
+
+TENANT (Recipient):
+• Name: [tenantName]
+• Emirates ID/Passport: [tenantId]
+• Current Address: [tenantAddress]
+• Phone: [tenantPhone]
+• Email: [tenantEmail]
+
+===== SECTION 2: PROPERTY IDENTIFICATION =====
+
+PROPERTY DETAILS:
+• Address: [propertyAddress]
+• Property Type: [propertyType]
+• Unit/Plot Number: [unitNumber]
+[If propertyArea provided: "• Area: [propertyArea] sq. meters"]
+[If propertyFeatures provided: "• Identifying Features: [propertyFeatures]"]
+
+===== SECTION 3: ORIGINAL LEASE REFERENCE =====
+
+ORIGINAL LEASE:
+• Lease Date: [originalLeaseDate format: DD MMMM YYYY]
+• Lease Start: [leaseStartDate format: DD MMMM YYYY]
+• Lease End: [leaseEndDate format: DD MMMM YYYY]
+[If ejariNumber provided: "• Registration Number: [ejariNumber]"]
+• Current Status: [currentLeaseStatus]
+
+===== SECTION 4: TERMINATION REASON & LEGAL GROUNDS =====
+
+REASON FOR TERMINATION:
+[terminationReason]
+
+LEGAL BASIS:
+[legalBasis]
+
+DETAILED EXPLANATION:
+[terminationDescription]
+
+[If supportingDocs provided]
+SUPPORTING DOCUMENTATION:
+[supportingDocs]
+
+[If priorWarnings is "Yes"]
+PRIOR WARNINGS ISSUED:
+[priorWarningDates]
+
+===== SECTION 5: NOTICE PERIOD SPECIFICATION =====
+
+NOTICE PERIOD PROVIDED: [noticePeriodDays] days
+LEGAL REQUIREMENT: [minNoticePeriod] days minimum
+NOTICE EFFECTIVE DATE: [noticeEffectiveDate format: DD MMMM YYYY]
+TERMINATION EFFECTIVE DATE: [terminationDate format: DD MMMM YYYY]
+
+COMPLIANCE STATEMENT:
+[noticePeriodCompliance]
+
+===== SECTION 6: PROPERTY CONDITION & HANDOVER OBLIGATIONS =====
+
+TENANT MUST RETURN PROPERTY IN SAME CONDITION (normal wear excepted):
+
+CLEANLINESS STANDARD REQUIRED: [cleanlinessStandard]
+
+KEYS & ACCESS DEVICES TO RETURN:
+[keysToReturn]
+
+REPAIRS REQUIRED:
+[repairsRequired]
+
+UTILITIES FINAL SETTLEMENT:
+[utilitiesFinal]
+
+===== SECTION 7: MOVE-OUT INSPECTION & HANDOVER =====
+
+[If moveOutInspection is "Yes"]
+INSPECTION PROCEDURE:
+• Contact: [inspectionContact]
+• Phone: [inspectionPhone]
+• Email: [inspectionEmail]
+• Schedule inspection between [noticeEffectiveDate] and [terminationDate]
+• Joint inspection with landlord/representative
+• Condition report to be documented with photos
+• Both parties sign condition report
+• Any disputes documented immediately
+
+===== SECTION 8: SECURITY DEPOSIT SETTLEMENT =====
+
+DEPOSIT AMOUNT: AED [securityDeposit]
+
+RETURN TIMELINE:
+Deposit returned within [depositReturnDays] days after:
+• Lease termination date
+• Final inspection completed
+• All keys handed over
+• All utilities settled
+• Property condition verified
+
+PERMITTED DEDUCTIONS:
+[depositDeductions]
+
+DEDUCTION PROCESS:
+• Itemized deduction list provided
+• Supporting documentation (receipts/invoices)
+• Balance returned via [depositReturnMethod]
+[If depositReturnMethod is "Bank Transfer" and tenantBankAccount provided: "• Account: [tenantBankAccount]"]
+
+DISPUTE RESOLUTION:
+If tenant disputes deductions, contact Rental Dispute Centre within 30 days.
+
+===== SECTION 9: FINAL ACCOUNT SETTLEMENT =====
+
+AMOUNTS DUE FROM TENANT:
+[If finalRentDue provided: "• Final Rent: AED [finalRentDue]"]
+[If utilitiesOwed provided: "• Utilities: AED [utilitiesOwed]"]
+[If otherOwed provided: "• [otherDescription]: AED [otherOwed]"]
+TOTAL DUE: AED [totalAmountDue]
+
+PAYMENT DEADLINE: [paymentDeadline format: DD MMMM YYYY]
+PAYMENT METHOD: [paymentMethod]
+
+===== SECTION 10: CONSEQUENCES OF NON-COMPLIANCE =====
+
+FAILURE TO VACATE BY [terminationDate format: DD MMMM YYYY]:
+
+Landlord may:
+• File eviction case with Rental Dispute Centre
+• Seek court order for eviction
+• Claim compensation for continued occupation
+• Place lien on security deposit
+• Report to credit authorities
+
+FINANCIAL CONSEQUENCES:
+• Daily occupation charge: AED [dailyOccupationCharge] per day
+• Legal fees: Tenant responsible
+• Compensation: As awarded by court/RDC
+
+LEGAL ACTION TIMELINE:
+[legalActionTimeline]
+[If estimatedFilingDate provided: "• Court/RDC filing: [estimatedFilingDate format: DD MMMM YYYY]"]
+
+PROPERTY DAMAGE:
+• Tenant liable for all damage beyond normal wear
+• Landlord may claim repair costs exceeding deposit
+• Legal action for recovery
+
+ADDITIONAL CONSEQUENCES:
+[additionalConsequences]
+
+===== SECTION 11: TENANT RIGHTS & PROTECTIONS =====
+
+YOUR RIGHTS UNDER UAE TENANCY LAW:
+• Right to proper notice period per law and contract
+• Right to peaceful possession until [terminationDate]
+• Right to security deposit return (minus lawful deductions)
+• Right to dispute termination with Rental Dispute Centre
+• Right to receive itemized deduction list
+• Right to participate in final inspection
+• Right to challenge unlawful eviction
+
+TIME TO FILE DISPUTE:
+You have [disputeFilingDays] days from receipt to challenge termination.
+
+CONTACT AUTHORITY:
+[disputeAuthority]
+
+PROTECTION AGAINST UNLAWFUL EVICTION:
+• Landlord cannot forcibly evict without court order
+• Landlord cannot change locks while in possession
+• Landlord cannot remove belongings
+• Landlord cannot shut off utilities to force eviction
+
+TENANT RIGHTS SUMMARY:
+[tenantRightsSummary]
+
+===== SECTION 12: FORWARDING ADDRESS & CONTACT =====
+
+TENANT MUST PROVIDE WITHIN [forwardingAddressDeadline] DAYS:
+• New/forwarding address
+• Contact phone
+• Contact email
+
+PURPOSE:
+Security deposit refund, final statements, utility bills, legal notices, correspondence.
+
+===== SECTION 13: GOVERNING LAW & DISPUTE RESOLUTION =====
+
+APPLICABLE LAWS:
+[applicableLaws]
+
+JURISDICTION:
+Emirate: [emirate]
+Disputes subject to [emirate] courts and authorities
+
+DISPUTE RESOLUTION PROCESS:
+
+1. AMICABLE RESOLUTION (30 days):
+   Parties attempt direct negotiation
+
+2. RENTAL DISPUTE CENTRE / AUTHORITY:
+   [disputeAuthority]
+
+3. COURT APPEAL (if necessary):
+   Appeal RDC/authority decision to courts
+
+===== SECTION 14: DATA PROTECTION & PDPL COMPLIANCE =====
+
+PERSONAL DATA PROCESSING:
+This notice involves processing personal data per UAE Federal Decree-Law No. 45 of 2021 (PDPL).
+
+YOUR DATA RIGHTS:
+
+RIGHT TO ACCESS:
+• Request access to personal data held by landlord
+• Request copies of tenancy records
+• Landlord responds within 15 business days
+
+RIGHT TO RECTIFICATION:
+• Request correction of inaccurate data
+• Landlord updates within 10 business days
+
+RIGHT TO ERASURE:
+• Request deletion after obligations fulfilled
+• Note: Landlord must retain certain data for legal compliance ([dataRetentionPeriod])
+
+RIGHT TO OBJECT:
+• Object to certain data processing
+• Landlord reviews within 30 days
+
+RIGHT TO LODGE COMPLAINT:
+• Contact UAE Data Office if rights violated
+• Website: www.uaedpo.gov.ae
+
+DATA RETENTION:
+Records retained for [dataRetentionPeriod] as required by UAE law.
+
+DATA PROTECTION CONTACT:
+Email: [dataProtectionEmail]
+
+===== SECTION 15: ACKNOWLEDGMENT & SIGNATURE =====
+
+LANDLORD DECLARATION:
+I, [landlordName], serve this Lease Termination Notice per UAE tenancy law and original lease agreement.
+All information is true and accurate.
+
+Landlord Signature: _____________________
+Name: [landlordName]
+Date: [noticeDate format: DD MMMM YYYY]
+
+[If witnessName provided]
+WITNESS:
+Name: [witnessName]
+Signature: _____________________
+Date: _____________________
+
+TENANT ACKNOWLEDGMENT:
+I acknowledge receipt of this Lease Termination Notice.
+
+Tenant Signature: _____________________
+Name: [tenantName]
+Date: _____________________
+
+DELIVERY CONFIRMATION:
+Notice delivered via: [deliveryConfirmationMethod]
+[If tenantReceiptDate provided: "Tenant acknowledged receipt on: [tenantReceiptDate format: DD MMMM YYYY]"]
+
+---END OF LEASE TERMINATION NOTICE---
+
+PLACEHOLDERS: Replace ALL bracketed placeholders with actual information. Do NOT leave any [bracketed text] in final output.`,
   demand_letter: `Generate a comprehensive formal demand letter for payment or action, compliant with UAE legal requirements.
 
 CRITICAL REQUIREMENTS - MUST INCLUDE ALL OF THESE:
@@ -2333,6 +2616,307 @@ Both parties acknowledge:
 • Voluntary entry into this agreement
 • Receipt of copy of signed lease agreement
 • Awareness of rights and obligations under UAE tenancy law`;
+
+const LEASE_TERMINATION_LEGAL_CLAUSES = `
+
+LEGAL FRAMEWORK FOR LEASE TERMINATION IN UAE:
+
+UAE FEDERAL LAW NO. 26 OF 2007:
+This federal law regulates relationship between landlords and tenants across UAE.
+
+KEY TERMINATION PROVISIONS:
+• Article 25: Grounds for lease termination
+• Article 25(1): Landlord-initiated termination with 12 months notice
+• Article 25(2): Termination for tenant breach
+• Notice requirements strictly enforced by courts
+
+DUBAI LAW NO. 26 OF 2007 (AS AMENDED BY LAW NO. 33 OF 2008):
+Specific to Dubai properties registered with RERA.
+
+KEY PROVISIONS:
+• 12 months notice for owner-occupation (personal use)
+• 12 months notice for demolition/major renovation
+• 90 days notice for non-renewal (at lease expiry)
+• 30 days notice for non-payment after written demand
+• Tenant protection against arbitrary eviction
+
+ABU DHABI LAW NO. 20 OF 2006:
+Governs tenancy relationships in Abu Dhabi.
+
+KEY PROVISIONS:
+• Similar notice requirements to federal law
+• Tawtheeq registration mandatory
+• Rent increase caps apply
+• Dispute resolution through Municipality
+
+VALID GROUNDS FOR LANDLORD TERMINATION:
+
+1. OWNER-OCCUPATION (ARTICLE 25(1)(a)):
+• Landlord needs property for personal use
+• Must provide 12 months written notice
+• Must intend to actually occupy (not resell immediately)
+• May require sworn affidavit
+• Tenant may challenge if landlord doesn't occupy within reasonable time
+• False declaration may result in penalties
+
+2. PROPERTY DEMOLITION (ARTICLE 25(1)(b)):
+• Landlord intends to demolish property
+• Must provide 12 months written notice
+• Demolition permit from municipality required
+• Tenant may be entitled to compensation (check local law)
+• Landlord must actually proceed with demolition
+
+3. MAJOR RENOVATION/RECONSTRUCTION (ARTICLE 25(1)(c)):
+• Property requires substantial renovation
+• Must provide 12 months written notice
+• Municipality approval/permit required
+• Tenant may have right of first refusal after completion
+• Renovation must be genuine and substantial
+
+4. NON-PAYMENT OF RENT (ARTICLE 25(2)(a)):
+• Tenant failed to pay rent
+• 30 days written notice required
+• Notice must demand payment with deadline
+• Landlord must provide evidence of non-payment
+• Bounced cheque constitutes non-payment
+
+5. PROPERTY DAMAGE/MISUSE (ARTICLE 25(2)(b)):
+• Tenant caused substantial damage
+• Tenant using property contrary to lease terms
+• Evidence of damage/misuse required
+• Opportunity to remedy may be required (depending on severity)
+
+6. LEASE EXPIRY:
+• Contract term ends
+• Notice requirements vary by emirate
+• Dubai: 90 days notice for non-renewal
+• No automatic renewal OR renewal notice properly given
+
+NOTICE PERIOD REQUIREMENTS:
+
+RESIDENTIAL PROPERTIES:
+• Owner-occupation: 12 months minimum
+• Demolition/renovation: 12 months minimum
+• Non-payment: 30 days after written demand
+• Lease expiry: 90 days (Dubai), check contract (other emirates)
+• Mutual agreement: As agreed
+
+COMMERCIAL PROPERTIES:
+• Generally as per lease contract
+• Federal law provides minimum protections
+• Commercial leases have more flexibility
+• Notice periods often negotiated
+
+NOTICE DELIVERY METHODS:
+• Registered mail (proof of delivery)
+• Hand delivery (signed acknowledgment)
+• Email (if agreed in lease)
+• Courier with tracking
+• Notarized delivery
+• Through Rental Dispute Centre
+
+TENANT RIGHTS & PROTECTIONS:
+
+RIGHT TO PROPER NOTICE:
+• Tenant entitled to full notice period as per law and contract
+• Notice period starts from date of proper delivery
+• Insufficient notice renders termination invalid
+• Tenant may challenge inadequate notice with RDC
+
+RIGHT TO CHALLENGE TERMINATION:
+• 30 days from receipt to file dispute with RDC
+• Tenant may challenge grounds for termination
+• Tenant may challenge notice period
+• RDC will mediate and decide
+
+RIGHT TO PEACEFUL POSSESSION:
+• Tenant has right to remain until termination date
+• Landlord cannot forcibly evict
+• Landlord cannot change locks
+• Landlord cannot shut off utilities
+• Landlord cannot remove belongings
+
+RIGHT TO SECURITY DEPOSIT:
+• Deposit must be returned (minus lawful deductions)
+• Itemized deduction list required
+• Return within reasonable time (typically 30-60 days)
+• Tenant may dispute deductions with RDC
+
+LANDLORD OBLIGATIONS:
+
+PROPER NOTICE:
+• Written notice in clear language
+• Specify termination reason with legal basis
+• State termination date clearly
+• Provide notice period compliant with law
+• Deliver notice properly with proof
+
+CANNOT SELF-HELP EVICT:
+• Must obtain court order for eviction
+• Cannot forcibly remove tenant
+• Cannot change locks while tenant in possession
+• Cannot intimidate or harass tenant
+• Violations may result in penalties and damages
+
+MUST RETURN DEPOSIT:
+• Within reasonable time after vacate
+• Provide itemized deduction list
+• Withhold only for lawful purposes
+• Cannot use deposit as leverage
+
+EVICTION PROCEDURES:
+
+IF TENANT REFUSES TO VACATE:
+
+Step 1: Proper Notice Served
+• Ensure notice period complies with law
+• Obtain proof of delivery
+
+Step 2: File Case with RDC (Dubai) / Equivalent
+• Submit termination notice
+• Provide lease agreement
+• Provide evidence of grounds
+• Pay filing fees
+
+Step 3: Mediation Attempt
+• RDC will attempt mediation
+• Both parties present cases
+• Settlement may be reached
+
+Step 4: RDC Decision
+• If mediation fails, RDC issues decision
+• Binding on both parties
+• Appeal possible to courts
+
+Step 5: Eviction Order
+• If RDC rules in landlord's favor
+• Court issues eviction order
+• Police may assist with eviction
+
+Step 6: Forced Eviction (if necessary)
+• Court order executed
+• Police present during eviction
+• Tenant belongings inventoried
+• Property handed over to landlord
+
+SECURITY DEPOSIT DISPUTES:
+
+COMMON DISPUTES:
+• Amount of normal wear and tear
+• Cleaning standards
+• Repair costs
+• Utility settlements
+• Damage vs. aging
+
+RESOLUTION PROCESS:
+1. Request itemized deduction list
+2. Negotiate with landlord
+3. If unresolved, file with RDC within 30 days
+4. RDC will mediate
+5. RDC issues decision
+6. Court appeal if necessary
+
+EVIDENCE TO RETAIN:
+• Move-in condition report
+• Move-out condition report
+• Photos/videos at move-in and move-out
+• Maintenance requests history
+• Repair receipts
+• Cleaning receipts
+• Communication with landlord
+
+RENT INCREASE RESTRICTIONS:
+
+DUBAI RERA INDEX:
+• Rent increases subject to RERA calculator
+• Maximum increase based on property type and current rent
+• No increase if current rent within 10% of market rate
+• Calculator available at www.rdc.ae
+
+NOTICE REQUIREMENTS:
+• 90 days advance notice for rent increase
+• Increase only permitted at renewal
+• Cannot increase during lease term
+
+OTHER EMIRATES:
+• Check specific emirate regulations
+• Generally similar restrictions apply
+• Municipality has authority
+
+IMPORTANT DEADLINES:
+
+TENANT MUST:
+• File RDC dispute within 30 days of notice receipt
+• Vacate by termination date or face consequences
+• Pay final amounts owed by deadline
+• Schedule move-out inspection in advance
+• Provide forwarding address
+• Return all keys and access devices
+
+LANDLORD MUST:
+• Serve proper notice with adequate notice period
+• Cannot evict without court order
+• Return deposit within reasonable time
+• Provide itemized deduction list
+• File eviction case if tenant doesn't vacate
+
+CONTACT AUTHORITIES:
+
+DUBAI:
+• Dubai Rental Dispute Centre: 600 522 222 / www.rdc.ae
+• RERA: www.rdc.ae
+• Dubai Land Department: 600 545 555
+
+ABU DHABI:
+• Rental Dispute Settlement Centre: 800 555
+• Abu Dhabi Municipality: 800 555
+• Tawtheeq: www.tawtheeq.ae
+
+OTHER EMIRATES:
+• Contact respective municipality
+• Local rental dispute centers
+
+PENALTIES FOR VIOLATIONS:
+
+LANDLORD VIOLATIONS:
+• Unlawful eviction: Fines and damages
+• Utility shut-off: Fines and damages
+• Harassment: Criminal penalties
+• False owner-occupation claim: Penalties and damages
+• Excessive deposit deductions: Must refund with interest
+
+TENANT VIOLATIONS:
+• Failure to vacate: Daily occupation charges
+• Property damage: Liable for repair costs
+• Unpaid rent: Legal action, possible criminal case (bounced cheque)
+• Refusal to allow inspection: Breach of lease
+
+MUTUAL TERMINATION:
+
+AGREEMENT ELEMENTS:
+• Both parties consent in writing
+• Termination date agreed
+• Settlement of accounts agreed
+• Security deposit disposition agreed
+• Property handover terms agreed
+• Release of claims agreed
+
+BENEFITS:
+• No court involvement
+• Flexible terms
+• Faster resolution
+• Lower costs
+• Preserve relationship
+
+DOCUMENTATION:
+• Written mutual termination agreement
+• Signed by both parties
+• Specify all terms clearly
+• Notarized (recommended)
+• Copy for each party
+
+This notice is issued in compliance with UAE tenancy laws to protect the rights of both landlord and tenant.`;
+
 
 
 This non-disparagement obligation survives the termination or completion of this Settlement Agreement.]"
@@ -3606,6 +4190,10 @@ Generate the complete letter now.`;
 
   if (letterType === 'lease_agreement') {
     letterContent += LEASE_AGREEMENT_LEGAL_CLAUSES;
+  }
+
+  if (letterType === 'lease_termination') {
+    letterContent += LEASE_TERMINATION_LEGAL_CLAUSES;
   }
 
     // Deduct credits (queries_used is the DB column name)
