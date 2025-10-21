@@ -267,6 +267,164 @@ export default function LetterCreationWizard() {
         { key: "previousCorrespondence", label: "Previous Correspondence/Attempts to Resolve", placeholder: "Describe any previous attempts to resolve this matter (dates, methods, outcomes). This strengthens your position.", multiline: true },
         { key: "urgency", label: "Urgency Level", type: "select", options: ["Standard", "Urgent - Time-sensitive matter", "Extremely Urgent - Immediate action required"], required: true },
       ],
+      settlement_agreement: [
+        // AGREEMENT REFERENCE & CONTEXT
+        { key: "agreementReference", label: "Agreement Reference Number (Optional)", placeholder: "e.g., SA-2025-001" },
+        { key: "agreementDate", label: "Agreement Date", type: "date", placeholder: "Date of agreement execution", required: true },
+        { key: "agreementLocation", label: "Agreement Location (Emirate)", placeholder: "e.g., Dubai, Abu Dhabi", required: true },
+
+        // PARTY A INFORMATION
+        { key: "partyAName", label: "Party A - Full Legal Name", placeholder: "Full name as appears on Emirates ID", required: true },
+        { key: "partyAEmiratesId", label: "Party A - Emirates ID / Passport", placeholder: "784-XXXX-XXXXXXX-X", required: true },
+        { key: "partyAAddress", label: "Party A - Address", placeholder: "Full address", multiline: true, required: true },
+        { key: "partyAEmail", label: "Party A - Email", placeholder: "email@example.com", required: true },
+        { key: "partyAPhone", label: "Party A - Phone", placeholder: "+971 XX XXX XXXX", required: true },
+        { key: "partyALegalRep", label: "Party A - Legal Representative (if applicable)", placeholder: "Full name of authorized representative" },
+        { key: "partyALegalRepId", label: "Party A - Legal Rep Emirates ID (if applicable)", placeholder: "784-XXXX-XXXXXXX-X" },
+
+        // PARTY B INFORMATION
+        { key: "partyBName", label: "Party B - Full Legal Name", placeholder: "Full name as appears on Emirates ID", required: true },
+        { key: "partyBEmiratesId", label: "Party B - Emirates ID / Passport", placeholder: "784-XXXX-XXXXXXX-X", required: true },
+        { key: "partyBAddress", label: "Party B - Address", placeholder: "Full address", multiline: true, required: true },
+        { key: "partyBEmail", label: "Party B - Email", placeholder: "email@example.com", required: true },
+        { key: "partyBPhone", label: "Party B - Phone", placeholder: "+971 XX XXX XXXX", required: true },
+        { key: "partyBLegalRep", label: "Party B - Legal Representative (if applicable)", placeholder: "Full name of authorized representative" },
+        { key: "partyBLegalRepId", label: "Party B - Legal Rep Emirates ID (if applicable)", placeholder: "784-XXXX-XXXXXXX-X" },
+
+        // DISPUTE DESCRIPTION
+        { key: "natureOfDispute", label: "Nature of Dispute", type: "select", options: [
+          "Contract Dispute",
+          "Employment Dispute",
+          "Commercial Dispute",
+          "Property Dispute",
+          "Personal Injury",
+          "Partnership Dissolution",
+          "Intellectual Property",
+          "Other"
+        ], required: true },
+        { key: "disputeDescription", label: "Detailed Dispute Description (Be precise and unambiguous)", placeholder: "Describe the dispute in detail. Include: What happened, when, where, who was involved, and what obligations were not fulfilled.", multiline: true, required: true },
+        { key: "disputeOriginDate", label: "Dispute Origin Date", type: "date", placeholder: "When did this dispute begin?", required: true },
+        { key: "disputeReference", label: "Dispute Reference (case number, contract reference, etc.)", placeholder: "e.g., Court Case No. 123/2024, Contract Ref ABC-2023" },
+        { key: "previousAttempts", label: "Previous Attempts to Resolve", placeholder: "Describe any previous attempts: negotiations, mediation, emails, meetings, etc.", multiline: true, required: true },
+
+        // SETTLEMENT TERMS & CONDITIONS
+        { key: "settlementObjective", label: "Settlement Objective", placeholder: "What is being settled? (e.g., Full settlement of contract dispute, resolution of employment claims)", required: true },
+        { key: "settlementTerms", label: "Key Settlement Terms (Main obligations of each party)", placeholder: "List the key settlement terms and obligations for each party", multiline: true, required: true },
+        { key: "conditionsPrecedent", label: "Conditions Precedent (if any)", placeholder: "Any conditions that must be satisfied before settlement is effective? (e.g., Board approval, regulatory approval)", multiline: true },
+        { key: "performanceTimeline", label: "Performance Timeline", placeholder: "e.g., Within 30 days of execution, By 31 December 2025" },
+        { key: "nonMonetaryObligations", label: "Non-Monetary Obligations (if any)", placeholder: "Any non-payment obligations? (e.g., Return of property, deletion of data, public statement)", multiline: true },
+        { key: "deliveryRequirements", label: "Delivery Requirements (if any)", placeholder: "How should obligations be delivered? (e.g., Certified mail, hand delivery, email confirmation)" },
+
+        // PAYMENT TERMS (IF APPLICABLE)
+        { key: "paymentInvolved", label: "Is Payment Involved?", type: "select", options: ["Yes", "No"], required: true },
+        { key: "settlementAmount", label: "Total Settlement Amount (AED) - if payment involved", placeholder: "e.g., 50000.00" },
+        { key: "settlementAmountWords", label: "Amount in Words (if payment involved)", placeholder: "e.g., Fifty Thousand UAE Dirhams" },
+        { key: "currency", label: "Currency (if payment involved)", placeholder: "Default: AED (United Arab Emirates Dirhams)" },
+        { key: "paymentStructure", label: "Payment Structure (if payment involved)", type: "select", options: [
+          "Lump Sum - Single payment",
+          "Installments - Multiple payments",
+          "Combination - Part lump sum, part installments"
+        ] },
+        { key: "paymentMethod", label: "Payment Method (if payment involved)", type: "select", options: [
+          "Bank Transfer",
+          "Cheque",
+          "Cash (max AED 55,000 per UAE law)",
+          "Other"
+        ] },
+        { key: "bankName", label: "Bank Name (if Bank Transfer)", placeholder: "e.g., Emirates NBD" },
+        { key: "accountName", label: "Account Name (if Bank Transfer)", placeholder: "Name on account" },
+        { key: "accountNumber", label: "Account Number (if Bank Transfer)", placeholder: "Account number" },
+        { key: "iban", label: "IBAN (if Bank Transfer)", placeholder: "AE00 0000 0000 0000 0000 000" },
+        { key: "paymentSchedule", label: "Payment Deadline / Schedule (if payment involved)", placeholder: "e.g., Within 30 days of execution, Installments: AED 10,000 on 1st of each month for 5 months", multiline: true },
+        { key: "latePaymentConsequences", label: "Late Payment Consequences (if payment involved)", placeholder: "What happens if payment is late? (e.g., Interest at 5% per month, revival of original claims)", multiline: true },
+        { key: "receiptRequirements", label: "Receipt Requirements (if payment involved)", placeholder: "How should payment receipt be confirmed?" },
+
+        // MUTUAL RELEASE
+        { key: "partyAReleasesB", label: "Does Party A Release Party B?", type: "select", options: ["Yes", "No"], required: true },
+        { key: "partyAReleaseScope", label: "Party A Release Scope (if Yes)", placeholder: "What claims does Party A release? (e.g., All claims arising from contract dated 01/01/2024, all employment-related claims)", multiline: true },
+        { key: "partyBReleasesA", label: "Does Party B Release Party A?", type: "select", options: ["Yes", "No"], required: true },
+        { key: "partyBReleaseScope", label: "Party B Release Scope (if Yes)", placeholder: "What claims does Party B release?", multiline: true },
+        { key: "releaseEffectiveDate", label: "Effective Date of Release", type: "date", placeholder: "When does the release become effective?", required: true },
+
+        // LIABILITY & ADMISSIONS
+        { key: "noAdmissionOfLiability", label: "Include No Admission of Liability Clause?", type: "select", options: [
+          "Yes - Strongly recommended (settlement does not admit fault)",
+          "No - Omit this clause"
+        ], required: true },
+        { key: "additionalLiabilityQualifications", label: "Additional Liability Qualifications (if any)", placeholder: "Any additional qualifications regarding liability?", multiline: true },
+
+        // CONFIDENTIALITY
+        { key: "isConfidential", label: "Is Settlement Confidential?", type: "select", options: ["Yes", "No"], required: true },
+        { key: "confidentialityScope", label: "Confidentiality Scope (if confidential)", placeholder: "What must remain confidential? (e.g., All settlement terms, payment amount, existence of dispute)", multiline: true },
+        { key: "whoCanAccess", label: "Who Can Access Settlement Terms? (if confidential)", type: "multiselect", options: [
+          "Legal Advisors",
+          "Financial Advisors",
+          "Courts (if legally required)",
+          "Auditors",
+          "No One Else"
+        ] },
+        { key: "confidentialityExceptions", label: "Confidentiality Exceptions (if confidential)", placeholder: "When can terms be disclosed? (e.g., Legal obligations, court orders, tax authorities)", multiline: true },
+        { key: "breachOfConfidentialityConsequences", label: "Breach of Confidentiality Consequences (if confidential)", placeholder: "What happens if confidentiality is breached?", multiline: true },
+
+        // NON-DISPARAGEMENT
+        { key: "includeNonDisparagement", label: "Include Non-Disparagement Clause?", type: "select", options: ["Yes", "No"], required: true },
+        { key: "nonDisparagementDetails", label: "Non-Disparagement Details (if Yes)", placeholder: "Specify details of non-disparagement obligations", multiline: true },
+
+        // GOVERNING LAW & DISPUTE RESOLUTION
+        { key: "jurisdictionEmirate", label: "Jurisdiction Emirate", placeholder: "e.g., Dubai, Abu Dhabi, Sharjah", required: true },
+        { key: "disputeResolutionMethod", label: "Dispute Resolution for Breach of Settlement", type: "select", options: [
+          "Courts - Litigation in UAE courts",
+          "Arbitration - Arbitration proceedings",
+          "Mediation then Courts - Attempt mediation first"
+        ], required: true },
+        { key: "arbitrationDetails", label: "Arbitration Details (if Arbitration selected)", placeholder: "e.g., Dubai International Arbitration Centre (DIAC), Arbitration in accordance with DIAC Rules", multiline: true },
+        { key: "language", label: "Agreement Language", placeholder: "e.g., English, Arabic, English and Arabic" },
+
+        // DATA PROTECTION & PDPL
+        { key: "retentionPeriod", label: "Data Retention Period", type: "select", options: [
+          "3 years after completion",
+          "5 years after completion",
+          "7 years after completion",
+          "10 years after completion",
+          "As required by UAE law"
+        ], required: true },
+        { key: "specialDataHandling", label: "Special Data Handling Requirements (if any)", placeholder: "Any special requirements for handling personal data in this settlement?", multiline: true },
+        { key: "crossBorderTransfer", label: "Cross-Border Data Transfer Required?", type: "select", options: ["Yes", "No"] },
+
+        // GENERAL PROVISIONS
+        { key: "entireAgreementClause", label: "Include Entire Agreement Clause?", type: "select", options: [
+          "Yes - Recommended (this agreement supersedes all prior agreements)",
+          "No"
+        ], required: true },
+        { key: "severabilityClause", label: "Include Severability Clause?", type: "select", options: [
+          "Yes - Recommended (invalid provisions don't affect rest of agreement)",
+          "No"
+        ], required: true },
+        { key: "amendmentRequirements", label: "Amendment Requirements", type: "select", options: [
+          "Written and signed by all parties",
+          "Other - Specify in additional terms"
+        ], required: true },
+        { key: "costsAllocation", label: "Costs & Fees Allocation", type: "select", options: [
+          "Each party bears own costs",
+          "Party A pays all costs",
+          "Party B pays all costs",
+          "Split equally between parties",
+          "Loser pays if breach occurs"
+        ], required: true },
+
+        // NOTARIZATION & WITNESSES
+        { key: "requiresNotarization", label: "Requires Notarization?", type: "select", options: ["Yes", "No"], required: true },
+        { key: "notaryLocation", label: "Notary Location (if Yes)", placeholder: "e.g., Dubai Courts, Notary Public Office" },
+        { key: "witnessesRequired", label: "Number of Witnesses Required", type: "select", options: ["0", "1", "2", "3 or more"], required: true },
+        { key: "witness1Name", label: "Witness 1 - Full Name (if required)", placeholder: "Full name" },
+        { key: "witness1EmiratesId", label: "Witness 1 - Emirates ID (if required)", placeholder: "784-XXXX-XXXXXXX-X" },
+        { key: "witness2Name", label: "Witness 2 - Full Name (if required)", placeholder: "Full name" },
+        { key: "witness2EmiratesId", label: "Witness 2 - Emirates ID (if required)", placeholder: "784-XXXX-XXXXXXX-X" },
+
+        // ADDITIONAL CLAUSES
+        { key: "specialConditions", label: "Special Conditions or Additional Terms (if any)", placeholder: "Any special conditions, additional terms, or unique provisions for this settlement?", multiline: true },
+        { key: "attachmentsSchedules", label: "Attachments / Schedules (if any)", placeholder: "List any documents attached to this settlement (e.g., Payment schedule, property list, original contract)", multiline: true },
+      ],
       power_of_attorney: [
         // PRINCIPAL (Grantor) Information
         { key: "principalFullName", label: "Principal's Full Legal Name", placeholder: "Full name as appears on Emirates ID", required: true },
@@ -899,6 +1057,74 @@ export default function LetterCreationWizard() {
             toast({
               title: "Invalid legal costs",
               description: "Please enter a valid amount for estimated legal costs (numbers only)",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+      }
+
+      // Settlement Agreement specific validation
+      if (letterType === 'settlement_agreement') {
+        // Validate Emirates ID formats
+        const emiratesIdRegex = /^784-\d{4}-\d{7}-\d$/
+        if (details.partyAEmiratesId && !emiratesIdRegex.test(details.partyAEmiratesId)) {
+          toast({
+            title: "Invalid Emirates ID format",
+            description: "Party A Emirates ID should be in format: 784-XXXX-XXXXXXX-X",
+            variant: "destructive"
+          })
+          return false
+        }
+        if (details.partyBEmiratesId && !emiratesIdRegex.test(details.partyBEmiratesId)) {
+          toast({
+            title: "Invalid Emirates ID format",
+            description: "Party B Emirates ID should be in format: 784-XXXX-XXXXXXX-X",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate mutual release (at least one party must release)
+        if (details.partyAReleasesB === "No" && details.partyBReleasesA === "No") {
+          toast({
+            title: "Mutual release required",
+            description: "At least one party must release the other in a settlement agreement",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // If payment involved, validate payment fields
+        if (details.paymentInvolved === "Yes") {
+          if (!details.settlementAmount || !details.settlementAmountWords) {
+            toast({
+              title: "Payment details incomplete",
+              description: "Settlement amount and amount in words are required when payment is involved",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // If confidential, validate confidentiality fields
+        if (details.isConfidential === "Yes") {
+          if (!details.confidentialityScope || !details.confidentialityExceptions) {
+            toast({
+              title: "Confidentiality details incomplete",
+              description: "Confidentiality scope and exceptions are required when settlement is confidential",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // If witnesses required, validate witness info
+        if (details.witnessesRequired && parseInt(details.witnessesRequired) > 0) {
+          if (!details.witness1Name || !details.witness1EmiratesId) {
+            toast({
+              title: "Witness information incomplete",
+              description: "Witness 1 name and Emirates ID are required",
               variant: "destructive"
             })
             return false

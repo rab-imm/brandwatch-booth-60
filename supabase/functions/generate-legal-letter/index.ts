@@ -302,7 +302,434 @@ MUST include these mandatory clauses:
 - Governing Law: "This Agreement shall be governed by and construed in accordance with the laws of the United Arab Emirates."
 - Dispute Resolution: "Any dispute arising out of or in connection with this Agreement shall be resolved through [UAE courts/arbitration], with jurisdiction in [specific Emirate]."
 Ensure these clauses are prominently placed near the end of the agreement, before the signature section.`,
-  settlement_agreement: `Generate a settlement agreement for dispute resolution.`,
+  settlement_agreement: `Generate a comprehensive Settlement Agreement for dispute resolution compliant with UAE legal requirements.
+
+CRITICAL REQUIREMENTS - MUST INCLUDE ALL OF THESE:
+
+STRUCTURE & FORMATTING:
+Use these EXACT section headers in order:
+1. SETTLEMENT AGREEMENT HEADING & REFERENCE
+2. PARTIES TO THE SETTLEMENT
+3. RECITALS & BACKGROUND (Whereas clauses)
+4. DEFINITIONS & INTERPRETATION
+5. DISPUTE DESCRIPTION & CONTEXT
+6. TERMS OF SETTLEMENT
+7. PAYMENT TERMS & SCHEDULE (if applicable)
+8. MUTUAL RELEASE OF CLAIMS
+9. NO ADMISSION OF LIABILITY
+10. CONFIDENTIALITY CLAUSE
+11. NON-DISPARAGEMENT (if applicable)
+12. GOVERNING LAW & JURISDICTION
+13. DISPUTE RESOLUTION FOR BREACH OF SETTLEMENT
+14. DATA PROTECTION & PDPL COMPLIANCE
+15. GENERAL PROVISIONS
+16. EFFECTIVENESS & TERMINATION
+17. NOTARIZATION REQUIREMENTS (if applicable)
+18. SIGNATURES & WITNESSES
+
+LANGUAGE REQUIREMENTS:
+- Use simple, clear sentences (maximum 20 words per sentence where possible)
+- Avoid unnecessary legal jargon; use plain business language
+- Use bullet points for payment details, obligations, and instructions
+- Write in active voice, not passive
+- Keep paragraphs short (3-4 sentences maximum)
+- Use formal but clear tone
+
+AGREEMENT HEADING & REFERENCE:
+"SETTLEMENT AGREEMENT
+
+Reference No: [agreementReference if provided, else "SA-" + current date]
+Date of Agreement: [agreementDate format DD MMMM YYYY]
+Place of Execution: [agreementLocation], United Arab Emirates"
+
+PARTIES TO THE SETTLEMENT:
+"PARTIES:
+
+PARTY A (First Party):
+Full Legal Name: [partyAName]
+Emirates ID / Passport: [partyAEmiratesId]
+Address: [partyAAddress]
+Email: [partyAEmail]
+Phone: [partyAPhone]
+[If partyALegalRep provided: "Represented by: [partyALegalRep] (Emirates ID: [partyALegalRepId])"]
+
+AND
+
+PARTY B (Second Party):
+Full Legal Name: [partyBName]
+Emirates ID / Passport: [partyBEmiratesId]
+Address: [partyBAddress]
+Email: [partyBEmail]
+Phone: [partyBPhone]
+[If partyBLegalRep provided: "Represented by: [partyBLegalRep] (Emirates ID: [partyBLegalRepId])"]
+
+(Hereinafter collectively referred to as 'the Parties' and individually as 'a Party')"
+
+RECITALS & BACKGROUND:
+"RECITALS:
+
+WHEREAS the Parties have been involved in a dispute concerning: [natureOfDispute]
+
+WHEREAS the details of the dispute are as follows:
+[disputeDescription]
+
+WHEREAS the dispute originated on or about: [disputeOriginDate format DD MMMM YYYY]
+[If disputeReference provided: "Reference: [disputeReference]"]
+
+WHEREAS the Parties have attempted to resolve this matter through: [previousAttempts]
+
+WHEREAS the Parties now wish to settle all differences and disputes between them on the terms and conditions set forth in this Agreement;
+
+WHEREAS the Parties acknowledge that this Settlement is made voluntarily and without coercion;
+
+NOW, THEREFORE, in consideration of the mutual covenants and agreements contained herein and for other good and valuable consideration, the receipt and sufficiency of which are hereby acknowledged, the Parties agree as follows:"
+
+DEFINITIONS & INTERPRETATION:
+"DEFINITIONS:
+
+For purposes of this Agreement:
+• 'Settlement Date' means the date of execution of this Agreement
+• 'Dispute' means the matter described in the Recitals above
+• 'Settlement Terms' means the obligations and conditions set forth in Section 6
+[If paymentInvolved contains "Yes": "• 'Settlement Amount' means the total sum of AED [settlementAmount] ([settlementAmountWords])"]
+• 'Effective Date' means [releaseEffectiveDate format DD MMMM YYYY]
+• 'Confidential Information' includes the terms of this Settlement and all related documents"
+
+DISPUTE DESCRIPTION & CONTEXT:
+"DISPUTE DESCRIPTION:
+
+NATURE OF DISPUTE: [natureOfDispute]
+
+DETAILED DESCRIPTION:
+[disputeDescription - Must be precise and unambiguous]
+
+ORIGIN DATE: [disputeOriginDate format DD MMMM YYYY]
+
+[If disputeReference provided: "REFERENCE/CASE NUMBER: [disputeReference]"]
+
+PREVIOUS RESOLUTION ATTEMPTS:
+[previousAttempts]
+
+DISPUTE OBJECTIVE:
+The Parties seek to: [settlementObjective]"
+
+TERMS OF SETTLEMENT:
+"SETTLEMENT TERMS:
+
+The Parties agree to the following terms in full and final settlement of the Dispute:
+
+KEY OBLIGATIONS:
+[settlementTerms]
+
+[If nonMonetaryObligations provided]
+NON-MONETARY OBLIGATIONS:
+[nonMonetaryObligations]
+
+[If conditionsPrecedent provided]
+CONDITIONS PRECEDENT:
+The following conditions must be satisfied before this Settlement becomes effective:
+[conditionsPrecedent]
+
+PERFORMANCE TIMELINE:
+[If performanceTimeline provided: "[performanceTimeline]", else: "The Parties shall perform their obligations within reasonable time as specified herein."]
+
+[If deliveryRequirements provided]
+DELIVERY REQUIREMENTS:
+[deliveryRequirements]"
+
+PAYMENT TERMS (If Applicable):
+"[If paymentInvolved contains "Yes"]
+PAYMENT TERMS:
+
+TOTAL SETTLEMENT AMOUNT:
+The total settlement amount is: AED [settlementAmount] ([settlementAmountWords])
+
+Currency: [currency, default: AED (United Arab Emirates Dirhams)]
+
+PAYMENT STRUCTURE: [paymentStructure]
+
+[If paymentStructure contains "Lump Sum"]
+• The entire amount shall be paid in a single lump sum payment
+
+[If paymentStructure contains "Installments"]
+• Payment shall be made in installments as follows: [paymentSchedule]
+
+PAYMENT METHOD: [paymentMethod]
+
+[If paymentMethod contains "Bank Transfer"]
+BANK DETAILS:
+• Bank Name: [bankName]
+• Account Name: [accountName]
+• Account Number: [accountNumber]
+• IBAN: [iban]
+
+[If paymentMethod contains "Cheque"]
+CHEQUE PAYMENT:
+• Cheque payable to: [accountName]
+• Post-dated cheques (if applicable): [paymentSchedule]
+
+PAYMENT DEADLINE:
+[paymentSchedule]
+
+TIME IS OF THE ESSENCE: Payment must be made by the specified deadlines.
+
+LATE PAYMENT:
+[If latePaymentConsequences provided: "[latePaymentConsequences]", else: "Late payment may result in breach of this Settlement Agreement and revival of original claims."]
+
+RECEIPT & CONFIRMATION:
+[If receiptRequirements provided: "[receiptRequirements]", else: "Party A shall provide written confirmation of receipt of payment within 3 business days."]]"
+
+MUTUAL RELEASE OF CLAIMS:
+"MUTUAL RELEASE:
+
+[If partyAReleasesB contains "Yes"]
+PARTY A RELEASES PARTY B:
+Party A ([partyAName]) hereby irrevocably and unconditionally releases, acquits, and forever discharges Party B ([partyBName]), including their heirs, successors, assigns, and legal representatives, from:
+
+[partyAReleaseScope]
+
+This release is effective from: [releaseEffectiveDate format DD MMMM YYYY]
+
+[If partyBReleasesA contains "Yes"]
+PARTY B RELEASES PARTY A:
+Party B ([partyBName]) hereby irrevocably and unconditionally releases, acquits, and forever discharges Party A ([partyAName]), including their heirs, successors, assigns, and legal representatives, from:
+
+[partyBReleaseScope]
+
+This release is effective from: [releaseEffectiveDate format DD MMMM YYYY]
+
+[If partyAReleasesB contains "Yes" AND partyBReleasesA contains "Yes"]
+MUTUAL RELEASE:
+This is a mutual release. Both Parties release each other from all claims, demands, actions, causes of action, damages, costs, and expenses of any nature whatsoever, whether known or unknown, arising from or related to the Dispute described herein.
+
+SCOPE OF RELEASE:
+The release extends to all claims that could have been asserted in connection with the Dispute, including but not limited to claims for:
+• Breach of contract
+• Damages (direct, indirect, consequential)
+• Legal costs and expenses
+• Interest and penalties
+• Any other claims related to the Dispute
+
+RESERVATION OF RIGHTS:
+This release does not extend to:
+• Rights and obligations created by this Settlement Agreement
+• Claims arising from breach of this Settlement Agreement
+• Claims unrelated to the Dispute described herein"
+
+NO ADMISSION OF LIABILITY:
+"[If noAdmissionOfLiability contains "Yes" OR noAdmissionOfLiability is not provided]
+NO ADMISSION OF LIABILITY:
+
+The Parties expressly agree and acknowledge that:
+
+• This Settlement Agreement does NOT constitute an admission of liability, fault, wrongdoing, or responsibility by any Party
+• Neither Party admits to any breach of contract, negligence, or violation of law
+• This Settlement is entered into solely to avoid the costs, uncertainty, and inconvenience of litigation
+• No Party shall construe or represent this Settlement as an acknowledgment of any wrongful conduct
+
+[If additionalLiabilityQualifications provided]
+ADDITIONAL QUALIFICATIONS:
+[additionalLiabilityQualifications]]"
+
+CONFIDENTIALITY CLAUSE:
+"[If isConfidential contains "Yes"]
+CONFIDENTIALITY:
+
+CONFIDENTIAL NATURE:
+The Parties agree that this Settlement Agreement and all terms contained herein are CONFIDENTIAL.
+
+SCOPE OF CONFIDENTIALITY:
+The following information shall be treated as confidential:
+[confidentialityScope]
+
+WHO MAY ACCESS SETTLEMENT TERMS:
+Disclosure is permitted only to:
+[If whoCanAccess includes "Legal Advisors": "• The Parties' legal counsel and attorneys"]
+[If whoCanAccess includes "Financial Advisors": "• Financial advisors and accountants (subject to confidentiality obligations)"]
+[If whoCanAccess includes "Courts": "• Courts and judicial authorities (if legally required or to enforce this Agreement)"]
+[If whoCanAccess includes "Auditors": "• External auditors (subject to professional confidentiality)"]
+• No other person or entity without prior written consent
+
+EXCEPTIONS TO CONFIDENTIALITY:
+Disclosure is permitted without consent in the following circumstances:
+[confidentialityExceptions]
+
+BREACH OF CONFIDENTIALITY:
+[If breachOfConfidentialityConsequences provided: "[breachOfConfidentialityConsequences]", else: "Breach of this confidentiality clause shall entitle the non-breaching Party to seek injunctive relief and claim damages."]
+
+[If isConfidential contains "No"]
+NON-CONFIDENTIAL:
+This Settlement Agreement is not confidential and may be disclosed by either Party as they deem appropriate.]"
+
+NON-DISPARAGEMENT:
+"[If includeNonDisparagement contains "Yes"]
+NON-DISPARAGEMENT:
+
+The Parties agree:
+
+• Neither Party shall make any disparaging, defamatory, or negative statements about the other Party
+• This obligation extends to statements made publicly, privately, orally, in writing, or through any media
+• Each Party shall refrain from actions that harm the reputation, business, or standing of the other Party
+
+[If nonDisparagementDetails provided]
+SPECIFIC TERMS:
+[nonDisparagementDetails]
+
+This non-disparagement obligation survives the termination or completion of this Settlement Agreement.]"
+
+GOVERNING LAW & JURISDICTION:
+"GOVERNING LAW:
+
+This Settlement Agreement shall be governed by, interpreted, and construed in accordance with the laws of the United Arab Emirates, specifically:
+• UAE Federal Law No. 5 of 1985 (Civil Transactions Law)
+• Other applicable UAE Federal and Emirate-level laws
+
+JURISDICTION:
+
+The Parties agree that any legal proceedings arising from or related to this Settlement Agreement shall be subject to the exclusive jurisdiction of the courts of: [jurisdictionEmirate], United Arab Emirates
+
+Specifically:
+• First Instance: [jurisdictionEmirate] Court of First Instance
+• Appeals: [jurisdictionEmirate] Court of Appeal
+• Final Appeals: Federal Supreme Court (if applicable)"
+
+DISPUTE RESOLUTION FOR BREACH:
+"DISPUTE RESOLUTION:
+
+In the event of a dispute arising from the interpretation, performance, or breach of this Settlement Agreement, the Parties agree to the following resolution process:
+
+[If disputeResolutionMethod contains "Courts"]
+LITIGATION:
+Any dispute shall be resolved exclusively through litigation in the courts of [jurisdictionEmirate], UAE, as specified in the Jurisdiction clause above.
+
+[If disputeResolutionMethod contains "Arbitration"]
+ARBITRATION:
+• Any dispute shall be resolved through arbitration in accordance with: [arbitrationDetails]
+• The arbitration shall be conducted in: [jurisdictionEmirate], UAE
+• The language of arbitration: [language, default: English and Arabic]
+• The arbitrator's decision shall be final and binding on both Parties
+• Either Party may enforce the arbitration award in any competent court
+
+[If disputeResolutionMethod contains "Mediation"]
+MEDIATION FOLLOWED BY COURTS:
+• The Parties shall first attempt to resolve any dispute through mediation
+• If mediation fails within [default: 30] days, either Party may proceed to litigation in [jurisdictionEmirate] Courts
+
+GOOD FAITH NEGOTIATION:
+Before initiating formal dispute resolution, the Parties agree to negotiate in good faith for a period of [default: 14] days."
+
+EFFECTIVENESS & TERMINATION:
+"EFFECTIVENESS:
+
+This Settlement Agreement shall become effective upon: [If conditionsPrecedent provided: "satisfaction of all Conditions Precedent as specified in Section 6", else: "the date of execution by all Parties"]
+
+COMPLETION:
+
+This Settlement Agreement shall be deemed complete and discharged upon:
+[If paymentInvolved contains "Yes": "• Full payment of the Settlement Amount as specified"]
+• Performance of all obligations by all Parties
+• Satisfaction of all conditions and terms herein
+
+SURVIVAL:
+
+The following provisions shall survive completion of this Agreement:
+• Mutual Release (Section 8)
+• No Admission of Liability (Section 9)
+• Confidentiality (Section 10)
+• Non-Disparagement (Section 11, if applicable)
+• Data Protection (Section 14)
+• Governing Law & Dispute Resolution (Sections 12-13)"
+
+NOTARIZATION:
+"[If requiresNotarization contains "Yes"]
+NOTARIZATION REQUIREMENTS:
+
+This Settlement Agreement shall be notarized in accordance with UAE law.
+
+NOTARY LOCATION: [notaryLocation]
+
+NOTARY CERTIFICATION:
+The notary public shall certify:
+• The identity of all signatories
+• The voluntary nature of this Agreement
+• The legal capacity of all Parties
+• The authenticity of signatures
+
+[If witnessesRequired > 0]
+WITNESSES REQUIRED: [witnessesRequired] witness(es) must be present during execution and notarization
+
+[If witnessesRequired >= 1 AND witness1Name provided]
+WITNESS 1:
+Name: [witness1Name]
+Emirates ID: [witness1EmiratesId]
+
+[If witnessesRequired >= 2 AND witness2Name provided]
+WITNESS 2:
+Name: [witness2Name]
+Emirates ID: [witness2EmiratesId]
+
+[If requiresNotarization contains "No"]
+This Settlement Agreement does not require notarization but shall be executed under the hands and seals of the Parties.]"
+
+SIGNATURES:
+"SIGNATURES:
+
+IN WITNESS WHEREOF, the Parties have executed this Settlement Agreement on the date first written above.
+
+PARTY A:
+_________________________
+[partyAName]
+Emirates ID: [partyAEmiratesId]
+Date: _________________
+
+[If partyALegalRep provided]
+On behalf of Party A:
+_________________________
+[partyALegalRep]
+(Authorized Representative)
+Date: _________________
+
+
+PARTY B:
+_________________________
+[partyBName]
+Emirates ID: [partyBEmiratesId]
+Date: _________________
+
+[If partyBLegalRep provided]
+On behalf of Party B:
+_________________________
+[partyBLegalRep]
+(Authorized Representative)
+Date: _________________
+
+[If witnessesRequired >= 1]
+WITNESSES:
+
+WITNESS 1:
+_________________________
+[witness1Name]
+Emirates ID: [witness1EmiratesId]
+Date: _________________
+
+[If witnessesRequired >= 2]
+WITNESS 2:
+_________________________
+[witness2Name]
+Emirates ID: [witness2EmiratesId]
+Date: _________________
+
+[If requiresNotarization contains "Yes"]
+NOTARY PUBLIC:
+_________________________
+Notary Name: _____________
+Notary Registration No: ___
+Place of Notarization: [notaryLocation]
+Date: _________________
+[Notary Seal]"
+
+PLACEHOLDERS:
+Replace ALL bracketed placeholders with actual information provided in letter details. Do NOT leave any [bracketed text] in the final output unless explicitly asking recipient to provide information.`,
   power_of_attorney: `Generate a comprehensive Power of Attorney document compliant with UAE legal requirements and notarization standards.
 
 CRITICAL REQUIREMENTS - MUST INCLUDE ALL OF THESE:
@@ -829,7 +1256,60 @@ Under UAE PDPL, you have the right to:
 
 For data protection inquiries, contact your HR Department or Data Protection Officer.`,
   
-  general: `\n\nDATA PROTECTION NOTICE:\nThis document contains personal data that is protected under UAE Federal Law No. 45 of 2021 on the Protection of Personal Data. All parties must handle this information in accordance with applicable data protection regulations and use it only for the purposes stated in this document.`
+  general: `\n\nDATA PROTECTION NOTICE:\nThis document contains personal data that is protected under UAE Federal Law No. 45 of 2021 on the Protection of Personal Data. All parties must handle this information in accordance with applicable data protection regulations and use it only for the purposes stated in this document.`,
+
+  settlement: `
+
+DATA PROTECTION NOTICE (UAE PDPL COMPLIANCE):
+
+This Settlement Agreement contains personal data protected under UAE Federal Law No. 45 of 2021 (Personal Data Protection Law - PDPL).
+
+PERSONAL DATA INCLUDED:
+• Party names, addresses, Emirates ID numbers, contact details
+• Financial information (settlement amounts, payment details)
+• Dispute-related information and communications
+• Legal representative details (if applicable)
+
+DATA PROCESSING PURPOSE:
+Personal data is processed solely for:
+• Execution and enforcement of this settlement agreement
+• Legal compliance and record-keeping obligations
+• Communication regarding settlement terms
+• Court proceedings (if breach of settlement occurs)
+
+WHO CAN ACCESS THIS DATA:
+• The named parties to this settlement
+• Legal representatives and counsel of the parties
+• Financial institutions (for payment processing only)
+• UAE courts and judicial authorities (if legally required)
+• Arbitrators or mediators (if dispute resolution invoked)
+• Auditors (subject to confidentiality obligations)
+
+DATA RETENTION PERIOD:
+• Active retention: Duration of settlement obligations plus [retentionPeriod, default: 5] years from date of final payment/completion
+• After retention period: Personal data shall be securely deleted or anonymized in accordance with PDPL Article 21
+• Legal exception: Data may be retained longer if required by UAE law or ongoing legal proceedings
+
+DATA SUBJECT RIGHTS (PDPL Article 13):
+Each party has the right to:
+• Access their personal data in this agreement
+• Request correction of inaccurate data
+• Object to data processing (subject to legal obligations)
+• Request deletion after retention period expires
+• Lodge complaints with UAE Data Protection Office
+
+DATA SECURITY:
+All parties agree to:
+• Store this agreement securely (physical and electronic copies)
+• Limit access to authorized persons only
+• Implement appropriate technical and organizational measures per PDPL Article 8
+• Report any data breach immediately to affected parties
+
+CONFIDENTIAL TREATMENT:
+Personal data in this settlement shall be treated as confidential in accordance with the Confidentiality Clause of this agreement.
+
+CROSS-BORDER TRANSFER:
+Any transfer of personal data outside the UAE shall comply with PDPL Article 23 and require explicit consent unless falling within permitted exceptions.`,
 };
 
 const NDA_LEGAL_CLAUSES = `
@@ -841,6 +1321,71 @@ DISPUTE RESOLUTION:
 Any dispute arising out of or in connection with this Agreement shall be resolved through [UAE courts/arbitration], with jurisdiction in [specific Emirate].
 
 NOTE: The parties should specify their preferred dispute resolution method (courts or arbitration) and the specific Emirate (Dubai, Abu Dhabi, etc.) for jurisdiction.`;
+
+const SETTLEMENT_AGREEMENT_CLAUSES = `
+
+ADDITIONAL LEGAL PROVISIONS FOR SETTLEMENT AGREEMENTS:
+
+INTERPRETATION & CONSTRUCTION:
+This Settlement Agreement shall be interpreted in accordance with UAE law. In the event of ambiguity, the provisions shall not be construed against the drafting party. Headings are for convenience only and do not affect interpretation.
+
+ENTIRE AGREEMENT:
+This Settlement Agreement constitutes the entire agreement between the parties concerning the subject matter herein and supersedes all prior negotiations, representations, agreements, and understandings (whether written or oral) relating to the dispute described herein. No party has relied on any representation or warranty not expressly set forth in this agreement.
+
+SEVERABILITY:
+If any provision of this Settlement Agreement is found to be invalid, illegal, or unenforceable by a court of competent jurisdiction, such provision shall be severed from this agreement, and the remaining provisions shall continue in full force and effect. The parties agree to negotiate in good faith to replace any severed provision with a valid provision that achieves the original intent.
+
+AMENDMENT & MODIFICATION:
+This Settlement Agreement may only be amended, modified, or supplemented by a written instrument signed by all parties. No oral modification shall be valid. Any purported amendment that is not in writing and signed by all parties shall be null and void.
+
+WAIVER:
+No waiver of any provision of this Settlement Agreement shall be effective unless in writing and signed by the party against whom the waiver is sought to be enforced. Waiver of any breach shall not constitute a waiver of any subsequent breach. The failure of any party to enforce any provision shall not be construed as a waiver of that provision or any other provision.
+
+BINDING EFFECT:
+This Settlement Agreement shall be binding upon and inure to the benefit of the parties and their respective heirs, executors, administrators, successors, and permitted assigns. No party may assign their rights or obligations under this agreement without the prior written consent of the other party, except as may be required by law.
+
+COUNTERPARTS & SIGNATURES:
+This Settlement Agreement may be executed in counterparts, each of which shall be deemed an original and all of which together shall constitute one and the same instrument. Electronic signatures and scanned copies of signatures shall have the same legal effect as original signatures.
+
+NOTICES:
+All notices, demands, or communications required or permitted under this Settlement Agreement shall be in writing and delivered by:
+• Hand delivery (with signed acknowledgment)
+• Registered mail with return receipt requested
+• Email to the addresses specified in this agreement (with read receipt)
+
+Notices shall be deemed effective:
+• Upon hand delivery
+• 3 business days after posting by registered mail
+• Upon confirmed receipt of email
+
+LANGUAGE:
+This Settlement Agreement is executed in [language, default: English and Arabic]. In case of conflict between versions, the [language] version shall prevail.
+
+AUTHORITY TO EXECUTE:
+Each party represents and warrants that:
+• They have full legal capacity and authority to enter into this Settlement Agreement
+• They have obtained all necessary consents, approvals, or authorizations required
+• The execution of this agreement does not violate any other agreement or obligation
+• They have been advised to seek independent legal counsel (or have had opportunity to do so)
+
+COSTS & EXPENSES:
+Each party shall bear their own legal costs, fees, and expenses incurred in negotiating and executing this Settlement Agreement, unless otherwise specified in the payment terms. [If costsAllocation = "loser pays": In the event of litigation arising from breach of this settlement, the prevailing party shall be entitled to recover reasonable attorney fees and costs.]
+
+ACKNOWLEDGMENT OF UNDERSTANDING:
+Each party acknowledges that:
+• They have read and understood all terms of this Settlement Agreement
+• They have had adequate time to review the agreement and seek legal advice
+• They enter into this agreement voluntarily and without coercion
+• They understand the consequences of this settlement, including the release of claims
+
+SURVIVAL:
+The following provisions shall survive the completion, termination, or expiration of this Settlement Agreement: Mutual Release, No Admission of Liability, Confidentiality, Data Protection, Governing Law, and Dispute Resolution.
+
+SPECIFIC PERFORMANCE:
+The parties acknowledge that monetary damages may be insufficient to remedy a breach of this Settlement Agreement. Accordingly, each party shall be entitled to seek specific performance, injunctive relief, or other equitable remedies in addition to all other remedies available at law or in equity.
+
+FURTHER ASSURANCES:
+Each party agrees to execute and deliver such additional documents and take such further actions as may be reasonably necessary to give full effect to the terms and intent of this Settlement Agreement.`;
 
 const WORKPLACE_COMPLAINT_LEGAL_CLAUSES = `
 
@@ -1221,6 +1766,7 @@ Generate the complete letter now.`;
       letterType.includes('employment') ? DATA_PROTECTION_CLAUSES.employment :
       letterType.includes('lease') ? DATA_PROTECTION_CLAUSES.lease :
       letterType === 'nda' ? DATA_PROTECTION_CLAUSES.nda :
+      letterType === 'settlement_agreement' ? DATA_PROTECTION_CLAUSES.settlement :
       letterType === 'workplace_complaint' ? DATA_PROTECTION_CLAUSES.workplace_complaint :
       letterType === 'general_legal' ? DATA_PROTECTION_CLAUSES.general :
       DATA_PROTECTION_CLAUSES.general;
@@ -1246,6 +1792,10 @@ Generate the complete letter now.`;
 
     if (letterType === 'demand_letter') {
       letterContent += DEMAND_LETTER_CLAUSES;
+    }
+
+    if (letterType === 'settlement_agreement') {
+      letterContent += SETTLEMENT_AGREEMENT_CLAUSES;
     }
 
     // Deduct credits (queries_used is the DB column name)
