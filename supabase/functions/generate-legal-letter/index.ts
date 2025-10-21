@@ -11,7 +11,292 @@ const LETTER_TYPE_TEMPLATES = {
   employment_contract: `Generate a comprehensive employment contract compliant with UAE labor law.`,
   lease_agreement: `Generate a residential/commercial lease agreement compliant with UAE RERA regulations.`,
   lease_termination: `Generate a formal lease termination notice following UAE tenancy laws.`,
-  demand_letter: `Generate a formal demand letter for payment or action.`,
+  demand_letter: `Generate a comprehensive formal demand letter for payment or action, compliant with UAE legal requirements.
+
+CRITICAL REQUIREMENTS - MUST INCLUDE ALL OF THESE:
+
+STRUCTURE & FORMATTING:
+Use these EXACT section headers in order:
+1. REFERENCE & DATE
+2. PARTIES (Sender and Recipient)
+3. SUBJECT LINE (Clear statement of demand)
+4. BACKGROUND & CONTEXT
+5. NATURE OF DEBT/CLAIM (Clear reason for demand)
+6. LEGAL BASIS & APPLICABLE LAW
+7. AMOUNT DEMANDED (If applicable)
+8. PAYMENT DEADLINE & REQUIRED ACTION
+9. PAYMENT METHOD & INSTRUCTIONS
+10. CONSEQUENCES OF NON-COMPLIANCE
+11. GOVERNING LAW & DISPUTE RESOLUTION
+12. DATA PROTECTION NOTICE
+13. RESERVATION OF RIGHTS
+14. SIGNATURE SECTION
+
+LANGUAGE REQUIREMENTS:
+- Use simple, clear sentences (maximum 20 words per sentence where possible)
+- Avoid unnecessary legal jargon; use plain business language
+- Use bullet points for payment details, consequences, and instructions
+- Write in active voice, not passive
+- Keep paragraphs short (3-4 sentences maximum)
+- Use firm but professional tone
+
+REASON FOR DEBT - CLEAR DEFINITION:
+MUST explicitly reference the agreement, invoice, service, or transaction that gives rise to the debt/claim:
+
+"NATURE OF DEBT/CLAIM:
+
+This demand arises from: [debtType]
+
+[If debtType contains "Unpaid Invoice"]
+• Invoice Number: [invoiceNumber]
+• Invoice Date: [invoiceDate format DD/MM/YYYY]
+• Goods/Services Provided: [serviceDescription]
+• Original Payment Terms: [originalPaymentTerms]
+• Due Date: [originalDueDate format DD MMMM YYYY]
+• Amount Outstanding: AED [amount]
+
+[If debtType contains "Breach of Contract"]
+• Contract Title: [contractTitle]
+• Contract Date: [contractDate format DD/MM/YYYY]
+• Relevant Contract Clause(s): [contractClause]
+• Breach Details: [breachDetails]
+• Amount Owed: AED [amount]
+
+[If debtType contains "Payment for Services"]
+• Service Agreement: [agreementReference if provided, else "As agreed between parties"]
+• Services Performed: [serviceDescription]
+• Service Period: [serviceStartDate] to [serviceEndDate if provided]
+• Original Quote/Agreement Amount: AED [amount]
+• Payment Terms: [originalPaymentTerms]
+
+[If debtType contains "Loan Repayment"]
+• Loan Agreement Reference: [loanReference]
+• Loan Date: [loanDate format DD/MM/YYYY]
+• Original Loan Amount: AED [originalLoanAmount]
+• Repayment Terms: [repaymentTerms]
+• Outstanding Balance: AED [amount]
+• Overdue Installments: [overdueDetails]
+
+[If debtType contains "Rental Arrears"]
+• Lease Agreement Reference: [leaseReference]
+• Property Address: [propertyAddress]
+• Rental Period in Arrears: [rentalPeriod]
+• Monthly/Annual Rent: AED [rentAmount]
+• Total Arrears: AED [amount]
+
+[If debtType contains "Other"]
+• Basis of Claim: [otherDebtBasis]
+• Amount Claimed: AED [amount]
+
+DOCUMENTATION REFERENCE:
+Supporting documents: [supportingDocs]"
+
+PAYMENT DEADLINE - REALISTIC & CLEAR:
+"PAYMENT DEADLINE & REQUIRED ACTION:
+
+You are hereby required to pay the full outstanding amount of AED [amount] by:
+
+DEADLINE: [If paymentDeadline provided: format as DD MMMM YYYY, else: "Within [deadlineCalendarDays] calendar days from the date of receipt of this letter"]
+
+TIME IS OF THE ESSENCE: This deadline is strict and compliance is required by the specified date.
+
+REQUIRED ACTION:
+• Pay the full amount stated above by the deadline
+[If partialPaymentAccepted contains "Yes"] • Alternatively, contact us within 7 days to propose a payment plan
+• Provide written confirmation of payment via email to: [senderEmail]
+• Provide proof of payment (bank transfer receipt or cheque copy)"
+
+PAYMENT METHOD & INSTRUCTIONS - CLEAR & SPECIFIC:
+"PAYMENT METHOD & INSTRUCTIONS:
+
+Payment must be made via one of the following methods:
+
+[If bankTransferAllowed contains "Yes"]
+1. BANK TRANSFER (Preferred Method):
+   Bank Name: [bankName]
+   Account Name: [accountName]
+   Account Number: [accountNumber]
+   IBAN: [iban if provided]
+   SWIFT Code (for international): [swiftCode if provided]
+   Bank Branch: [bankBranch if provided]
+   Reference: Please include "[referenceNumber if provided, else invoiceNumber if provided, else 'Payment for demand letter']" as payment reference
+
+[If chequeAllowed contains "Yes"]
+2. CHEQUE PAYMENT:
+   Make cheque payable to: [chequePayeeName]
+   Deliver cheque to: [chequeDeliveryAddress]
+   Cheque must be dated no later than [paymentDeadline or "the deadline specified above"]
+   Write reference "[referenceNumber]" on the back of cheque
+
+[If cashAllowed contains "Yes"]
+3. CASH PAYMENT (Only for amounts under AED 55,000 as per UAE law):
+   Pay at: [cashPaymentAddress]
+   Business Hours: [businessHours]
+   Contact: [contactPerson if provided] - [contactPhone if provided]
+   Obtain official receipt upon payment
+
+[If onlinePaymentAllowed contains "Yes"]
+4. ONLINE PAYMENT:
+   Payment Portal: [paymentPortalURL]
+   Reference Code: [referenceCode if provided]
+
+PAYMENT CONFIRMATION:
+Upon making payment, please:
+• Email proof of payment to: [senderEmail]
+• Include reference number: [referenceNumber if provided, else invoiceNumber if provided]
+• Phone: [senderPhone]
+
+IMPORTANT: 
+- Payment must be received by the deadline, not just initiated
+- Bank charges are the responsibility of the payer
+- Payment in any currency other than AED requires prior written agreement"
+
+APPLICABLE LAW - UAE-SPECIFIC REFERENCES:
+"LEGAL BASIS & APPLICABLE LAW:
+
+This demand is made pursuant to and in accordance with: [applicableLaw]
+
+You are legally obligated to settle this debt under the applicable laws of the United Arab Emirates.
+
+LEGAL CONSEQUENCES:
+Failure to comply may result in legal action under the above-cited laws, including but not limited to:
+• Civil claim for recovery of debt plus interest [if interestRate provided: "at [interestRate]% per period"]
+• Legal costs and attorney fees [if estimatedLegalCosts provided: "(estimated at AED [estimatedLegalCosts])"]
+• Court filing fees
+• Enforcement proceedings if judgment is obtained"
+
+CONSEQUENCES OF NON-COMPLIANCE - SPECIFIC & ACTIONABLE:
+"CONSEQUENCES OF NON-COMPLIANCE:
+
+Failure to pay the outstanding amount by the deadline will result in the following actions WITHOUT FURTHER NOTICE:
+
+[consequences]
+
+IMMEDIATE LEGAL CONSEQUENCES:
+1. LEGAL PROCEEDINGS:
+   • We will initiate civil legal proceedings in the [emirate] Courts
+   • A formal lawsuit will be filed for recovery of the debt
+   • Court filing fees will be added to the amount claimed
+
+2. ADDITIONAL COSTS:
+   [If interestRate provided] • Late payment interest will be charged at [interestRate]% per period
+   [If estimatedLegalCosts provided] • Legal fees and attorney costs will be claimed (estimated at AED [estimatedLegalCosts])
+   • Court costs and enforcement fees will be added
+
+[If creditReportingThreat contains "Yes"]
+3. CREDIT IMPACT:
+   • This default may be reported to UAE credit bureaus (Al Etihad Credit Bureau - AECB)
+   • Negative credit reporting may affect your ability to obtain future credit in the UAE
+   • May impact visa renewal or business license renewal (if applicable)
+
+4. ENFORCEMENT ACTIONS (if judgment is obtained):
+   • Wage garnishment (for employed individuals)
+   • Bank account attachment
+   • Asset seizure or lien on property
+   • Travel ban (in certain cases under UAE law)
+
+ALTERNATIVE RESOLUTION:
+[If previousAttempts provided]
+Previous attempts to resolve: [previousAttempts]
+
+If you are experiencing genuine financial hardship, you must contact us immediately at [senderPhone] or [senderEmail] BEFORE the deadline to discuss potential payment arrangements. Failure to communicate will be considered unwillingness to settle the matter amicably.
+
+We reserve the right to pursue all legal remedies available under UAE law."
+
+GOVERNING LAW & DISPUTE RESOLUTION:
+"GOVERNING LAW & DISPUTE RESOLUTION:
+
+GOVERNING LAW:
+This demand letter and any dispute arising from the underlying debt/claim shall be governed by and construed in accordance with the laws of the United Arab Emirates, specifically: [applicableLaw]
+
+JURISDICTION:
+Any legal proceedings arising from this matter shall be subject to the exclusive jurisdiction of the competent courts of [emirate], United Arab Emirates.
+
+Specifically:
+• First Instance: [emirate] Court of First Instance
+• Appeals: [emirate] Court of Appeal
+• Final Appeals: Federal Supreme Court (if applicable)
+
+DISPUTE RESOLUTION:
+1. Amicable Settlement (Preferred):
+   We encourage you to contact us immediately to resolve this matter amicably before legal action becomes necessary.
+
+2. Litigation (Final Step):
+   If no payment or satisfactory arrangement is made by the deadline, we will proceed with litigation without further notice.
+
+TIME FOR RESPONSE:
+You have until the deadline specified above to either:
+• Pay the full amount, OR
+• Contact us with a genuine proposal for resolution
+
+Failure to respond will be deemed as refusal to settle, and legal action will proceed."
+
+DATA PROTECTION & PDPL COMPLIANCE:
+"DATA PROTECTION NOTICE (UAE PDPL Compliance):
+
+This demand letter contains personal and/or business data protected under UAE Federal Law No. 45 of 2021 (Personal Data Protection Law - PDPL).
+
+PERSONAL DATA INCLUDED:
+• Full name, address, and contact details of sender and recipient
+• Financial information (amounts owed, payment details)
+• Contractual or transactional information
+
+WHO CAN ACCESS THIS DATA:
+This letter and the information contained herein may be accessed by:
+• The named recipient (debtor/respondent)
+• Authorized legal representatives of the sender
+• UAE courts and judicial authorities (if legal proceedings are initiated)
+• Law enforcement and regulatory authorities (if legally required)
+• Legal counsel and advisors engaged by either party
+[If creditReportingThreat contains "Yes"] • Credit bureaus (if default is reported under UAE law)
+
+PURPOSE OF DATA PROCESSING:
+Personal data is processed solely for the purposes of:
+• Debt recovery and enforcement of legal rights
+• Legal proceedings and court filings (if necessary)
+• Communication regarding the outstanding debt
+• Compliance with legal and regulatory obligations
+
+DATA RETENTION:
+This letter and associated data will be retained for:
+• Duration of debt recovery proceedings
+• Minimum of 5 years after final settlement or judgment as required by UAE law
+• In accordance with legal record-keeping obligations under UAE law
+
+CONFIDENTIALITY:
+This letter is confidential and intended solely for the named recipient. Unauthorized disclosure or distribution is prohibited."
+
+RESERVATION OF RIGHTS:
+"RESERVATION OF RIGHTS:
+
+The sender expressly reserves all rights, remedies, and defenses available under UAE law and applicable contracts/agreements.
+
+RIGHTS RESERVED:
+• Right to pursue full legal action for recovery of the debt plus costs
+[If interestRate provided] • Right to claim interest on the outstanding amount
+• Right to claim damages for breach of contract
+• Right to terminate any underlying agreements for non-payment
+[If creditReportingThreat contains "Yes"] • Right to report default to credit bureaus
+• Right to seek injunctive relief or other equitable remedies
+• Right to pursue enforcement actions if judgment is obtained
+• Right to amend or supplement this claim based on subsequently discovered facts
+
+NO WAIVER:
+• This letter does not constitute a waiver of any rights or remedies
+• Acceptance of partial payment shall not be construed as full settlement unless explicitly agreed in writing
+• Failure to immediately pursue legal action does not waive the right to do so in the future
+• All rights remain in full force and effect subject to applicable statutory limitation periods"
+
+PROFESSIONAL FORMATTING:
+- Use proper formal business letter header with sender and recipient details
+- Include reference number: "Ref: [referenceNumber if provided] / Date: [current date]"
+- Include clear subject line: "FORMAL DEMAND FOR PAYMENT - [Brief description]"
+- Use professional salutation: "Dear [recipientName],"
+- End with "Yours faithfully," or "Yours sincerely," followed by signature section
+- Include sender contact information (phone, email, address) for response
+
+PLACEHOLDERS:
+Replace ALL bracketed placeholders with actual information provided in letter details. Do NOT leave any [bracketed text] in the final output unless explicitly asking recipient to provide information.`,
   nda: `Generate a non-disclosure agreement suitable for business use in the UAE. 
 MUST include these mandatory clauses:
 - Governing Law: "This Agreement shall be governed by and construed in accordance with the laws of the United Arab Emirates."
@@ -739,6 +1024,36 @@ No oral amendments or modifications are valid.
 SURVIVAL:
 The provisions regarding record-keeping, confidentiality, data protection, and liability shall survive the termination or revocation of this Power of Attorney.`;
 
+const DEMAND_LETTER_CLAUSES = `
+
+ADDITIONAL LEGAL PROVISIONS FOR DEMAND LETTERS:
+
+STATUTE OF LIMITATIONS NOTICE:
+This demand is made within the applicable limitation period under UAE law. Claims for debt recovery are generally subject to limitation periods specified in UAE Federal Law No. 5 of 1985 (Civil Transactions Law). Failure to respond or pay within the specified deadline will not extend or reset any applicable limitation periods.
+
+ACKNOWLEDGMENT OF DEBT:
+Any partial payment, acknowledgment in writing, or proposal for settlement made in response to this demand letter may constitute an acknowledgment of the debt and may restart or extend the applicable limitation period under UAE law.
+
+THIRD-PARTY CLAIMS:
+If you contend that the debt is owed by a third party or that you are not the proper party to this demand, you must provide written notice with supporting evidence within 7 days of receiving this letter. Failure to do so will be deemed an admission that you are the proper party liable for this debt.
+
+SET-OFF CLAIMS:
+If you claim any right of set-off or counterclaim against the amount demanded, you must provide detailed written notice of such claim within 7 days. Any set-off or counterclaim must be supported by documentary evidence and will be considered only if legally valid under UAE law.
+
+COSTS AND EXPENSES:
+The sender reserves the right to claim all reasonable costs and expenses incurred in pursuing this debt, including but not limited to:
+• Legal fees and attorney costs
+• Court filing fees and judicial costs
+• Debt collection agency fees (if engaged)
+• Administrative costs for processing payments and correspondence
+• Bank charges and currency conversion costs (if applicable)
+
+SETTLEMENT NEGOTIATIONS:
+Any settlement negotiations or discussions shall be conducted on a "without prejudice" basis and shall not constitute an admission of liability or waiver of rights by either party. All settlement proposals must be in writing to be considered binding.
+
+ENFORCEMENT IN OTHER JURISDICTIONS:
+If the debtor has assets located outside the UAE, the sender reserves the right to seek recognition and enforcement of any UAE court judgment in other jurisdictions in accordance with applicable international conventions and reciprocal enforcement agreements.`;
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -927,6 +1242,10 @@ Generate the complete letter now.`;
 
     if (letterType === 'power_of_attorney') {
       letterContent += POWER_OF_ATTORNEY_CLAUSES;
+    }
+
+    if (letterType === 'demand_letter') {
+      letterContent += DEMAND_LETTER_CLAUSES;
     }
 
     // Deduct credits (queries_used is the DB column name)

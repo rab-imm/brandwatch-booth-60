@@ -103,10 +103,119 @@ export default function LetterCreationWizard() {
         { key: "duration", label: "Lease Duration", placeholder: "e.g., 12 months" },
       ],
       demand_letter: [
-        { key: "demandType", label: "Type of Demand", placeholder: "Payment, action, etc." },
-        { key: "amount", label: "Amount (if applicable)", placeholder: "AED amount" },
-        { key: "deadline", label: "Deadline for Compliance", type: "date", placeholder: "Select date" },
-        { key: "consequences", label: "Consequences of Non-Compliance", placeholder: "Legal action, etc.", multiline: true },
+        // REFERENCE & BASIC INFO
+        { key: "referenceNumber", label: "Reference Number (Optional)", placeholder: "e.g., INV-2025-001, REF-DEM-001" },
+
+        // DEBT TYPE & CONTEXT (Critical for template)
+        { key: "debtType", label: "Type of Debt/Claim", type: "select", options: [
+          "Unpaid Invoice - Goods or services provided but not paid",
+          "Breach of Contract - Contractual obligations not fulfilled",
+          "Payment for Services - Services completed, payment outstanding",
+          "Loan Repayment - Outstanding loan or advance",
+          "Rental Arrears - Unpaid rent for property",
+          "Other - Specify in details below"
+        ], required: true },
+
+        // AMOUNT
+        { key: "amount", label: "Amount Demanded (AED)", placeholder: "e.g., 50000.00 (numbers only)", required: true },
+
+        // DEBT REASON - SPECIFIC REFERENCES BASED ON DEBT TYPE
+        // For Unpaid Invoice
+        { key: "invoiceNumber", label: "Invoice Number (if Unpaid Invoice)", placeholder: "e.g., INV-2024-12345" },
+        { key: "invoiceDate", label: "Invoice Date (if Unpaid Invoice)", type: "date", placeholder: "Date invoice was issued" },
+        { key: "serviceDescription", label: "Goods/Services Provided", placeholder: "Describe what was provided (e.g., 'Web development services for 3 months', '500 units of Product X')", multiline: true, required: true },
+        { key: "originalPaymentTerms", label: "Original Payment Terms", placeholder: "e.g., Net 30 days, Payment on delivery, As per contract", required: true },
+        { key: "originalDueDate", label: "Original Due Date", type: "date", placeholder: "When was payment originally due?", required: true },
+
+        // For Breach of Contract
+        { key: "contractTitle", label: "Contract Title (if Breach of Contract)", placeholder: "e.g., 'Service Agreement dated 15/01/2024'" },
+        { key: "contractDate", label: "Contract Date (if Breach of Contract)", type: "date", placeholder: "Date contract was signed" },
+        { key: "contractClause", label: "Relevant Contract Clause (if applicable)", placeholder: "e.g., Clause 5.2 - Payment Terms, Clause 8.1 - Delivery Obligations" },
+        { key: "breachDetails", label: "Breach Details (if Breach of Contract)", placeholder: "Describe how the contract was breached and what obligations were not fulfilled", multiline: true },
+
+        // For Loan Repayment
+        { key: "loanReference", label: "Loan Agreement Reference (if Loan)", placeholder: "Loan agreement number or reference" },
+        { key: "loanDate", label: "Loan Date (if Loan)", type: "date", placeholder: "Date loan was provided" },
+        { key: "originalLoanAmount", label: "Original Loan Amount (if Loan)", placeholder: "AED amount originally loaned" },
+        { key: "repaymentTerms", label: "Repayment Terms (if Loan)", placeholder: "e.g., 12 monthly installments of AED 5,000, Lump sum due 31/12/2024" },
+        { key: "overdueDetails", label: "Overdue Installments (if Loan)", placeholder: "Which installments are overdue? e.g., 'January, February, March 2025'" },
+
+        // For Rental Arrears
+        { key: "leaseReference", label: "Lease Agreement Reference (if Rental)", placeholder: "Lease agreement number or reference" },
+        { key: "propertyAddress", label: "Property Address (if Rental)", placeholder: "Full address of rental property", multiline: true },
+        { key: "rentalPeriod", label: "Rental Period in Arrears (if Rental)", placeholder: "e.g., January 2025 to March 2025" },
+        { key: "rentAmount", label: "Monthly/Annual Rent (if Rental)", placeholder: "AED per month or per year" },
+
+        // For Other
+        { key: "otherDebtBasis", label: "Basis of Claim (if Other)", placeholder: "Explain the legal basis for this demand", multiline: true },
+
+        // SUPPORTING DOCUMENTS
+        { key: "supportingDocs", label: "Supporting Documents Referenced", placeholder: "List documents you are attaching or referencing: e.g., 'Invoice No. 12345 dated 15/01/2025', 'Service Agreement dated 01/03/2024', 'Email correspondence dated 20/02/2025'", multiline: true, required: true },
+
+        // PAYMENT DEADLINE
+        { key: "paymentDeadline", label: "Payment Deadline (Exact Date)", type: "date", placeholder: "Select realistic deadline (typically 7-30 days from now)", required: true },
+        { key: "deadlineCalendarDays", label: "Or Specify Calendar Days from Receipt", placeholder: "e.g., 14 (standard), 7 (urgent rental), 21 (disputed amounts)" },
+
+        // PARTIAL PAYMENT OPTION
+        { key: "partialPaymentAccepted", label: "Accept Partial Payment or Payment Plan?", type: "select", options: [
+          "No - Full payment required by deadline",
+          "Yes - Open to discussing payment plan if contacted within X days"
+        ], required: true },
+
+        // PAYMENT METHODS & DETAILS
+        { key: "bankTransferAllowed", label: "Payment Method: Bank Transfer", type: "select", options: ["Yes - Provide bank details", "No - Not accepted"], required: true },
+        { key: "bankName", label: "Bank Name (if Bank Transfer)", placeholder: "e.g., Emirates NBD, Abu Dhabi Commercial Bank" },
+        { key: "accountName", label: "Account Name (if Bank Transfer)", placeholder: "Name on bank account" },
+        { key: "accountNumber", label: "Account Number (if Bank Transfer)", placeholder: "Account number" },
+        { key: "iban", label: "IBAN (if Bank Transfer)", placeholder: "AE00 0000 0000 0000 0000 000" },
+        { key: "swiftCode", label: "SWIFT/BIC Code (if Bank Transfer - International)", placeholder: "e.g., EBILAEAD" },
+        { key: "bankBranch", label: "Bank Branch (if Bank Transfer)", placeholder: "e.g., Dubai Main Branch" },
+
+        { key: "chequeAllowed", label: "Payment Method: Cheque", type: "select", options: ["Yes - Provide cheque details", "No - Not accepted"], required: true },
+        { key: "chequePayeeName", label: "Cheque Payable To (if Cheque)", placeholder: "Name to write on cheque" },
+        { key: "chequeDeliveryAddress", label: "Cheque Delivery Address (if Cheque)", placeholder: "Where to deliver cheque", multiline: true },
+
+        { key: "cashAllowed", label: "Payment Method: Cash (max AED 55,000 per UAE law)", type: "select", options: ["Yes - Provide cash payment location", "No - Not accepted"], required: true },
+        { key: "cashPaymentAddress", label: "Cash Payment Address (if Cash)", placeholder: "Office address for cash payment", multiline: true },
+        { key: "businessHours", label: "Business Hours (if Cash)", placeholder: "e.g., Sunday to Thursday, 9:00 AM - 5:00 PM" },
+        { key: "contactPerson", label: "Contact Person (if Cash)", placeholder: "Name of person to meet for cash payment" },
+        { key: "contactPhone", label: "Contact Phone (if Cash)", placeholder: "+971 XX XXX XXXX" },
+
+        { key: "onlinePaymentAllowed", label: "Payment Method: Online Payment Portal", type: "select", options: ["Yes - Provide payment portal details", "No - Not accepted"], required: true },
+        { key: "paymentPortalURL", label: "Payment Portal URL (if Online)", placeholder: "https://payments.example.com" },
+        { key: "referenceCode", label: "Reference Code for Online Payment (if Online)", placeholder: "Code to enter during payment" },
+
+        // SENDER CONTACT FOR PAYMENT CONFIRMATION
+        { key: "senderEmail", label: "Sender Email (for payment confirmation)", placeholder: "email@example.com", required: true },
+        { key: "senderPhone", label: "Sender Phone (for queries)", placeholder: "+971 XX XXX XXXX", required: true },
+
+        // CONSEQUENCES
+        { key: "consequences", label: "Specific Consequences of Non-Compliance", placeholder: "What will happen if not paid? e.g., 'Civil lawsuit in Dubai Courts', 'Late payment interest at 5% per month', 'Reporting to Al Etihad Credit Bureau', 'Contract termination', 'Travel ban application'", multiline: true, required: true },
+        { key: "interestRate", label: "Late Payment Interest Rate (if applicable)", placeholder: "e.g., 5 (for 5% per month or as per contract)" },
+        { key: "estimatedLegalCosts", label: "Estimated Legal Costs (if applicable)", placeholder: "AED amount for legal fees if case proceeds to court" },
+
+        // APPLICABLE LAW & JURISDICTION
+        { key: "applicableLaw", label: "Applicable UAE Law", type: "select", options: [
+          "Commercial Transactions Law (Federal Law No. 18 of 1993) - For business debts",
+          "Civil Transactions Law (Federal Law No. 5 of 1985) - For general debts and contracts",
+          "Tenancy Law (Federal Law No. 26 of 2007) - For rental arrears",
+          "Consumer Protection Law (Federal Law No. 15 of 2020) - For consumer-related debts",
+          "As per contract/agreement - Refer to specific contract provisions",
+          "Multiple laws apply - Specify in additional details"
+        ], required: true },
+        { key: "emirate", label: "Emirate (for Jurisdiction)", placeholder: "e.g., Dubai, Abu Dhabi, Sharjah (where legal action will be filed)", required: true },
+
+        // CREDIT REPORTING
+        { key: "creditReportingThreat", label: "Include Credit Bureau Reporting Threat?", type: "select", options: [
+          "Yes - Warn of AECB (Al Etihad Credit Bureau) reporting",
+          "No - Do not mention credit reporting"
+        ], required: true },
+
+        // URGENCY
+        { key: "urgency", label: "Urgency Level", type: "select", options: ["Standard (14-21 days)", "Urgent (7 days)", "Extremely Urgent (3-5 days) - Rental/critical"], required: true },
+
+        // ADDITIONAL CONTEXT
+        { key: "previousAttempts", label: "Previous Attempts to Collect", placeholder: "List any previous reminders, calls, emails, or meetings to resolve this matter. E.g., 'Reminder email sent 15/02/2025, Phone call 20/02/2025, No response received'", multiline: true, required: true },
       ],
       workplace_complaint: [
         { key: "complainantName", label: "Your Full Name", placeholder: "First and last name" },
@@ -622,6 +731,178 @@ export default function LetterCreationWizard() {
             variant: "destructive"
           })
           return false
+        }
+      }
+
+      // Additional validation for demand_letter fields
+      if (letterType === 'demand_letter') {
+        // Validate emirate (required for jurisdiction)
+        if (!details.emirate || !details.emirate.trim()) {
+          toast({
+            title: "Emirate required",
+            description: "Please specify the emirate for jurisdictional purposes (where legal action will be filed)",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate amount format (must be positive number)
+        const amount = details.amount
+        if (!amount || !amount.trim()) {
+          toast({
+            title: "Amount required",
+            description: "Please specify the amount demanded in AED",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        const amountValue = parseFloat(amount.replace(/[^0-9.]/g, ''))
+        if (isNaN(amountValue) || amountValue <= 0) {
+          toast({
+            title: "Invalid amount",
+            description: "Please enter a valid positive amount in AED (numbers only, e.g., 50000.00)",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate payment deadline (must be in the future and realistic)
+        if (!details.paymentDeadline || !details.paymentDeadline.trim()) {
+          if (!details.deadlineCalendarDays || !details.deadlineCalendarDays.trim()) {
+            toast({
+              title: "Payment deadline required",
+              description: "Please specify either a deadline date or number of calendar days",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // If calendar days specified, validate range (3-90 days is realistic)
+        if (details.deadlineCalendarDays && details.deadlineCalendarDays.trim()) {
+          const days = parseInt(details.deadlineCalendarDays)
+          if (isNaN(days) || days < 3 || days > 90) {
+            toast({
+              title: "Invalid calendar days",
+              description: "Please enter a realistic number of days between 3 and 90 (typically 7-30 days)",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // Ensure at least one payment method is allowed
+        const paymentMethodsAllowed = [
+          details.bankTransferAllowed?.includes("Yes"),
+          details.chequeAllowed?.includes("Yes"),
+          details.cashAllowed?.includes("Yes"),
+          details.onlinePaymentAllowed?.includes("Yes")
+        ].some(Boolean)
+
+        if (!paymentMethodsAllowed) {
+          toast({
+            title: "No payment method specified",
+            description: "You must allow at least one payment method (bank transfer, cheque, cash, or online)",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // If bank transfer is allowed, validate that essential bank details are provided
+        if (details.bankTransferAllowed?.includes("Yes")) {
+          if (!details.bankName || !details.accountName || !details.accountNumber) {
+            toast({
+              title: "Bank details incomplete",
+              description: "If bank transfer is allowed, you must provide: Bank Name, Account Name, and Account Number at minimum",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // If cheque is allowed, validate cheque details
+        if (details.chequeAllowed?.includes("Yes")) {
+          if (!details.chequePayeeName || !details.chequeDeliveryAddress) {
+            toast({
+              title: "Cheque details incomplete",
+              description: "If cheque payment is allowed, you must provide: Payee Name and Delivery Address",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // If cash is allowed, validate cash payment location
+        if (details.cashAllowed?.includes("Yes")) {
+          if (!details.cashPaymentAddress || !details.businessHours) {
+            toast({
+              title: "Cash payment details incomplete",
+              description: "If cash payment is allowed, you must provide: Payment Address and Business Hours",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // If online payment is allowed, validate portal URL
+        if (details.onlinePaymentAllowed?.includes("Yes")) {
+          if (!details.paymentPortalURL) {
+            toast({
+              title: "Online payment details incomplete",
+              description: "If online payment is allowed, you must provide: Payment Portal URL",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // Validate email format for sender
+        const senderEmail = details.senderEmail
+        if (!senderEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(senderEmail)) {
+          toast({
+            title: "Invalid sender email",
+            description: "Please enter a valid email address for payment confirmation",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate UAE phone format for sender
+        const senderPhone = details.senderPhone
+        if (senderPhone && !/^\+971\s?\d{1,2}\s?\d{3}\s?\d{4}$/.test(senderPhone)) {
+          toast({
+            title: "Invalid phone format",
+            description: "Sender phone should be in UAE format: +971 XX XXX XXXX",
+            variant: "destructive"
+          })
+          return false
+        }
+
+        // Validate interest rate if provided (must be reasonable percentage)
+        if (details.interestRate && details.interestRate.trim()) {
+          const rate = parseFloat(details.interestRate)
+          if (isNaN(rate) || rate < 0 || rate > 50) {
+            toast({
+              title: "Invalid interest rate",
+              description: "Please enter a reasonable interest rate percentage (0-50%)",
+              variant: "destructive"
+            })
+            return false
+          }
+        }
+
+        // Validate legal costs if provided
+        if (details.estimatedLegalCosts && details.estimatedLegalCosts.trim()) {
+          const legalCosts = parseFloat(details.estimatedLegalCosts.replace(/[^0-9.]/g, ''))
+          if (isNaN(legalCosts) || legalCosts < 0) {
+            toast({
+              title: "Invalid legal costs",
+              description: "Please enter a valid amount for estimated legal costs (numbers only)",
+              variant: "destructive"
+            })
+            return false
+          }
         }
       }
     }
@@ -1592,10 +1873,277 @@ export default function LetterCreationWizard() {
                     <AlertDescription className="text-blue-800 dark:text-blue-200 text-sm">
                       This letter specifies that disputes will be subject to the exclusive jurisdiction of the courts of {details.emirate}, United Arab Emirates. {details.disputeResolutionPreference === "Arbitration" && "The letter also mentions the option of arbitration under UAE Arbitration Law (Federal Law No. 6 of 2018)."}
                     </AlertDescription>
-                  </Alert>
-                </div>
-              ) : (
-                <div className="space-y-4">
+                    </Alert>
+                  </div>
+                ) : letterType === 'demand_letter' ? (
+                  <div className="space-y-4">
+                    {/* Debt Context */}
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base">Demand Details & Context</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Type of Debt/Claim:</p>
+                          <Badge variant="default" className="mt-1">{details.debtType}</Badge>
+                        </div>
+                        {details.referenceNumber && (
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Reference Number:</p>
+                            <p className="text-sm font-semibold">{details.referenceNumber}</p>
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Amount Demanded:</p>
+                          <p className="text-lg font-bold text-primary">AED {parseFloat(details.amount).toLocaleString('en-AE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Goods/Services Provided:</p>
+                          <p className="text-sm whitespace-pre-wrap">{details.serviceDescription}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Original Payment Terms:</p>
+                          <p className="text-sm">{details.originalPaymentTerms}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Original Due Date:</p>
+                          <p className="text-sm font-semibold text-red-600">{details.originalDueDate ? format(parseISO(details.originalDueDate), 'dd MMMM yyyy') : 'Not specified'}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Debt-Specific Details (Invoice, Contract, Loan, Rental) */}
+                    {(details.invoiceNumber || details.contractTitle || details.loanReference || details.leaseReference) && (
+                      <Card>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-base">Supporting References</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2 text-sm">
+                          {details.invoiceNumber && (
+                            <>
+                              <div><span className="text-muted-foreground">Invoice Number:</span> <span className="font-medium">{details.invoiceNumber}</span></div>
+                              {details.invoiceDate && <div><span className="text-muted-foreground">Invoice Date:</span> <span className="font-medium">{format(parseISO(details.invoiceDate), 'dd/MM/yyyy')}</span></div>}
+                            </>
+                          )}
+                          {details.contractTitle && (
+                            <>
+                              <div><span className="text-muted-foreground">Contract:</span> <span className="font-medium">{details.contractTitle}</span></div>
+                              {details.contractDate && <div><span className="text-muted-foreground">Contract Date:</span> <span className="font-medium">{format(parseISO(details.contractDate), 'dd/MM/yyyy')}</span></div>}
+                              {details.contractClause && <div><span className="text-muted-foreground">Relevant Clause:</span> <span className="font-medium">{details.contractClause}</span></div>}
+                              {details.breachDetails && (
+                                <div>
+                                  <p className="text-muted-foreground font-medium mb-1">Breach Details:</p>
+                                  <p className="whitespace-pre-wrap">{details.breachDetails}</p>
+                                </div>
+                              )}
+                            </>
+                          )}
+                          {details.loanReference && (
+                            <>
+                              <div><span className="text-muted-foreground">Loan Reference:</span> <span className="font-medium">{details.loanReference}</span></div>
+                              {details.loanDate && <div><span className="text-muted-foreground">Loan Date:</span> <span className="font-medium">{format(parseISO(details.loanDate), 'dd/MM/yyyy')}</span></div>}
+                              {details.originalLoanAmount && <div><span className="text-muted-foreground">Original Loan Amount:</span> <span className="font-medium">AED {parseFloat(details.originalLoanAmount).toLocaleString('en-AE')}</span></div>}
+                              {details.repaymentTerms && <div><span className="text-muted-foreground">Repayment Terms:</span> <span className="font-medium">{details.repaymentTerms}</span></div>}
+                              {details.overdueDetails && <div><span className="text-muted-foreground">Overdue:</span> <span className="font-medium">{details.overdueDetails}</span></div>}
+                            </>
+                          )}
+                          {details.leaseReference && (
+                            <>
+                              <div><span className="text-muted-foreground">Lease Reference:</span> <span className="font-medium">{details.leaseReference}</span></div>
+                              {details.propertyAddress && <div><span className="text-muted-foreground">Property:</span> <span className="font-medium">{details.propertyAddress}</span></div>}
+                              {details.rentalPeriod && <div><span className="text-muted-foreground">Period in Arrears:</span> <span className="font-medium">{details.rentalPeriod}</span></div>}
+                              {details.rentAmount && <div><span className="text-muted-foreground">Rent Amount:</span> <span className="font-medium">AED {details.rentAmount}</span></div>}
+                            </>
+                          )}
+                          {details.otherDebtBasis && (
+                            <div>
+                              <p className="text-muted-foreground font-medium mb-1">Basis of Claim:</p>
+                              <p className="whitespace-pre-wrap">{details.otherDebtBasis}</p>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Payment Deadline & Terms */}
+                    <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base text-amber-900 dark:text-amber-100">Payment Deadline & Required Action</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Icon name="calendar" className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                          <div>
+                            <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Payment Deadline:</p>
+                            <p className="text-base font-bold text-amber-900 dark:text-amber-100">
+                              {details.paymentDeadline ? format(parseISO(details.paymentDeadline), 'dd MMMM yyyy') : 
+                               details.deadlineCalendarDays ? `Within ${details.deadlineCalendarDays} calendar days from receipt` : 'Not specified'}
+                            </p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Urgency Level:</p>
+                          <Badge variant={details.urgency?.includes("Extremely") ? "destructive" : details.urgency?.includes("Urgent") ? "default" : "secondary"}>
+                            {details.urgency}
+                          </Badge>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Partial Payment / Payment Plan:</p>
+                          <p className="text-sm text-amber-900 dark:text-amber-100">{details.partialPaymentAccepted}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Payment Methods */}
+                    <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base text-blue-900 dark:text-blue-100">Payment Methods Accepted</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {/* Bank Transfer */}
+                        {details.bankTransferAllowed?.includes("Yes") && (
+                          <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded">
+                            <p className="font-semibold text-sm mb-2 text-blue-900 dark:text-blue-100">✓ Bank Transfer (Preferred)</p>
+                            <div className="space-y-1 text-xs text-blue-800 dark:text-blue-200">
+                              <p><span className="font-medium">Bank:</span> {details.bankName}</p>
+                              <p><span className="font-medium">Account Name:</span> {details.accountName}</p>
+                              <p><span className="font-medium">Account Number:</span> {details.accountNumber}</p>
+                              {details.iban && <p><span className="font-medium">IBAN:</span> {details.iban}</p>}
+                              {details.swiftCode && <p><span className="font-medium">SWIFT Code:</span> {details.swiftCode}</p>}
+                              {details.bankBranch && <p><span className="font-medium">Branch:</span> {details.bankBranch}</p>}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Cheque */}
+                        {details.chequeAllowed?.includes("Yes") && (
+                          <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded">
+                            <p className="font-semibold text-sm mb-2 text-blue-900 dark:text-blue-100">✓ Cheque Payment</p>
+                            <div className="space-y-1 text-xs text-blue-800 dark:text-blue-200">
+                              <p><span className="font-medium">Payable To:</span> {details.chequePayeeName}</p>
+                              <p><span className="font-medium">Deliver To:</span> {details.chequeDeliveryAddress}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Cash */}
+                        {details.cashAllowed?.includes("Yes") && (
+                          <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded">
+                            <p className="font-semibold text-sm mb-2 text-blue-900 dark:text-blue-100">✓ Cash Payment (Max AED 55,000)</p>
+                            <div className="space-y-1 text-xs text-blue-800 dark:text-blue-200">
+                              <p><span className="font-medium">Address:</span> {details.cashPaymentAddress}</p>
+                              <p><span className="font-medium">Hours:</span> {details.businessHours}</p>
+                              {details.contactPerson && <p><span className="font-medium">Contact:</span> {details.contactPerson}</p>}
+                              {details.contactPhone && <p><span className="font-medium">Phone:</span> {details.contactPhone}</p>}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Online Payment */}
+                        {details.onlinePaymentAllowed?.includes("Yes") && (
+                          <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded">
+                            <p className="font-semibold text-sm mb-2 text-blue-900 dark:text-blue-100">✓ Online Payment</p>
+                            <div className="space-y-1 text-xs text-blue-800 dark:text-blue-200">
+                              <p><span className="font-medium">Portal:</span> {details.paymentPortalURL}</p>
+                              {details.referenceCode && <p><span className="font-medium">Reference Code:</span> {details.referenceCode}</p>}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="mt-3 pt-3 border-t border-blue-300 dark:border-blue-700">
+                          <p className="text-xs font-medium text-blue-800 dark:text-blue-200">Payment Confirmation:</p>
+                          <p className="text-xs text-blue-800 dark:text-blue-200">Email: {details.senderEmail}</p>
+                          <p className="text-xs text-blue-800 dark:text-blue-200">Phone: {details.senderPhone}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Consequences */}
+                    <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base text-red-900 dark:text-red-100">Consequences of Non-Compliance</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <p className="text-sm whitespace-pre-wrap text-red-800 dark:text-red-200">{details.consequences}</p>
+                        {details.interestRate && (
+                          <div className="mt-2">
+                            <p className="text-sm font-medium text-red-800 dark:text-red-200">Late Payment Interest:</p>
+                            <p className="text-sm text-red-900 dark:text-red-100">{details.interestRate}% per period</p>
+                          </div>
+                        )}
+                        {details.estimatedLegalCosts && (
+                          <div>
+                            <p className="text-sm font-medium text-red-800 dark:text-red-200">Estimated Legal Costs:</p>
+                            <p className="text-sm text-red-900 dark:text-red-100">AED {parseFloat(details.estimatedLegalCosts).toLocaleString('en-AE')}</p>
+                          </div>
+                        )}
+                        {details.creditReportingThreat?.includes("Yes") && (
+                          <Alert className="border-red-300 bg-red-100 dark:border-red-700 dark:bg-red-900 mt-2">
+                            <AlertCircle className="h-4 w-4 text-red-700 dark:text-red-300" />
+                            <AlertDescription className="text-xs text-red-800 dark:text-red-200">
+                              This letter will include a warning that default may be reported to Al Etihad Credit Bureau (AECB), which may affect the debtor's credit rating and future credit applications in the UAE.
+                            </AlertDescription>
+                          </Alert>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Supporting Documents & Previous Attempts */}
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base">Supporting Information</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3 text-sm">
+                        {details.supportingDocs && (
+                          <div>
+                            <p className="font-medium text-muted-foreground mb-1">Supporting Documents:</p>
+                            <p className="whitespace-pre-wrap">{details.supportingDocs}</p>
+                          </div>
+                        )}
+                        {details.previousAttempts && (
+                          <div>
+                            <p className="font-medium text-muted-foreground mb-1">Previous Collection Attempts:</p>
+                            <p className="whitespace-pre-wrap">{details.previousAttempts}</p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Legal Compliance Summary */}
+                    <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                      <Shield className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      <AlertTitle className="text-green-900 dark:text-green-100">
+                        Legal Compliance & Requirements Included
+                      </AlertTitle>
+                      <AlertDescription className="text-green-800 dark:text-green-200 text-sm">
+                        Your demand letter will automatically include:
+                        <ul className="list-disc list-inside mt-2 space-y-1">
+                          <li>Governing Law: {details.applicableLaw}</li>
+                          <li>Dispute Resolution: Jurisdiction in {details.emirate} Courts</li>
+                          <li>UAE PDPL (Federal Law No. 45 of 2021) data protection compliance</li>
+                          <li>Clear reason for debt with specific references (invoice/contract/agreement)</li>
+                          <li>Realistic payment deadline: {details.paymentDeadline ? format(parseISO(details.paymentDeadline), 'dd MMMM yyyy') : `${details.deadlineCalendarDays} calendar days from receipt`}</li>
+                          <li>Detailed payment methods and instructions</li>
+                          <li>Specific consequences of non-compliance</li>
+                          <li>Reservation of rights clause</li>
+                          <li>Professional formatting with standardized section headers</li>
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+
+                    {/* Jurisdiction Notice */}
+                    <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                      <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <AlertTitle className="text-blue-900 dark:text-blue-100">
+                        Jurisdiction: {details.emirate}, UAE
+                      </AlertTitle>
+                      <AlertDescription className="text-blue-800 dark:text-blue-200 text-sm">
+                        This demand letter specifies that any legal proceedings will be filed in the competent courts of {details.emirate}, United Arab Emirates. The letter is governed by UAE federal laws, specifically: {details.applicableLaw}.
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
                   <div className="bg-muted/50 rounded-lg p-4 space-y-3">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Letter Type</p>
