@@ -14,7 +14,7 @@ interface SuggestLetterButtonProps {
 }
 
 export const SuggestLetterButton = ({ conversationId }: SuggestLetterButtonProps) => {
-  const { messages } = useChatContext()
+  const { messages, lastLetterSuggestion } = useChatContext()
   const navigate = useNavigate()
   const { toast } = useToast()
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -27,6 +27,21 @@ export const SuggestLetterButton = ({ conversationId }: SuggestLetterButtonProps
   } | null>(null)
 
   const handleAnalyze = async () => {
+    // Check if we already have a recent suggestion from the last AI message
+    if (lastLetterSuggestion && lastLetterSuggestion.shouldSuggest && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1]
+      if (lastMessage.role === 'assistant' && lastMessage.suggestedLetter) {
+        setAnalysis({
+          letterType: lastMessage.suggestedLetter.letterType,
+          suggestedTitle: lastMessage.suggestedLetter.suggestedTitle || '',
+          confidence: lastMessage.suggestedLetter.confidence,
+          reasoning: lastMessage.suggestedLetter.reasoning
+        })
+        setShowDialog(true)
+        return
+      }
+    }
+
     if (!conversationId || messages.length === 0) {
       toast({
         title: "No conversation to analyze",

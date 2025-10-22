@@ -71,13 +71,25 @@ Don't suggest a letter when:
 - Purely informational queries
 - No actionable situation mentioned
 
+## Confidence Guidelines:
+- 90-100%: Clear dispute, deadline pressure, documented violations, or urgent need for formal documentation
+- 70-89%: Strong indicators like repeated issues, need for evidence trail, or escalating situation (BE MORE LIBERAL WITH THIS RANGE)
+- 50-69%: Potential benefit but situation could be resolved informally
+- Below 50%: Premature or unnecessary for current situation
+
+Be proactive and err on the side of suggesting letters. When in doubt between two confidence levels, choose the higher one if there's ANY potential benefit to documenting the matter formally. For situations involving property, employment, contracts, or disputes, default to 70%+ confidence.
+
+## Topic Keywords:
+Always provide 3-5 relevant keywords that identify the letter topic (e.g., ["security deposit", "landlord", "lease", "refund"] for a deposit dispute).
+
 Response format (use tool call):
 {
   "shouldSuggestLetter": boolean,
   "letterType": string (one of the types above) or null,
   "confidence": number (0-100),
   "reasoning": string,
-  "suggestedTitle": string or null
+  "suggestedTitle": string or null,
+  "topicKeywords": array of 3-5 strings
 }`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -109,9 +121,14 @@ Response format (use tool call):
                 },
                 confidence: { type: "number", minimum: 0, maximum: 100 },
                 reasoning: { type: "string" },
-                suggestedTitle: { type: "string" }
+                suggestedTitle: { type: "string" },
+                topicKeywords: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "Key terms that identify this letter topic"
+                }
               },
-              required: ["shouldSuggestLetter", "confidence", "reasoning"],
+              required: ["shouldSuggestLetter", "confidence", "reasoning", "topicKeywords"],
               additionalProperties: false
             }
           }

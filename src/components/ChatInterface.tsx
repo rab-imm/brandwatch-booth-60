@@ -6,16 +6,28 @@ import { ChatInput } from "@/components/ChatInput"
 import { LawyerRequestButton } from "@/components/LawyerRequestButton"
 import { SuggestLetterButton } from "@/components/SuggestLetterButton"
 import { DeleteConversationButton } from "@/components/DeleteConversationButton"
+import { AutoLetterSuggestionPopup } from "@/components/AutoLetterSuggestionPopup"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/components/ui/use-toast"
 
 export const ChatInterface = () => {
   const { user, profile } = useAuth()
-  const { messages, sendMessage, loading, currentConversationId, createNewConversation } = useChatContext()
+  const { 
+    messages, 
+    sendMessage, 
+    loading, 
+    currentConversationId, 
+    createNewConversation,
+    lastLetterSuggestion,
+    dismissedSuggestions,
+    dismissLetterSuggestion
+  } = useChatContext()
   const [inputValue, setInputValue] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
+  const [showAutoPopup, setShowAutoPopup] = useState(false)
+  const [lastShownMessageId, setLastShownMessageId] = useState<string | null>(null)
 
   // Debug logging
   console.log('💬 ChatInterface render:', {
@@ -32,6 +44,32 @@ export const ChatInterface = () => {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Auto-popup logic when new message with high confidence letter suggestion arrives
+  useEffect(() => {
+    if (!lastLetterSuggestion || !messages.length) return
+
+    const lastMessage = messages[messages.length - 1]
+    
+    // Check if this is a new AI message with suggestion
+    if (
+      lastMessage.role === 'assistant' &&
+      lastMessage.suggestedLetter?.confidence &&
+      lastMessage.suggestedLetter.confidence >= 70 &&
+      lastMessage.id !== lastShownMessageId &&
+      !dismissedSuggestions.has(lastMessage.id)
+    ) {
+      setShowAutoPopup(true)
+      setLastShownMessageId(lastMessage.id)
+    }
+  }, [messages, lastLetterSuggestion, dismissedSuggestions, lastShownMessageId])
+
+  const handleDismissPopup = () => {
+    setShowAutoPopup(false)
+    if (lastShownMessageId) {
+      dismissLetterSuggestion(lastShownMessageId)
+    }
+  }
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || loading) return
@@ -228,6 +266,15 @@ export const ChatInterface = () => {
           placeholder="Ask a question about UAE law..."
         />
       </div>
+
+      {/* Auto Letter Suggestion Popup */}
+      {showAutoPopup && lastLetterSuggestion && (
+        <AutoLetterSuggestionPopup
+          suggestion={lastLetterSuggestion}
+          conversationId={currentConversationId}
+          onDismiss={handleDismissPopup}
+        />
+      )}
     </div>
   )
 }

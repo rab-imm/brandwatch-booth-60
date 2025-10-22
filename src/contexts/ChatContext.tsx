@@ -41,6 +41,15 @@ interface Conversation {
   user_id: string
 }
 
+interface LetterSuggestion {
+  shouldSuggest: boolean
+  letterType: string
+  confidence: number
+  reasoning: string
+  suggestedTitle?: string
+  topicKeywords?: string[]
+}
+
 interface ChatContextValue {
   messages: Message[]
   loading: boolean
@@ -49,6 +58,10 @@ interface ChatContextValue {
   createNewConversation: () => Promise<string | null>
   switchConversation: (conversationId: string) => Promise<void>
   deleteConversation: (conversationId: string) => Promise<void>
+  lastLetterSuggestion: LetterSuggestion | null
+  dismissedSuggestions: Set<string>
+  dismissLetterSuggestion: (messageId: string) => void
+  letterTopicActive: boolean
 }
 
 const ChatContext = createContext<ChatContextValue | undefined>(undefined)
@@ -71,6 +84,9 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
   const [loading, setLoading] = useState(false)
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [lastLetterSuggestion, setLastLetterSuggestion] = useState<LetterSuggestion | null>(null)
+  const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set())
+  const [letterTopicActive, setLetterTopicActive] = useState(false)
   
   // StrictMode execution guard
   const executionCountRef = useRef(0)
@@ -161,6 +177,9 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     // Clear state immediately
     setMessages([])
     setCurrentConversationId(null)
+    setLastLetterSuggestion(null)
+    setDismissedSuggestions(new Set())
+    setLetterTopicActive(false)
     
     // Set new conversation flag
     isNewConversationRef.current = true
@@ -175,6 +194,9 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     // Clear state and set new conversation ID
     setMessages([])
     setCurrentConversationId(conversationId)
+    setLastLetterSuggestion(null)
+    setDismissedSuggestions(new Set())
+    setLetterTopicActive(false)
     
     console.log('✅ State cleared, fetching messages...')
     isNewConversationRef.current = false
@@ -339,6 +361,12 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
       // Update messages state with AI response
       setMessages(prev => [...prev, aiMessage])
 
+      // Update letter suggestion state if available
+      if (result.suggestedLetter?.shouldSuggest && result.suggestedLetter.confidence >= 70) {
+        setLastLetterSuggestion(result.suggestedLetter)
+        setLetterTopicActive(true)
+      }
+
       // Refetch profile to update query count in UI
       await refetchProfile()
 
@@ -478,6 +506,10 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     }
   }, [user, currentConversationId, createNewConversation])
 
+  const dismissLetterSuggestion = (messageId: string) => {
+    setDismissedSuggestions((prev) => new Set(prev).add(messageId))
+  }
+
   const value: ChatContextValue = {
     messages,
     loading,
@@ -485,7 +517,11 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     sendMessage,
     createNewConversation,
     switchConversation,
-    deleteConversation
+    deleteConversation,
+    lastLetterSuggestion,
+    dismissedSuggestions,
+    dismissLetterSuggestion,
+    letterTopicActive
   }
 
   return (
