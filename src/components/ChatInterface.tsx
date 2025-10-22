@@ -45,24 +45,27 @@ export const ChatInterface = () => {
     scrollToBottom()
   }, [messages])
 
-  // Auto-popup logic when new message with high confidence letter suggestion arrives
+  // Auto-popup logic: Show popup when lastLetterSuggestion updates with high confidence
   useEffect(() => {
-    if (!lastLetterSuggestion || !messages.length) return
-
-    const lastMessage = messages[messages.length - 1]
-    
-    // Check if this is a new AI message with suggestion
-    if (
-      lastMessage.role === 'assistant' &&
-      lastMessage.suggestedLetter?.confidence &&
-      lastMessage.suggestedLetter.confidence >= 70 &&
-      lastMessage.id !== lastShownMessageId &&
-      !dismissedSuggestions.has(lastMessage.id)
-    ) {
-      setShowAutoPopup(true)
-      setLastShownMessageId(lastMessage.id)
+    if (!lastLetterSuggestion || lastLetterSuggestion.confidence < 70) {
+      console.log('❌ No letter suggestion or below threshold');
+      return;
     }
-  }, [messages, lastLetterSuggestion, dismissedSuggestions, lastShownMessageId])
+    
+    // Generate a unique key for this suggestion
+    const suggestionKey = `${currentConversationId}-${Date.now()}`;
+    
+    // Check if we've already shown a recent suggestion
+    if (lastShownMessageId && Date.now() - parseInt(lastShownMessageId.split('-')[1] || '0') < 5000) {
+      console.log('❌ Suggestion shown recently, skipping');
+      return;
+    }
+    
+    // Show the popup
+    console.log('✅ Showing auto-popup for letter suggestion:', lastLetterSuggestion);
+    setShowAutoPopup(true);
+    setLastShownMessageId(suggestionKey);
+  }, [lastLetterSuggestion, currentConversationId])
 
   const handleDismissPopup = () => {
     setShowAutoPopup(false)

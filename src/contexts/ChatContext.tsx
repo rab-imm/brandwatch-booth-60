@@ -361,10 +361,16 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
       // Update messages state with AI response
       setMessages(prev => [...prev, aiMessage])
 
-      // Update letter suggestion state if available
-      if (result.suggestedLetter?.shouldSuggest && result.suggestedLetter.confidence >= 70) {
-        setLastLetterSuggestion(result.suggestedLetter)
-        setLetterTopicActive(true)
+      // Store letter suggestion if available and high confidence
+      if (result.suggestedLetter && result.suggestedLetter.confidence >= 70) {
+        console.log('✅ High-confidence letter suggestion detected:', result.suggestedLetter);
+        setLastLetterSuggestion({
+          ...result.suggestedLetter,
+          shouldSuggest: true
+        });
+        setLetterTopicActive(true);
+      } else if (result.suggestedLetter) {
+        console.log('ℹ️ Letter suggestion below threshold:', result.suggestedLetter.confidence);
       }
 
       // Refetch profile to update query count in UI

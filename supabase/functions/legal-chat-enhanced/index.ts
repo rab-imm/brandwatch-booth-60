@@ -396,10 +396,12 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
 
       if (analysisResponse.data && analysisResponse.data.shouldSuggestLetter) {
         letterSuggestion = {
+          shouldSuggest: true,
           letterType: analysisResponse.data.letterType,
           confidence: analysisResponse.data.confidence,
           reasoning: analysisResponse.data.reasoning,
-          suggestedTitle: analysisResponse.data.suggestedTitle
+          suggestedTitle: analysisResponse.data.suggestedTitle,
+          topicKeywords: analysisResponse.data.topicKeywords || []
         }
         console.log('Letter opportunity detected:', letterSuggestion)
       }
