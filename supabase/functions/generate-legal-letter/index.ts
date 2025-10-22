@@ -2491,7 +2491,7 @@ The Parties agree:
 
   [If nonDisparagementDetails provided]
   SPECIFIC TERMS:
-  [nonDisparagementDetails]
+  [nonDisparagementDetails]]"
 
 const LEASE_AGREEMENT_LEGAL_CLAUSES = `
 
