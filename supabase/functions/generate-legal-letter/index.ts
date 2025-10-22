@@ -2491,433 +2491,7 @@ The Parties agree:
 
   [If nonDisparagementDetails provided]
   SPECIFIC TERMS:
-  [nonDisparagementDetails]]"
-
-const LEASE_AGREEMENT_LEGAL_CLAUSES = `
-
-ADDITIONAL LEGAL PROVISIONS FOR LEASE AGREEMENTS:
-
-UAE TENANCY LAW COMPLIANCE:
-This lease agreement is governed by:
-• UAE Federal Law No. 26 of 2007 (Regulating the Relationship between Landlords and Tenants)
-• Dubai Law No. 26 of 2007 and RERA regulations (if Dubai property)
-• Abu Dhabi Law No. 20 of 2006 and Tawtheeq regulations (if Abu Dhabi property)
-• Relevant emirate-specific tenancy regulations
-
-RENT INCREASE RESTRICTIONS:
-• Rent increases are subject to RERA Rent Index (Dubai) or equivalent emirate regulations
-• Rent cannot be increased during the lease term
-• Rent increase allowed only upon renewal and must comply with:
-  - Maximum increase as per RERA calculator/index
-  - 90 days advance written notice required
-  - No increase if current rent is within 10% of market rate (Dubai)
-
-EVICTION PROCEDURES:
-Landlord may only evict tenant through proper legal channels:
-• Non-payment of rent: 30 days written notice required
-• Breach of lease terms: Opportunity to remedy breach must be given
-• Landlord personal use: 12 months written notice required
-• Property demolition/renovation: 12 months written notice + compensation
-• All evictions must be processed through Rental Dispute Centre (Dubai) or equivalent
-• Self-help eviction is illegal and may result in penalties
-
-TENANT PROTECTION RIGHTS:
-• Tenant cannot be evicted without court order
-• Tenant has right to renew lease at market rate (unless landlord has valid reason)
-• Security deposit protected by law - must be returned within reasonable time
-• Tenant has right to file complaint with RERA/Municipality if rights violated
-• Rent cannot be demanded in advance beyond contract terms
-
-EJARI/TAWTHEEQ REGISTRATION:
-• Dubai properties: MUST be registered with Ejari within 30 days
-• Abu Dhabi properties: MUST be registered with Tawtheeq
-• Registration is legal requirement - unregistered lease may not be enforceable
-• Both parties should retain copy of registration certificate
-• Renewal must also be registered
-
-LANDLORD OBLIGATIONS:
-• Provide habitable property meeting safety and health standards
-• Complete agreed repairs within reasonable timeframe
-• Not interfere with tenant's peaceful enjoyment of property
-• Maintain building structure and common areas
-• Comply with all building codes and regulations
-• Cannot enter property without proper notice (except emergency)
-
-TENANT OBLIGATIONS:
-• Pay rent on time as per agreement
-• Maintain property in good condition
-• Use property only for permitted purpose
-• Not cause damage or nuisance
-• Allow landlord access for repairs/inspections with proper notice
-• Return property in same condition (normal wear and tear excepted)
-• Comply with building rules and community regulations
-
-RENT PAYMENT RULES:
-• Post-dated cheques are common practice in UAE but not legally required
-• Payment by bank transfer is acceptable alternative
-• Cash payment allowed but receipt must be provided
-• Rent must be paid on due date - late payment may incur penalties
-• Bounced cheque is criminal offense in UAE and may result in:
-  - Legal action by landlord
-  - Travel ban
-  - Criminal case
-  - Additional financial penalties
-
-SECURITY DEPOSIT REGULATIONS:
-• Typical security deposit: 5-10% of annual rent
-• Must be held in separate account (best practice)
-• Can only be deducted for:
-  - Actual damages beyond normal wear and tear
-  - Unpaid rent
-  - Unpaid utilities
-  - Cleaning costs (if property left in poor condition)
-• Itemized deduction list must be provided to tenant
-• Must be returned within reasonable time (typically 30-60 days)
-• Disputes over deposit can be filed with RERA/RDC
-
-MAINTENANCE & REPAIR LEGAL FRAMEWORK:
-• Landlord responsible for structural and major repairs
-• Tenant responsible for minor repairs and maintenance
-• Emergency repairs: Tenant may arrange and deduct from rent if landlord unresponsive
-• Cost disputes can be resolved through RERA/RDC
-• Landlord must maintain property to habitable standard
-
-FORCE MAJEURE:
-Neither party liable for failure to perform due to circumstances beyond control:
-• Natural disasters
-• Government actions/regulations
-• Pandemics
-• War or civil unrest
-However, rent obligations typically continue unless property uninhabitable
-
-JURISDICTION & DISPUTE RESOLUTION:
-Step 1: Amicable Resolution (30 days)
-- Parties attempt to resolve dispute directly
-- Written communication recommended
-
-Step 2: Rental Dispute Centre (Dubai) / Equivalent
-- File case with RDC (Dubai) or relevant authority
-- Mediation attempted first
-- Binding decision if mediation fails
-
-Step 3: Courts (if necessary)
-- Appeal RDC decision to courts
-- Final judicial determination
-
-APPLICABLE LAWS BY EMIRATE:
-• Dubai: RERA (Real Estate Regulatory Agency) - www.rdc.ae
-• Abu Dhabi: Tawtheeq (Rental Contract Authentication System)
-• Other Emirates: Respective municipality regulations
-
-ACKNOWLEDGMENT OF LEGAL ADVICE:
-Both parties acknowledge:
-• Understanding all terms and conditions of this lease
-• Opportunity to seek independent legal advice before signing
-• Voluntary entry into this agreement
-• Receipt of copy of signed lease agreement
-• Awareness of rights and obligations under UAE tenancy law`;
-
-const LEASE_TERMINATION_LEGAL_CLAUSES = `
-
-LEGAL FRAMEWORK FOR LEASE TERMINATION IN UAE:
-
-UAE FEDERAL LAW NO. 26 OF 2007:
-This federal law regulates relationship between landlords and tenants across UAE.
-
-KEY TERMINATION PROVISIONS:
-• Article 25: Grounds for lease termination
-• Article 25(1): Landlord-initiated termination with 12 months notice
-• Article 25(2): Termination for tenant breach
-• Notice requirements strictly enforced by courts
-
-DUBAI LAW NO. 26 OF 2007 (AS AMENDED BY LAW NO. 33 OF 2008):
-Specific to Dubai properties registered with RERA.
-
-KEY PROVISIONS:
-• 12 months notice for owner-occupation (personal use)
-• 12 months notice for demolition/major renovation
-• 90 days notice for non-renewal (at lease expiry)
-• 30 days notice for non-payment after written demand
-• Tenant protection against arbitrary eviction
-
-ABU DHABI LAW NO. 20 OF 2006:
-Governs tenancy relationships in Abu Dhabi.
-
-KEY PROVISIONS:
-• Similar notice requirements to federal law
-• Tawtheeq registration mandatory
-• Rent increase caps apply
-• Dispute resolution through Municipality
-
-VALID GROUNDS FOR LANDLORD TERMINATION:
-
-1. OWNER-OCCUPATION (ARTICLE 25(1)(a)):
-• Landlord needs property for personal use
-• Must provide 12 months written notice
-• Must intend to actually occupy (not resell immediately)
-• May require sworn affidavit
-• Tenant may challenge if landlord doesn't occupy within reasonable time
-• False declaration may result in penalties
-
-2. PROPERTY DEMOLITION (ARTICLE 25(1)(b)):
-• Landlord intends to demolish property
-• Must provide 12 months written notice
-• Demolition permit from municipality required
-• Tenant may be entitled to compensation (check local law)
-• Landlord must actually proceed with demolition
-
-3. MAJOR RENOVATION/RECONSTRUCTION (ARTICLE 25(1)(c)):
-• Property requires substantial renovation
-• Must provide 12 months written notice
-• Municipality approval/permit required
-• Tenant may have right of first refusal after completion
-• Renovation must be genuine and substantial
-
-4. NON-PAYMENT OF RENT (ARTICLE 25(2)(a)):
-• Tenant failed to pay rent
-• 30 days written notice required
-• Notice must demand payment with deadline
-• Landlord must provide evidence of non-payment
-• Bounced cheque constitutes non-payment
-
-5. PROPERTY DAMAGE/MISUSE (ARTICLE 25(2)(b)):
-• Tenant caused substantial damage
-• Tenant using property contrary to lease terms
-• Evidence of damage/misuse required
-• Opportunity to remedy may be required (depending on severity)
-
-6. LEASE EXPIRY:
-• Contract term ends
-• Notice requirements vary by emirate
-• Dubai: 90 days notice for non-renewal
-• No automatic renewal OR renewal notice properly given
-
-NOTICE PERIOD REQUIREMENTS:
-
-RESIDENTIAL PROPERTIES:
-• Owner-occupation: 12 months minimum
-• Demolition/renovation: 12 months minimum
-• Non-payment: 30 days after written demand
-• Lease expiry: 90 days (Dubai), check contract (other emirates)
-• Mutual agreement: As agreed
-
-COMMERCIAL PROPERTIES:
-• Generally as per lease contract
-• Federal law provides minimum protections
-• Commercial leases have more flexibility
-• Notice periods often negotiated
-
-NOTICE DELIVERY METHODS:
-• Registered mail (proof of delivery)
-• Hand delivery (signed acknowledgment)
-• Email (if agreed in lease)
-• Courier with tracking
-• Notarized delivery
-• Through Rental Dispute Centre
-
-TENANT RIGHTS & PROTECTIONS:
-
-RIGHT TO PROPER NOTICE:
-• Tenant entitled to full notice period as per law and contract
-• Notice period starts from date of proper delivery
-• Insufficient notice renders termination invalid
-• Tenant may challenge inadequate notice with RDC
-
-RIGHT TO CHALLENGE TERMINATION:
-• 30 days from receipt to file dispute with RDC
-• Tenant may challenge grounds for termination
-• Tenant may challenge notice period
-• RDC will mediate and decide
-
-RIGHT TO PEACEFUL POSSESSION:
-• Tenant has right to remain until termination date
-• Landlord cannot forcibly evict
-• Landlord cannot change locks
-• Landlord cannot shut off utilities
-• Landlord cannot remove belongings
-
-RIGHT TO SECURITY DEPOSIT:
-• Deposit must be returned (minus lawful deductions)
-• Itemized deduction list required
-• Return within reasonable time (typically 30-60 days)
-• Tenant may dispute deductions with RDC
-
-LANDLORD OBLIGATIONS:
-
-PROPER NOTICE:
-• Written notice in clear language
-• Specify termination reason with legal basis
-• State termination date clearly
-• Provide notice period compliant with law
-• Deliver notice properly with proof
-
-CANNOT SELF-HELP EVICT:
-• Must obtain court order for eviction
-• Cannot forcibly remove tenant
-• Cannot change locks while tenant in possession
-• Cannot intimidate or harass tenant
-• Violations may result in penalties and damages
-
-MUST RETURN DEPOSIT:
-• Within reasonable time after vacate
-• Provide itemized deduction list
-• Withhold only for lawful purposes
-• Cannot use deposit as leverage
-
-EVICTION PROCEDURES:
-
-IF TENANT REFUSES TO VACATE:
-
-Step 1: Proper Notice Served
-• Ensure notice period complies with law
-• Obtain proof of delivery
-
-Step 2: File Case with RDC (Dubai) / Equivalent
-• Submit termination notice
-• Provide lease agreement
-• Provide evidence of grounds
-• Pay filing fees
-
-Step 3: Mediation Attempt
-• RDC will attempt mediation
-• Both parties present cases
-• Settlement may be reached
-
-Step 4: RDC Decision
-• If mediation fails, RDC issues decision
-• Binding on both parties
-• Appeal possible to courts
-
-Step 5: Eviction Order
-• If RDC rules in landlord's favor
-• Court issues eviction order
-• Police may assist with eviction
-
-Step 6: Forced Eviction (if necessary)
-• Court order executed
-• Police present during eviction
-• Tenant belongings inventoried
-• Property handed over to landlord
-
-SECURITY DEPOSIT DISPUTES:
-
-COMMON DISPUTES:
-• Amount of normal wear and tear
-• Cleaning standards
-• Repair costs
-• Utility settlements
-• Damage vs. aging
-
-RESOLUTION PROCESS:
-1. Request itemized deduction list
-2. Negotiate with landlord
-3. If unresolved, file with RDC within 30 days
-4. RDC will mediate
-5. RDC issues decision
-6. Court appeal if necessary
-
-EVIDENCE TO RETAIN:
-• Move-in condition report
-• Move-out condition report
-• Photos/videos at move-in and move-out
-• Maintenance requests history
-• Repair receipts
-• Cleaning receipts
-• Communication with landlord
-
-RENT INCREASE RESTRICTIONS:
-
-DUBAI RERA INDEX:
-• Rent increases subject to RERA calculator
-• Maximum increase based on property type and current rent
-• No increase if current rent within 10% of market rate
-• Calculator available at www.rdc.ae
-
-NOTICE REQUIREMENTS:
-• 90 days advance notice for rent increase
-• Increase only permitted at renewal
-• Cannot increase during lease term
-
-OTHER EMIRATES:
-• Check specific emirate regulations
-• Generally similar restrictions apply
-• Municipality has authority
-
-IMPORTANT DEADLINES:
-
-TENANT MUST:
-• File RDC dispute within 30 days of notice receipt
-• Vacate by termination date or face consequences
-• Pay final amounts owed by deadline
-• Schedule move-out inspection in advance
-• Provide forwarding address
-• Return all keys and access devices
-
-LANDLORD MUST:
-• Serve proper notice with adequate notice period
-• Cannot evict without court order
-• Return deposit within reasonable time
-• Provide itemized deduction list
-• File eviction case if tenant doesn't vacate
-
-CONTACT AUTHORITIES:
-
-DUBAI:
-• Dubai Rental Dispute Centre: 600 522 222 / www.rdc.ae
-• RERA: www.rdc.ae
-• Dubai Land Department: 600 545 555
-
-ABU DHABI:
-• Rental Dispute Settlement Centre: 800 555
-• Abu Dhabi Municipality: 800 555
-• Tawtheeq: www.tawtheeq.ae
-
-OTHER EMIRATES:
-• Contact respective municipality
-• Local rental dispute centers
-
-PENALTIES FOR VIOLATIONS:
-
-LANDLORD VIOLATIONS:
-• Unlawful eviction: Fines and damages
-• Utility shut-off: Fines and damages
-• Harassment: Criminal penalties
-• False owner-occupation claim: Penalties and damages
-• Excessive deposit deductions: Must refund with interest
-
-TENANT VIOLATIONS:
-• Failure to vacate: Daily occupation charges
-• Property damage: Liable for repair costs
-• Unpaid rent: Legal action, possible criminal case (bounced cheque)
-• Refusal to allow inspection: Breach of lease
-
-MUTUAL TERMINATION:
-
-AGREEMENT ELEMENTS:
-• Both parties consent in writing
-• Termination date agreed
-• Settlement of accounts agreed
-• Security deposit disposition agreed
-• Property handover terms agreed
-• Release of claims agreed
-
-BENEFITS:
-• No court involvement
-• Flexible terms
-• Faster resolution
-• Lower costs
-• Preserve relationship
-
-DOCUMENTATION:
-• Written mutual termination agreement
-• Signed by both parties
-• Specify all terms clearly
-• Notarized (recommended)
-• Copy for each party
-
-This notice is issued in compliance with UAE tenancy laws to protect the rights of both landlord and tenant.`;
-
-
+  [nonDisparagementDetails]]
 
 This non-disparagement obligation survives the termination or completion of this Settlement Agreement.]"
 
@@ -3655,6 +3229,231 @@ Personal data in this settlement shall be treated as confidential in accordance 
 CROSS-BORDER TRANSFER:
 Any transfer of personal data outside the UAE shall comply with PDPL Article 23 and require explicit consent unless falling within permitted exceptions.`,
 };
+
+const LEASE_AGREEMENT_LEGAL_CLAUSES = `
+
+ADDITIONAL LEGAL PROVISIONS FOR LEASE AGREEMENTS:
+
+UAE TENANCY LAW COMPLIANCE:
+This lease agreement is governed by:
+• UAE Federal Law No. 26 of 2007 (Regulating the Relationship between Landlords and Tenants)
+• Dubai Law No. 26 of 2007 and RERA regulations (if Dubai property)
+• Abu Dhabi Law No. 20 of 2006 and Tawtheeq regulations (if Abu Dhabi property)
+• Relevant emirate-specific tenancy regulations
+
+RENT INCREASE RESTRICTIONS:
+• Rent increases are subject to RERA Rent Index (Dubai) or equivalent emirate regulations
+• Rent cannot be increased during the lease term
+• Rent increase allowed only upon renewal and must comply with:
+  - Maximum increase as per RERA calculator/index
+  - 90 days advance written notice required
+  - No increase if current rent is within 10% of market rate (Dubai)
+
+EVICTION PROCEDURES:
+Landlord may only evict tenant through proper legal channels:
+• Non-payment of rent: 30 days written notice required
+• Breach of lease terms: Opportunity to remedy breach must be given
+• Landlord personal use: 12 months written notice required
+• Property demolition/renovation: 12 months written notice + compensation
+• All evictions must be processed through Rental Dispute Centre (Dubai) or equivalent
+• Self-help eviction is illegal and may result in penalties
+
+TENANT PROTECTION RIGHTS:
+• Tenant cannot be evicted without court order
+• Tenant has right to renew lease at market rate (unless landlord has valid reason)
+• Security deposit protected by law - must be returned within reasonable time
+• Tenant has right to file complaint with RERA/Municipality if rights violated
+• Rent cannot be demanded in advance beyond contract terms
+
+EJARI/TAWTHEEQ REGISTRATION:
+• Dubai properties: MUST be registered with Ejari within 30 days
+• Abu Dhabi properties: MUST be registered with Tawtheeq
+• Registration is legal requirement - unregistered lease may not be enforceable
+• Both parties should retain copy of registration certificate
+• Renewal must also be registered
+
+LANDLORD OBLIGATIONS:
+• Provide habitable property meeting safety and health standards
+• Complete agreed repairs within reasonable timeframe
+• Not interfere with tenant's peaceful enjoyment of property
+• Maintain building structure and common areas
+• Comply with all building codes and regulations
+• Cannot enter property without proper notice (except emergency)
+
+TENANT OBLIGATIONS:
+• Pay rent on time as per agreement
+• Maintain property in good condition
+• Use property only for permitted purpose
+• Not cause damage or nuisance
+• Allow landlord access for repairs/inspections with proper notice
+• Return property in same condition (normal wear and tear excepted)
+• Comply with building rules and community regulations
+
+RENT PAYMENT RULES:
+• Post-dated cheques are common practice in UAE but not legally required
+• Payment by bank transfer is acceptable alternative
+• Cash payment allowed but receipt must be provided
+• Rent must be paid on due date - late payment may incur penalties
+• Bounced cheque is criminal offense in UAE and may result in:
+  - Legal action by landlord
+  - Travel ban
+  - Criminal case
+  - Additional financial penalties
+
+SECURITY DEPOSIT REGULATIONS:
+• Typical security deposit: 5-10% of annual rent
+• Must be held in separate account (best practice)
+• Can only be deducted for:
+  - Actual damages beyond normal wear and tear
+  - Unpaid rent
+  - Unpaid utilities
+  - Cleaning costs (if property left in poor condition)
+• Itemized deduction list must be provided to tenant
+• Must be returned within reasonable time (typically 30-60 days)
+• Disputes over deposit can be filed with RERA/RDC
+
+MAINTENANCE & REPAIR LEGAL FRAMEWORK:
+• Landlord responsible for structural and major repairs
+• Tenant responsible for minor repairs and maintenance
+• Emergency repairs: Tenant may arrange and deduct from rent if landlord unresponsive
+• Cost disputes can be resolved through RERA/RDC
+• Landlord must maintain property to habitable standard
+
+FORCE MAJEURE:
+Neither party liable for failure to perform due to circumstances beyond control:
+• Natural disasters
+• Government actions/regulations
+• Pandemics
+• War or civil unrest
+However, rent obligations typically continue unless property uninhabitable
+
+JURISDICTION & DISPUTE RESOLUTION:
+Step 1: Amicable Resolution (30 days)
+- Parties attempt to resolve dispute directly
+- Written communication recommended
+
+Step 2: Rental Dispute Centre (Dubai) / Equivalent
+- File case with RDC (Dubai) or relevant authority
+- Mediation attempted first
+- Binding decision if mediation fails
+
+Step 3: Courts (if necessary)
+- Appeal RDC decision to courts
+- Final judicial determination
+
+APPLICABLE LAWS BY EMIRATE:
+• Dubai: RERA (Real Estate Regulatory Agency) - www.rdc.ae
+• Abu Dhabi: Tawtheeq (Rental Contract Authentication System)
+• Other Emirates: Respective municipality regulations
+
+ACKNOWLEDGMENT OF LEGAL ADVICE:
+Both parties acknowledge:
+• Understanding all terms and conditions of this lease
+• Opportunity to seek independent legal advice before signing
+• Voluntary entry into this agreement
+• Receipt of copy of signed lease agreement
+• Awareness of rights and obligations under UAE tenancy law`;
+
+const LEASE_TERMINATION_LEGAL_CLAUSES = `
+
+LEGAL FRAMEWORK FOR LEASE TERMINATION IN UAE:
+
+UAE FEDERAL LAW NO. 26 OF 2007:
+This federal law regulates relationship between landlords and tenants across UAE.
+
+KEY TERMINATION PROVISIONS:
+• Article 25: Grounds for lease termination
+• Article 25(1): Landlord-initiated termination with 12 months notice
+• Article 25(2): Termination for tenant breach
+• Notice requirements strictly enforced by courts
+
+DUBAI LAW NO. 26 OF 2007 (AS AMENDED BY LAW NO. 33 OF 2008):
+Specific to Dubai properties registered with RERA.
+
+KEY PROVISIONS:
+• 12 months notice for owner-occupation (personal use)
+• 12 months notice for demolition/major renovation
+• 90 days notice for non-renewal (at lease expiry)
+• 30 days notice for non-payment after written demand
+• Tenant protection against arbitrary eviction
+
+ABU DHABI LAW NO. 20 OF 2006:
+Governs tenancy relationships in Abu Dhabi.
+
+KEY PROVISIONS:
+• Similar notice requirements to federal law
+• Tawtheeq registration mandatory
+• Rent increase caps apply
+• Dispute resolution through Municipality
+
+LANDLORD-INITIATED TERMINATION:
+Valid grounds for landlord to terminate lease:
+1. Personal use or family member use (12 months notice)
+2. Property sale (12 months notice + right of first refusal to tenant)
+3. Major renovation/demolition (12 months notice + compensation)
+4. Tenant breach of lease terms
+5. Non-payment of rent (30 days after written demand)
+
+NOTICE REQUIREMENTS:
+• Must be in writing (registered mail or notary notification)
+• Must specify grounds for termination
+• Must provide proper notice period per law
+• Verbal notice is not sufficient
+• Notice period cannot be waived unless mutual agreement
+
+TENANT-INITIATED TERMINATION:
+Tenant may terminate lease:
+• At end of lease term (90 days notice for non-renewal)
+• For landlord breach (immediate termination possible)
+• For property uninhabitability
+• If landlord fails to provide essential services
+• By mutual agreement
+
+EARLY TERMINATION:
+If tenant terminates early without valid reason:
+• May forfeit security deposit
+• May be liable for remaining rent (typically 2-3 months)
+• Landlord must make reasonable effort to re-let property
+• Tenant liability limited to actual landlord losses
+
+SECURITY DEPOSIT DISPOSITION:
+Upon lease termination:
+• Landlord inspects property
+• Deductions itemized in writing
+• Balance returned within 30-60 days
+• Disputes can be filed with RERA/RDC
+
+PROPERTY HANDOVER:
+• Tenant must return property in good condition (normal wear excepted)
+• All utilities cleared and final bills paid
+• Keys and access cards returned
+• Forwarding address provided
+• Joint inspection recommended (document condition)
+
+MUTUAL TERMINATION:
+Most flexible option:
+• Both parties agree to terminate
+• Terms negotiated freely
+• Financial settlement agreed
+• Security deposit disposition agreed
+• Property handover terms agreed
+• Release of claims agreed
+
+BENEFITS:
+• No court involvement
+• Flexible terms
+• Faster resolution
+• Lower costs
+• Preserve relationship
+
+DOCUMENTATION:
+• Written mutual termination agreement
+• Signed by both parties
+• Specify all terms clearly
+• Notarized (recommended)
+• Copy for each party
+
+This notice is issued in compliance with UAE tenancy laws to protect the rights of both landlord and tenant.`;
 
 const NDA_LEGAL_CLAUSES = `
 
