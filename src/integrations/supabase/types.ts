@@ -19,7 +19,7 @@ export type Database = {
           action: string
           created_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           metadata: Json | null
           resource_id: string | null
           resource_type: string
@@ -30,7 +30,7 @@ export type Database = {
           action: string
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           metadata?: Json | null
           resource_id?: string | null
           resource_type: string
@@ -41,7 +41,7 @@ export type Database = {
           action?: string
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           metadata?: Json | null
           resource_id?: string | null
           resource_type?: string
@@ -359,6 +359,7 @@ export type Database = {
           total_credits: number
           updated_at: string
           used_credits: number
+          version: number
         }
         Insert: {
           created_at?: string
@@ -373,6 +374,7 @@ export type Database = {
           total_credits?: number
           updated_at?: string
           used_credits?: number
+          version?: number
         }
         Update: {
           created_at?: string
@@ -387,6 +389,7 @@ export type Database = {
           total_credits?: number
           updated_at?: string
           used_credits?: number
+          version?: number
         }
         Relationships: []
       }
@@ -1342,6 +1345,30 @@ export type Database = {
           },
         ]
       }
+      password_reset_attempts: {
+        Row: {
+          attempted_at: string | null
+          email: string
+          id: string
+          ip_address: string | null
+          success: boolean | null
+        }
+        Insert: {
+          attempted_at?: string | null
+          email: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean | null
+        }
+        Update: {
+          attempted_at?: string | null
+          email?: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean | null
+        }
+        Relationships: []
+      }
       password_reset_codes: {
         Row: {
           code: string
@@ -1421,6 +1448,7 @@ export type Database = {
           updated_at: string
           user_id: string
           user_role: Database["public"]["Enums"]["user_role"]
+          version: number
         }
         Insert: {
           created_at?: string
@@ -1446,6 +1474,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           user_role?: Database["public"]["Enums"]["user_role"]
+          version?: number
         }
         Update: {
           created_at?: string
@@ -1471,6 +1500,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           user_role?: Database["public"]["Enums"]["user_role"]
+          version?: number
         }
         Relationships: [
           {
@@ -1723,6 +1753,8 @@ export type Database = {
       signature_recipients: {
         Row: {
           access_token: string
+          access_token_expires_at: string | null
+          access_token_used: boolean | null
           created_at: string | null
           email: string
           id: string
@@ -1740,6 +1772,8 @@ export type Database = {
         }
         Insert: {
           access_token: string
+          access_token_expires_at?: string | null
+          access_token_used?: boolean | null
           created_at?: string | null
           email: string
           id?: string
@@ -1757,6 +1791,8 @@ export type Database = {
         }
         Update: {
           access_token?: string
+          access_token_expires_at?: string | null
+          access_token_used?: boolean | null
           created_at?: string | null
           email?: string
           id?: string
@@ -2706,16 +2742,22 @@ export type Database = {
         }
         Returns: string
       }
-      cleanup_expired_notifications: {
-        Args: Record<PropertyKey, never>
-        Returns: number
+      check_password_reset_rate_limit: {
+        Args: { p_email: string; p_ip_address?: string }
+        Returns: Json
       }
-      cleanup_expired_reset_codes: {
-        Args: Record<PropertyKey, never>
-        Returns: number
+      cleanup_expired_notifications: { Args: never; Returns: number }
+      cleanup_expired_reset_codes: { Args: never; Returns: number }
+      cleanup_expired_rollover_credits: {
+        Args: never
+        Returns: {
+          cleaned_user_id: string
+          expired_credits: number
+        }[]
       }
+      cleanup_old_password_reset_attempts: { Args: never; Returns: number }
       cleanup_orphaned_profiles: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           action: string
           cleaned_user_id: string
@@ -2744,6 +2786,16 @@ export type Database = {
         }
         Returns: string
       }
+      deduct_credits_atomic: {
+        Args: {
+          p_company_id?: string
+          p_credits_needed?: number
+          p_description?: string
+          p_feature?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       deduct_credits_for_template: {
         Args: {
           p_company_id?: string
@@ -2752,16 +2804,10 @@ export type Database = {
         }
         Returns: Json
       }
-      expire_rollover_credits: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      generate_ticket_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      expire_rollover_credits: { Args: never; Returns: undefined }
+      generate_ticket_number: { Args: never; Returns: string }
       get_current_user_role: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: Database["public"]["Enums"]["user_role"]
       }
       get_user_primary_role: {
@@ -2805,18 +2851,9 @@ export type Database = {
         Args: { p_notification_id: string }
         Returns: undefined
       }
-      notify_expiring_credits: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      process_monthly_credit_reset: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      reset_monthly_queries: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      notify_expiring_credits: { Args: never; Returns: undefined }
+      process_monthly_credit_reset: { Args: never; Returns: undefined }
+      reset_monthly_queries: { Args: never; Returns: undefined }
       reset_user_queries: {
         Args: { target_user_id?: string }
         Returns: undefined
