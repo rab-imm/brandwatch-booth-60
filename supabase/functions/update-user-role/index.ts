@@ -155,6 +155,22 @@ serve(async (req) => {
       console.error('Failed to create notification (non-critical):', notifError)
     }
 
+    // Notify target user that their role changed (they should refresh/re-login)
+    try {
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: userId,
+          title: 'Your Role Has Changed',
+          message: `Your role has been updated to ${newRole}. Please refresh your browser to apply the changes.`,
+          type: 'info',
+          action_url: `/dashboard`,
+        })
+      console.log('Target user notification created successfully')
+    } catch (notifError) {
+      console.error('Failed to create target user notification (non-critical):', notifError)
+    }
+
     return new Response(
       JSON.stringify({
         success: true,

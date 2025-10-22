@@ -59,30 +59,36 @@ serve(async (req) => {
       );
     }
 
-    // Check user credits (queries_used is the DB column name but represents credits)
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('queries_used, max_credits_per_period')
-      .eq('user_id', user.id)
-      .single();
+    // Use atomic credit deduction with race condition prevention
+    const { data: creditResult, error: creditError } = await supabase.rpc(
+      'deduct_credits_atomic',
+      {
+        p_user_id: user.id,
+        p_company_id: letter.company_id || null,
+        p_credits_needed: 1,
+        p_feature: 'pdf_export',
+        p_description: `PDF export for letter: ${letter.title}`,
+      }
+    );
 
-    if (profileError || !profile) {
+    if (creditError || !creditResult) {
+      console.error('Credit deduction error:', creditError);
       return new Response(
-        JSON.stringify({ error: "User profile not found" }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Failed to deduct credits' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const creditsNeeded = 1; // PDF export costs 1 credit
-    const creditsUsed = profile.queries_used || 0; // DB column is queries_used but tracks credits
-    const creditsLimit = profile.max_credits_per_period || 0;
-    
-    if (creditsUsed + creditsNeeded > creditsLimit) {
+    if (!creditResult.success) {
       return new Response(
         JSON.stringify({ 
-          error: "Insufficient credits",
-          creditsNeeded,
-          creditsAvailable: creditsLimit - creditsUsed
+          error: creditResult.error === 'insufficient_credits' 
+            ? 'Insufficient credits for PDF export'
+            : creditResult.error === 'insufficient_company_credits'
+            ? 'Insufficient company credits for PDF export'
+            : creditResult.message || 'Credit deduction failed',
+          creditsNeeded: 1,
+          creditsAvailable: creditResult.available || 0
         }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -157,19 +163,14 @@ serve(async (req) => {
     // Simple approach: Return base64 encoded HTML that can be printed/converted
     const base64Html = btoa(unescape(encodeURIComponent(htmlContent)));
 
-    // Deduct credits (queries_used is the DB column name)
-    await supabase
-      .from('profiles')
-      .update({ queries_used: creditsUsed + creditsNeeded })
-      .eq('user_id', user.id);
-
-    console.log(`PDF exported for letter ${letterId}, ${creditsNeeded} credit deducted`);
+    console.log(`PDF exported for letter ${letterId}, 1 credit deducted (${creditResult.remaining_credits} remaining)`);
 
     return new Response(
       JSON.stringify({ 
         pdfData: base64Html,
         filename: `${letter.title.replace(/[^a-z0-9]/gi, '_')}.pdf`,
-        creditsUsed: creditsNeeded,
+        creditsUsed: 1,
+        creditsRemaining: creditResult.remaining_credits,
         contentType: 'text/html'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

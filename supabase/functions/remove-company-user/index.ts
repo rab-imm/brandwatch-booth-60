@@ -119,6 +119,28 @@ serve(async (req) => {
       console.error('Failed to create notification (non-critical):', notifError)
     }
 
+    // Notify removed user (they should re-login to update permissions)
+    try {
+      const { data: company } = await supabase
+        .from('companies')
+        .select('name')
+        .eq('id', companyId)
+        .single()
+
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: userId,
+          title: 'Company Access Removed',
+          message: `You have been removed from ${company?.name || 'the company'}. Your access to company resources has been revoked.`,
+          type: 'warning',
+          action_url: `/dashboard`,
+        })
+      console.log('Removed user notification created successfully')
+    } catch (notifError) {
+      console.error('Failed to create removed user notification (non-critical):', notifError)
+    }
+
     return new Response(
       JSON.stringify({
         success: true,

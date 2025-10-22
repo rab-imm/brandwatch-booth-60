@@ -78,6 +78,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const refetchProfile = async () => {
     if (user) {
+      // Force JWT refresh when profile changes (e.g., role updates)
+      const { data: { session: newSession } } = await supabase.auth.refreshSession()
+      if (newSession) {
+        setSession(newSession)
+        setUser(newSession.user)
+      }
       await fetchProfile(user.id)
     }
   }
