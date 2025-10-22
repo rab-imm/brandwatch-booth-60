@@ -2783,6 +2783,10 @@ export type Database = {
         Args: { _signature_request_id: string }
         Returns: boolean
       }
+      is_valid_signature_recipient: {
+        Args: { _access_token: string; _letter_id: string }
+        Returns: boolean
+      }
       letter_has_signature_recipients: {
         Args: { _letter_id: string }
         Returns: boolean
