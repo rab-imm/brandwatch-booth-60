@@ -48,6 +48,172 @@ interface ComplianceViolation {
   related_text?: string
 }
 
+interface MissingClauseRule {
+  clause_type: string
+  display_name: string
+  display_name_ar: string
+  importance: 'essential' | 'recommended' | 'optional'
+  category: 'legal' | 'commercial' | 'operational'
+  description: string
+  description_ar: string
+  why_needed: string
+  why_needed_ar: string
+  detection_patterns: RegExp[]
+  arabic_patterns?: RegExp[]
+  sample_wording_en: string
+  sample_wording_ar: string
+  related_articles?: string[]
+  common_in_document_types: string[]
+}
+
+interface MissingClauseSuggestion {
+  clause_type: string
+  display_name: string
+  display_name_ar: string
+  importance: 'essential' | 'recommended' | 'optional'
+  category: 'legal' | 'commercial' | 'operational'
+  description: string
+  description_ar: string
+  why_needed: string
+  why_needed_ar: string
+  sample_wording_en: string
+  sample_wording_ar: string
+  related_articles?: string[]
+  ai_confidence?: number
+  ai_reasoning?: string
+}
+
+const MissingClauseRules: MissingClauseRule[] = [
+  {
+    clause_type: 'governing_law',
+    display_name: 'Governing Law',
+    display_name_ar: 'القانون الحاكم',
+    importance: 'essential',
+    category: 'legal',
+    description: 'Specifies which jurisdiction\'s laws govern the contract',
+    description_ar: 'يحدد أي قوانين الولاية القضائية تحكم العقد',
+    why_needed: 'Critical for resolving disputes and determining applicable legal framework. Required for enforceability in UAE courts.',
+    why_needed_ar: 'ضروري لحل النزاعات وتحديد الإطار القانوني المطبق. مطلوب للإنفاذ في محاكم الإمارات.',
+    detection_patterns: [
+      /\b(governing law|applicable law|law of the|laws? of|governed by|subject to.*law)\b/gi,
+      /\b(jurisdiction|legal system|courts? of)\b/gi
+    ],
+    arabic_patterns: [
+      /\b(القانون الحاكم|القانون الواجب التطبيق|قوانين|يخضع لقوانين|القضاء)\b/gu
+    ],
+    sample_wording_en: 'This Agreement shall be governed by and construed in accordance with the laws of the United Arab Emirates, and specifically the laws applicable in the Emirate of [Dubai/Abu Dhabi/etc.], without regard to its conflict of law provisions.',
+    sample_wording_ar: 'يخضع هذا العقد ويفسر وفقاً لقوانين دولة الإمارات العربية المتحدة، وتحديداً القوانين المطبقة في إمارة [دبي/أبو ظبي/إلخ]، دون النظر إلى أحكام تنازع القوانين.',
+    related_articles: ['UAE Civil Code', 'Federal Law No. 11 of 1992'],
+    common_in_document_types: ['contract', 'agreement', 'employment_contract', 'service_agreement']
+  },
+  {
+    clause_type: 'dispute_resolution',
+    display_name: 'Dispute Resolution',
+    display_name_ar: 'حل النزاعات',
+    importance: 'essential',
+    category: 'legal',
+    description: 'Defines how disputes will be resolved (arbitration, mediation, court)',
+    description_ar: 'يحدد كيفية حل النزاعات (التحكيم، الوساطة، المحكمة)',
+    why_needed: 'Prevents costly litigation by establishing clear dispute resolution procedures. UAE law favors arbitration for commercial disputes.',
+    why_needed_ar: 'يمنع التقاضي المكلف من خلال إنشاء إجراءات واضحة لحل النزاعات. يفضل قانون الإمارات التحكيم للنزاعات التجارية.',
+    detection_patterns: [
+      /\b(arbitration|mediation|dispute resolution|conflict resolution)\b/gi,
+      /\b(DIAC|ADCCAC|ICC|settlement|legal proceedings)\b/gi
+    ],
+    arabic_patterns: [
+      /\b(تحكيم|وساطة|حل النزاعات|فض النزاعات|التسوية)\b/gu
+    ],
+    sample_wording_en: 'Any dispute, controversy, or claim arising out of or relating to this Agreement shall be settled by arbitration in accordance with the Rules of the Dubai International Arbitration Centre (DIAC). The arbitration shall be conducted in [English/Arabic], and the seat of arbitration shall be Dubai, UAE.',
+    sample_wording_ar: 'أي نزاع أو خلاف أو مطالبة ناشئة عن هذا العقد أو تتعلق به يتم تسويته بالتحكيم وفقاً لقواعد مركز دبي للتحكيم الدولي (DIAC). يجري التحكيم باللغة [الإنجليزية/العربية]، ومقر التحكيم هو دبي، الإمارات.',
+    related_articles: ['Federal Law No. 6 of 2018 - Arbitration Law'],
+    common_in_document_types: ['contract', 'agreement', 'commercial_contract']
+  },
+  {
+    clause_type: 'entire_agreement',
+    display_name: 'Entire Agreement',
+    display_name_ar: 'العقد الكامل',
+    importance: 'recommended',
+    category: 'legal',
+    description: 'States that the written contract supersedes all prior agreements',
+    description_ar: 'ينص على أن العقد المكتوب يحل محل جميع الاتفاقات السابقة',
+    why_needed: 'Prevents claims based on prior verbal agreements or negotiations.',
+    why_needed_ar: 'يمنع المطالبات بناءً على الاتفاقيات أو المفاوضات الشفهية السابقة.',
+    detection_patterns: [
+      /\b(entire agreement|entire understanding|complete agreement|full agreement)\b/gi,
+      /\b(supersedes?|replaces? all|prior agreements?)\b/gi
+    ],
+    arabic_patterns: [
+      /\b(العقد الكامل|الاتفاق الكامل|يحل محل|الاتفاقيات السابقة)\b/gu
+    ],
+    sample_wording_en: 'This Agreement constitutes the entire agreement between the parties and supersedes all prior or contemporaneous agreements, understandings, negotiations, and discussions, whether oral or written, relating to the subject matter hereof.',
+    sample_wording_ar: 'يشكل هذا العقد الاتفاق الكامل بين الطرفين ويحل محل جميع الاتفاقيات أو التفاهمات أو المفاوضات أو المناقشات السابقة أو المعاصرة، سواء كانت شفهية أو كتابية، المتعلقة بموضوع هذا العقد.',
+    common_in_document_types: ['contract', 'agreement', 'service_agreement']
+  },
+  {
+    clause_type: 'severability',
+    display_name: 'Severability',
+    display_name_ar: 'قابلية الفصل',
+    importance: 'recommended',
+    category: 'legal',
+    description: 'Ensures remaining provisions survive if one is deemed invalid',
+    description_ar: 'يضمن بقاء الأحكام المتبقية إذا اعتبر أحدها باطلاً',
+    why_needed: 'Protects the contract from being entirely void if one clause is unenforceable.',
+    why_needed_ar: 'يحمي العقد من أن يصبح باطلاً بالكامل إذا كان أحد البنود غير قابل للتنفيذ.',
+    detection_patterns: [
+      /\b(severability|severable|savings? clause)\b/gi,
+      /\b(invalid.*remain|void.*rest|unenforceable.*survive)\b/gi
+    ],
+    arabic_patterns: [
+      /\b(قابلية الفصل|فصل الأحكام|بطلان.*بقية|باطل.*الباقي)\b/gu
+    ],
+    sample_wording_en: 'If any provision of this Agreement is held to be invalid, illegal, or unenforceable, the validity, legality, and enforceability of the remaining provisions shall not be affected or impaired thereby.',
+    sample_wording_ar: 'إذا تم اعتبار أي حكم من أحكام هذا العقد باطلاً أو غير قانوني أو غير قابل للتنفيذ، فلن تتأثر صحة أو قانونية أو قابلية تنفيذ الأحكام المتبقية.',
+    common_in_document_types: ['contract', 'agreement', 'employment_contract']
+  },
+  {
+    clause_type: 'force_majeure',
+    display_name: 'Force Majeure',
+    display_name_ar: 'القوة القاهرة',
+    importance: 'recommended',
+    category: 'legal',
+    description: 'Addresses unforeseeable events beyond parties\' control',
+    description_ar: 'يعالج الأحداث غير المتوقعة الخارجة عن سيطرة الأطراف',
+    why_needed: 'Protects parties from liability for events like pandemics, natural disasters, or war.',
+    why_needed_ar: 'يحمي الأطراف من المسؤولية عن أحداث مثل الأوبئة أو الكوارث الطبيعية أو الحرب.',
+    detection_patterns: [
+      /\b(force majeure|act of god|unforeseeable|beyond.*control)\b/gi,
+      /\b(natural disaster|pandemic|war|civil unrest)\b/gi
+    ],
+    arabic_patterns: [
+      /\b(قوة قاهرة|ظروف قاهرة|خارج عن السيطرة|كارثة طبيعية)\b/gu
+    ],
+    sample_wording_en: 'Neither party shall be liable for any failure or delay in performance due to events beyond their reasonable control, including but not limited to acts of God, natural disasters, war, terrorism, pandemics, government actions, or public emergencies.',
+    sample_wording_ar: 'لا يكون أي طرف مسؤولاً عن أي فشل أو تأخير في الأداء بسبب أحداث خارجة عن سيطرته المعقولة، بما في ذلك على سبيل المثال لا الحصر الكوارث الطبيعية أو الحرب أو الإرهاب أو الأوبئة أو الإجراءات الحكومية أو حالات الطوارئ العامة.',
+    common_in_document_types: ['contract', 'agreement', 'service_agreement']
+  },
+  {
+    clause_type: 'notices',
+    display_name: 'Notices and Communications',
+    display_name_ar: 'الإخطارات والمراسلات',
+    importance: 'recommended',
+    category: 'operational',
+    description: 'Specifies how official communications must be sent',
+    description_ar: 'يحدد كيفية إرسال المراسلات الرسمية',
+    why_needed: 'Ensures proper delivery of important legal notices.',
+    why_needed_ar: 'يضمن التسليم السليم للإخطارات القانونية المهمة.',
+    detection_patterns: [
+      /\b(notices?|notification|communication|written notice)\b/gi,
+      /\b(notice address|delivery of notice|deemed received)\b/gi
+    ],
+    arabic_patterns: [
+      /\b(إخطار|إشعار|مراسلة|عنوان الإخطار)\b/gu
+    ],
+    sample_wording_en: 'All notices required or permitted under this Agreement shall be in writing and delivered by registered mail, courier service, or email to the addresses specified in this Agreement. Notices shall be deemed received: (i) if by registered mail, five business days after posting; (ii) if by courier, upon delivery; (iii) if by email, upon confirmation of receipt.',
+    sample_wording_ar: 'يجب أن تكون جميع الإخطارات المطلوبة أو المسموح بها بموجب هذا العقد كتابية ويتم تسليمها بالبريد المسجل أو خدمة البريد السريع أو البريد الإلكتروني إلى العناوين المحددة في هذا العقد. تعتبر الإخطارات مستلمة: (1) إذا كانت بالبريد المسجل، بعد خمسة أيام عمل من الإرسال؛ (2) إذا كانت بالبريد السريع، عند التسليم؛ (3) إذا كانت بالبريد الإلكتروني، عند تأكيد الاستلام.',
+    common_in_document_types: ['contract', 'agreement', 'employment_contract']
+  }
+]
+
 const UAELabourComplianceRules: ComplianceRule[] = [
   {
     article: 'Article 17',
@@ -523,6 +689,152 @@ CRITICAL: Return ONLY the raw JSON object. Do NOT wrap it in markdown code fence
   }
 }
 
+async function detectMissingClauses(
+  extractedText: string,
+  detectedClauses: DetectedClause[],
+  missingClauseRules: MissingClauseRule[]
+): Promise<MissingClauseSuggestion[]> {
+  const missingClauses: MissingClauseSuggestion[] = []
+  
+  for (const rule of missingClauseRules) {
+    let foundInText = false
+    
+    for (const pattern of rule.detection_patterns) {
+      if (pattern.test(extractedText)) {
+        foundInText = true
+        break
+      }
+    }
+    
+    if (!foundInText && rule.arabic_patterns) {
+      for (const pattern of rule.arabic_patterns) {
+        if (pattern.test(extractedText)) {
+          foundInText = true
+          break
+        }
+      }
+    }
+    
+    const foundInClauses = detectedClauses.some(clause => 
+      clause.type === rule.clause_type || 
+      clause.text.toLowerCase().includes(rule.clause_type.replace(/_/g, ' '))
+    )
+    
+    if (!foundInText && !foundInClauses) {
+      missingClauses.push({
+        clause_type: rule.clause_type,
+        display_name: rule.display_name,
+        display_name_ar: rule.display_name_ar,
+        importance: rule.importance,
+        category: rule.category,
+        description: rule.description,
+        description_ar: rule.description_ar,
+        why_needed: rule.why_needed,
+        why_needed_ar: rule.why_needed_ar,
+        sample_wording_en: rule.sample_wording_en,
+        sample_wording_ar: rule.sample_wording_ar,
+        related_articles: rule.related_articles
+      })
+    }
+  }
+  
+  return missingClauses
+}
+
+async function analyzeGapsWithAI(
+  extractedText: string,
+  patternMissingClauses: MissingClauseSuggestion[],
+  lovableApiKey: string
+): Promise<{
+  additional_missing: MissingClauseSuggestion[]
+  gap_analysis_summary: string
+}> {
+  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${lovableApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a UAE legal expert analyzing contract completeness. Identify missing essential legal clauses. Return ONLY raw JSON (NO markdown):
+{
+  "missing_clauses": [
+    {
+      "clause_type": "string",
+      "display_name": "string",
+      "importance": "essential|recommended|optional",
+      "category": "legal|commercial|operational",
+      "why_needed": "explanation",
+      "sample_wording": "suggested clause text",
+      "confidence": 0.95
+    }
+  ],
+  "gap_analysis": "brief overview"
+}`
+        },
+        {
+          role: 'user',
+          content: `Analyze this document for missing critical legal clauses:\n\n${extractedText.substring(0, 8000)}`
+        }
+      ]
+    })
+  })
+  
+  if (!response.ok) {
+    console.error('AI gap analysis failed:', response.status)
+    return {
+      additional_missing: [],
+      gap_analysis_summary: 'Gap analysis unavailable'
+    }
+  }
+  
+  const data = await response.json()
+  let aiResponse = data.choices?.[0]?.message?.content || '{}'
+  
+  try {
+    if (aiResponse.trim().startsWith('```')) {
+      aiResponse = aiResponse.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+    }
+    
+    const parsed = JSON.parse(aiResponse)
+    
+    const aiMissingClauses: MissingClauseSuggestion[] = (parsed.missing_clauses || []).map((c: any) => ({
+      clause_type: c.clause_type || 'other',
+      display_name: c.display_name || 'Additional Clause',
+      display_name_ar: '',
+      importance: c.importance || 'optional',
+      category: c.category || 'operational',
+      description: c.why_needed || '',
+      description_ar: '',
+      why_needed: c.why_needed || '',
+      why_needed_ar: '',
+      sample_wording_en: c.sample_wording || '',
+      sample_wording_ar: '',
+      ai_confidence: c.confidence || 0.8,
+      ai_reasoning: c.why_needed || ''
+    }))
+    
+    const filteredAIClauses = aiMissingClauses.filter(aiClause => 
+      !patternMissingClauses.some(pc => pc.clause_type === aiClause.clause_type)
+    )
+    
+    return {
+      additional_missing: filteredAIClauses,
+      gap_analysis_summary: parsed.gap_analysis || 'Document analysis complete'
+    }
+  } catch (error) {
+    console.error('Failed to parse AI gap analysis:', error)
+    return {
+      additional_missing: [],
+      gap_analysis_summary: 'Gap analysis partially complete'
+    }
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -749,6 +1061,32 @@ ${extractedText.substring(0, 4000)}`
     const complianceScore = allViolations.length === 0 ? 100 :
       Math.max(0, Math.min(100, aiCompliance.compliance_score - (criticalCount * 10) - (highCount * 5)))
 
+    // Detect missing key clauses
+    console.log('Detecting missing key clauses...')
+    const patternMissingClauses = await detectMissingClauses(
+      extractedText,
+      allClauses,
+      MissingClauseRules
+    )
+    console.log(`Found ${patternMissingClauses.length} missing clauses (pattern-based)`)
+
+    const aiGapAnalysis = await analyzeGapsWithAI(
+      extractedText,
+      patternMissingClauses,
+      lovableApiKey
+    )
+    console.log(`Found ${aiGapAnalysis.additional_missing.length} additional gaps (AI)`)
+
+    const allMissingClauses = [
+      ...patternMissingClauses,
+      ...aiGapAnalysis.additional_missing
+    ]
+
+    const sortedMissingClauses = allMissingClauses.sort((a, b) => {
+      const importanceOrder = { essential: 1, recommended: 2, optional: 3 }
+      return importanceOrder[a.importance] - importanceOrder[b.importance]
+    })
+
     // Calculate statistics
     const characterCount = extractedText.length
     const wordCount = extractedText.trim().split(/\s+/).length
@@ -783,6 +1121,14 @@ ${extractedText.substring(0, 4000)}`
             high_count: highCount,
             checked_at: new Date().toISOString(),
             ai_summary: aiCompliance.summary
+          },
+          missing_clauses: {
+            suggestions: sortedMissingClauses,
+            total_missing: sortedMissingClauses.length,
+            essential_count: sortedMissingClauses.filter(c => c.importance === 'essential').length,
+            recommended_count: sortedMissingClauses.filter(c => c.importance === 'recommended').length,
+            gap_analysis_summary: aiGapAnalysis.gap_analysis_summary,
+            analyzed_at: new Date().toISOString()
           }
         }
       })
@@ -820,6 +1166,13 @@ ${extractedText.substring(0, 4000)}`
           critical_count: criticalCount,
           high_count: highCount,
           ai_summary: aiCompliance.summary
+        },
+        missing_clauses: {
+          suggestions: sortedMissingClauses,
+          total_missing: sortedMissingClauses.length,
+          essential_count: sortedMissingClauses.filter(c => c.importance === 'essential').length,
+          recommended_count: sortedMissingClauses.filter(c => c.importance === 'recommended').length,
+          gap_analysis_summary: aiGapAnalysis.gap_analysis_summary
         },
         history_id: historyData.id
       }),

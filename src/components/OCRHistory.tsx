@@ -30,6 +30,7 @@ export const OCRHistory = () => {
   const [loading, setLoading] = useState(true)
   const [selectedRecord, setSelectedRecord] = useState<OCRRecord | null>(null)
   const [complianceFilter, setComplianceFilter] = useState<'all' | 'non_compliant' | 'partial' | 'compliant'>('all')
+  const [missingClauseFilter, setMissingClauseFilter] = useState<'all' | 'has_missing' | 'has_essential' | 'complete'>('all')
 
   useEffect(() => {
     if (user) {
@@ -138,11 +139,21 @@ export const OCRHistory = () => {
   }
 
   const filteredHistory = history.filter(record => {
-    if (complianceFilter === 'all') return true
-    const score = record.metadata?.compliance_check?.compliance_score || 0
-    if (complianceFilter === 'non_compliant') return score < 70
-    if (complianceFilter === 'partial') return score >= 70 && score < 90
-    if (complianceFilter === 'compliant') return score >= 90
+    if (complianceFilter !== 'all') {
+      const score = record.metadata?.compliance_check?.compliance_score || 0
+      if (complianceFilter === 'non_compliant' && score >= 70) return false
+      if (complianceFilter === 'partial' && (score < 70 || score >= 90)) return false
+      if (complianceFilter === 'compliant' && score < 90) return false
+    }
+    
+    if (missingClauseFilter !== 'all') {
+      const missingCount = record.metadata?.missing_clauses?.total_missing || 0
+      const essentialCount = record.metadata?.missing_clauses?.essential_count || 0
+      if (missingClauseFilter === 'has_missing' && missingCount === 0) return false
+      if (missingClauseFilter === 'has_essential' && essentialCount === 0) return false
+      if (missingClauseFilter === 'complete' && missingCount > 0) return false
+    }
+    
     return true
   })
 
@@ -160,7 +171,7 @@ export const OCRHistory = () => {
                 Your recent document scans
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <select
                 value={complianceFilter}
                 onChange={(e) => setComplianceFilter(e.target.value as any)}
@@ -170,6 +181,16 @@ export const OCRHistory = () => {
                 <option value="non_compliant">Non-Compliant (&lt;70%)</option>
                 <option value="partial">Partially Compliant (70-89%)</option>
                 <option value="compliant">Fully Compliant (≥90%)</option>
+              </select>
+              <select
+                value={missingClauseFilter}
+                onChange={(e) => setMissingClauseFilter(e.target.value as any)}
+                className="text-sm border rounded px-3 py-1.5 bg-background"
+              >
+                <option value="all">All Clause Status</option>
+                <option value="has_missing">Has Missing Clauses</option>
+                <option value="has_essential">Missing Essential Clauses</option>
+                <option value="complete">Complete Documents</option>
               </select>
             </div>
           </div>
@@ -216,6 +237,17 @@ export const OCRHistory = () => {
                           {record.metadata.compliance_check.compliance_score}%
                           {record.metadata.compliance_check.critical_count > 0 && (
                             <span className="ml-1">({record.metadata.compliance_check.critical_count} critical)</span>
+                          )}
+                        </Badge>
+                      )}
+                      {record.metadata?.missing_clauses && record.metadata.missing_clauses.total_missing > 0 && (
+                        <Badge className="flex items-center gap-1 bg-amber-500 hover:bg-amber-600">
+                          <Icon name="alert-triangle" className="h-3 w-3" />
+                          {record.metadata.missing_clauses.total_missing} Missing
+                          {record.metadata.missing_clauses.essential_count > 0 && (
+                            <span className="ml-1 text-red-100 font-bold">
+                              ({record.metadata.missing_clauses.essential_count} essential)
+                            </span>
                           )}
                         </Badge>
                       )}
