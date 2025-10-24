@@ -22,63 +22,78 @@ function detectClausesByPattern(text: string): DetectedClause[] {
   const patterns = {
     termination: [
       /\b(terminat(e|ion|ed)|cancel(lation)?|end of (contract|agreement)|notice period|early exit)\b/gi,
-      /\b(dissolution|expiration|cessation|withdrawal)\b/gi
+      /\b(dissolution|expiration|cessation|withdrawal)\b/gi,
+      /\b(إنهاء|إلغاء|فسخ|إخطار|نهاية العقد|إنتهاء|الإنهاء)\b/gu
     ],
     confidentiality: [
       /\b(confidential(ity)?|non-disclosure|NDA|proprietary|trade secret|private information)\b/gi,
-      /\b(data protection|privacy|sensitive (data|information))\b/gi
+      /\b(data protection|privacy|sensitive (data|information))\b/gi,
+      /\b(سرية|السرية|عدم الإفصاح|معلومات سرية|حماية البيانات|سري)\b/gu
     ],
     payment: [
       /\b(payment|fee(s)?|pricing|invoice|cost|compensation|remuneration)\b/gi,
-      /\b(late payment|interest rate|due date|billing cycle)\b/gi
+      /\b(late payment|interest rate|due date|billing cycle)\b/gi,
+      /\b(دفع|رسوم|تسعير|فاتورة|تكلفة|تعويض|مستحقات|أتعاب|الدفع)\b/gu
     ],
     liability: [
       /\b(liabilit(y|ies)|indemnif(y|ication)|disclaimer|limitation of liability)\b/gi,
-      /\b(hold harmless|damages|loss|injury|claim)\b/gi
+      /\b(hold harmless|damages|loss|injury|claim)\b/gi,
+      /\b(مسؤولية|مسئولية|تعويض|إخلاء مسؤولية|ضمان|تعهد|المسؤولية)\b/gu
     ],
     intellectual_property: [
       /\b(intellectual property|IP|copyright|trademark|patent|license)\b/gi,
-      /\b(ownership|proprietary rights|work product)\b/gi
+      /\b(ownership|proprietary rights|work product)\b/gi,
+      /\b(الملكية الفكرية|حقوق الملكية|براءة اختراع|علامة تجارية|ملكية)\b/gu
     ],
     dispute_resolution: [
       /\b(dispute|arbitration|mediation|jurisdiction|governing law|venue)\b/gi,
-      /\b(legal proceedings|court|litigation)\b/gi
+      /\b(legal proceedings|court|litigation)\b/gi,
+      /\b(نزاع|خلاف|تحكيم|وساطة|اختصاص قضائي|القانون الواجب|محكمة)\b/gu
     ],
     warranties: [
       /\b(warrant(y|ies)|guarantee|represent(ation)?|assurance)\b/gi,
-      /\b(fitness for purpose|merchantability|as-is)\b/gi
+      /\b(fitness for purpose|merchantability|as-is)\b/gi,
+      /\b(ضمان|ضمانات|كفالة|تعهد|إقرار|الضمان)\b/gu
     ],
     duration: [
       /\b(term|duration|period|effective date|commencement|renewal)\b/gi,
-      /\b(initial term|extension|anniversary)\b/gi
+      /\b(initial term|extension|anniversary)\b/gi,
+      /\b(مدة|فترة|مهلة|تاريخ السريان|بداية|نفاذ|المدة)\b/gu
     ],
     parties: [
       /\b(party|parties|contractor|vendor|client|customer|provider)\b/gi,
-      /\b(between|undersigned|hereinafter|referred to as)\b/gi
+      /\b(between|undersigned|hereinafter|referred to as)\b/gi,
+      /\b(طرف|أطراف|المتعاقد|البائع|العميل|المشتري|الموقعين|الطرف)\b/gu
     ],
     obligations: [
       /\b(obligation(s)?|requirement(s)?|must|shall|responsible for|duty)\b/gi,
-      /\b(deliverable(s)?|performance|compliance)\b/gi
+      /\b(deliverable(s)?|performance|compliance)\b/gi,
+      /\b(التزام|التزامات|واجب|يجب|مسؤول عن|متطلبات|الالتزام)\b/gu
     ],
     force_majeure: [
       /\b(force majeure|act of god|unforeseeable|natural disaster|pandemic)\b/gi,
-      /\b(war|terrorism|strike|riot)\b/gi
+      /\b(war|terrorism|strike|riot)\b/gi,
+      /\b(قوة قاهرة|ظروف قاهرة|حدث غير متوقع|كارثة طبيعية)\b/gu
     ],
     non_compete: [
       /\b(non-compete|non-competition|restrictive covenant|non-solicitation)\b/gi,
-      /\b(prohibited activities|competitive business)\b/gi
+      /\b(prohibited activities|competitive business)\b/gi,
+      /\b(عدم المنافسة|حظر المنافسة|قيود تنافسية)\b/gu
     ],
     amendments: [
       /\b(amendment|modification|change|alteration|revision)\b/gi,
-      /\b(written consent|mutual agreement|change order)\b/gi
+      /\b(written consent|mutual agreement|change order)\b/gi,
+      /\b(تعديل|تغيير|تحوير|تنقيح|التعديل)\b/gu
     ],
     notices: [
       /\b(notice|notification|written notice|communication)\b/gi,
-      /\b(address|contact|email|registered office)\b/gi
+      /\b(address|contact|email|registered office)\b/gi,
+      /\b(إخطار|إشعار|إبلاغ|إعلام|تبليغ|الإخطار)\b/gu
     ],
     definitions: [
       /\b(definition(s)?|means|defined as|refers to|interpretation)\b/gi,
-      /\b(for purposes of|hereinafter defined)\b/gi
+      /\b(for purposes of|hereinafter defined)\b/gi,
+      /\b(تعريف|تعاريف|يعني|يقصد به|المقصود|التعريف)\b/gu
     ]
   }
   
@@ -104,7 +119,7 @@ function detectClausesByPattern(text: string): DetectedClause[] {
         }
       }
       
-      if (matchCount >= 2) {
+      if (matchCount >= 1 && paragraph.length > 100) {
         detectedClauses.push({
           type: clauseType,
           text: paragraph.trim(),
@@ -140,13 +155,16 @@ async function classifyClausesWithAI(
       messages: [
         {
           role: 'system',
-          content: `You are a legal document analyzer. Identify and classify legal clauses in documents.
+          content: `You are a legal document analyzer that works with documents in ANY language (Arabic, English, etc.).
+
+Identify and classify legal clauses regardless of language.
 
 Clause Types: termination, confidentiality, payment, liability, intellectual_property, dispute_resolution, warranties, duration, parties, obligations, force_majeure, non_compete, amendments, notices, definitions
 
-Return ONLY a JSON object with this structure: {"clauses": [{"type": "clause_type", "text": "full clause text", "confidence": 0.95, "reasoning": "why this classification"}]}
+For each clause found, return a JSON object:
+{"clauses": [{"type": "clause_type", "text": "full clause text in original language", "confidence": 0.95, "reasoning": "why this classification"}]}
 
-Be thorough but precise. Each clause should be distinct and meaningful.`
+CRITICAL: Return ONLY the raw JSON object. Do NOT wrap it in markdown code fences like \`\`\`json. Just the plain JSON.`
         },
         {
           role: 'user',
@@ -165,7 +183,15 @@ Be thorough but precise. Each clause should be distinct and meaningful.`
   const aiResponse = data.choices?.[0]?.message?.content || '{}'
   
   try {
-    const parsed = JSON.parse(aiResponse)
+    // Strip markdown code fences if present
+    let cleanedResponse = aiResponse.trim()
+    
+    // Remove ```json ... ``` or ``` ... ```
+    if (cleanedResponse.startsWith('```')) {
+      cleanedResponse = cleanedResponse.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+    }
+    
+    const parsed = JSON.parse(cleanedResponse)
     const aiClauses = parsed.clauses || []
     
     return aiClauses.map((clause: any, index: number) => ({

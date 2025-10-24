@@ -285,7 +285,7 @@ export const OCRUpload = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Detected Clauses - Colored Tags Above Text */}
-            {result.clauses && result.clauses.length > 0 && (
+            {result.clauses && result.clauses.length > 0 ? (
               <div>
                 <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                   <Icon name="tag" className="h-4 w-4" />
@@ -318,6 +318,15 @@ export const OCRUpload = () => {
                   ))}
                 </div>
               </div>
+            ) : (
+              result.statistics.clauses_detected === 0 && (
+                <div className="p-4 bg-muted/30 rounded-lg border border-dashed">
+                  <p className="text-sm text-muted-foreground text-center">
+                    <Icon name="info" className="h-4 w-4 inline mr-2" />
+                    No legal clauses detected in this document. This may occur with non-legal documents or documents requiring additional language support.
+                  </p>
+                </div>
+              )
             )}
 
             <div>
