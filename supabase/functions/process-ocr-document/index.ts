@@ -7,6 +7,183 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+interface DetectedClause {
+  type: string
+  text: string
+  start_index: number
+  end_index: number
+  confidence: 'pattern' | 'ai'
+  keywords: string[]
+  ai_confidence?: number
+  reasoning?: string
+}
+
+function detectClausesByPattern(text: string): DetectedClause[] {
+  const patterns = {
+    termination: [
+      /\b(terminat(e|ion|ed)|cancel(lation)?|end of (contract|agreement)|notice period|early exit)\b/gi,
+      /\b(dissolution|expiration|cessation|withdrawal)\b/gi
+    ],
+    confidentiality: [
+      /\b(confidential(ity)?|non-disclosure|NDA|proprietary|trade secret|private information)\b/gi,
+      /\b(data protection|privacy|sensitive (data|information))\b/gi
+    ],
+    payment: [
+      /\b(payment|fee(s)?|pricing|invoice|cost|compensation|remuneration)\b/gi,
+      /\b(late payment|interest rate|due date|billing cycle)\b/gi
+    ],
+    liability: [
+      /\b(liabilit(y|ies)|indemnif(y|ication)|disclaimer|limitation of liability)\b/gi,
+      /\b(hold harmless|damages|loss|injury|claim)\b/gi
+    ],
+    intellectual_property: [
+      /\b(intellectual property|IP|copyright|trademark|patent|license)\b/gi,
+      /\b(ownership|proprietary rights|work product)\b/gi
+    ],
+    dispute_resolution: [
+      /\b(dispute|arbitration|mediation|jurisdiction|governing law|venue)\b/gi,
+      /\b(legal proceedings|court|litigation)\b/gi
+    ],
+    warranties: [
+      /\b(warrant(y|ies)|guarantee|represent(ation)?|assurance)\b/gi,
+      /\b(fitness for purpose|merchantability|as-is)\b/gi
+    ],
+    duration: [
+      /\b(term|duration|period|effective date|commencement|renewal)\b/gi,
+      /\b(initial term|extension|anniversary)\b/gi
+    ],
+    parties: [
+      /\b(party|parties|contractor|vendor|client|customer|provider)\b/gi,
+      /\b(between|undersigned|hereinafter|referred to as)\b/gi
+    ],
+    obligations: [
+      /\b(obligation(s)?|requirement(s)?|must|shall|responsible for|duty)\b/gi,
+      /\b(deliverable(s)?|performance|compliance)\b/gi
+    ],
+    force_majeure: [
+      /\b(force majeure|act of god|unforeseeable|natural disaster|pandemic)\b/gi,
+      /\b(war|terrorism|strike|riot)\b/gi
+    ],
+    non_compete: [
+      /\b(non-compete|non-competition|restrictive covenant|non-solicitation)\b/gi,
+      /\b(prohibited activities|competitive business)\b/gi
+    ],
+    amendments: [
+      /\b(amendment|modification|change|alteration|revision)\b/gi,
+      /\b(written consent|mutual agreement|change order)\b/gi
+    ],
+    notices: [
+      /\b(notice|notification|written notice|communication)\b/gi,
+      /\b(address|contact|email|registered office)\b/gi
+    ],
+    definitions: [
+      /\b(definition(s)?|means|defined as|refers to|interpretation)\b/gi,
+      /\b(for purposes of|hereinafter defined)\b/gi
+    ]
+  }
+  
+  const paragraphs = text.split(/\n\n+/)
+  const detectedClauses: DetectedClause[] = []
+  let currentIndex = 0
+  
+  for (const paragraph of paragraphs) {
+    if (paragraph.trim().length < 50) {
+      currentIndex += paragraph.length + 2
+      continue
+    }
+    
+    for (const [clauseType, regexList] of Object.entries(patterns)) {
+      let matchCount = 0
+      const foundKeywords: string[] = []
+      
+      for (const regex of regexList) {
+        const matches = paragraph.match(regex)
+        if (matches) {
+          matchCount += matches.length
+          foundKeywords.push(...matches.map(m => m.toLowerCase()))
+        }
+      }
+      
+      if (matchCount >= 2) {
+        detectedClauses.push({
+          type: clauseType,
+          text: paragraph.trim(),
+          start_index: currentIndex,
+          end_index: currentIndex + paragraph.length,
+          confidence: 'pattern',
+          keywords: [...new Set(foundKeywords)]
+        })
+      }
+    }
+    
+    currentIndex += paragraph.length + 2
+  }
+  
+  return detectedClauses
+}
+
+async function classifyClausesWithAI(
+  text: string, 
+  patternClauses: DetectedClause[],
+  lovableApiKey: string
+): Promise<DetectedClause[]> {
+  const truncatedText = text.substring(0, 8000)
+  
+  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${lovableApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a legal document analyzer. Identify and classify legal clauses in documents.
+
+Clause Types: termination, confidentiality, payment, liability, intellectual_property, dispute_resolution, warranties, duration, parties, obligations, force_majeure, non_compete, amendments, notices, definitions
+
+Return ONLY a JSON object with this structure: {"clauses": [{"type": "clause_type", "text": "full clause text", "confidence": 0.95, "reasoning": "why this classification"}]}
+
+Be thorough but precise. Each clause should be distinct and meaningful.`
+        },
+        {
+          role: 'user',
+          content: `Analyze this document and extract all legal clauses:\n\n${truncatedText}`
+        }
+      ]
+    })
+  })
+  
+  if (!response.ok) {
+    console.error('AI clause classification failed:', response.status)
+    return []
+  }
+  
+  const data = await response.json()
+  const aiResponse = data.choices?.[0]?.message?.content || '{}'
+  
+  try {
+    const parsed = JSON.parse(aiResponse)
+    const aiClauses = parsed.clauses || []
+    
+    return aiClauses.map((clause: any, index: number) => ({
+      type: clause.type,
+      text: clause.text.substring(0, 1000),
+      start_index: index * 100,
+      end_index: index * 100 + clause.text.length,
+      confidence: 'ai',
+      keywords: [],
+      ai_confidence: clause.confidence || 0.9,
+      reasoning: clause.reasoning
+    }))
+  } catch (parseError) {
+    console.error('Failed to parse AI clause response:', parseError)
+    return []
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -188,6 +365,31 @@ ${extractedText.substring(0, 4000)}`
 
     console.log('AI summary generated')
 
+    // Detect clauses using pattern matching
+    console.log('Detecting clauses by pattern...')
+    const patternClauses = detectClausesByPattern(extractedText)
+    console.log(`Found ${patternClauses.length} clauses by pattern`)
+
+    // Enhance with AI classification
+    console.log('Classifying clauses with AI...')
+    const aiClauses = await classifyClausesWithAI(extractedText, patternClauses, lovableApiKey)
+    console.log(`Found ${aiClauses.length} clauses by AI`)
+
+    // Merge and deduplicate clauses
+    const allClauses = [...patternClauses, ...aiClauses]
+    const clausesByType = allClauses.reduce((acc, clause) => {
+      if (!acc[clause.type]) acc[clause.type] = []
+      acc[clause.type].push(clause)
+      return acc
+    }, {} as Record<string, DetectedClause[]>)
+
+    // Calculate clause statistics
+    const clauseStats = Object.entries(clausesByType).map(([type, clauses]) => ({
+      type,
+      count: clauses.length,
+      total_characters: clauses.reduce((sum, c) => sum + c.text.length, 0)
+    }))
+
     // Calculate statistics
     const characterCount = extractedText.length
     const wordCount = extractedText.trim().split(/\s+/).length
@@ -209,7 +411,11 @@ ${extractedText.substring(0, 4000)}`
         processing_time_ms: processingTime,
         credits_used: 1,
         metadata: {
-          processed_at: new Date().toISOString()
+          processed_at: new Date().toISOString(),
+          clauses: allClauses,
+          clause_stats: clauseStats,
+          clause_types_found: Object.keys(clausesByType),
+          total_clauses: allClauses.length
         }
       })
       .select()
@@ -234,8 +440,11 @@ ${extractedText.substring(0, 4000)}`
         statistics: {
           characters: characterCount,
           words: wordCount,
-          processing_time_ms: processingTime
+          processing_time_ms: processingTime,
+          clauses_detected: allClauses.length
         },
+        clauses: allClauses,
+        clause_stats: clauseStats,
         history_id: historyData.id
       }),
       {

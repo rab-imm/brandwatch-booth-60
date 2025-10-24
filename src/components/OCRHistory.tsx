@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
+import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { formatDistanceToNow } from "date-fns"
 import ReactMarkdown from "react-markdown"
@@ -19,6 +20,7 @@ interface OCRRecord {
   word_count: number
   processing_time_ms: number
   created_at: string
+  metadata?: any
 }
 
 export const OCRHistory = () => {
@@ -64,6 +66,48 @@ export const OCRHistory = () => {
       title: "Copied",
       description: "Text copied to clipboard",
     })
+  }
+
+  const getClauseIcon = (type: string): string => {
+    const icons: Record<string, string> = {
+      termination: 'x-circle',
+      confidentiality: 'lock',
+      payment: 'credit-card',
+      liability: 'shield',
+      intellectual_property: 'lightbulb',
+      dispute_resolution: 'scale',
+      warranties: 'check-circle',
+      duration: 'clock',
+      parties: 'users',
+      obligations: 'list',
+      force_majeure: 'alert-triangle',
+      non_compete: 'ban',
+      amendments: 'edit',
+      notices: 'bell',
+      definitions: 'book'
+    }
+    return icons[type] || 'tag'
+  }
+
+  const getClauseColor = (type: string): string => {
+    const colors: Record<string, string> = {
+      termination: '#ef4444',
+      confidentiality: '#8b5cf6',
+      payment: '#10b981',
+      liability: '#f59e0b',
+      intellectual_property: '#06b6d4',
+      dispute_resolution: '#6366f1',
+      warranties: '#84cc16',
+      duration: '#ec4899',
+      parties: '#14b8a6',
+      obligations: '#64748b',
+      force_majeure: '#f97316',
+      non_compete: '#dc2626',
+      amendments: '#0ea5e9',
+      notices: '#a855f7',
+      definitions: '#22c55e'
+    }
+    return colors[type] || '#94a3b8'
   }
 
   if (loading) {
@@ -127,6 +171,12 @@ export const OCRHistory = () => {
                     <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                       <span>{record.word_count} words</span>
                       <span>{record.character_count} chars</span>
+                      {record.metadata?.total_clauses && (
+                        <span className="flex items-center gap-1 font-medium text-primary">
+                          <Icon name="tag" className="h-3 w-3" />
+                          {record.metadata.total_clauses} clauses
+                        </span>
+                      )}
                       <span>{formatDistanceToNow(new Date(record.created_at), { addSuffix: true })}</span>
                     </div>
                   </div>
@@ -186,6 +236,65 @@ export const OCRHistory = () => {
                 </ReactMarkdown>
               </div>
             </div>
+
+            {/* Detected Clauses Section */}
+            {selectedRecord.metadata?.clauses && selectedRecord.metadata.clauses.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <Icon name="tag" className="h-4 w-4" />
+                  Detected Clauses ({selectedRecord.metadata.total_clauses})
+                </h3>
+                
+                {/* Clause Tags */}
+                <div className="flex flex-wrap gap-2 mb-3 p-3 bg-muted/30 rounded-lg">
+                  {selectedRecord.metadata.clause_stats?.map(stat => (
+                    <div
+                      key={stat.type}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border-2"
+                      style={{ 
+                        backgroundColor: getClauseColor(stat.type) + '20',
+                        borderColor: getClauseColor(stat.type),
+                        color: getClauseColor(stat.type)
+                      }}
+                    >
+                      <Icon name={getClauseIcon(stat.type)} className="h-3 w-3" />
+                      <span className="capitalize">{stat.type.replace(/_/g, ' ')}</span>
+                      <span className="ml-0.5 font-bold">({stat.count})</span>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Clause List */}
+                <div className="space-y-2 max-h-80 overflow-y-auto">
+                  {selectedRecord.metadata.clauses.map((clause, idx) => (
+                    <div 
+                      key={idx}
+                      className="p-3 bg-muted/50 rounded border-l-4"
+                      style={{ borderLeftColor: getClauseColor(clause.type) }}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <div
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold"
+                          style={{ 
+                            backgroundColor: getClauseColor(clause.type) + '20',
+                            color: getClauseColor(clause.type)
+                          }}
+                        >
+                          <Icon name={getClauseIcon(clause.type)} className="h-3 w-3" />
+                          {clause.type.replace(/_/g, ' ').toUpperCase()}
+                        </div>
+                        {clause.ai_confidence && (
+                          <span className="text-xs text-muted-foreground">
+                            {Math.round(clause.ai_confidence * 100)}% confidence
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs line-clamp-2 text-foreground/80">{clause.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div>
               <div className="flex items-center justify-between mb-2">
