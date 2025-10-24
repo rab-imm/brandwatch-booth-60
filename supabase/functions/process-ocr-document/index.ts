@@ -18,6 +18,162 @@ interface DetectedClause {
   reasoning?: string
 }
 
+interface ComplianceRule {
+  article: string
+  category: string
+  requirement: string
+  requirement_ar?: string
+  mandatory: boolean
+  minimum_value?: number
+  maximum_value?: number
+  regex_patterns: RegExp[]
+  arabic_patterns?: RegExp[]
+  violation_severity: 'critical' | 'high' | 'medium' | 'low'
+  recommendation: string
+  recommendation_ar?: string
+}
+
+interface ComplianceViolation {
+  rule: {
+    article: string
+    category: string
+    requirement: string
+    requirement_ar?: string
+  }
+  found: boolean
+  violation_type: 'missing' | 'non_compliant' | 'ambiguous' | 'compliant'
+  details: string
+  severity: 'critical' | 'high' | 'medium' | 'low'
+  recommended_action: string
+  related_text?: string
+}
+
+const UAELabourComplianceRules: ComplianceRule[] = [
+  {
+    article: 'Article 17',
+    category: 'working_hours',
+    requirement: 'Maximum 8 hours per day, 48 hours per week',
+    requirement_ar: 'الحد الأقصى 8 ساعات يوميًا، 48 ساعة أسبوعيًا',
+    mandatory: true,
+    maximum_value: 8,
+    regex_patterns: [/\b(working hours?|work day|daily hours?|hours? per day|hours? per week)\b/gi],
+    arabic_patterns: [/\b(ساعات العمل|ساعة يوميا|ساعات يومية|ساعة في اليوم)\b/gu],
+    violation_severity: 'high',
+    recommendation: 'Include explicit working hours clause stating maximum 8 hours per day or 48 hours per week',
+    recommendation_ar: 'يجب تضمين بند صريح بساعات العمل لا تزيد عن 8 ساعات يوميًا أو 48 ساعة أسبوعيًا'
+  },
+  {
+    article: 'Article 29',
+    category: 'annual_leave',
+    requirement: 'Minimum 30 calendar days annual leave (2 days per month for first 6 months)',
+    requirement_ar: 'الحد الأدنى 30 يوم إجازة سنوية',
+    mandatory: true,
+    minimum_value: 30,
+    regex_patterns: [/\b(annual leave|vacation|paid leave|yearly leave)\b/gi],
+    arabic_patterns: [/\b(إجازة سنوية|إجازة مدفوعة|إجازة)\b/gu],
+    violation_severity: 'critical',
+    recommendation: 'Include annual leave clause granting minimum 30 calendar days per year',
+    recommendation_ar: 'يجب تضمين بند الإجازة السنوية بحد أدنى 30 يومًا تقويميًا سنويًا'
+  },
+  {
+    article: 'Article 31',
+    category: 'sick_leave',
+    requirement: '90 days sick leave per year (full pay + half pay + unpaid)',
+    requirement_ar: '90 يوم إجازة مرضية سنويًا',
+    mandatory: true,
+    regex_patterns: [/\b(sick leave|medical leave|illness)\b/gi],
+    arabic_patterns: [/\b(إجازة مرضية|إجازة صحية)\b/gu],
+    violation_severity: 'high',
+    recommendation: 'Include sick leave clause granting 90 days per year as per UAE Labour Law',
+    recommendation_ar: 'يجب تضمين بند الإجازة المرضية 90 يومًا سنويًا'
+  },
+  {
+    article: 'Article 30',
+    category: 'maternity_leave',
+    requirement: '60 days maternity leave',
+    requirement_ar: '60 يوم إجازة أمومة',
+    mandatory: false,
+    regex_patterns: [/\b(maternity leave|pregnancy leave)\b/gi],
+    arabic_patterns: [/\b(إجازة أمومة|إجازة وضع)\b/gu],
+    violation_severity: 'medium',
+    recommendation: 'Include maternity leave clause granting 60 days for female employees',
+    recommendation_ar: 'يجب تضمين بند إجازة الأمومة 60 يومًا للموظفات'
+  },
+  {
+    article: 'Articles 43-44',
+    category: 'notice_period',
+    requirement: 'Minimum 30 days notice for indefinite contracts',
+    requirement_ar: 'إخطار مسبق 30 يومًا للعقود غير محددة المدة',
+    mandatory: true,
+    minimum_value: 30,
+    regex_patterns: [/\b(notice period|termination notice|resignation notice|days? notice)\b/gi],
+    arabic_patterns: [/\b(فترة الإخطار|إخطار مسبق|إشعار الإنهاء)\b/gu],
+    violation_severity: 'critical',
+    recommendation: 'Include notice period clause with minimum 30 days for contract termination',
+    recommendation_ar: 'يجب تضمين بند فترة الإخطار بحد أدنى 30 يومًا'
+  },
+  {
+    article: 'Articles 51-54',
+    category: 'gratuity',
+    requirement: 'End of service gratuity: 21 days salary per year (1-5 years), 30 days after',
+    requirement_ar: 'مكافأة نهاية الخدمة: 21 يوم راتب للسنة (1-5 سنوات)، 30 يوم بعدها',
+    mandatory: true,
+    regex_patterns: [/\b(end of service|gratuity|severance pay|final settlement)\b/gi],
+    arabic_patterns: [/\b(مكافأة نهاية الخدمة|تعويض نهاية الخدمة)\b/gu],
+    violation_severity: 'critical',
+    recommendation: 'Include end of service gratuity calculation as per UAE Labour Law',
+    recommendation_ar: 'يجب تضمين بند مكافأة نهاية الخدمة وفق قانون العمل'
+  },
+  {
+    article: 'Article 10',
+    category: 'probation',
+    requirement: 'Maximum 6 months probation period',
+    requirement_ar: 'الحد الأقصى 6 أشهر فترة تجريبية',
+    mandatory: false,
+    maximum_value: 6,
+    regex_patterns: [/\b(probation(ary)? period|trial period)\b/gi],
+    arabic_patterns: [/\b(فترة تجريبية|فترة اختبار)\b/gu],
+    violation_severity: 'medium',
+    recommendation: 'If probation is included, ensure it does not exceed 6 months',
+    recommendation_ar: 'إذا كانت الفترة التجريبية موجودة، يجب ألا تتجاوز 6 أشهر'
+  },
+  {
+    article: 'Article 18',
+    category: 'overtime',
+    requirement: 'Overtime: 125% regular rate, 150% for night hours (9 PM - 4 AM)',
+    requirement_ar: 'ساعات إضافية: 125% من الأجر العادي، 150% للساعات الليلية',
+    mandatory: false,
+    regex_patterns: [/\b(overtime|extra hours?|additional hours?)\b/gi],
+    arabic_patterns: [/\b(ساعات إضافية|عمل إضافي)\b/gu],
+    violation_severity: 'medium',
+    recommendation: 'Include overtime compensation rates: 125% regular, 150% night hours',
+    recommendation_ar: 'يجب تضمين أجر الساعات الإضافية: 125% عادي، 150% ليلي'
+  },
+  {
+    article: 'Articles 56-61',
+    category: 'wage_protection',
+    requirement: 'Timely wage payment (monthly for monthly employees)',
+    requirement_ar: 'دفع الأجور في الموعد المحدد',
+    mandatory: true,
+    regex_patterns: [/\b(salary|wage|payment|compensation|remuneration)\b/gi],
+    arabic_patterns: [/\b(راتب|أجر|مرتب|تعويض)\b/gu],
+    violation_severity: 'critical',
+    recommendation: 'Include clear salary payment terms and amount',
+    recommendation_ar: 'يجب تضمين شروط واضحة لدفع الراتب والمبلغ'
+  },
+  {
+    article: 'Article 8',
+    category: 'contract_language',
+    requirement: 'Contract must be in Arabic or bilingual (Arabic + other language)',
+    requirement_ar: 'يجب أن يكون العقد باللغة العربية أو ثنائي اللغة',
+    mandatory: true,
+    regex_patterns: [/[\u0600-\u06FF]/g], // Check for Arabic characters
+    violation_severity: 'high',
+    recommendation: 'Ensure contract includes Arabic version or is bilingual',
+    recommendation_ar: 'يجب أن يتضمن العقد نسخة عربية أو يكون ثنائي اللغة'
+  }
+]
+
 function detectClausesByPattern(text: string): DetectedClause[] {
   const patterns = {
     termination: [
@@ -135,6 +291,163 @@ function detectClausesByPattern(text: string): DetectedClause[] {
   }
   
   return detectedClauses
+}
+
+function checkUAELabourCompliance(
+  extractedText: string,
+  detectedClauses: DetectedClause[]
+): ComplianceViolation[] {
+  const violations: ComplianceViolation[] = []
+  const textLower = extractedText.toLowerCase()
+  
+  for (const rule of UAELabourComplianceRules) {
+    const clausesOfType = detectedClauses.filter(c => c.type === rule.category)
+    
+    // Check if required clause exists
+    if (rule.mandatory && clausesOfType.length === 0) {
+      // Check if there's any mention of this in the text
+      const hasAnyMention = rule.regex_patterns.some(pattern => pattern.test(extractedText)) ||
+        (rule.arabic_patterns?.some(pattern => pattern.test(extractedText)) || false)
+      
+      if (!hasAnyMention) {
+        violations.push({
+          rule: {
+            article: rule.article,
+            category: rule.category,
+            requirement: rule.requirement,
+            requirement_ar: rule.requirement_ar
+          },
+          found: false,
+          violation_type: 'missing',
+          severity: rule.violation_severity,
+          details: `Missing required clause: ${rule.requirement}`,
+          recommended_action: rule.recommendation
+        })
+      }
+    }
+    
+    // Additional check for specific values
+    if (rule.category === 'annual_leave' && clausesOfType.length > 0) {
+      const leaveText = clausesOfType[0].text.toLowerCase()
+      const dayMatches = leaveText.match(/(\d+)\s*days?/i)
+      if (dayMatches && parseInt(dayMatches[1]) < (rule.minimum_value || 30)) {
+        violations.push({
+          rule: {
+            article: rule.article,
+            category: rule.category,
+            requirement: rule.requirement,
+            requirement_ar: rule.requirement_ar
+          },
+          found: true,
+          violation_type: 'non_compliant',
+          severity: 'critical',
+          details: `Annual leave (${dayMatches[1]} days) is less than the minimum required (30 days)`,
+          recommended_action: rule.recommendation,
+          related_text: clausesOfType[0].text.substring(0, 200)
+        })
+      }
+    }
+  }
+  
+  return violations
+}
+
+async function analyzeComplianceWithAI(
+  extractedText: string,
+  patternViolations: ComplianceViolation[],
+  lovableApiKey: string
+): Promise<{
+  additional_violations: ComplianceViolation[]
+  compliance_score: number
+  summary: string
+}> {
+  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${lovableApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a UAE employment law expert specializing in Federal Decree-Law No. 33 of 2021.
+
+Analyze the employment document for compliance with UAE Labour Law. Check for:
+1. Working hours (max 8h/day, 48h/week - Article 17)
+2. Annual leave (min 30 days - Article 29)
+3. Sick leave (90 days - Article 31)
+4. Maternity leave (60 days - Article 30)
+5. Notice period (min 30 days - Article 43-44)
+6. End of service gratuity (Articles 51-54)
+7. Probation (max 6 months - Article 10)
+8. Overtime rates (125%/150% - Article 18)
+9. Wage protection (Articles 56-61)
+10. Termination rights (Articles 42-48)
+
+Return ONLY raw JSON (NO markdown code fences):
+{
+  "violations": [{"category": "string", "article": "string", "severity": "critical|high|medium|low", "details": "string", "recommendation": "string"}],
+  "compliance_score": 0-100,
+  "summary": "brief overview in 1-2 sentences"
+}`
+        },
+        {
+          role: 'user',
+          content: `Analyze this employment document for UAE Labour Law compliance:\n\n${extractedText.substring(0, 8000)}`
+        }
+      ]
+    })
+  })
+  
+  if (!response.ok) {
+    console.error('AI compliance check failed:', response.status)
+    return {
+      additional_violations: [],
+      compliance_score: 50,
+      summary: 'AI compliance analysis unavailable'
+    }
+  }
+  
+  const data = await response.json()
+  let aiResponse = data.choices?.[0]?.message?.content || '{}'
+  
+  try {
+    // Strip markdown code fences if present
+    if (aiResponse.trim().startsWith('```')) {
+      aiResponse = aiResponse.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+    }
+    
+    const parsed = JSON.parse(aiResponse)
+    
+    const aiViolations: ComplianceViolation[] = (parsed.violations || []).map((v: any) => ({
+      rule: {
+        article: v.article || 'Various',
+        category: v.category || 'general',
+        requirement: v.details || '',
+        requirement_ar: ''
+      },
+      found: false,
+      violation_type: 'missing',
+      severity: v.severity || 'medium',
+      details: v.details || '',
+      recommended_action: v.recommendation || ''
+    }))
+    
+    return {
+      additional_violations: aiViolations,
+      compliance_score: parsed.compliance_score || 50,
+      summary: parsed.summary || 'Compliance check complete'
+    }
+  } catch (error) {
+    console.error('Failed to parse AI compliance response:', error)
+    return {
+      additional_violations: [],
+      compliance_score: 50,
+      summary: 'Compliance analysis partially complete'
+    }
+  }
 }
 
 async function classifyClausesWithAI(
@@ -416,6 +729,26 @@ ${extractedText.substring(0, 4000)}`
       total_characters: clauses.reduce((sum, c) => sum + c.text.length, 0)
     }))
 
+    // UAE Labour Law Compliance Check
+    console.log('Checking UAE Labour Law compliance...')
+    const patternViolations = checkUAELabourCompliance(extractedText, allClauses)
+    console.log(`Found ${patternViolations.length} pattern-based violations`)
+    
+    const aiCompliance = await analyzeComplianceWithAI(
+      extractedText,
+      patternViolations,
+      lovableApiKey
+    )
+    console.log(`AI compliance score: ${aiCompliance.compliance_score}%`)
+    
+    const allViolations = [...patternViolations, ...aiCompliance.additional_violations]
+    const criticalCount = allViolations.filter(v => v.severity === 'critical').length
+    const highCount = allViolations.filter(v => v.severity === 'high').length
+    
+    // Calculate overall compliance score
+    const complianceScore = allViolations.length === 0 ? 100 :
+      Math.max(0, Math.min(100, aiCompliance.compliance_score - (criticalCount * 10) - (highCount * 5)))
+
     // Calculate statistics
     const characterCount = extractedText.length
     const wordCount = extractedText.trim().split(/\s+/).length
@@ -441,7 +774,16 @@ ${extractedText.substring(0, 4000)}`
           clauses: allClauses,
           clause_stats: clauseStats,
           clause_types_found: Object.keys(clausesByType),
-          total_clauses: allClauses.length
+          total_clauses: allClauses.length,
+          compliance_check: {
+            violations: allViolations,
+            compliance_score: complianceScore,
+            total_violations: allViolations.length,
+            critical_count: criticalCount,
+            high_count: highCount,
+            checked_at: new Date().toISOString(),
+            ai_summary: aiCompliance.summary
+          }
         }
       })
       .select()
@@ -471,6 +813,14 @@ ${extractedText.substring(0, 4000)}`
         },
         clauses: allClauses,
         clause_stats: clauseStats,
+        compliance_check: {
+          violations: allViolations,
+          compliance_score: complianceScore,
+          total_violations: allViolations.length,
+          critical_count: criticalCount,
+          high_count: highCount,
+          ai_summary: aiCompliance.summary
+        },
         history_id: historyData.id
       }),
       {

@@ -29,6 +29,7 @@ export const OCRHistory = () => {
   const [history, setHistory] = useState<OCRRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedRecord, setSelectedRecord] = useState<OCRRecord | null>(null)
+  const [complianceFilter, setComplianceFilter] = useState<'all' | 'non_compliant' | 'partial' | 'compliant'>('all')
 
   useEffect(() => {
     if (user) {
@@ -136,21 +137,46 @@ export const OCRHistory = () => {
     )
   }
 
+  const filteredHistory = history.filter(record => {
+    if (complianceFilter === 'all') return true
+    const score = record.metadata?.compliance_check?.compliance_score || 0
+    if (complianceFilter === 'non_compliant') return score < 70
+    if (complianceFilter === 'partial') return score >= 70 && score < 90
+    if (complianceFilter === 'compliant') return score >= 90
+    return true
+  })
+
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Icon name="history" className="h-5 w-5" />
-            OCR History
-          </CardTitle>
-          <CardDescription>
-            Your recent document scans
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="history" className="h-5 w-5" />
+                OCR History
+              </CardTitle>
+              <CardDescription>
+                Your recent document scans
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={complianceFilter}
+                onChange={(e) => setComplianceFilter(e.target.value as any)}
+                className="text-sm border rounded px-3 py-1.5 bg-background"
+              >
+                <option value="all">All Documents</option>
+                <option value="non_compliant">Non-Compliant (&lt;70%)</option>
+                <option value="partial">Partially Compliant (70-89%)</option>
+                <option value="compliant">Fully Compliant (≥90%)</option>
+              </select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {history.map((record) => (
+            {filteredHistory.map((record) => (
               <div
                 key={record.id}
                 className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
@@ -168,7 +194,7 @@ export const OCRHistory = () => {
                     <p className="text-xs text-muted-foreground line-clamp-2">
                       {record.ai_summary.substring(0, 150)}...
                     </p>
-                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground flex-wrap">
                       <span>{record.word_count} words</span>
                       <span>{record.character_count} chars</span>
                       {record.metadata?.total_clauses && (
@@ -176,6 +202,22 @@ export const OCRHistory = () => {
                           <Icon name="tag" className="h-3 w-3" />
                           {record.metadata.total_clauses} clauses
                         </span>
+                      )}
+                      {record.metadata?.compliance_check && (
+                        <Badge 
+                          variant={
+                            record.metadata.compliance_check.compliance_score >= 90 ? 'default' :
+                            record.metadata.compliance_check.compliance_score >= 70 ? 'secondary' :
+                            'destructive'
+                          }
+                          className="flex items-center gap-1"
+                        >
+                          <Icon name="shield" className="h-3 w-3" />
+                          {record.metadata.compliance_check.compliance_score}%
+                          {record.metadata.compliance_check.critical_count > 0 && (
+                            <span className="ml-1">({record.metadata.compliance_check.critical_count} critical)</span>
+                          )}
+                        </Badge>
                       )}
                       <span>{formatDistanceToNow(new Date(record.created_at), { addSuffix: true })}</span>
                     </div>

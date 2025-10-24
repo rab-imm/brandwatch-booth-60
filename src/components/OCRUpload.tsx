@@ -20,6 +20,21 @@ interface ClauseResult {
   reasoning?: string
 }
 
+interface ComplianceViolation {
+  rule: {
+    article: string
+    category: string
+    requirement: string
+    requirement_ar?: string
+  }
+  found: boolean
+  violation_type: 'missing' | 'non_compliant' | 'ambiguous' | 'compliant'
+  details: string
+  severity: 'critical' | 'high' | 'medium' | 'low'
+  recommended_action: string
+  related_text?: string
+}
+
 export const OCRUpload = () => {
   const { user, profile } = useAuth()
   const { toast } = useToast()
@@ -36,6 +51,14 @@ export const OCRUpload = () => {
       words: number
       processing_time_ms: number
       clauses_detected?: number
+    }
+    compliance_check?: {
+      violations: ComplianceViolation[]
+      compliance_score: number
+      total_violations: number
+      critical_count: number
+      high_count: number
+      ai_summary: string
     }
   } | null>(null)
 
