@@ -297,6 +297,80 @@ export const OCRUpload = () => {
         </CardContent>
       </Card>
 
+      {/* UAE Labour Law Compliance Check */}
+      {result?.compliance_check && (
+        <Card className={`border-2 ${
+          result.compliance_check.compliance_score >= 90 ? 'border-green-500' :
+          result.compliance_check.compliance_score >= 70 ? 'border-yellow-500' :
+          'border-red-500'
+        }`}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="shield" className="h-5 w-5" />
+              UAE Labour Law Compliance Check
+            </CardTitle>
+            <CardDescription>
+              Cross-referenced with Federal Decree-Law No. 33 of 2021
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-6">
+              <div className="relative w-32 h-32">
+                <svg className="transform -rotate-90 w-32 h-32">
+                  <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-muted" />
+                  <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="8" fill="transparent"
+                    strokeDasharray={`${2 * Math.PI * 56}`}
+                    strokeDashoffset={`${2 * Math.PI * 56 * (1 - result.compliance_check.compliance_score / 100)}`}
+                    className={result.compliance_check.compliance_score >= 90 ? 'text-green-500' : result.compliance_check.compliance_score >= 70 ? 'text-yellow-500' : 'text-red-500'} />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center flex-col">
+                  <span className="text-3xl font-bold">{result.compliance_check.compliance_score}%</span>
+                  <span className="text-xs text-muted-foreground">Compliant</span>
+                </div>
+              </div>
+              <div className="flex-1 ml-6 space-y-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {result.compliance_check.critical_count > 0 && <Badge variant="destructive">{result.compliance_check.critical_count} Critical</Badge>}
+                  {result.compliance_check.high_count > 0 && <Badge className="bg-orange-500 hover:bg-orange-600">{result.compliance_check.high_count} High</Badge>}
+                  <Badge variant="secondary">{result.compliance_check.total_violations} Total Issues</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">{result.compliance_check.ai_summary}</p>
+              </div>
+            </div>
+            {result.compliance_check.violations.length > 0 && (
+              <div className="space-y-3">
+                <h4 className="font-semibold text-sm flex items-center gap-2">
+                  <Icon name="alert-triangle" className="h-4 w-4" />
+                  Compliance Issues ({result.compliance_check.violations.length})
+                </h4>
+                {result.compliance_check.violations.map((v, i) => (
+                  <div key={i} className={`p-4 rounded-lg border-l-4 ${v.severity === 'critical' ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : v.severity === 'high' ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/20' : v.severity === 'medium' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20' : 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'}`}>
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-bold uppercase px-2 py-1 rounded ${v.severity === 'critical' ? 'bg-red-500 text-white' : v.severity === 'high' ? 'bg-orange-500 text-white' : v.severity === 'medium' ? 'bg-yellow-500 text-white' : 'bg-blue-500 text-white'}`}>{v.severity}</span>
+                        <Badge variant="outline">{v.rule.article}</Badge>
+                      </div>
+                      <Icon name={v.violation_type === 'missing' ? 'alert-circle' : 'x-circle'} className="h-5 w-5 text-red-500" />
+                    </div>
+                    <h5 className="font-semibold text-sm mb-1">{v.violation_type === 'missing' ? '❌ Missing Clause' : '⚠️ Non-Compliant'}</h5>
+                    <p className="text-sm mb-2">{v.details}</p>
+                    {v.related_text && (
+                      <div className="text-xs bg-background/50 p-2 rounded mb-2 font-mono line-clamp-2">
+                        "{v.related_text}..."
+                      </div>
+                    )}
+                    <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded mt-2">
+                      <p className="text-xs font-semibold mb-1">✅ Recommended Action:</p>
+                      <p className="text-xs">{v.recommended_action}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {result && (
         <Card>
           <CardHeader>
