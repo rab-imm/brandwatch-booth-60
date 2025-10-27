@@ -897,6 +897,13 @@ serve(async (req) => {
         const pageTexts = await Promise.all(textPromises)
         extractedText = pageTexts.join('\n\n').trim()
         
+        console.log(`Processing file: ${file_name}, type: ${file_type}`)
+        
+        // HEIC/HEIF images are automatically handled by AI vision
+        if (file_type.includes('heic') || file_type.includes('heif')) {
+          console.log('✅ HEIC format detected - AI vision will process directly')
+        }
+        
         if (!extractedText || extractedText.length < 10) {
           // If no text found, it might be a scanned PDF
           extractedText = `Scanned PDF Document: ${file_name}\n\nThis appears to be a scanned PDF with no extractable text. The document contains ${pdfDoc.numPages} page(s).\n\nTo extract text from scanned PDFs, please:\n1. Convert the PDF pages to images\n2. Upload each page as a separate image file for OCR\n\nFile Information:\n- File Name: ${file_name}\n- File Size: ${(fileData.size / 1024).toFixed(2)} KB\n- Pages: ${pdfDoc.numPages}`

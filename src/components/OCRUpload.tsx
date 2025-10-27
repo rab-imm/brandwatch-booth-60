@@ -58,6 +58,7 @@ export const OCRUpload = () => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
   const [result, setResult] = useState<{
     extractedText: string
     aiSummary: string
@@ -91,11 +92,23 @@ export const OCRUpload = () => {
     if (!file) return
 
     // Validate file type
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/heic',
+      'image/heif',
+      'image/bmp',
+      'image/tiff',
+      'image/gif',
+      'image/avif'
+    ]
     if (!allowedTypes.includes(file.type)) {
       toast({
         title: "Invalid File Type",
-        description: "Please upload PDF or image files (JPG, PNG, WEBP)",
+        description: "Please upload PDF or image files (JPG, PNG, WEBP, HEIC, BMP, TIFF, GIF, AVIF)",
         variant: "destructive"
       })
       return
@@ -113,6 +126,30 @@ export const OCRUpload = () => {
 
     setSelectedFile(file)
     setResult(null)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    
+    const file = e.dataTransfer.files[0]
+    if (!file) return
+    
+    // Reuse existing validation
+    const fakeEvent = {
+      target: { files: [file] }
+    } as any
+    handleFileSelect(fakeEvent)
   }
 
   const processOCR = async () => {
@@ -270,18 +307,77 @@ export const OCRUpload = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <Input
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`
+              relative border-2 border-dashed rounded-lg p-8 text-center transition-all
+              ${isDragging 
+                ? 'border-primary bg-primary/5 scale-[1.02]' 
+                : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/30'
+              }
+              ${isProcessing ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}
+            `}
+            onClick={() => document.getElementById('ocr-file-input')?.click()}
+          >
+            <input
               type="file"
-              accept=".pdf,image/jpeg,image/png,image/webp"
+              accept="image/*,.pdf"
               onChange={handleFileSelect}
               disabled={isProcessing}
-              className="cursor-pointer"
+              className="hidden"
+              id="ocr-file-input"
             />
-            <p className="text-xs text-muted-foreground mt-2">
-              Supported: PDF, JPG, PNG, WEBP (Max 10MB)
-            </p>
+            
+            <div className="space-y-3">
+              <div className="flex justify-center gap-3">
+                <div className="p-3 rounded-full bg-primary/10">
+                  <Icon name="upload" className="h-6 w-6 text-primary" />
+                </div>
+                <div className="p-3 rounded-full bg-primary/10">
+                  <Icon name="image" className="h-6 w-6 text-primary" />
+                </div>
+                <div className="p-3 rounded-full bg-primary/10">
+                  <Icon name="file-text" className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+              
+              <div>
+                <p className="text-sm font-medium mb-1">
+                  {isDragging 
+                    ? '📂 Drop your document here' 
+                    : '📸 Choose from Gallery or Upload File'
+                  }
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Click to browse • Drag & drop files here
+                </p>
+              </div>
+              
+              <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
+                <Badge variant="secondary" className="text-xs">PDF</Badge>
+                <Badge variant="secondary" className="text-xs">JPG</Badge>
+                <Badge variant="secondary" className="text-xs">PNG</Badge>
+                <Badge variant="secondary" className="text-xs">HEIC</Badge>
+                <Badge variant="secondary" className="text-xs">WebP</Badge>
+                <Badge variant="secondary" className="text-xs">BMP</Badge>
+                <Badge variant="secondary" className="text-xs">TIFF</Badge>
+                <span>• Max 10MB</span>
+              </div>
+            </div>
           </div>
+
+          {/* Gallery Button (Mobile-friendly) */}
+          <Button
+            variant="outline"
+            className="w-full h-14 flex items-center justify-center gap-2"
+            onClick={() => document.getElementById('ocr-file-input')?.click()}
+            disabled={isProcessing}
+          >
+            <Icon name="image" className="h-5 w-5" />
+            <span className="font-medium">Choose Photo from Gallery</span>
+          </Button>
 
           {selectedFile && (
             <div className="p-3 bg-muted rounded-lg flex items-center justify-between">
