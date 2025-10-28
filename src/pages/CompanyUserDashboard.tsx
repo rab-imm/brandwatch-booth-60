@@ -67,6 +67,13 @@ export default function CompanyUserDashboard() {
     fetchCompanyRole()
   }, [user, profile])
 
+  // Redirect non-company users to personal dashboard
+  useEffect(() => {
+    if (!loading && user && profile && !profile.current_company_id) {
+      navigate('/personal-dashboard')
+    }
+  }, [user, profile, loading, navigate])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -219,41 +226,43 @@ export default function CompanyUserDashboard() {
             />
             
             <main className="flex-1 flex flex-col overflow-hidden">
-              <div className="border-b p-4 flex items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
-                <div className="flex items-center gap-4">
-                  <SidebarTrigger />
-                  <div className="flex items-center gap-3">
-                    <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    <div>
-                      <h1 className="text-2xl font-bold text-purple-900 dark:text-purple-100">
-                        {getSectionTitle()}
-                      </h1>
-                      <p className="text-sm text-purple-700 dark:text-purple-300">{companyName}</p>
+              {companyData && (
+                <div className="border-b p-4 flex items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
+                  <div className="flex items-center gap-4">
+                    <SidebarTrigger />
+                    <div className="flex items-center gap-3">
+                      <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                      <div>
+                        <h1 className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                          {getSectionTitle()}
+                        </h1>
+                        <p className="text-sm text-purple-700 dark:text-purple-300">{companyName}</p>
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-4">
+                    {isManager || isAdmin ? (
+                      <CompanyCreditCounter
+                        personalUsed={companyRole?.used_credits || 0}
+                        personalLimit={companyRole?.max_credits_per_period || 50}
+                        companyUsed={companyData?.used_credits || 0}
+                        companyTotal={companyData?.total_credits || 0}
+                        rolloverCredits={profile?.rollover_credits || 0}
+                      />
+                    ) : (
+                      <PersonalCreditCounter
+                        creditsUsed={companyRole?.used_credits || 0}
+                        subscriptionTier={companyData?.subscription_tier || 'free'}
+                        maxCredits={companyRole?.max_credits_per_period || 50}
+                        rolloverCredits={0}
+                      />
+                    )}
+                    <NotificationCenter />
+                  </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  {isManager || isAdmin ? (
-                    <CompanyCreditCounter
-                      personalUsed={companyRole?.used_credits || 0}
-                      personalLimit={companyRole?.max_credits_per_period || 50}
-                      companyUsed={companyData?.used_credits || 0}
-                      companyTotal={companyData?.total_credits || 0}
-                      rolloverCredits={profile?.rollover_credits || 0}
-                    />
-                  ) : (
-                    <PersonalCreditCounter
-                      creditsUsed={companyRole?.used_credits || 0}
-                      subscriptionTier={companyData?.subscription_tier || 'free'}
-                      maxCredits={companyRole?.max_credits_per_period || 50}
-                      rolloverCredits={0}
-                    />
-                  )}
-                  <NotificationCenter />
-                </div>
-              </div>
+              )}
 
               <div className="flex-1 flex flex-col overflow-hidden">
                 <div className={activeSection === 'chat' ? 'flex-1 flex p-6' : 'flex-1 p-6 overflow-auto'}>
