@@ -63,7 +63,7 @@ export const Features = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <Badge variant="outline" className="mb-4">
-            Complete UAE Legal Research Platform
+            Complete graysen Platform
           </Badge>
           <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
             Everything Legal Professionals Need

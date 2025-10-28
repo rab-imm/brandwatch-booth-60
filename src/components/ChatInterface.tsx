@@ -154,12 +154,12 @@ export const ChatInterface = () => {
             <Icon name="scale" className="w-16 h-16 text-primary" />
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold text-foreground">
-                {currentConversationId ? "No messages yet" : "Welcome to UAE Legal Research"}
+                {currentConversationId ? "No messages yet" : "Welcome to graysen"}
               </h2>
               <p className="text-muted-foreground max-w-md">
                 {currentConversationId 
                   ? "Start asking your legal questions in this conversation" 
-                  : "Get instant answers backed by real-time UAE legal research, verified citations, and comprehensive legal analysis from the latest sources."
+                  : "Get instant answers backed by real-time legal research, verified citations, and comprehensive legal analysis from the latest sources."
                 }
               </p>
             </div>

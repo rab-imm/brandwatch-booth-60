@@ -9,7 +9,7 @@ export const Footer = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="grid md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
-            <h3 className="text-2xl font-bold text-brand-primary mb-4">UAE Legal Research</h3>
+            <h3 className="text-2xl font-bold text-brand-primary mb-4">graysen</h3>
             <p className="text-muted-foreground mb-4 max-w-md">
               {t('footer.description')}
             </p>

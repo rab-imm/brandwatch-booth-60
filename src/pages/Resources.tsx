@@ -8,7 +8,7 @@ import { Footer } from "@/components/Footer"
 const Resources = () => {
   const blogPosts = [
     {
-      title: "UAE Legal Research in the AI Era: A Comprehensive Guide",
+      title: "graysen in the AI Era: A Comprehensive Guide",
       excerpt: "How artificial intelligence is transforming legal research in the UAE and what it means for legal professionals.",
       date: "Dec 15, 2024",
       readTime: "8 min read",
@@ -94,7 +94,7 @@ const Resources = () => {
               Legal Resources & Support
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to succeed with UAE legal research
+              Everything you need to succeed with graysen
             </p>
           </div>
         </section>
@@ -209,7 +209,7 @@ const Resources = () => {
             <div className="text-center mb-12">
               <Badge variant="outline" className="mb-4">API Documentation</Badge>
               <h2 className="text-4xl font-bold mb-6 text-brand-primary font-pact-display">
-                Build with UAE Legal Research
+                Build with graysen
               </h2>
               <p className="text-xl text-muted-foreground">
                 Integrate our AI-powered legal research into your applications and systems

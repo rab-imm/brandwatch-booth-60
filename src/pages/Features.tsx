@@ -109,7 +109,7 @@ const Features = () => {
         },
         {
           name: "API Access",
-          description: "Integrate UAE legal research capabilities into your existing systems."
+          description: "Integrate graysen capabilities into your existing systems."
         },
         {
           name: "White-Label Options",
@@ -130,7 +130,7 @@ const Features = () => {
         <section className="py-20 px-6 bg-gradient-warm">
           <div className="container mx-auto max-w-4xl text-center">
             <h1 className="text-5xl lg:text-6xl font-bold mb-6 text-brand-primary font-pact-display tracking-tight">
-              Complete UAE Legal Research Platform
+              Complete graysen Platform
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Every feature you need for comprehensive legal research across all UAE jurisdictions.

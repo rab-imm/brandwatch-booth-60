@@ -133,11 +133,11 @@ serve(async (req) => {
       console.error('Error searching internal documents:', error)
     }
 
-    // Step 2: Get real-time UAE legal research from Perplexity
+    // Step 2: Get real-time research from Perplexity
     let researchContext = ""
     let researchSources: any[] = []
     try {
-      console.log('Fetching real-time UAE legal research...')
+      console.log('Fetching real-time legal research...')
       const perplexityQuery = `UAE law ${message} legal information federal emirates regulations 2024 2025`
       
       // Search using Perplexity sonar-pro model with UAE government domain filters
@@ -152,7 +152,7 @@ serve(async (req) => {
           messages: [
             {
               role: 'system',
-              content: 'You are a UAE legal research assistant. ONLY cite information from official UAE government sources, federal gazettes, and official legal portals. Prioritize uaelegislation.gov.ae, u.ae, moj.gov.ae, and elaws.moj.gov.ae domains. Do not use news articles or unofficial sources.'
+              content: 'You are a legal research assistant working for graysen. ONLY cite information from official UAE government sources, federal gazettes, and official legal portals. Prioritize uaelegislation.gov.ae, u.ae, moj.gov.ae, and elaws.moj.gov.ae domains. Do not use news articles or unofficial sources.'
             },
             {
               role: 'user',
@@ -228,9 +228,9 @@ serve(async (req) => {
     }
 
     // Step 4: Create comprehensive system prompt
-    const systemPrompt = `You are an expert UAE Legal Research Assistant with access to real-time legal information. You specialize in UAE federal law, emirate-specific regulations, and particularly UAE employment law.
+    const systemPrompt = `You are an expert legal assistant for graysen with access to real-time legal information. You specialize in UAE federal law, emirate-specific regulations, and particularly UAE employment law.
 
-CURRENT UAE LEGAL RESEARCH:
+CURRENT LEGAL RESEARCH:
 ${researchContext || "No current research available"}
 
 INTERNAL LEGAL DOCUMENTS:

@@ -31,7 +31,7 @@ export const Header = () => {
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between gap-8">
-          <Link to="/" className="text-2xl font-bold text-brand-primary font-pact-display whitespace-nowrap">UAE Legal Research</Link>
+          <Link to="/" className="text-2xl font-bold text-brand-primary font-pact-display whitespace-nowrap">graysen</Link>
           
           {user && (
             <nav className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border border-border">

@@ -29,7 +29,7 @@ serve(async (req) => {
     console.log('Processing legal query:', { userId, conversationId, messageLength: message.length });
 
     // Enhanced legal prompt with citation system
-    const systemPrompt = `You are a specialized UAE Legal Research Assistant with access to comprehensive UAE legal databases. Your role is to provide accurate, well-cited legal information about UAE law.
+    const systemPrompt = `You are a specialized legal assistant for graysen with access to comprehensive UAE legal databases. Your role is to provide accurate, well-cited legal information about UAE law.
 
 CORE CAPABILITIES:
 - Deep knowledge of UAE Federal Law, Local Emirate Laws, and Free Zone Regulations

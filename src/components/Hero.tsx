@@ -63,7 +63,7 @@ export const Hero = () => {
             <div className="relative rounded-2xl overflow-hidden shadow-dashboard">
               <img 
                 src={heroImage} 
-                alt="UAE Legal Research Platform dashboard showing AI-powered document search and analysis" 
+                alt="graysen Platform dashboard showing AI-powered document search and analysis" 
                 className="w-full h-auto"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/5 to-transparent" />
