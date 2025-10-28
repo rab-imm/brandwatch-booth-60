@@ -23,6 +23,8 @@ interface CompanySidebarProps {
   companyName: string
   isManager?: boolean
   isAdmin?: boolean
+  creditsUsed?: number
+  creditsTotal?: number
 }
 
 interface SidebarSection {
@@ -46,6 +48,8 @@ export function CompanySidebar({
   companyName,
   isManager = false,
   isAdmin = false,
+  creditsUsed = 0,
+  creditsTotal = 0,
 }: CompanySidebarProps) {
   const { state } = useSidebar()
   const navigate = useNavigate()
@@ -177,6 +181,26 @@ export function CompanySidebar({
           )
         })}
       </SidebarContent>
+
+      {!collapsed && creditsTotal > 0 && (
+        <div className="border-t p-4 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Credits</span>
+            <span className="font-medium">
+              {creditsUsed} / {creditsTotal}
+            </span>
+          </div>
+          <div className="w-full bg-secondary rounded-full h-2">
+            <div
+              className="bg-primary h-2 rounded-full transition-all duration-300"
+              style={{ width: `${Math.min((creditsUsed / creditsTotal) * 100, 100)}%` }}
+            />
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {creditsTotal - creditsUsed} remaining
+          </div>
+        </div>
+      )}
 
       <SidebarFooter className="border-t p-4">
         {!collapsed ? (
