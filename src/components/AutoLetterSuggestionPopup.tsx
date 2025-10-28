@@ -47,7 +47,7 @@ export const AutoLetterSuggestionPopup = ({
   }, [isHovered, onDismiss]);
 
   const handleCreateLetter = () => {
-    navigate("/letter-creation-wizard", {
+    navigate("/letters/create", {
       state: {
         conversationId,
         suggestedType: suggestion.letterType,
