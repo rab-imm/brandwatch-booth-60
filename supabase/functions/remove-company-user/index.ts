@@ -1,167 +1,125 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.4'
+import { corsHeaders } from '../_shared/cors.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+    // Check if user is super admin
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
-      throw new Error('Missing authorization header')
+      throw new Error('No authorization header')
     }
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
-        auth: {
-          persistSession: false,
-        }
-      }
-    )
-
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    if (userError || !user) {
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    
+    if (authError || !user) {
       throw new Error('Unauthorized')
     }
 
-    const { userId, companyId } = await req.json()
-
-    if (!userId || !companyId) {
-      throw new Error('User ID and company ID are required')
-    }
-
-    // Verify the requester is a company admin for this company
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('user_role, current_company_id')
+    // Check if user has super_admin role
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
       .eq('user_id', user.id)
+      .eq('role', 'super_admin')
       .single()
 
-    if (!profile || (profile.user_role !== 'company_admin' && profile.user_role !== 'super_admin')) {
-      throw new Error('Only company admins can remove users')
+    if (!roleData) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - Super admin access required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
-    if (profile.user_role === 'company_admin' && profile.current_company_id !== companyId) {
-      throw new Error('You can only remove users from your own company')
+    const { email } = await req.json()
+
+    if (!email) {
+      throw new Error('Email is required')
     }
 
-    // Get user info before deletion for logging
-    const { data: targetUser } = await supabase
+    // Get user ID from email
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('email, full_name')
-      .eq('user_id', userId)
+      .select('user_id, current_company_id')
+      .eq('email', email)
       .single()
 
-    // Delete user-company role relationship
-    const { error: deleteError } = await supabase
+    if (profileError || !profile) {
+      return new Response(
+        JSON.stringify({ error: 'User not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const userId = profile.user_id
+
+    // 1. Delete from user_company_roles
+    const { error: companyRoleError } = await supabase
       .from('user_company_roles')
       .delete()
       .eq('user_id', userId)
-      .eq('company_id', companyId)
 
-    if (deleteError) {
-      console.error('Error removing user:', deleteError)
-      throw deleteError
+    if (companyRoleError) {
+      console.error('Error deleting company roles:', companyRoleError)
     }
 
-    // Log activity to company_activity_logs
-    try {
-      await supabase
-        .from('company_activity_logs')
-        .insert({
-          company_id: companyId,
-          performed_by: user.id,
-          activity_type: 'user_removed',
-          target_user_id: userId,
-          target_entity_type: 'user',
-          target_entity_id: userId,
-          description: `Removed ${targetUser?.full_name || targetUser?.email || 'user'} from the company`,
-          metadata: {
-            removed_user_email: targetUser?.email,
-            removed_user_name: targetUser?.full_name,
-          }
-        })
-      console.log('Activity logged successfully')
-    } catch (logError) {
-      console.error('Failed to log activity (non-critical):', logError)
+    // 2. Remove company_staff from user_roles and add individual if not exists
+    const { error: removeRoleError } = await supabase
+      .from('user_roles')
+      .delete()
+      .eq('user_id', userId)
+      .in('role', ['company_staff', 'company_manager', 'company_admin'])
+
+    if (removeRoleError) {
+      console.error('Error removing company roles:', removeRoleError)
     }
 
-    // Create notification for the admin who performed the action
-    try {
-      const { data: company } = await supabase
-        .from('companies')
-        .select('name')
-        .eq('id', companyId)
-        .single()
+    // Add individual role
+    const { error: addRoleError } = await supabase
+      .from('user_roles')
+      .insert({ user_id: userId, role: 'individual' })
+      .select()
+      .single()
 
-      await supabase
-        .from('notifications')
-        .insert({
-          user_id: user.id,
-          title: 'User Removed',
-          message: `Successfully removed ${targetUser?.full_name || targetUser?.email || 'user'} from ${company?.name || 'the company'}`,
-          type: 'info',
-          action_url: `/dashboard?tab=team`,
-        })
-      console.log('Notification created successfully')
-    } catch (notifError) {
-      console.error('Failed to create notification (non-critical):', notifError)
+    if (addRoleError && addRoleError.code !== '23505') { // Ignore duplicate key error
+      console.error('Error adding individual role:', addRoleError)
     }
 
-    // Notify removed user (they should re-login to update permissions)
-    try {
-      const { data: company } = await supabase
-        .from('companies')
-        .select('name')
-        .eq('id', companyId)
-        .single()
+    // 3. Update profile
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({
+        current_company_id: null,
+        user_role: 'individual'
+      })
+      .eq('user_id', userId)
 
-      await supabase
-        .from('notifications')
-        .insert({
-          user_id: userId,
-          title: 'Company Access Removed',
-          message: `You have been removed from ${company?.name || 'the company'}. Your access to company resources has been revoked.`,
-          type: 'warning',
-          action_url: `/dashboard`,
-        })
-      console.log('Removed user notification created successfully')
-    } catch (notifError) {
-      console.error('Failed to create removed user notification (non-critical):', notifError)
+    if (updateError) {
+      throw updateError
     }
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'User removed successfully',
+        message: `User ${email} removed from company successfully`,
+        userId
       }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
     console.error('Error:', error)
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'An error occurred removing the user'
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400 
-      }
+      JSON.stringify({ error: error.message }),
+      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })
