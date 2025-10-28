@@ -494,6 +494,27 @@ export const UserManagement = () => {
     }
   }
 
+  const handleRemoveFromCompany = async (email: string) => {
+    if (!confirm(`Are you sure you want to remove ${email} from their company? This will convert them to an individual user.`)) {
+      return
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('remove-company-user', {
+        body: { email }
+      })
+
+      if (error) throw error
+      if (data?.error) throw new Error(data.error)
+
+      toast.success(`User ${email} removed from company successfully`)
+      fetchUsers()
+    } catch (error) {
+      console.error('Error removing user from company:', error)
+      toast.error(`Failed to remove user from company: ${error.message}`)
+    }
+  }
+
   const userColumns = [
     {
       key: 'user',
@@ -583,6 +604,17 @@ export const UserManagement = () => {
           >
             <Icon name="lock" className="h-4 w-4" />
           </Button>
+          {item.current_company_id && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-orange-600 hover:text-orange-600"
+              onClick={() => handleRemoveFromCompany(item.email)}
+              title="Remove from Company"
+            >
+              <Icon name="user-x" className="h-4 w-4" />
+            </Button>
+          )}
           <Button
             size="sm"
             variant="ghost"
