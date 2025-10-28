@@ -223,8 +223,8 @@ export default function CompanyUserDashboard() {
               companyName={companyName}
               isManager={isManager}
               isAdmin={isAdmin}
-              creditsUsed={isManager || isAdmin ? companyRole?.used_credits || 0 : companyRole?.used_credits || 0}
-              creditsTotal={isManager || isAdmin ? companyRole?.max_credits_per_period || 0 : companyRole?.max_credits_per_period || 0}
+              creditsUsed={isManager || isAdmin ? (companyData?.used_credits || 0) : (companyRole?.used_credits || 0)}
+              creditsTotal={isManager || isAdmin ? (companyData?.total_credits || 0) : (companyRole?.max_credits_per_period || 0)}
             />
             
             <main className="flex-1 flex flex-col overflow-hidden">
