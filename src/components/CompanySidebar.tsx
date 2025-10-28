@@ -16,6 +16,7 @@ import {
 import { Icon } from "@/components/ui/Icon"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
 
 interface CompanySidebarProps {
   activeSection: string
@@ -183,22 +184,49 @@ export function CompanySidebar({
       </SidebarContent>
 
       {!collapsed && creditsTotal > 0 && (
-        <div className="border-t p-4 space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Credits</span>
-            <span className="font-medium">
-              {creditsUsed} / {creditsTotal}
-            </span>
+        <div className="border-t bg-muted/30 p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <Icon name="coins" className="h-4 w-4 text-primary" />
+            <span className="font-semibold text-sm">Company Credits</span>
           </div>
-          <div className="w-full bg-secondary rounded-full h-2">
-            <div
-              className="bg-primary h-2 rounded-full transition-all duration-300"
-              style={{ width: `${Math.min((creditsUsed / creditsTotal) * 100, 100)}%` }}
-            />
+          
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Used</span>
+              <span className="font-medium tabular-nums">{creditsUsed.toLocaleString()}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Unused</span>
+              <span className="font-semibold tabular-nums text-primary">
+                {(creditsTotal - creditsUsed).toLocaleString()}
+              </span>
+            </div>
           </div>
-          <div className="text-xs text-muted-foreground">
-            {creditsTotal - creditsUsed} remaining
-          </div>
+
+          {(() => {
+            const usagePercent = (creditsUsed / creditsTotal) * 100
+            const progressColor = 
+              usagePercent >= 90 ? "bg-destructive" : 
+              usagePercent >= 70 ? "bg-yellow-500" : 
+              "bg-green-500"
+            
+            return (
+              <div className="space-y-1">
+                <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${progressColor}`}
+                    style={{ width: `${Math.min(usagePercent, 100)}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">{usagePercent.toFixed(1)}% used</span>
+                  <span className="font-medium tabular-nums text-muted-foreground">
+                    Total: {creditsTotal.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            )
+          })()}
         </div>
       )}
 
