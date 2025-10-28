@@ -82,6 +82,27 @@ export default function CompanyUserDashboard() {
   const isManager = companyRole?.role === 'company_manager'
   const isAdmin = profile?.roles?.includes('company_admin') || false
 
+  const getSectionTitle = () => {
+    switch (activeSection) {
+      case "dashboard":
+        return isManager || isAdmin ? 'Company Dashboard' : 'My Dashboard'
+      case "chat":
+        return 'Legal Assistant'
+      case "letters":
+        return 'Legal Letters'
+      case "templates":
+        return 'Template Store'
+      case "ocr":
+        return 'Document Scanner'
+      case "team":
+        return 'Team Activity'
+      case "requests":
+        return 'Team Requests'
+      default:
+        return isManager || isAdmin ? 'Company Workspace' : 'Team Workspace'
+    }
+  }
+
   const renderSection = () => {
     switch (activeSection) {
       case "dashboard":
@@ -207,7 +228,7 @@ export default function CompanyUserDashboard() {
                     </svg>
                     <div>
                       <h1 className="text-2xl font-bold text-purple-900 dark:text-purple-100">
-                        {isManager || isAdmin ? 'Company Workspace' : 'Team Workspace'}
+                        {getSectionTitle()}
                       </h1>
                       <p className="text-sm text-purple-700 dark:text-purple-300">{companyName}</p>
                     </div>
