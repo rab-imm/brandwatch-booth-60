@@ -50,9 +50,11 @@ export default function SigningSession() {
           stack: error.stack
         });
         
-        // Check if it's a network/deployment issue
-        if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
-          setError("Network error: Unable to connect to signing service. Please check your internet connection.");
+        // More specific error messages
+        if (error.message?.includes('non-2xx')) {
+          setError("This signature link is invalid or has expired. Please contact the sender for a new link.");
+        } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+          setError("Network error: Unable to connect. Please check your internet connection.");
         } else if (error.message?.includes('404') || error.message?.includes('not found')) {
           setError("Signing service is temporarily unavailable. Please contact support.");
         } else if (error.message?.includes('CORS')) {

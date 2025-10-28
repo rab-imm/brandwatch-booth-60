@@ -20,7 +20,8 @@ serve(async (req) => {
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
     );
 
     const { access_token } = await req.json();
@@ -173,8 +174,26 @@ serve(async (req) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    const errorStack = error instanceof Error ? error.stack : '';
+    
+    logStep("ERROR", { 
+      message: errorMessage,
+      stack: errorStack,
+      type: error?.constructor?.name 
+    });
+    
+    // Provide user-friendly error messages
+    let userMessage = errorMessage;
+    if (errorMessage.includes('permission denied') || errorMessage.includes('RLS')) {
+      userMessage = 'Access denied. This signature link may be invalid or expired.';
+    } else if (errorMessage.includes('not found') || errorMessage.includes('null')) {
+      userMessage = 'Signature request not found. Please check your link.';
+    }
+    
+    return new Response(JSON.stringify({ 
+      error: userMessage,
+      debug: errorMessage
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
