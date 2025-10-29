@@ -10,6 +10,7 @@ import {
   noticePeriodSchema,
   salarySchema,
 } from './validation-schemas'
+import { DateValidationRule } from './date-validation'
 
 // Reference number validator (numbers only)
 const referenceNumberSchema = z.string().regex(/^[0-9]+$/, "Must contain numbers only")
@@ -36,6 +37,7 @@ interface FieldValidationRule {
   max?: number
   step?: number
   message?: string
+  dateRelationships?: DateValidationRule[]
 }
 
 type LetterValidationRules = {
@@ -69,14 +71,33 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
       step: 0.01,
       message: 'Must be a positive amount'
     },
-    dueDate: { validator: dateSchema, type: 'date' },
+    dueDate: { 
+      validator: dateSchema, 
+      type: 'date',
+      dateRelationships: [
+        {
+          relatedField: 'invoiceDate',
+          type: 'mustBeAfter',
+          errorMessage: 'Due date should be after invoice date'
+        }
+      ]
+    },
     invoiceNumber: { 
       validator: invoiceNumberSchema, 
       pattern: '[0-9]*', 
       inputMode: 'numeric',
       message: 'Invoice number must contain numbers only'
     },
-    invoiceDate: { validator: dateSchema, type: 'date' },
+    invoiceDate: { 
+      validator: dateSchema, 
+      type: 'date',
+      dateRelationships: [
+        {
+          type: 'cannotBeFuture',
+          errorMessage: 'Invoice date cannot be in the future'
+        }
+      ]
+    },
   },
 
   // ============= SETTLEMENT AGREEMENT =============
@@ -145,8 +166,21 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
       step: 0.01,
       message: 'Salary must be at least AED 1,000'
     },
-    terminationDate: { validator: dateSchema, type: 'date' },
-    lastWorkingDate: { validator: dateSchema, type: 'date' },
+    terminationDate: { 
+      validator: dateSchema, 
+      type: 'date'
+    },
+    lastWorkingDate: { 
+      validator: dateSchema, 
+      type: 'date',
+      dateRelationships: [
+        {
+          relatedField: 'terminationDate',
+          type: 'mustBeAfter',
+          errorMessage: 'Last working date must be after termination date'
+        }
+      ]
+    },
   },
 
   // ============= EMPLOYMENT CONTRACT =============
@@ -193,7 +227,16 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
       min: 0, 
       step: 0.01 
     },
-    startDate: { validator: dateSchema, type: 'date' },
+    startDate: { 
+      validator: dateSchema, 
+      type: 'date',
+      dateRelationships: [
+        {
+          type: 'cannotBeTooOld',
+          errorMessage: 'Contract start date cannot be more than 6 months in the past'
+        }
+      ]
+    },
     probationPeriod: { 
       validator: z.coerce.number().min(0).max(6, "Maximum 6 months per UAE law"), 
       type: 'number', 
@@ -247,8 +290,27 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
       min: 0, 
       step: 0.01 
     },
-    leaseStartDate: { validator: dateSchema, type: 'date' },
-    leaseEndDate: { validator: dateSchema, type: 'date' },
+    leaseStartDate: { 
+      validator: dateSchema, 
+      type: 'date',
+      dateRelationships: [
+        {
+          type: 'cannotBeTooOld',
+          errorMessage: 'Lease start date cannot be more than 6 months in the past'
+        }
+      ]
+    },
+    leaseEndDate: { 
+      validator: dateSchema, 
+      type: 'date',
+      dateRelationships: [
+        {
+          relatedField: 'leaseStartDate',
+          type: 'mustBeAfter',
+          errorMessage: 'Lease end date must be after start date'
+        }
+      ]
+    },
   },
 
   // ============= LEASE TERMINATION =============
@@ -262,10 +324,50 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
     tenantPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
     tenantEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     propertyAddress: { validator: addressSchema },
-    leaseStartDate: { validator: dateSchema, type: 'date' },
-    leaseEndDate: { validator: dateSchema, type: 'date' },
-    noticeDate: { validator: dateSchema, type: 'date' },
-    terminationDate: { validator: dateSchema, type: 'date' },
+    leaseStartDate: { 
+      validator: dateSchema, 
+      type: 'date',
+      dateRelationships: [
+        {
+          relatedField: 'originalLeaseDate',
+          type: 'mustBeAfter',
+          errorMessage: 'Lease start date must be after original lease date'
+        }
+      ]
+    },
+    leaseEndDate: { 
+      validator: dateSchema, 
+      type: 'date',
+      dateRelationships: [
+        {
+          relatedField: 'leaseStartDate',
+          type: 'mustBeAfter',
+          errorMessage: 'Lease end date must be after start date'
+        }
+      ]
+    },
+    noticeDate: { 
+      validator: dateSchema, 
+      type: 'date',
+      dateRelationships: [
+        {
+          type: 'cannotBeFuture',
+          errorMessage: 'Notice date cannot be in the future'
+        }
+      ]
+    },
+    terminationDate: { 
+      validator: dateSchema, 
+      type: 'date',
+      dateRelationships: [
+        {
+          relatedField: 'noticeDate',
+          type: 'mustBeAfter',
+          errorMessage: 'Termination date must be after notice date',
+          minDaysDiff: 30
+        }
+      ]
+    },
   },
 
   // ============= NDA (Non-Disclosure Agreement) =============
@@ -274,8 +376,21 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
     partyAAddress: { validator: addressSchema },
     partyBName: { validator: nameSchema },
     partyBAddress: { validator: addressSchema },
-    effectiveDate: { validator: dateSchema, type: 'date' },
-    expiryDate: { validator: dateSchema, type: 'date' },
+    effectiveDate: { 
+      validator: dateSchema, 
+      type: 'date' 
+    },
+    expiryDate: { 
+      validator: dateSchema, 
+      type: 'date',
+      dateRelationships: [
+        {
+          relatedField: 'effectiveDate',
+          type: 'mustBeAfter',
+          errorMessage: 'Expiry date must be after effective date'
+        }
+      ]
+    },
   },
 
   // ============= WORKPLACE COMPLAINT =============
@@ -292,7 +407,16 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
     complainantEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     respondentName: { validator: nameSchema },
     respondentPosition: { validator: requiredTextSchema },
-    incidentDate: { validator: dateSchema, type: 'date' },
+    incidentDate: { 
+      validator: dateSchema, 
+      type: 'date',
+      dateRelationships: [
+        {
+          type: 'cannotBeFuture',
+          errorMessage: 'Incident date cannot be in the future'
+        }
+      ]
+    },
   },
 
   // ============= POWER OF ATTORNEY =============
@@ -317,8 +441,21 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
     agentAddress: { validator: addressSchema },
     agentPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
     agentEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
-    effectiveDate: { validator: dateSchema, type: 'date' },
-    expiryDate: { validator: dateSchema, type: 'date' },
+    effectiveDate: { 
+      validator: dateSchema, 
+      type: 'date' 
+    },
+    expiryDate: { 
+      validator: dateSchema, 
+      type: 'date',
+      dateRelationships: [
+        {
+          relatedField: 'effectiveDate',
+          type: 'mustBeAfter',
+          errorMessage: 'Expiry date must be after effective date'
+        }
+      ]
+    },
   },
 
   // ============= GENERAL LEGAL LETTER =============

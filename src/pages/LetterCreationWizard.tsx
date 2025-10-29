@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ValidatedInput } from "@/components/ui/validated-input";
 import { ValidatedTextarea } from "@/components/ui/validated-textarea";
 import { ValidatedSelect } from "@/components/ui/validated-select";
+import { ValidatedDatePicker } from "@/components/ui/validated-date-picker";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -15,6 +16,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Shield, AlertCircle } from "lucide-react";
 import { format, parseISO, isAfter, isBefore, startOfDay, subMonths } from "date-fns";
 import { getFieldValidationRule } from "@/lib/letter-validation-rules";
+import { useDateValidation } from "@/hooks/useDateValidation";
+import { getRelatedDateFields } from "@/lib/date-validation";
 import {
   IconBuildingCommunity as IconBuilding,
   IconAlertCircle,
@@ -60,6 +63,45 @@ const LETTER_TYPES = [
 
 type LetterType = typeof LETTER_TYPES[number]["value"];
 
+// Helper component for date fields with validation
+function DateFieldWithValidation({ 
+  fieldName, 
+  label, 
+  value, 
+  onChange, 
+  allDetails, 
+  validationRule, 
+  required 
+}: {
+  fieldName: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  allDetails: Record<string, any>;
+  validationRule: any;
+  required?: boolean;
+}) {
+  const { error, isDirty } = useDateValidation({
+    fieldName,
+    value,
+    allDetails,
+    rules: validationRule?.dateRelationships,
+    required
+  });
+
+  return (
+    <ValidatedDatePicker
+      label={label}
+      value={value}
+      onChange={onChange}
+      error={error}
+      isDirty={isDirty}
+      required={required}
+      placeholder="Select date"
+    />
+  );
+}
+
 export default function LetterCreationWizard() {
   const navigate = useNavigate();
   const { profile } = useAuth();
@@ -76,6 +118,16 @@ export default function LetterCreationWizard() {
   const handleFieldChange = useCallback((name: string, value: any) => {
     setDetails(prev => ({ ...prev, [name]: value }));
     setDirtyFields(prev => new Set(prev).add(name));
+    
+    // If this is a date field, mark related date fields as dirty too
+    // so they revalidate with the new value
+    const validationRule = getFieldValidationRule(letterType as string, name);
+    if (validationRule?.dateRelationships) {
+      const relatedFields = getRelatedDateFields(validationRule.dateRelationships);
+      relatedFields.forEach(relatedField => {
+        setDirtyFields(prev => new Set(prev).add(relatedField));
+      });
+    }
     
     // Clear field error when user starts typing
     if (fieldErrors[name]) {
@@ -1663,6 +1715,16 @@ export default function LetterCreationWizard() {
                       rows={4}
                       showCharCount
                       maxLength={2000}
+                    />
+                  ) : field.type === "date" ? (
+                    <DateFieldWithValidation
+                      fieldName={field.name}
+                      label={field.label}
+                      value={details[field.name] || ""}
+                      onChange={(value) => handleFieldChange(field.name, value)}
+                      allDetails={details}
+                      validationRule={validationRule}
+                      required={field.required}
                     />
                   ) : (
                     <ValidatedInput
