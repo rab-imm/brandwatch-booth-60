@@ -181,20 +181,20 @@ export const ConversationSidebar = () => {
               ))
             )}
           </div>
-          
-          <div className="border-t mt-2 p-3">
-            <Button
-              onClick={handleResetQueries}
-              disabled={resetting}
-              variant="outline"
-              size="sm"
-              className="w-full gap-2"
-            >
-              <Icon name="refresh-cw" className={`h-4 w-4 ${resetting ? 'animate-spin' : ''}`} />
-              {resetting ? 'Resetting...' : 'Reset Queries'}
-            </Button>
-          </div>
         </ScrollArea>
+      </div>
+      
+      <div className="border-t p-3 shrink-0">
+        <Button
+          onClick={handleResetQueries}
+          disabled={resetting}
+          variant="outline"
+          size="sm"
+          className="w-full gap-2"
+        >
+          <Icon name="refresh-cw" className={`h-4 w-4 ${resetting ? 'animate-spin' : ''}`} />
+          {resetting ? 'Resetting...' : 'Reset Queries'}
+        </Button>
       </div>
     </div>
   )
