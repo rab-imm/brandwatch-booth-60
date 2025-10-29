@@ -3817,6 +3817,15 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    
+    // Ensure details is an object
+    if (typeof details !== 'object' || Array.isArray(details)) {
+      console.error("Invalid details type:", { detailsType: typeof details, isArray: Array.isArray(details) });
+      return new Response(
+        JSON.stringify({ error: "Details must be a valid object" }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // ============= INPUT VALIDATION & SANITIZATION =============
     console.log('Validating input fields...');
@@ -4045,25 +4054,6 @@ Generate the complete letter now.`;
       letterContent += DEMAND_LETTER_CLAUSES;
     }
 
-  if (letterType === 'employment_termination') {
-    letterContent += EMPLOYMENT_TERMINATION_CLAUSES;
-  }
-  
-  if (letterType === 'employment_contract') {
-    letterContent += EMPLOYMENT_CONTRACT_CLAUSES;
-  }
-
-  if (letterType === 'settlement_agreement') {
-    letterContent += SETTLEMENT_AGREEMENT_CLAUSES;
-  }
-
-  if (letterType === 'lease_agreement') {
-    letterContent += LEASE_AGREEMENT_LEGAL_CLAUSES;
-  }
-
-  if (letterType === 'lease_termination') {
-    letterContent += LEASE_TERMINATION_LEGAL_CLAUSES;
-  }
 
     // Deduct credits (queries_used is the DB column name)
     await supabase
@@ -4082,9 +4072,17 @@ Generate the complete letter now.`;
     );
 
   } catch (error) {
-    console.error("Error in generate-legal-letter:", error);
+    console.error("Error in generate-legal-letter:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      timestamp: new Date().toISOString()
+    });
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message || "An unexpected error occurred",
+        type: error.name || "UnknownError"
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

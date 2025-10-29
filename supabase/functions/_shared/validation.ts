@@ -250,6 +250,11 @@ export function validateLetterFields(
 ): { valid: boolean; errors: Record<string, string> } {
   const errors: Record<string, string> = {};
   
+  // Handle null/undefined details
+  if (!details || typeof details !== 'object') {
+    return { valid: false, errors: { _general: 'Invalid details provided' } };
+  }
+  
   // Common validations for all letters
   Object.entries(details).forEach(([key, value]) => {
     if (!value) return; // Skip empty fields
