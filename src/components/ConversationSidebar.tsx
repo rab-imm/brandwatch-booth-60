@@ -168,7 +168,7 @@ export const ConversationSidebar = () => {
                   onClick={() => handleSelectConversation(conversation.id)}
                 >
                   <div className="space-y-1 overflow-hidden">
-                    <div className="font-medium truncate">
+                    <div className="font-medium line-clamp-1" title={conversation.title}>
                       {conversation.title}
                     </div>
                     <div className="text-xs text-muted-foreground">
