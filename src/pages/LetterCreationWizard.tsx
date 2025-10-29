@@ -1732,7 +1732,30 @@ export default function LetterCreationWizard() {
         },
       });
 
-      // Check for HTTP errors first
+      // Check response.data first for detailed error messages from edge function
+      if (response.data?.error) {
+        console.error("Edge function returned error:", response.data);
+        
+        const errorMessage = response.data.error;
+        const validationErrors = response.data.validationErrors;
+        const creditsInfo = response.data.creditsNeeded !== undefined
+          ? ` You need ${response.data.creditsNeeded} credits but only have ${response.data.creditsAvailable} available.`
+          : '';
+        
+        toast({
+          title: "Generation Failed",
+          description: `${errorMessage}${creditsInfo}`,
+          variant: "destructive",
+        });
+        
+        if (validationErrors) {
+          console.error("Validation errors:", validationErrors);
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      // Check for HTTP errors without detailed response
       if (response.error) {
         console.error("Edge function error:", response.error);
         
@@ -1743,29 +1766,6 @@ export default function LetterCreationWizard() {
           description: errorMessage,
           variant: "destructive",
         });
-        throw new Error(errorMessage);
-      }
-
-      // Check if response.data contains an error field (edge function returned error JSON)
-      if (response.data?.error) {
-        console.error("Edge function returned error:", response.data);
-        
-        const errorMessage = response.data.error;
-        const validationErrors = response.data.validationErrors;
-        const creditsInfo = response.data.creditsNeeded 
-          ? `Need ${response.data.creditsNeeded} credits, have ${response.data.creditsAvailable}`
-          : '';
-        
-        toast({
-          title: "Generation Failed",
-          description: `${errorMessage}${creditsInfo ? `. ${creditsInfo}` : ''}`,
-          variant: "destructive",
-        });
-        
-        if (validationErrors) {
-          console.error("Validation errors:", validationErrors);
-        }
-        
         throw new Error(errorMessage);
       }
 
