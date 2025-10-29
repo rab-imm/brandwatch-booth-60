@@ -138,8 +138,9 @@ export const ChatInterface = () => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+    <div className="flex flex-col h-full w-full bg-background">
+      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 min-h-0">
+        <div className="max-w-4xl mx-auto space-y-4">
         {(() => {
           const shouldShowEmpty = messages.length === 0 && !loading;
           console.log('🎨 UI Decision:', { 
@@ -253,21 +254,24 @@ export const ChatInterface = () => {
           </>
         )}
         <div ref={messagesEndRef} />
+        </div>
       </div>
       
-      <div className="border-t bg-card p-4 space-y-3 flex-shrink-0">
-        <div className="flex justify-center items-center gap-3">
-          <LawyerRequestButton conversationId={currentConversationId} />
-          <SuggestLetterButton conversationId={currentConversationId} />
-          <DeleteConversationButton conversationId={currentConversationId} />
+      <div className="border-t bg-muted/30 backdrop-blur-sm p-4 space-y-3 flex-shrink-0">
+        <div className="max-w-4xl mx-auto space-y-3">
+          <div className="flex justify-center items-center gap-3">
+            <LawyerRequestButton conversationId={currentConversationId} />
+            <SuggestLetterButton conversationId={currentConversationId} />
+            <DeleteConversationButton conversationId={currentConversationId} />
+          </div>
+          <ChatInput
+            value={inputValue}
+            onChange={setInputValue}
+            onSend={handleSendMessage}
+            disabled={loading}
+            placeholder="Ask a question about UAE law..."
+          />
         </div>
-        <ChatInput
-          value={inputValue}
-          onChange={setInputValue}
-          onSend={handleSendMessage}
-          disabled={loading}
-          placeholder="Ask a question about UAE law..."
-        />
       </div>
 
       {/* Auto Letter Suggestion Popup */}

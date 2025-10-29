@@ -134,14 +134,14 @@ export const ConversationSidebar = () => {
 
   if (loading) {
     return (
-      <div className="w-80 border-r bg-muted/10 p-4">
+      <div className="w-64 border-r bg-muted/10 p-4 shrink-0">
         <div className="text-sm text-muted-foreground">Loading conversations...</div>
       </div>
     )
   }
 
   return (
-    <div className="w-80 border-r bg-muted/10 flex flex-col h-full">
+    <div className="w-64 border-r bg-muted/10 flex flex-col h-full shrink-0">
       <ConversationHeader
         currentConversationId={currentConversationId}
         onNewChat={handleNewConversation}
