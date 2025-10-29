@@ -3803,7 +3803,15 @@ serve(async (req) => {
 
     const { letterType, details, conversationContext } = await req.json();
 
+    console.log("Letter generation request:", {
+      userId: user.id,
+      letterType: letterType,
+      detailsKeys: Object.keys(details || {}),
+      timestamp: new Date().toISOString()
+    });
+
     if (!letterType || !details) {
+      console.error("Missing required fields:", { letterType, hasDetails: !!details });
       return new Response(
         JSON.stringify({ error: "Letter type and details are required" }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -3949,24 +3957,39 @@ Generate the complete letter now.`;
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("AI Gateway error:", response.status, errorText);
+      console.error("AI Gateway error:", {
+        status: response.status,
+        statusText: response.statusText,
+        errorText: errorText.substring(0, 500),
+        letterType: letterType,
+        userId: user.id
+      });
       
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+          JSON.stringify({ 
+            error: "Rate limit exceeded. Please try again in a few minutes.",
+            retryAfter: response.headers.get('retry-after') || 'unknown'
+          }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: "AI credits exhausted. Please add funds to your workspace." }),
+          JSON.stringify({ 
+            error: "AI credits exhausted. Please add funds to your Lovable workspace to continue using letter generation.",
+            contactSupport: true
+          }),
           { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
       return new Response(
-        JSON.stringify({ error: "Letter generation failed" }),
+        JSON.stringify({ 
+          error: "Letter generation failed. Please try again or contact support if the issue persists.",
+          details: errorText.substring(0, 200)
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

@@ -1732,11 +1732,48 @@ export default function LetterCreationWizard() {
         },
       });
 
+      // Check for HTTP errors first
       if (response.error) {
-        throw response.error;
+        console.error("Edge function error:", response.error);
+        
+        const errorMessage = response.error.message || "Failed to generate letter";
+        
+        toast({
+          title: "Generation Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        throw new Error(errorMessage);
+      }
+
+      // Check if response.data contains an error field (edge function returned error JSON)
+      if (response.data?.error) {
+        console.error("Edge function returned error:", response.data);
+        
+        const errorMessage = response.data.error;
+        const validationErrors = response.data.validationErrors;
+        const creditsInfo = response.data.creditsNeeded 
+          ? `Need ${response.data.creditsNeeded} credits, have ${response.data.creditsAvailable}`
+          : '';
+        
+        toast({
+          title: "Generation Failed",
+          description: `${errorMessage}${creditsInfo ? `. ${creditsInfo}` : ''}`,
+          variant: "destructive",
+        });
+        
+        if (validationErrors) {
+          console.error("Validation errors:", validationErrors);
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const { content, creditsUsed } = response.data;
+
+      if (!content) {
+        throw new Error("No content returned from letter generation");
+      }
 
       // Generate a title for the letter
       const letterTitle = `${LETTER_TYPES.find(t => t.value === letterType)?.label} - ${format(new Date(), 'dd/MM/yyyy')}`;
