@@ -40,6 +40,145 @@ interface FieldValidationRule {
   dateRelationships?: DateValidationRule[]
 }
 
+// Conditional field dependencies
+export const CONDITIONAL_FIELD_DEPENDENCIES: Record<string, Record<string, {
+  fields: string[];
+  naLabel: string;
+}>> = {
+  employment_termination: {
+    propertyToReturn: {
+      fields: ['laptopDetails', 'mobilePhone', 'accessCards', 'documentsToReturn', 'otherProperty', 'propertyReturnDeadline', 'consequencesNonReturn'],
+      naLabel: 'Not Applicable - No company property to return'
+    },
+    nonCompeteApplicable: {
+      fields: ['nonCompeteDuration', 'nonCompeteScope'],
+      naLabel: 'Not Applicable - Non-compete clause waived'
+    },
+    certificateRequired: {
+      fields: ['certificateIssuanceTimeline'],
+      naLabel: 'Not Applicable - Certificate not required'
+    }
+  },
+  employment_contract: {
+    gardenLeaveApplicable: {
+      fields: ['gardenLeaveDuration'],
+      naLabel: 'Not Applicable - Garden leave not applicable'
+    },
+    nonCompeteClause: {
+      fields: ['nonCompeteDuration', 'nonCompeteScope'],
+      naLabel: 'Not Applicable - Non-compete clause not included'
+    }
+  },
+  demand_letter: {
+    bankTransferAllowed: {
+      fields: ['bankName', 'accountName', 'accountNumber', 'iban', 'swiftCode', 'bankBranch'],
+      naLabel: 'Not Applicable - Bank transfer not accepted'
+    },
+    chequeAllowed: {
+      fields: ['chequePayeeName', 'chequeDeliveryAddress'],
+      naLabel: 'Not Applicable - Cheque payment not accepted'
+    },
+    cashAllowed: {
+      fields: ['cashPaymentAddress', 'businessHours', 'contactPerson', 'contactPhone'],
+      naLabel: 'Not Applicable - Cash payment not accepted'
+    },
+    onlinePaymentAllowed: {
+      fields: ['paymentPortalURL', 'referenceCode'],
+      naLabel: 'Not Applicable - Online payment not available'
+    }
+  },
+  settlement_agreement: {
+    paymentInvolved: {
+      fields: ['settlementAmount', 'settlementAmountWords', 'currency', 'paymentStructure', 'paymentSchedule', 'paymentMethod', 'bankName', 'accountName', 'accountNumber', 'iban', 'latePaymentConsequences', 'receiptRequirements'],
+      naLabel: 'Not Applicable - No monetary settlement'
+    },
+    partyAReleasesB: {
+      fields: ['partyAReleaseScope'],
+      naLabel: 'Not Applicable - Party A does not release Party B'
+    },
+    partyBReleasesA: {
+      fields: ['partyBReleaseScope'],
+      naLabel: 'Not Applicable - Party B does not release Party A'
+    },
+    isConfidential: {
+      fields: ['confidentialityScope', 'whoCanAccess', 'confidentialityExceptions', 'breachOfConfidentialityConsequences'],
+      naLabel: 'Not Applicable - Agreement is not confidential'
+    },
+    includeNonDisparagement: {
+      fields: ['nonDisparagementDetails'],
+      naLabel: 'Not Applicable - Non-disparagement clause not included'
+    },
+    requiresNotarization: {
+      fields: ['notaryLocation', 'notaryDate'],
+      naLabel: 'Not Applicable - Notarization not required'
+    }
+  },
+  workplace_complaint: {
+    previousReports: {
+      fields: ['previousReportsDetails', 'previousReportDate'],
+      naLabel: 'Not Applicable - No previous reports filed'
+    }
+  },
+  power_of_attorney: {
+    financialPowers: {
+      fields: ['financialPowersDetails'],
+      naLabel: 'Not Applicable - Financial powers not granted'
+    },
+    propertyPowers: {
+      fields: ['propertyPowersDetails'],
+      naLabel: 'Not Applicable - Property powers not granted'
+    },
+    legalPowers: {
+      fields: ['legalPowersDetails'],
+      naLabel: 'Not Applicable - Legal powers not granted'
+    },
+    businessPowers: {
+      fields: ['businessPowersDetails'],
+      naLabel: 'Not Applicable - Business powers not granted'
+    },
+    healthcarePowers: {
+      fields: ['healthcarePowersDetails'],
+      naLabel: 'Not Applicable - Healthcare powers not granted'
+    },
+    govPowers: {
+      fields: ['govPowersDetails'],
+      naLabel: 'Not Applicable - Government powers not granted'
+    }
+  },
+  lease_agreement: {
+    storageUnit: {
+      fields: ['storageUnitDetails'],
+      naLabel: 'Not Applicable - No storage unit included'
+    },
+    appliancesIncluded: {
+      fields: ['appliancesList'],
+      naLabel: 'Not Applicable - No appliances included'
+    },
+    autoRenewal: {
+      fields: ['renewalNoticePeriod', 'renewalRentIncrease', 'renewalTerms'],
+      naLabel: 'Not Applicable - No automatic renewal'
+    },
+    latePaymentPenalty: {
+      fields: ['latePaymentRate'],
+      naLabel: 'Not Applicable - No late payment penalty'
+    },
+    depositSeparateAccount: {
+      fields: ['depositBankDetails'],
+      naLabel: 'Not Applicable - Deposit not in separate account'
+    },
+    petDepositRequired: {
+      fields: ['petDepositAmount'],
+      naLabel: 'Not Applicable - No pet deposit required'
+    }
+  },
+  nda: {
+    includesNonSolicitation: {
+      fields: ['nonSolicitationDuration', 'nonSolicitationScope'],
+      naLabel: 'Not Applicable - Non-solicitation clause not included'
+    }
+  }
+}
+
 type LetterValidationRules = {
   [letterType: string]: {
     [fieldName: string]: FieldValidationRule
@@ -486,4 +625,45 @@ export function getFieldValidationRule(
  */
 export function getLetterValidationRules(letterType: string): Record<string, FieldValidationRule> {
   return LETTER_VALIDATION_RULES[letterType] || {}
+}
+
+/**
+ * Check if a field should be enabled based on its dependencies
+ */
+export function isFieldEnabled(
+  fieldName: string,
+  letterType: string,
+  allDetails: Record<string, any>
+): boolean {
+  const dependencies = CONDITIONAL_FIELD_DEPENDENCIES[letterType];
+  
+  if (!dependencies) return true;
+  
+  for (const [parentField, config] of Object.entries(dependencies)) {
+    if (config.fields.includes(fieldName)) {
+      return allDetails[parentField] === "Yes";
+    }
+  }
+  
+  return true;
+}
+
+/**
+ * Get the parent field that controls this field's enablement
+ */
+export function getParentFieldInfo(
+  fieldName: string,
+  letterType: string
+): { parentField: string; naLabel: string } | null {
+  const dependencies = CONDITIONAL_FIELD_DEPENDENCIES[letterType];
+  
+  if (!dependencies) return null;
+  
+  for (const [parentField, config] of Object.entries(dependencies)) {
+    if (config.fields.includes(fieldName)) {
+      return { parentField, naLabel: config.naLabel };
+    }
+  }
+  
+  return null;
 }

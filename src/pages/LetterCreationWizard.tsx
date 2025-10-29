@@ -15,7 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Shield, AlertCircle } from "lucide-react";
 import { format, parseISO, isAfter, isBefore, startOfDay, subMonths } from "date-fns";
-import { getFieldValidationRule } from "@/lib/letter-validation-rules";
+import { getFieldValidationRule, isFieldEnabled, getParentFieldInfo, CONDITIONAL_FIELD_DEPENDENCIES } from "@/lib/letter-validation-rules";
 import { useDateValidation } from "@/hooks/useDateValidation";
 import { getRelatedDateFields } from "@/lib/date-validation";
 import {
@@ -71,7 +71,9 @@ function DateFieldWithValidation({
   onChange, 
   allDetails, 
   validationRule, 
-  required 
+  required,
+  disabled,
+  naLabel
 }: {
   fieldName: string;
   label: string;
@@ -80,6 +82,8 @@ function DateFieldWithValidation({
   allDetails: Record<string, any>;
   validationRule: any;
   required?: boolean;
+  disabled?: boolean;
+  naLabel?: string;
 }) {
   const { error, isDirty } = useDateValidation({
     fieldName,
@@ -97,6 +101,8 @@ function DateFieldWithValidation({
       error={error}
       isDirty={isDirty}
       required={required}
+      disabled={disabled}
+      naLabel={naLabel}
       placeholder="Select date"
     />
   );
@@ -119,6 +125,35 @@ export default function LetterCreationWizard() {
     setDetails(prev => ({ ...prev, [name]: value }));
     setDirtyFields(prev => new Set(prev).add(name));
     
+    // If this is a Yes/No field that changed to "No", clear dependent fields
+    const dependencies = CONDITIONAL_FIELD_DEPENDENCIES[letterType as string];
+    if (dependencies?.[name] && value === "No") {
+      const config = dependencies[name];
+      setDetails(prev => {
+        const updated = { ...prev, [name]: value };
+        config.fields.forEach(field => {
+          updated[field] = ""; // Clear value
+        });
+        return updated;
+      });
+      
+      // Clear errors for cleared fields
+      setFieldErrors(prev => {
+        const updated = { ...prev };
+        config.fields.forEach(field => {
+          delete updated[field];
+        });
+        return updated;
+      });
+      
+      // Remove from dirty fields
+      setDirtyFields(prev => {
+        const updated = new Set(prev);
+        config.fields.forEach(field => updated.delete(field));
+        return updated;
+      });
+    }
+    
     // If this is a date field, mark related date fields as dirty too
     // so they revalidate with the new value
     const validationRule = getFieldValidationRule(letterType as string, name);
@@ -137,7 +172,7 @@ export default function LetterCreationWizard() {
         return newErrors;
       });
     }
-  }, [fieldErrors]);
+  }, [fieldErrors, letterType]);
 
   const getFieldsForLetterType = (type: LetterType) => {
     switch (type) {
@@ -1690,52 +1725,64 @@ export default function LetterCreationWizard() {
               const error = fieldErrors[field.name];
               const isDirty = dirtyFields.has(field.name);
               
+              // Check if field should be enabled based on conditional dependencies
+              const fieldEnabled = isFieldEnabled(field.name, letterType as string, details);
+              const parentInfo = getParentFieldInfo(field.name, letterType as string);
+              
               return (
                 <div key={field.name}>
                   {field.type === "select" ? (
                     <ValidatedSelect
                       label={field.label}
-                      value={details[field.name] || ""}
+                      value={fieldEnabled ? (details[field.name] || "") : ""}
                       onValueChange={(value) => handleFieldChange(field.name, value)}
                       options={field.options?.map(opt => ({ value: opt, label: opt })) || []}
-                      error={error}
-                      isDirty={isDirty}
+                      error={fieldEnabled ? error : undefined}
+                      isDirty={fieldEnabled ? isDirty : false}
                       required={field.required}
-                      placeholder={`Select ${field.label}`}
+                      disabled={!fieldEnabled}
+                      naLabel={parentInfo?.naLabel}
+                      placeholder={fieldEnabled ? `Select ${field.label}` : "Not Applicable"}
                     />
                   ) : field.type === "textarea" ? (
                     <ValidatedTextarea
                       label={field.label}
-                      value={details[field.name] || ""}
+                      value={fieldEnabled ? (details[field.name] || "") : ""}
                       onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                      error={error}
-                      isDirty={isDirty}
+                      error={fieldEnabled ? error : undefined}
+                      isDirty={fieldEnabled ? isDirty : false}
                       required={field.required}
-                      placeholder={`Enter ${field.label}`}
+                      disabled={!fieldEnabled}
+                      naLabel={parentInfo?.naLabel}
+                      placeholder={fieldEnabled ? `Enter ${field.label}` : "Not Applicable"}
                       rows={4}
-                      showCharCount
+                      showCharCount={fieldEnabled}
                       maxLength={2000}
                     />
                   ) : field.type === "date" ? (
                     <DateFieldWithValidation
                       fieldName={field.name}
                       label={field.label}
-                      value={details[field.name] || ""}
+                      value={fieldEnabled ? (details[field.name] || "") : ""}
                       onChange={(value) => handleFieldChange(field.name, value)}
                       allDetails={details}
                       validationRule={validationRule}
                       required={field.required}
+                      disabled={!fieldEnabled}
+                      naLabel={parentInfo?.naLabel}
                     />
                   ) : (
                     <ValidatedInput
                       label={field.label}
                       type={validationRule?.type || field.type}
-                      value={details[field.name] || ""}
+                      value={fieldEnabled ? (details[field.name] || "") : ""}
                       onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                      error={error}
-                      isDirty={isDirty}
+                      error={fieldEnabled ? error : undefined}
+                      isDirty={fieldEnabled ? isDirty : false}
                       required={field.required}
-                      placeholder={`Enter ${field.label}`}
+                      disabled={!fieldEnabled}
+                      naLabel={parentInfo?.naLabel}
+                      placeholder={fieldEnabled ? `Enter ${field.label}` : "Not Applicable"}
                       pattern={validationRule?.pattern}
                       inputMode={validationRule?.inputMode}
                       maxLength={validationRule?.maxLength}

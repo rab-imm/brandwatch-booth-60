@@ -23,6 +23,7 @@ export interface ValidatedSelectProps {
   placeholder?: string
   id?: string
   disabled?: boolean
+  naLabel?: string
 }
 
 export const ValidatedSelect = React.forwardRef<HTMLButtonElement, ValidatedSelectProps>(
@@ -39,10 +40,11 @@ export const ValidatedSelect = React.forwardRef<HTMLButtonElement, ValidatedSele
     placeholder,
     id,
     disabled,
+    naLabel,
   }, ref) => {
     const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`
     const errorId = `${selectId}-error`
-    const hasError = isDirty && error
+    const hasError = isDirty && error && !disabled
 
     // Normalize options to always be objects
     const normalizedOptions = options.map(opt => 
@@ -50,25 +52,27 @@ export const ValidatedSelect = React.forwardRef<HTMLButtonElement, ValidatedSele
     )
 
     return (
-      <div className="space-y-1.5">
+      <div className={cn("space-y-1.5", disabled && "opacity-60")}>
         {label && (
           <Label 
             htmlFor={selectId}
             className={cn(
               "flex items-center gap-1.5",
-              hasError && "text-destructive"
+              hasError && "text-destructive",
+              disabled && "text-muted-foreground"
             )}
           >
             <span>{label}</span>
-            {required && <span className="text-destructive">*</span>}
+            {required && !disabled && <span className="text-destructive ml-0.5">*</span>}
+            {disabled && <span className="text-xs text-muted-foreground ml-2 font-normal">(N/A)</span>}
             {hasError && <AlertCircle className="h-3.5 w-3.5" />}
-            {showValidIcon && isValid && isDirty && !error && (
+            {showValidIcon && isValid && isDirty && !error && !disabled && (
               <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
             )}
           </Label>
         )}
         <Select 
-          value={value} 
+          value={disabled ? "" : value} 
           onValueChange={onValueChange}
           disabled={disabled}
         >
@@ -76,12 +80,13 @@ export const ValidatedSelect = React.forwardRef<HTMLButtonElement, ValidatedSele
             id={selectId}
             ref={ref}
             className={cn(
-              hasError && "border-destructive focus:ring-destructive animate-shake"
+              hasError && "border-destructive focus:ring-destructive animate-shake",
+              disabled && "bg-muted/50 text-muted-foreground cursor-not-allowed border-muted"
             )}
             aria-invalid={hasError ? "true" : "false"}
             aria-describedby={hasError ? errorId : undefined}
           >
-            <SelectValue placeholder={placeholder || `Select ${label || 'option'}`} />
+            <SelectValue placeholder={disabled ? "Not Applicable" : (placeholder || `Select ${label || 'option'}`)} />
           </SelectTrigger>
           <SelectContent>
             {normalizedOptions.map((option) => (
@@ -91,6 +96,11 @@ export const ValidatedSelect = React.forwardRef<HTMLButtonElement, ValidatedSele
             ))}
           </SelectContent>
         </Select>
+        {disabled && naLabel && (
+          <p className="text-xs text-muted-foreground italic">
+            {naLabel}
+          </p>
+        )}
         {hasError && (
           <p 
             id={errorId}

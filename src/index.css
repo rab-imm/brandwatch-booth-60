@@ -203,3 +203,23 @@ All colors MUST be HSL.
 .field-valid {
   @apply border-green-500 focus-visible:ring-green-500;
 }
+
+/* Disabled field styling */
+.field-disabled-container {
+  @apply opacity-60 pointer-events-none;
+}
+
+input:disabled,
+textarea:disabled,
+button:disabled {
+  @apply bg-muted/50 text-muted-foreground cursor-not-allowed border-muted;
+}
+
+.na-label {
+  @apply text-xs text-muted-foreground italic font-normal;
+}
+
+input:disabled::placeholder,
+textarea:disabled::placeholder {
+  @apply text-muted-foreground/70;
+}
