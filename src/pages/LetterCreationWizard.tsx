@@ -17,6 +17,7 @@ import { Loader2, Shield, AlertCircle } from "lucide-react";
 import { format, parseISO, isAfter, isBefore, startOfDay, subMonths } from "date-fns";
 import { getFieldValidationRule, isFieldEnabled, getParentFieldInfo, CONDITIONAL_FIELD_DEPENDENCIES } from "@/lib/letter-validation-rules";
 import { useDateValidation } from "@/hooks/useDateValidation";
+import { useFieldValidation } from "@/hooks/useFieldValidation";
 import { getRelatedDateFields } from "@/lib/date-validation";
 import {
   IconBuildingCommunity as IconBuilding,
@@ -98,12 +99,109 @@ function DateFieldWithValidation({
       label={label}
       value={value}
       onChange={onChange}
-      error={error}
-      isDirty={isDirty}
+      error={disabled ? undefined : error}
+      isDirty={disabled ? false : isDirty}
       required={required}
       disabled={disabled}
       naLabel={naLabel}
       placeholder="Select date"
+    />
+  );
+}
+
+// Field wrapper with real-time validation
+function FieldWithValidation({ 
+  field, 
+  letterType, 
+  details, 
+  handleFieldChange, 
+  fieldEnabled, 
+  parentInfo 
+}: {
+  field: any;
+  letterType: string;
+  details: Record<string, any>;
+  handleFieldChange: (name: string, value: any) => void;
+  fieldEnabled: boolean;
+  parentInfo: { parentField: string; naLabel: string } | null;
+}) {
+  const validationRule = getFieldValidationRule(letterType, field.name);
+  
+  // Real-time validation using the hook (only for non-date fields)
+  const { error: realtimeError, isDirty: realtimeIsDirty } = useFieldValidation({
+    value: details[field.name] || "",
+    validator: validationRule?.validator,
+    required: field.required,
+    debounceMs: 300
+  });
+
+  // Use realtime validation for non-date fields
+  const error = fieldEnabled ? realtimeError : undefined;
+  const isDirty = fieldEnabled ? realtimeIsDirty : false;
+
+  if (field.type === "select") {
+    return (
+      <ValidatedSelect
+        label={field.label}
+        value={fieldEnabled ? (details[field.name] || "") : ""}
+        onValueChange={(value) => handleFieldChange(field.name, value)}
+        options={field.options?.map(opt => ({ value: opt, label: opt })) || []}
+        error={error}
+        isDirty={isDirty}
+        required={field.required}
+        disabled={!fieldEnabled}
+        naLabel={parentInfo?.naLabel}
+        placeholder={fieldEnabled ? `Select ${field.label}` : "Not Applicable"}
+      />
+    );
+  }
+
+  if (field.type === "textarea") {
+    return (
+      <ValidatedTextarea
+        label={field.label}
+        value={fieldEnabled ? (details[field.name] || "") : ""}
+        onChange={(e) => handleFieldChange(field.name, e.target.value)}
+        error={error}
+        isDirty={isDirty}
+        required={field.required}
+        disabled={!fieldEnabled}
+        naLabel={parentInfo?.naLabel}
+        placeholder={fieldEnabled ? `Enter ${field.label}` : "Not Applicable"}
+        rows={4}
+      />
+    );
+  }
+
+  if (field.type === "date") {
+    return (
+      <DateFieldWithValidation
+        fieldName={field.name}
+        label={field.label}
+        value={fieldEnabled ? (details[field.name] || "") : ""}
+        onChange={(value) => handleFieldChange(field.name, value)}
+        allDetails={details}
+        validationRule={validationRule}
+        required={field.required}
+        disabled={!fieldEnabled}
+        naLabel={parentInfo?.naLabel}
+      />
+    );
+  }
+
+  // Default text input
+  return (
+    <ValidatedInput
+      label={field.label}
+      type={validationRule?.type || field.type || "text"}
+      value={fieldEnabled ? (details[field.name] || "") : ""}
+      onChange={(e) => handleFieldChange(field.name, e.target.value)}
+      error={error}
+      isDirty={isDirty}
+      required={field.required}
+      disabled={!fieldEnabled}
+      naLabel={parentInfo?.naLabel}
+      placeholder={fieldEnabled ? `Enter ${field.label}` : "Not Applicable"}
     />
   );
 }
@@ -1721,76 +1819,19 @@ export default function LetterCreationWizard() {
 
           <div className="grid grid-cols-1 gap-4">
             {stepFields.map((field) => {
-              const validationRule = getFieldValidationRule(letterType as string, field.name);
-              const error = fieldErrors[field.name];
-              const isDirty = dirtyFields.has(field.name);
-              
-              // Check if field should be enabled based on conditional dependencies
               const fieldEnabled = isFieldEnabled(field.name, letterType as string, details);
               const parentInfo = getParentFieldInfo(field.name, letterType as string);
               
               return (
-                <div key={field.name}>
-                  {field.type === "select" ? (
-                    <ValidatedSelect
-                      label={field.label}
-                      value={fieldEnabled ? (details[field.name] || "") : ""}
-                      onValueChange={(value) => handleFieldChange(field.name, value)}
-                      options={field.options?.map(opt => ({ value: opt, label: opt })) || []}
-                      error={fieldEnabled ? error : undefined}
-                      isDirty={fieldEnabled ? isDirty : false}
-                      required={field.required}
-                      disabled={!fieldEnabled}
-                      naLabel={parentInfo?.naLabel}
-                      placeholder={fieldEnabled ? `Select ${field.label}` : "Not Applicable"}
-                    />
-                  ) : field.type === "textarea" ? (
-                    <ValidatedTextarea
-                      label={field.label}
-                      value={fieldEnabled ? (details[field.name] || "") : ""}
-                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                      error={fieldEnabled ? error : undefined}
-                      isDirty={fieldEnabled ? isDirty : false}
-                      required={field.required}
-                      disabled={!fieldEnabled}
-                      naLabel={parentInfo?.naLabel}
-                      placeholder={fieldEnabled ? `Enter ${field.label}` : "Not Applicable"}
-                      rows={4}
-                      showCharCount={fieldEnabled}
-                      maxLength={2000}
-                    />
-                  ) : field.type === "date" ? (
-                    <DateFieldWithValidation
-                      fieldName={field.name}
-                      label={field.label}
-                      value={fieldEnabled ? (details[field.name] || "") : ""}
-                      onChange={(value) => handleFieldChange(field.name, value)}
-                      allDetails={details}
-                      validationRule={validationRule}
-                      required={field.required}
-                      disabled={!fieldEnabled}
-                      naLabel={parentInfo?.naLabel}
-                    />
-                  ) : (
-                    <ValidatedInput
-                      label={field.label}
-                      type={validationRule?.type || field.type}
-                      value={fieldEnabled ? (details[field.name] || "") : ""}
-                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                      error={fieldEnabled ? error : undefined}
-                      isDirty={fieldEnabled ? isDirty : false}
-                      required={field.required}
-                      disabled={!fieldEnabled}
-                      naLabel={parentInfo?.naLabel}
-                      placeholder={fieldEnabled ? `Enter ${field.label}` : "Not Applicable"}
-                      pattern={validationRule?.pattern}
-                      inputMode={validationRule?.inputMode}
-                      maxLength={validationRule?.maxLength}
-                      min={validationRule?.min}
-                      max={validationRule?.max}
-                      step={validationRule?.step}
-                    />
-                  )}
+                <div key={field.name} className={!fieldEnabled ? "opacity-60" : ""}>
+                  <FieldWithValidation
+                    field={field}
+                    letterType={letterType as string}
+                    details={details}
+                    handleFieldChange={handleFieldChange}
+                    fieldEnabled={fieldEnabled}
+                    parentInfo={parentInfo}
+                  />
                 </div>
               );
             })}
