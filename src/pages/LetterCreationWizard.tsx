@@ -1759,7 +1759,7 @@ export default function LetterCreationWizard() {
         description: `${creditsUsed} credits used`,
       });
 
-      navigate("/dashboard");
+      navigate("/letters");
     } catch (error: any) {
       console.error("Error generating letter:", error);
       toast({
