@@ -29,7 +29,7 @@ serve(async (req) => {
 
     switch (type) {
       case "template_purchase_confirmation":
-        subject = "Template Purchase Confirmation - UAE Legal Assistant"
+        subject = "Template Purchase Confirmation - Graysen Legal Assistant"
         emailContent = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #2563eb;">Purchase Confirmation</h1>
@@ -50,13 +50,13 @@ serve(async (req) => {
               <p style="margin: 0;"><strong>Important:</strong> This template is for informational purposes only and does not constitute legal advice. Please consult with a qualified UAE lawyer for specific legal matters.</p>
             </div>
             
-            <p>Best regards,<br>UAE Legal Assistant Team</p>
+            <p>Best regards,<br>Graysen Legal Assistant Team</p>
           </div>
         `
         break
 
       case "document_approval_notification":
-        subject = "Document Approved - UAE Legal Assistant"
+        subject = "Document Approved - Graysen Legal Assistant"
         emailContent = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #16a34a;">Document Approved</h1>
@@ -72,13 +72,13 @@ serve(async (req) => {
             
             <p>Your contribution helps improve our AI legal assistant for all users. Thank you for sharing your expertise!</p>
             
-            <p>Best regards,<br>UAE Legal Assistant Team</p>
+            <p>Best regards,<br>Graysen Legal Assistant Team</p>
           </div>
         `
         break
 
       case "lawyer_request_assignment":
-        subject = "Lawyer Request Update - UAE Legal Assistant"
+        subject = "Lawyer Request Update - Graysen Legal Assistant"
         emailContent = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #dc2626;">Lawyer Request Update</h1>
@@ -96,13 +96,13 @@ serve(async (req) => {
             
             <p>A qualified lawyer will contact you within 24-48 hours for high-priority requests, or within 3-5 business days for normal priority requests.</p>
             
-            <p>Best regards,<br>UAE Legal Assistant Team</p>
+            <p>Best regards,<br>Graysen Legal Assistant Team</p>
           </div>
         `
         break
 
       case "subscription_reminder":
-        subject = "Subscription Reminder - UAE Legal Assistant"
+        subject = "Subscription Reminder - Graysen Legal Assistant"
         emailContent = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #7c3aed;">Subscription Reminder</h1>
@@ -118,7 +118,7 @@ serve(async (req) => {
             
             <p>To manage your subscription, please visit your account dashboard.</p>
             
-            <p>Best regards,<br>UAE Legal Assistant Team</p>
+            <p>Best regards,<br>Graysen Legal Assistant Team</p>
           </div>
         `
         break
@@ -129,7 +129,7 @@ serve(async (req) => {
 
     // Send email
     const { data, error } = await resend.emails.send({
-      from: "UAE Legal Assistant <noreply@uaelegalassistant.com>",
+      from: "Graysen Legal Assistant <noreply@graysen.ai>",
       to: [userEmail],
       subject: subject,
       html: emailContent,

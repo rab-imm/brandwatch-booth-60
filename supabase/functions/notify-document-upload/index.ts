@@ -47,7 +47,7 @@ serve(async (req) => {
 
     // Send email notification to all super admins
     const emailResponse = await resend.emails.send({
-      from: "UAE Legal AI <noreply@lovable.app>",
+      from: "Graysen Legal Assistant <admin@graysen.ai>",
       to: adminEmails,
       subject: `New Document Submitted for Review - ${documentTitle}`,
       html: `
@@ -71,7 +71,7 @@ serve(async (req) => {
 
           <div style="font-size: 14px; color: #6b7280; margin-top: 30px;">
             <p>Please review and approve/reject this document to make it available for AI responses.</p>
-            <p>This email was sent automatically by the UAE Legal AI system.</p>
+            <p>This email was sent automatically by the Graysen Legal Assistant system.</p>
           </div>
         </div>
       `,

@@ -58,7 +58,7 @@ serve(async (req) => {
 
     // Send email
     const { error: sendError } = await resend.emails.send({
-      from: "Legal Documents <noreply@resend.dev>",
+      from: "Graysen Legal Assistant <noreply@graysen.ai>",
       to: [recipientEmail],
       subject: `Signature Request: ${documentTitle}`,
       html,

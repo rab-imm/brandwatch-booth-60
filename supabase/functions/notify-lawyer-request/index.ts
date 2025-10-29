@@ -62,7 +62,7 @@ serve(async (req) => {
 
     // Send email notification to all super admins
     const emailResponse = await resend.emails.send({
-      from: "UAE Legal AI <noreply@lovable.app>",
+      from: "Graysen Legal Assistant <admin@graysen.ai>",
       to: adminEmails,
       subject: `${priority.toUpperCase()} - Lawyer Consultation Request: ${subject}`,
       html: `
@@ -111,7 +111,7 @@ serve(async (req) => {
               <li>Normal: 24 hours</li>
               <li>Low: 48 hours</li>
             </ul>
-            <p style="margin-top: 20px;">This email was sent automatically by the UAE Legal AI system.</p>
+            <p style="margin-top: 20px;">This email was sent automatically by the Graysen Legal Assistant system.</p>
           </div>
         </div>
       `,
