@@ -21,7 +21,7 @@ export function ShareLetterDialog({
   letterId,
   letterTitle,
 }: ShareLetterDialogProps) {
-  const [recipientEmail, setRecipientEmail] = useState("raffay.ansari@bigimmersive.com");
+  const [recipientEmail, setRecipientEmail] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [expiresInDays, setExpiresInDays] = useState<number>(7);
   const [maxViews, setMaxViews] = useState<number | undefined>();
@@ -143,7 +143,7 @@ export function ShareLetterDialog({
   };
 
   const handleClose = () => {
-    setRecipientEmail("raffay.ansari@bigimmersive.com");
+    setRecipientEmail("");
     setRecipientName("");
     setExpiresInDays(7);
     setMaxViews(undefined);
@@ -168,12 +168,7 @@ export function ShareLetterDialog({
         {!shareUrl ? (
           <div className="space-y-4">
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="email">Recipient Email *</Label>
-                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                  For testing only
-                </span>
-              </div>
+              <Label htmlFor="email">Recipient Email *</Label>
               <Input
                 id="email"
                 type="email"
@@ -181,12 +176,7 @@ export function ShareLetterDialog({
                 value={recipientEmail}
                 onChange={(e) => setRecipientEmail(e.target.value)}
                 required
-                disabled
-                className="bg-muted cursor-not-allowed"
               />
-              <p className="text-xs text-muted-foreground">
-                Email sharing is limited in test mode. Verify your domain at resend.com/domains to enable.
-              </p>
             </div>
 
             <div className="space-y-2">
