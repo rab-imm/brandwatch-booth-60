@@ -207,6 +207,125 @@ export function validateSalary(salary: number): { valid: boolean; error?: string
 }
 
 /**
+ * Validate Emirates ID format (784-XXXX-XXXXXXX-X)
+ */
+export function validateEmiratesId(emiratesId: string): { valid: boolean; error?: string } {
+  if (!emiratesId || typeof emiratesId !== 'string') {
+    return { valid: false, error: 'Emirates ID is required' };
+  }
+  
+  const cleaned = emiratesId.replace(/-/g, '');
+  const emiratesIdRegex = /^784\d{12}$/;
+  
+  if (!emiratesIdRegex.test(cleaned)) {
+    return { valid: false, error: 'Invalid Emirates ID format. Expected: 784-XXXX-XXXXXXX-X' };
+  }
+  
+  return { valid: true };
+}
+
+/**
+ * Validate reference number (numbers only)
+ */
+export function validateReferenceNumber(refNumber: string): { valid: boolean; error?: string } {
+  if (!refNumber || typeof refNumber !== 'string') {
+    return { valid: false, error: 'Reference number is required' };
+  }
+  
+  const numbersOnlyRegex = /^[0-9]+$/;
+  
+  if (!numbersOnlyRegex.test(refNumber.trim())) {
+    return { valid: false, error: 'Reference number must contain numbers only' };
+  }
+  
+  return { valid: true };
+}
+
+/**
+ * Validate all letter type fields
+ */
+export function validateLetterFields(
+  letterType: string,
+  details: Record<string, any>
+): { valid: boolean; errors: Record<string, string> } {
+  const errors: Record<string, string> = {};
+  
+  // Common validations for all letters
+  Object.entries(details).forEach(([key, value]) => {
+    if (!value) return; // Skip empty fields
+    
+    // Email fields
+    if (key.toLowerCase().includes('email')) {
+      const result = validateEmail(value);
+      if (!result.valid) errors[key] = result.error!;
+    }
+    
+    // Phone fields
+    if (key.toLowerCase().includes('phone')) {
+      const result = validateUAEPhone(value);
+      if (!result.valid) errors[key] = result.error!;
+    }
+    
+    // Emirates ID fields
+    if (key.toLowerCase().includes('emiratesid')) {
+      const result = validateEmiratesId(value);
+      if (!result.valid) errors[key] = result.error!;
+    }
+    
+    // Amount fields
+    if (key === 'amount' || key.includes('salary') || key.includes('rent') || key.includes('Salary') || key.includes('Rent')) {
+      const result = validateAmount(parseFloat(value));
+      if (!result.valid) errors[key] = result.error!;
+    }
+    
+    // Reference/Invoice number fields
+    if (key.toLowerCase().includes('referencenumber') || key.toLowerCase().includes('invoicenumber')) {
+      const result = validateReferenceNumber(value);
+      if (!result.valid) errors[key] = result.error!;
+    }
+  });
+  
+  // Letter-type-specific validations
+  if (letterType === 'employment_termination') {
+    if (details.noticePeriodProvided) {
+      const result = validateNoticePeriod(parseInt(details.noticePeriodProvided));
+      if (!result.valid) errors.noticePeriodProvided = result.error!;
+    }
+    
+    if (details.basicSalary) {
+      const result = validateSalary(parseFloat(details.basicSalary));
+      if (!result.valid) errors.basicSalary = result.error!;
+    }
+  }
+  
+  if (letterType === 'employment_contract') {
+    if (details.basicSalary) {
+      const result = validateSalary(parseFloat(details.basicSalary));
+      if (!result.valid) errors.basicSalary = result.error!;
+    }
+    
+    if (details.probationPeriod) {
+      const months = parseInt(details.probationPeriod);
+      if (months > 6) {
+        errors.probationPeriod = 'Probation period cannot exceed 6 months per UAE law';
+      }
+    }
+    
+    if (details.workingHoursPerWeek) {
+      const hours = parseInt(details.workingHoursPerWeek);
+      if (hours > 48) {
+        errors.workingHoursPerWeek = 'Working hours cannot exceed 48 hours per week per UAE law';
+      }
+    }
+  }
+  
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors
+  };
+}
+
+/**
  * Batch validation helper
  */
 export function batchValidate(

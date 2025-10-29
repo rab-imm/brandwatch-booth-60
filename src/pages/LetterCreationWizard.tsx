@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ValidatedInput } from "@/components/ui/validated-input";
+import { ValidatedTextarea } from "@/components/ui/validated-textarea";
+import { ValidatedSelect } from "@/components/ui/validated-select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -15,6 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Shield, AlertCircle } from "lucide-react";
 import { format, parseISO, isAfter, isBefore, startOfDay, subMonths } from "date-fns";
+import { getFieldValidationRule } from "@/lib/letter-validation-rules";
 import {
   IconBuildingCommunity as IconBuilding,
   IconAlertCircle,
@@ -70,6 +70,22 @@ export default function LetterCreationWizard() {
   const [details, setDetails] = useState<Record<string, any>>({});
   const [isGenerating, setIsGenerating] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [dirtyFields, setDirtyFields] = useState<Set<string>>(new Set());
+
+  const handleFieldChange = useCallback((name: string, value: any) => {
+    setDetails(prev => ({ ...prev, [name]: value }));
+    setDirtyFields(prev => new Set(prev).add(name));
+    
+    // Clear field error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  }, [fieldErrors]);
 
   const getFieldsForLetterType = (type: LetterType) => {
     switch (type) {
@@ -806,11 +822,6 @@ export default function LetterCreationWizard() {
       default:
         return [];
     }
-  };
-
-  const handleFieldChange = (fieldName: string, value: any) => {
-    setDetails(prev => ({ ...prev, [fieldName]: value }));
-    setValidationErrors(prev => prev.filter(err => !err.includes(fieldName)));
   };
 
   const validateStep = () => {
@@ -1622,47 +1633,58 @@ export default function LetterCreationWizard() {
           </div>
 
           <div className="grid grid-cols-1 gap-4">
-            {stepFields.map((field) => (
-              <div key={field.name} className="space-y-2">
-                <Label htmlFor={field.name}>
-                  {field.label}
-                  {field.required && <span className="text-destructive ml-1">*</span>}
-                </Label>
-                {field.type === "select" ? (
-                  <Select
-                    value={details[field.name] || ""}
-                    onValueChange={(value) => handleFieldChange(field.name, value)}
-                  >
-                    <SelectTrigger id={field.name}>
-                      <SelectValue placeholder={`Select ${field.label}`} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {field.options?.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : field.type === "textarea" ? (
-                  <Textarea
-                    id={field.name}
-                    value={details[field.name] || ""}
-                    onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                    placeholder={`Enter ${field.label}`}
-                    rows={4}
-                  />
-                ) : (
-                  <Input
-                    id={field.name}
-                    type={field.type}
-                    value={details[field.name] || ""}
-                    onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                    placeholder={`Enter ${field.label}`}
-                  />
-                )}
-              </div>
-            ))}
+            {stepFields.map((field) => {
+              const validationRule = getFieldValidationRule(letterType as string, field.name);
+              const error = fieldErrors[field.name];
+              const isDirty = dirtyFields.has(field.name);
+              
+              return (
+                <div key={field.name}>
+                  {field.type === "select" ? (
+                    <ValidatedSelect
+                      label={field.label}
+                      value={details[field.name] || ""}
+                      onValueChange={(value) => handleFieldChange(field.name, value)}
+                      options={field.options?.map(opt => ({ value: opt, label: opt })) || []}
+                      error={error}
+                      isDirty={isDirty}
+                      required={field.required}
+                      placeholder={`Select ${field.label}`}
+                    />
+                  ) : field.type === "textarea" ? (
+                    <ValidatedTextarea
+                      label={field.label}
+                      value={details[field.name] || ""}
+                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                      error={error}
+                      isDirty={isDirty}
+                      required={field.required}
+                      placeholder={`Enter ${field.label}`}
+                      rows={4}
+                      showCharCount
+                      maxLength={2000}
+                    />
+                  ) : (
+                    <ValidatedInput
+                      label={field.label}
+                      type={validationRule?.type || field.type}
+                      value={details[field.name] || ""}
+                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                      error={error}
+                      isDirty={isDirty}
+                      required={field.required}
+                      placeholder={`Enter ${field.label}`}
+                      pattern={validationRule?.pattern}
+                      inputMode={validationRule?.inputMode}
+                      maxLength={validationRule?.maxLength}
+                      min={validationRule?.min}
+                      max={validationRule?.max}
+                      step={validationRule?.step}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           {validationErrors.length > 0 && (

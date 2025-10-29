@@ -3810,6 +3810,53 @@ serve(async (req) => {
       );
     }
 
+    // ============= INPUT VALIDATION & SANITIZATION =============
+    console.log('Validating input fields...');
+    
+    // Check for suspiciously long inputs (potential abuse)
+    const MAX_FIELD_LENGTH = 5000;
+    for (const [key, value] of Object.entries(details)) {
+      if (typeof value === 'string' && value.length > MAX_FIELD_LENGTH) {
+        return new Response(
+          JSON.stringify({ 
+            error: `Field "${key}" exceeds maximum length of ${MAX_FIELD_LENGTH} characters`,
+            field: key
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // Validate fields using shared validation library
+    const { validateLetterFields, sanitizeString } = await import('../_shared/validation.ts');
+    const validationResult = validateLetterFields(letterType, details);
+
+    if (!validationResult.valid) {
+      console.error('Validation errors:', validationResult.errors);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input data',
+          validationErrors: validationResult.errors,
+          message: 'Please correct the highlighted fields and try again'
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Sanitize all string inputs to prevent injection
+    console.log('Sanitizing input data...');
+    const sanitizedDetails = Object.entries(details).reduce((acc, [key, value]) => {
+      if (typeof value === 'string') {
+        acc[key] = sanitizeString(value);
+      } else {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, any>);
+
     // Check user credits (queries_used is the DB column name but represents credits)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -3879,7 +3926,7 @@ Return ONLY the letter content in plain text format, ready to be saved and used.
 
     const userPrompt = `Generate a ${letterType.replace(/_/g, ' ')} with the following details:
 
-${Object.entries(details).map(([key, value]) => `${key}: ${value}`).join('\n')}
+${Object.entries(sanitizedDetails).map(([key, value]) => `${key}: ${value}`).join('\n')}
 
 ${conversationContext ? `\nContext from conversation:\n${conversationContext}` : ''}
 
