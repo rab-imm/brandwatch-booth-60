@@ -3939,7 +3939,35 @@ Structure the letter properly with:
 6. Closing
 7. Signature lines
 
-Return ONLY the letter content in plain text format, ready to be saved and used.`;
+CRITICAL MARKDOWN FORMATTING RULES (MUST FOLLOW):
+- Use double line breaks (\\n\\n) between ALL major sections and paragraphs
+- Use single line breaks (\\n) only within bullet lists
+- Add blank line before and after all headers (## Header)
+- Add blank line before and after all bullet lists
+- Use proper markdown syntax:
+  * **text** for bold
+  * ## for main section headers
+  * ### for subsection headers
+  * - or * for bullet points (each on its own line)
+- Ensure each paragraph is separated by a blank line
+- Never have text run together without proper spacing
+
+EXAMPLE OF PROPER MARKDOWN FORMAT:
+## SECTION HEADER
+
+This is a paragraph with proper spacing.
+
+- Bullet point one
+- Bullet point two
+- Bullet point three
+
+This is another paragraph after the list.
+
+## NEXT SECTION HEADER
+
+Another paragraph here.
+
+Return ONLY the letter content in markdown format, ready to be saved and used.`;
 
     const userPrompt = `Generate a ${letterType.replace(/_/g, ' ')} with the following details:
 
@@ -4012,6 +4040,28 @@ Generate the complete letter now.`;
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Normalize markdown formatting for proper rendering
+    function normalizeMarkdownContent(content: string): string {
+      // Ensure headers have blank lines around them
+      content = content.replace(/([^\n])\n(#{1,6} )/g, '$1\n\n$2');
+      content = content.replace(/(#{1,6} [^\n]+)\n([^\n#])/g, '$1\n\n$2');
+      
+      // Ensure bullet lists have proper spacing
+      content = content.replace(/([^\n*\-])\n([*\-] )/g, '$1\n\n$2');
+      content = content.replace(/([*\-] [^\n]+)\n([^*\-\n#])/g, '$1\n\n$2');
+      
+      // Fix bold text to have proper spacing
+      content = content.replace(/([^\n])\n(\*\*[^\n]+\*\*)/g, '$1\n\n$2');
+      
+      // Clean up excessive blank lines (more than 2 in a row)
+      content = content.replace(/\n{3,}/g, '\n\n');
+      
+      return content.trim();
+    }
+
+    // Apply markdown normalization
+    letterContent = normalizeMarkdownContent(letterContent);
 
     // Append appropriate data protection clause based on letter type
     const dataProtectionClause = 
