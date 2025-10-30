@@ -17,6 +17,7 @@ interface LetterShareEmailProps {
   senderName: string
   letterTitle: string
   shareLink: string
+  letterContent?: string
   expiresAt?: string
   isPasswordProtected: boolean
   maxViews?: number
@@ -28,11 +29,54 @@ export const LetterShareEmail = ({
   senderName,
   letterTitle,
   shareLink,
+  letterContent,
   expiresAt,
   isPasswordProtected,
   maxViews,
   message,
-}: LetterShareEmailProps) => (
+}: LetterShareEmailProps) => {
+  // Convert markdown to HTML for email rendering
+  const formatLetterContent = (content: string) => {
+    if (!content) return ''
+    
+    let html = content
+    
+    // Split by double line breaks to get sections/paragraphs
+    const sections = html.split('\n\n').map(section => section.trim()).filter(s => s)
+    
+    return sections.map(section => {
+      // Check if it's a header
+      if (section.startsWith('## ')) {
+        const text = section.replace(/^## /, '')
+        return `<h2 style="color: #1e293b; font-size: 20px; font-weight: 600; margin: 24px 0 12px 0; line-height: 1.3;">${text}</h2>`
+      }
+      if (section.startsWith('### ')) {
+        const text = section.replace(/^### /, '')
+        return `<h3 style="color: #334155; font-size: 18px; font-weight: 600; margin: 20px 0 10px 0; line-height: 1.3;">${text}</h3>`
+      }
+      
+      // Check if it's a bullet list (contains lines starting with - or *)
+      if (section.includes('\n-') || section.includes('\n*') || section.startsWith('-') || section.startsWith('*')) {
+        const listItems = section
+          .split('\n')
+          .filter(line => line.trim().startsWith('-') || line.trim().startsWith('*'))
+          .map(line => {
+            const text = line.trim().replace(/^[-*]\s+/, '')
+            // Apply bold formatting within list items
+            const formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: 600; color: #0f172a;">$1</strong>')
+            return `<li style="margin: 8px 0; line-height: 1.6; color: #334155;">${formatted}</li>`
+          })
+          .join('')
+        return `<ul style="margin: 16px 0; padding-left: 24px; list-style-type: disc;">${listItems}</ul>`
+      }
+      
+      // Regular paragraph with bold formatting
+      const formatted = section.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: 600; color: #0f172a;">$1</strong>')
+      return `<p style="color: #334155; font-size: 15px; line-height: 1.7; margin: 12px 0;">${formatted}</p>`
+    }).join('')
+  }
+
+  return (
   <Html>
     <Head />
     <Preview>{senderName} has shared a legal document with you</Preview>
@@ -53,9 +97,15 @@ export const LetterShareEmail = ({
           )}
         </Section>
 
+        {letterContent && (
+          <Section style={letterContentBox}>
+            <div dangerouslySetInnerHTML={{ __html: formatLetterContent(letterContent) }} />
+          </Section>
+        )}
+
         <Section style={buttonContainer}>
           <Link href={shareLink} style={button}>
-            View Document
+            View Online
           </Link>
         </Section>
 
@@ -113,7 +163,8 @@ export const LetterShareEmail = ({
       </Container>
     </Body>
   </Html>
-)
+  )
+}
 
 export default LetterShareEmail
 
@@ -252,4 +303,16 @@ const footerBrand = {
 const footerLink = {
   color: '#2563eb',
   textDecoration: 'none',
+}
+
+const letterContentBox = {
+  backgroundColor: '#ffffff',
+  borderRadius: '8px',
+  border: '2px solid #e2e8f0',
+  margin: '24px 40px',
+  padding: '32px',
+  fontFamily: 'Georgia, "Times New Roman", Times, serif',
+  fontSize: '15px',
+  lineHeight: '1.7',
+  color: '#334155',
 }

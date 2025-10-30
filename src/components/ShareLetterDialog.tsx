@@ -78,6 +78,13 @@ export function ShareLetterDialog({
 
       // Send email notification if requested
       if (sendEmail) {
+        // Get letter content for the email
+        const { data: letterData } = await supabase
+          .from("letters" as any)
+          .select("content")
+          .eq("id", letterId)
+          .single();
+
         // Get current user's profile for sender name
         const { data: profile } = await supabase
           .from("profiles")
@@ -93,6 +100,7 @@ export function ShareLetterDialog({
               recipientName: recipientName || recipientEmail,
               senderName: profile?.full_name || profile?.email || "UAE Legal Assistant",
               letterTitle,
+              letterContent: (letterData as any)?.content, // Include the letter content
               shareLink: data.shareLink.url,
               expiresAt: data.shareLink.expires_at,
               maxViews: data.shareLink.max_views,
