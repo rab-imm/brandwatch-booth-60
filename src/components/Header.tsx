@@ -4,7 +4,6 @@ import { Icon } from "@/components/ui/Icon"
 import { Link } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { NotificationCenter } from "@/components/NotificationCenter"
-import { CompactCreditDisplay } from "@/components/CompactCreditDisplay"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 import { useTranslation } from 'react-i18next'
@@ -163,23 +162,6 @@ export const Header = () => {
           )}
           
           <div className="flex items-center space-x-4 ml-auto">
-            {user && profile && (
-              <CompactCreditDisplay
-                creditsUsed={companyData ? companyData.used_credits || 0 : profile.queries_used || 0}
-                creditsTotal={companyData ? companyData.total_credits || 0 : (() => {
-                  const tier = profile.subscription_tier || 'free'
-                  switch (tier) {
-                    case 'free': return 10
-                    case 'essential': return 50
-                    case 'premium': return 200
-                    case 'sme': return 999999
-                    case 'enterprise': return 999999
-                    default: return 10
-                  }
-                })() + (profile.rollover_credits || 0)}
-                type={companyData ? 'company' : 'personal'}
-              />
-            )}
             {user ? (
               <div className="flex items-center space-x-3">
                 <Button variant="ghost" size="sm" asChild>
