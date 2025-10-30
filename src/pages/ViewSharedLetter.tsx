@@ -64,7 +64,10 @@ export default function ViewSharedLetter() {
         return;
       }
 
-      setLetter(data.letter);
+      setLetter({
+        ...data.letter,
+        content: String(data.letter.content || '')
+      });
       // Map the response from edge function to shareInfo structure
       setShareInfo({
         sender_name: data.recipientName,
@@ -261,7 +264,10 @@ export default function ViewSharedLetter() {
           <CardContent className="pt-6">
             <div className="bg-card border rounded-lg p-6 min-h-[400px]">
               <div className="prose prose-base max-w-none dark:prose-invert font-serif">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                <ReactMarkdown 
+                  key={letter.id}
+                  remarkPlugins={[remarkGfm]}
+                >
                   {letter.content}
                 </ReactMarkdown>
               </div>
