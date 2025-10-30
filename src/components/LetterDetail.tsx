@@ -323,7 +323,7 @@ export function LetterDetail({ letterId, onBack }: LetterDetailProps) {
             />
           ) : (
             <div className="bg-card border rounded-lg p-6">
-              <div className="prose prose-sm max-w-none dark:prose-invert font-serif">
+              <div className="prose prose-base max-w-none dark:prose-invert font-serif">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {letter.content}
                 </ReactMarkdown>

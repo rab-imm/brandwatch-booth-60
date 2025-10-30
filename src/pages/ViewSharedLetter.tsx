@@ -259,8 +259,8 @@ export default function ViewSharedLetter() {
             </div>
           </CardHeader>
           <CardContent className="pt-6">
-            <div className="bg-muted/30 rounded-lg p-6 min-h-[600px]">
-              <div className="prose prose-sm max-w-none dark:prose-invert bg-background p-8 rounded shadow-sm">
+            <div className="bg-card border rounded-lg p-6 min-h-[400px]">
+              <div className="prose prose-base max-w-none dark:prose-invert font-serif">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {letter.content}
                 </ReactMarkdown>
