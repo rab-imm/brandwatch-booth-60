@@ -22,7 +22,9 @@ export const Header = () => {
   const [companyData, setCompanyData] = useState<any>(null)
 
   useEffect(() => {
-    const fetchCompanyData = async () => {
+    const subscriptions: any[] = []
+    
+    const setupSubscriptions = async () => {
       if (!user || !profile) return
 
       // Check if user is part of a company
@@ -53,20 +55,15 @@ export const Header = () => {
             table: 'companies',
             filter: `id=eq.${roleData.company_id}`
           }, (payload) => {
+            console.log('🏢 Company credits updated:', payload.new)
             setCompanyData(payload.new as any)
           })
           .subscribe()
 
-        return () => {
-          companySubscription.unsubscribe()
-        }
+        subscriptions.push(companySubscription)
       }
-    }
 
-    fetchCompanyData()
-
-    // Subscribe to profile changes for personal credits
-    if (user) {
+      // Subscribe to profile changes for personal credits
       const profileSubscription = supabase
         .channel(`profile_${user.id}`)
         .on('postgres_changes', {
@@ -74,15 +71,24 @@ export const Header = () => {
           schema: 'public',
           table: 'profiles',
           filter: `user_id=eq.${user.id}`
-        }, () => {
+        }, (payload) => {
+          console.log('👤 Profile credits updated:', payload.new)
           // Trigger a re-fetch of the profile through useAuth
           window.dispatchEvent(new Event('profile-updated'))
         })
         .subscribe()
 
-      return () => {
-        profileSubscription.unsubscribe()
-      }
+      subscriptions.push(profileSubscription)
+    }
+
+    setupSubscriptions()
+
+    // Single cleanup function
+    return () => {
+      console.log('🧹 Cleaning up credit subscriptions')
+      subscriptions.forEach(sub => {
+        supabase.removeChannel(sub)
+      })
     }
   }, [user, profile])
 

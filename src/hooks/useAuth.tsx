@@ -128,6 +128,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Separate useEffect for profile update listener
   useEffect(() => {
     const handleProfileUpdate = () => {
+      console.log('🔄 Profile update event received, refetching...')
       if (user) {
         fetchProfile(user.id)
       }
