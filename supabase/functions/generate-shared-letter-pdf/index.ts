@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.4';
+import { marked } from 'https://esm.sh/marked@11.1.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -113,6 +114,9 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Convert markdown to HTML
+    const renderedContent = await marked.parse(letter.content);
+
     // Generate PDF HTML with proper styling
     const htmlContent = `
 <!DOCTYPE html>
@@ -189,8 +193,13 @@ Deno.serve(async (req) => {
       font-size: 12px;
       color: #64748b;
     }
-    .content {
-      white-space: pre-wrap;
+    @media print {
+      body {
+        max-width: 100%;
+      }
+      .no-print {
+        display: none !important;
+      }
     }
   </style>
 </head>
@@ -200,7 +209,7 @@ Deno.serve(async (req) => {
     ${letter.description ? `<p class="description">${letter.description}</p>` : ''}
   </div>
   <div class="content">
-${letter.content}
+    ${renderedContent}
   </div>
   <div class="footer">
     <p>Generated on ${new Date().toLocaleDateString('en-US', { 
@@ -214,15 +223,14 @@ ${letter.content}
 </html>
     `;
 
-    console.log('PDF HTML generated successfully');
+    console.log('HTML generated successfully for printing');
 
-    // Return HTML with PDF content type headers
+    // Return HTML for browser printing
     return new Response(htmlContent, {
       status: 200,
       headers: {
         ...corsHeaders,
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${letter.title.replace(/[^a-z0-9]/gi, '_')}.pdf"`,
+        'Content-Type': 'text/html',
       },
     });
 

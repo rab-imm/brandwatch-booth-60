@@ -92,26 +92,28 @@ export default function ViewSharedLetter() {
 
       if (error) throw error;
 
-      // Create a blob from the HTML response and trigger download
-      const blob = new Blob([data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${letter?.title?.replace(/[^a-z0-9]/gi, '_') || 'letter'}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // Open HTML in new window and trigger print dialog
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(data);
+        printWindow.document.close();
+        
+        // Wait for content to load, then print
+        printWindow.onload = () => {
+          printWindow.focus();
+          printWindow.print();
+        };
+      }
 
       toast({
-        title: "PDF Downloaded",
-        description: "The letter has been downloaded as a PDF file.",
+        title: "Print Dialog Opened",
+        description: "Save as PDF using your browser's print dialog.",
       });
     } catch (err) {
-      console.error('Error downloading PDF:', err);
+      console.error('Error generating PDF:', err);
       toast({
-        title: "Download Failed",
-        description: "Failed to download PDF. Please try again.",
+        title: "Print Failed",
+        description: "Failed to open print dialog. Please try again.",
         variant: "destructive",
       });
     }
@@ -311,7 +313,7 @@ export default function ViewSharedLetter() {
                 className="flex-1"
               >
                 <Download className="mr-2 h-4 w-4" />
-                Download PDF
+                Print as PDF
               </Button>
               <Button 
                 onClick={handleDownload} 

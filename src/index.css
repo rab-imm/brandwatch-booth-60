@@ -283,3 +283,44 @@ textarea:disabled::placeholder {
 .dark .prose strong {
   @apply text-foreground;
 }
+
+/* ============= Print Styles for PDF Generation ============= */
+@media print {
+  body {
+    @apply bg-white text-black;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .prose {
+    max-width: 100% !important;
+    @apply text-black;
+  }
+
+  .prose h2,
+  .prose h3,
+  .prose strong {
+    @apply text-black;
+  }
+
+  /* Ensure good page breaks */
+  h1, h2, h3 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  p {
+    page-break-inside: avoid;
+  }
+
+  /* Hide navigation and buttons when printing */
+  nav,
+  button,
+  .no-print {
+    display: none !important;
+  }
+}
