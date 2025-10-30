@@ -1,9 +1,11 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 import { Link } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { NotificationCenter } from "@/components/NotificationCenter"
+import { PersonalCreditCounter } from "@/components/PersonalCreditCounter"
+import { CompanyCreditCounter } from "@/components/CompanyCreditCounter"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 import { useTranslation } from 'react-i18next'
@@ -17,6 +19,36 @@ import {
 export const Header = () => {
   const { user, signOut, profile } = useAuth();
   const { t } = useTranslation();
+  const [companyRole, setCompanyRole] = useState<any>(null)
+  const [companyData, setCompanyData] = useState<any>(null)
+
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      if (!user || !profile) return
+
+      // Check if user is part of a company
+      const { data: roleData } = await supabase
+        .from('user_company_roles')
+        .select('*, company_id')
+        .eq('user_id', user.id)
+        .single()
+
+      if (roleData) {
+        setCompanyRole(roleData)
+
+        // Fetch company data
+        const { data: company } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('id', roleData.company_id)
+          .single()
+
+        setCompanyData(company)
+      }
+    }
+
+    fetchCompanyData()
+  }, [user, profile])
 
   const getDashboardLink = () => {
     const primaryRole = profile?.primary_role
@@ -86,6 +118,26 @@ export const Header = () => {
                 {t('nav.about')}
               </Link>
             </nav>
+          )}
+          
+          {user && profile && (
+            <div className="hidden lg:block">
+              {companyRole && companyData ? (
+                <CompanyCreditCounter
+                  personalUsed={companyRole.used_credits || 0}
+                  personalLimit={companyRole.max_credits_per_period || 50}
+                  companyUsed={companyData.used_credits || 0}
+                  companyTotal={companyData.total_credits || 0}
+                  rolloverCredits={profile.rollover_credits || 0}
+                />
+              ) : (
+                <PersonalCreditCounter
+                  creditsUsed={profile.queries_used || 0}
+                  subscriptionTier={profile.subscription_tier || 'free'}
+                  rolloverCredits={profile.rollover_credits || 0}
+                />
+              )}
+            </div>
           )}
           
           <div className="flex items-center space-x-4 ml-auto">
