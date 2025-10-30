@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Plus, X, Mail, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ContactSelector } from "@/components/contacts/ContactSelector";
 
 export interface Recipient {
   id: string;
@@ -84,6 +85,17 @@ export const RecipientManager = ({
         <CardTitle className="text-lg">Recipients</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Select from contacts */}
+        <div className="flex justify-center pb-3 border-b">
+          <ContactSelector
+            onSelect={(contact) => {
+              setName(contact.name)
+              setEmail(contact.email)
+            }}
+            buttonText="Select from Contacts"
+          />
+        </div>
+
         <div className="space-y-3">
           <div className="space-y-2">
             <Label htmlFor="recipient-name">Name</Label>

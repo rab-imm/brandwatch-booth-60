@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { Copy, Mail, Loader2, Check } from "lucide-react";
+import { ContactSelector } from "@/components/contacts/ContactSelector";
 
 interface ShareLetterDialogProps {
   open: boolean;
@@ -167,6 +168,16 @@ export function ShareLetterDialog({
 
         {!shareUrl ? (
           <div className="space-y-4">
+            <div className="flex justify-center pb-4 border-b">
+              <ContactSelector
+                onSelect={(contact) => {
+                  setRecipientEmail(contact.email)
+                  setRecipientName(contact.name)
+                }}
+                buttonText="Select from Contacts"
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">Recipient Email *</Label>
               <Input

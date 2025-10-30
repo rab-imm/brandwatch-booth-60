@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 import LettersListPage from "./pages/LettersListPage";
 import LetterDetailPage from "./pages/LetterDetailPage";
 import LetterCreationWizard from "./pages/LetterCreationWizard";
+import ContactsPage from "./pages/ContactsPage";
 import TeamWorkspace from "./pages/TeamWorkspace";
 import CreatorPortal from "./pages/CreatorPortal";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
@@ -185,6 +186,17 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <OCRPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/contacts" 
+              element={
+                <ProtectedRoute>
+                  <div className="min-h-screen bg-background">
+                    <Header />
+                    <ContactsPage />
+                  </div>
                 </ProtectedRoute>
               } 
             />
