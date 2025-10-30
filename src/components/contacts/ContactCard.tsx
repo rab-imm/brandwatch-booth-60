@@ -55,14 +55,14 @@ export const ContactCard = ({ contact, onEdit, onDelete }: ContactCardProps) => 
             size="sm"
             onClick={() => onEdit(contact)}
           >
-            <Icon name="pencil" className="h-4 w-4" />
+            <Icon name="edit" className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onDelete(contact.id)}
           >
-            <Icon name="trash-2" className="h-4 w-4 text-destructive" />
+            <Icon name="trash" className="h-4 w-4 text-destructive" />
           </Button>
         </div>
       </div>
