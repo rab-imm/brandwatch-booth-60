@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -321,9 +323,11 @@ export function LetterDetail({ letterId, onBack }: LetterDetailProps) {
             />
           ) : (
             <div className="bg-card border rounded-lg p-6">
-              <pre className="whitespace-pre-wrap font-serif text-sm">
-                {letter.content}
-              </pre>
+              <div className="prose prose-sm max-w-none dark:prose-invert font-serif">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {letter.content}
+                </ReactMarkdown>
+              </div>
             </div>
           )}
 

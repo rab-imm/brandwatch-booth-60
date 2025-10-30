@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Lock, AlertTriangle, Clock, Eye, Download } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function ViewSharedLetter() {
   const { token } = useParams<{ token: string }>();
@@ -258,10 +260,11 @@ export default function ViewSharedLetter() {
           </CardHeader>
           <CardContent className="pt-6">
             <div className="bg-muted/30 rounded-lg p-6 min-h-[600px]">
-              <div 
-                className="prose prose-sm max-w-none dark:prose-invert bg-background p-8 rounded shadow-sm"
-                dangerouslySetInnerHTML={{ __html: letter.content }}
-              />
+              <div className="prose prose-sm max-w-none dark:prose-invert bg-background p-8 rounded shadow-sm">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {letter.content}
+                </ReactMarkdown>
+              </div>
             </div>
           </CardContent>
         </Card>
