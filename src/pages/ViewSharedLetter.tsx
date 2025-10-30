@@ -81,6 +81,42 @@ export default function ViewSharedLetter() {
     }
   };
 
+  const handleDownloadPDF = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-shared-letter-pdf', {
+        body: { 
+          token,
+          password: password 
+        },
+      });
+
+      if (error) throw error;
+
+      // Create a blob from the HTML response and trigger download
+      const blob = new Blob([data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${letter?.title?.replace(/[^a-z0-9]/gi, '_') || 'letter'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "PDF Downloaded",
+        description: "The letter has been downloaded as a PDF file.",
+      });
+    } catch (err) {
+      console.error('Error downloading PDF:', err);
+      toast({
+        title: "Download Failed",
+        description: "Failed to download PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDownload = () => {
     if (!letter) return;
     
@@ -255,10 +291,6 @@ export default function ViewSharedLetter() {
                   {new Date(letter.created_at).toLocaleDateString()}
                 </CardDescription>
               </div>
-              <Button onClick={handleDownload} variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
             </div>
           </CardHeader>
           <CardContent className="pt-6">
@@ -271,6 +303,24 @@ export default function ViewSharedLetter() {
                   {letter.content}
                 </ReactMarkdown>
               </div>
+            </div>
+            
+            <div className="mt-6 flex gap-3">
+              <Button 
+                onClick={handleDownloadPDF} 
+                className="flex-1"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download PDF
+              </Button>
+              <Button 
+                onClick={handleDownload} 
+                variant="outline"
+                className="flex-1"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download HTML
+              </Button>
             </div>
           </CardContent>
         </Card>
