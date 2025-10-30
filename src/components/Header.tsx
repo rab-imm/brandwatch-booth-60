@@ -43,10 +43,47 @@ export const Header = () => {
           .single()
 
         setCompanyData(company)
+
+        // Subscribe to company changes
+        const companySubscription = supabase
+          .channel(`company_${roleData.company_id}`)
+          .on('postgres_changes', {
+            event: '*',
+            schema: 'public',
+            table: 'companies',
+            filter: `id=eq.${roleData.company_id}`
+          }, (payload) => {
+            setCompanyData(payload.new as any)
+          })
+          .subscribe()
+
+        return () => {
+          companySubscription.unsubscribe()
+        }
       }
     }
 
     fetchCompanyData()
+
+    // Subscribe to profile changes for personal credits
+    if (user) {
+      const profileSubscription = supabase
+        .channel(`profile_${user.id}`)
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `user_id=eq.${user.id}`
+        }, () => {
+          // Trigger a re-fetch of the profile through useAuth
+          window.dispatchEvent(new Event('profile-updated'))
+        })
+        .subscribe()
+
+      return () => {
+        profileSubscription.unsubscribe()
+      }
+    }
   }, [user, profile])
 
   const getDashboardLink = () => {

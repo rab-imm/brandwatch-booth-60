@@ -125,6 +125,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => subscription.unsubscribe()
   }, [])
 
+  // Separate useEffect for profile update listener
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      if (user) {
+        fetchProfile(user.id)
+      }
+    }
+    
+    window.addEventListener('profile-updated', handleProfileUpdate)
+    return () => window.removeEventListener('profile-updated', handleProfileUpdate)
+  }, [user])
+
   const signUp = async (email: string, password: string, fullName?: string, signupType?: string, companyName?: string) => {
     const redirectUrl = `${window.location.origin}/`
     
