@@ -85,6 +85,55 @@ export default function LettersListPage() {
     filterLetters()
   }, [letters, searchQuery, statusFilter, typeFilter])
 
+  // Helper function to fetch enriched letter data
+  const fetchEnrichedLetter = async (letterId: string): Promise<Letter | null> => {
+    const { data: letter } = await supabase
+      .from('legal_letters')
+      .select('*')
+      .eq('id', letterId)
+      .single()
+    
+    if (!letter) return null
+    
+    // If signed, enrich with signature data
+    if (letter.status === 'signed') {
+      const { data: signatureData } = await supabase
+        .from('signature_requests')
+        .select(`
+          id,
+          status,
+          certificate_url,
+          completed_at,
+          signature_recipients (
+            id,
+            status
+          )
+        `)
+        .eq('letter_id', letter.id)
+        .eq('status', 'completed')
+        .order('completed_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      
+      if (signatureData) {
+        const recipients = signatureData.signature_recipients || []
+        return {
+          ...letter,
+          signature_request: {
+            id: signatureData.id,
+            status: signatureData.status,
+            certificate_url: signatureData.certificate_url,
+            completed_at: signatureData.completed_at,
+            recipients_count: recipients.length,
+            signed_count: recipients.filter((r: any) => r.status === 'signed').length
+          }
+        }
+      }
+    }
+    
+    return letter
+  }
+
   useEffect(() => {
     if (!user) return
 
@@ -99,16 +148,30 @@ export default function LettersListPage() {
           table: 'legal_letters',
           filter: `user_id=eq.${user.id}`
         },
-        (payload) => {
+        async (payload) => {
           console.log('Letter updated:', payload)
-          // Update the letter in state
-          setLetters(prev => 
-            prev.map(letter => 
-              letter.id === payload.new.id 
-                ? { ...letter, ...payload.new } 
-                : letter
+          
+          // Fetch the enriched letter data
+          const enrichedLetter = await fetchEnrichedLetter(payload.new.id)
+          
+          if (enrichedLetter) {
+            // Update the letter in state with enriched data
+            setLetters(prev => 
+              prev.map(letter => 
+                letter.id === enrichedLetter.id 
+                  ? enrichedLetter 
+                  : letter
+              )
             )
-          )
+            
+            // Show toast notification for newly signed letters
+            if (enrichedLetter.status === 'signed' && payload.old.status !== 'signed') {
+              toast({
+                title: "Document Signed! 🎉",
+                description: `"${enrichedLetter.title}" has been fully executed`,
+              })
+            }
+          }
         }
       )
       .subscribe()
@@ -116,6 +179,18 @@ export default function LettersListPage() {
     return () => {
       supabase.removeChannel(channel)
     }
+  }, [user, toast])
+
+  // Auto-refresh when page becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && user) {
+        fetchLetters()
+      }
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [user])
 
   const fetchLetters = async () => {
