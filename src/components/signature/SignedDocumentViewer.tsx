@@ -22,10 +22,9 @@ interface SignatureField {
   y_position: number;
   width: number;
   height: number;
-  signature_url?: string;
-  text_value?: string;
-  date_value?: string;
-  checkbox_value?: boolean;
+  field_value?: string;
+  page_number?: number;
+  completed_at?: string;
 }
 
 interface Recipient {
@@ -60,12 +59,11 @@ export const SignedDocumentViewer = ({
 
   const loadSignedDocument = async () => {
     try {
-      // Get signature request
+      // Get signature request (any status since letter is marked as signed)
       const { data: requestData, error: requestError } = await supabase
         .from("signature_requests")
         .select("*")
         .eq("letter_id", letterId)
-        .eq("status", "completed")
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -166,10 +164,10 @@ export const SignedDocumentViewer = ({
     switch (field.field_type) {
       case 'signature':
       case 'initial':
-        return field.signature_url ? (
+        return field.field_value ? (
           <div key={field.id} style={style} className="border-2 border-primary/30 bg-white/50 rounded">
             <img 
-              src={field.signature_url} 
+              src={field.field_value} 
               alt={field.field_label}
               className="w-full h-full object-contain"
             />
@@ -177,25 +175,26 @@ export const SignedDocumentViewer = ({
         ) : null;
 
       case 'text':
-        return field.text_value ? (
+        return field.field_value ? (
           <div key={field.id} style={style} className="border-b-2 border-primary/30 bg-white/50 px-2 flex items-center">
-            <span className="text-sm font-medium">{field.text_value}</span>
+            <span className="text-sm font-medium">{field.field_value}</span>
           </div>
         ) : null;
 
       case 'date':
-        return field.date_value ? (
+        return field.field_value ? (
           <div key={field.id} style={style} className="border-b-2 border-primary/30 bg-white/50 px-2 flex items-center">
             <span className="text-sm font-medium">
-              {format(new Date(field.date_value), 'MMM dd, yyyy')}
+              {format(new Date(field.field_value), 'MMM dd, yyyy')}
             </span>
           </div>
         ) : null;
 
       case 'checkbox':
+        const isChecked = field.field_value === 'true' || field.field_value === '1';
         return (
           <div key={field.id} style={style} className="border-2 border-primary/30 bg-white/50 rounded flex items-center justify-center">
-            {field.checkbox_value && (
+            {isChecked && (
               <CheckCircle className="w-full h-full text-primary p-1" />
             )}
           </div>
