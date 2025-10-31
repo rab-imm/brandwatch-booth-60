@@ -156,8 +156,8 @@ export const SignedDocumentViewer = ({
       position: 'absolute' as const,
       left: `${field.x_position}%`,
       top: `${field.y_position}%`,
-      width: `${field.width}%`,
-      height: `${field.height}%`,
+      width: `${field.width}px`,
+      height: `${field.height}px`,
       zIndex: 10,
     };
 
