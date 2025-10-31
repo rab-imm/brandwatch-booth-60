@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PDFDocumentViewer } from "./PDFDocumentViewer";
 import { SignatureFieldPlacer, SignatureField } from "./SignatureFieldPlacer";
 import { RecipientManager, Recipient } from "./RecipientManager";
-import { Send, Save } from "lucide-react";
+import { Send, GripVertical } from "lucide-react";
 
 interface PrepareDocumentSignatureProps {
   letterId: string;
@@ -38,6 +38,11 @@ export const PrepareDocumentSignature = ({
   const [fields, setFields] = useState<SignatureField[]>([]);
   const [selectedFieldType, setSelectedFieldType] = useState<SignatureField["type"]>("signature");
   const [loading, setLoading] = useState(false);
+  
+  // Drag state
+  const [draggedField, setDraggedField] = useState<string | null>(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
   
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -74,6 +79,71 @@ export const PrepareDocumentSignature = ({
   const handleRemoveField = (fieldId: string) => {
     setFields(fields.filter((f) => f.id !== fieldId));
   };
+
+  const handleUpdateField = (fieldId: string, updates: Partial<SignatureField>) => {
+    setFields(fields.map(f => 
+      f.id === fieldId ? { ...f, ...updates } : f
+    ));
+  };
+
+  const handleFieldMouseDown = (e: React.MouseEvent, field: SignatureField) => {
+    e.stopPropagation(); // Prevent triggering page click
+    
+    if (!containerRef.current) return;
+    
+    const container = containerRef.current.getBoundingClientRect();
+    const fieldElement = e.currentTarget.getBoundingClientRect();
+    
+    // Calculate offset from mouse to field's top-left corner
+    const offsetX = ((e.clientX - fieldElement.left) / container.width) * 100;
+    const offsetY = ((e.clientY - fieldElement.top) / container.height) * 100;
+    
+    setDraggedField(field.id);
+    setDragOffset({ x: offsetX, y: offsetY });
+  };
+
+  const handleFieldMouseMove = (e: React.MouseEvent) => {
+    if (!draggedField || !containerRef.current) return;
+    
+    const container = containerRef.current.getBoundingClientRect();
+    const field = fields.find(f => f.id === draggedField);
+    if (!field) return;
+    
+    // Calculate new position as percentage
+    const mouseX = e.clientX - container.left;
+    const mouseY = e.clientY - container.top;
+    
+    const percentX = (mouseX / container.width) * 100;
+    const percentY = (mouseY / container.height) * 100;
+    
+    // Apply offset and ensure field stays within bounds
+    const fieldWidthPercent = (field.width / container.width) * 100;
+    const fieldHeightPercent = (field.height / container.height) * 100;
+    
+    const newX = Math.max(0, Math.min(percentX - dragOffset.x, 100 - fieldWidthPercent));
+    const newY = Math.max(0, Math.min(percentY - dragOffset.y, 100 - fieldHeightPercent));
+    
+    handleUpdateField(draggedField, { x: newX, y: newY });
+  };
+
+  const handleFieldMouseUp = () => {
+    setDraggedField(null);
+    setDragOffset({ x: 0, y: 0 });
+  };
+
+  // Add document-level mouse up listener to handle drag ending outside field
+  useEffect(() => {
+    const handleDocumentMouseUp = () => {
+      if (draggedField) {
+        handleFieldMouseUp();
+      }
+    };
+
+    document.addEventListener('mouseup', handleDocumentMouseUp);
+    return () => {
+      document.removeEventListener('mouseup', handleDocumentMouseUp);
+    };
+  }, [draggedField]);
 
   const handlePageClick = (pageNumber: number, x: number, y: number) => {
     if (!selectedRecipient) {
@@ -113,22 +183,30 @@ export const PrepareDocumentSignature = ({
     
     return (
       <>
-        {pageFields.map((field) => (
-          <div
-            key={field.id}
-            className="absolute border-2 border-primary bg-primary/10 pointer-events-auto cursor-move"
-            style={{
-              left: `${field.x}%`,
-              top: `${field.y}%`,
-              width: `${field.width}px`,
-              height: `${field.height}px`,
-            }}
-          >
-            <div className="text-xs font-medium p-1 bg-primary text-primary-foreground">
-              {field.type}
+        {pageFields.map((field) => {
+          const isDragging = draggedField === field.id;
+          
+          return (
+            <div
+              key={field.id}
+              className={`absolute border-2 border-primary bg-primary/10 pointer-events-auto cursor-grab active:cursor-grabbing transition-shadow ${
+                isDragging ? 'shadow-lg ring-2 ring-primary/50 opacity-80' : 'hover:shadow-md'
+              }`}
+              style={{
+                left: `${field.x}%`,
+                top: `${field.y}%`,
+                width: `${field.width}px`,
+                height: `${field.height}px`,
+              }}
+              onMouseDown={(e) => handleFieldMouseDown(e, field)}
+            >
+              <div className="text-xs font-medium p-1 bg-primary text-primary-foreground flex items-center gap-1">
+                <GripVertical className="h-3 w-3" />
+                {field.type}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </>
     );
   };
@@ -213,11 +291,17 @@ export const PrepareDocumentSignature = ({
               <CardDescription>Click to place signature fields</CardDescription>
             </CardHeader>
             <CardContent>
-              <PDFDocumentViewer
-                content={letterContent}
-                onPageClick={handlePageClick}
-                overlayContent={renderFieldOverlay}
-              />
+              <div 
+                ref={containerRef}
+                onMouseMove={handleFieldMouseMove}
+                onMouseUp={handleFieldMouseUp}
+              >
+                <PDFDocumentViewer
+                  content={letterContent}
+                  onPageClick={handlePageClick}
+                  overlayContent={renderFieldOverlay}
+                />
+              </div>
             </CardContent>
           </Card>
         </div>
