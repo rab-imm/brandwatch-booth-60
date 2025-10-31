@@ -346,8 +346,8 @@ export const OCRUpload = () => {
               <div>
                 <p className="text-sm font-medium mb-1">
                   {isDragging 
-                    ? '📂 Drop your document here' 
-                    : '📸 Choose from Gallery or Upload File'
+                    ? 'Drop your document here' 
+                    : 'Choose from Gallery or Upload File'
                   }
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -474,7 +474,7 @@ export const OCRUpload = () => {
                       </div>
                       <Icon name={v.violation_type === 'missing' ? 'alert-circle' : 'x-circle'} className="h-5 w-5 text-red-500" />
                     </div>
-                    <h5 className="font-semibold text-sm mb-1">{v.violation_type === 'missing' ? '❌ Missing Clause' : '⚠️ Non-Compliant'}</h5>
+                    <h5 className="font-semibold text-sm mb-1">{v.violation_type === 'missing' ? 'Missing Clause' : 'Non-Compliant'}</h5>
                     <p className="text-sm mb-2">{v.details}</p>
                     {v.related_text && (
                       <div className="text-xs bg-background/50 p-2 rounded mb-2 font-mono line-clamp-2">
@@ -482,7 +482,7 @@ export const OCRUpload = () => {
                       </div>
                     )}
                     <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded mt-2">
-                      <p className="text-xs font-semibold mb-1">✅ Recommended Action:</p>
+                      <p className="text-xs font-semibold mb-1">Recommended Action:</p>
                       <p className="text-xs">{v.recommended_action}</p>
                     </div>
                   </div>
@@ -745,7 +745,7 @@ export const OCRUpload = () => {
                           </div>
                           
                           <span className="px-2 py-0.5 bg-background rounded text-xs border">
-                            {clause.confidence === 'ai' ? '🤖 AI Detected' : '🔍 Pattern Match'}
+                            {clause.confidence === 'ai' ? 'AI Detected' : 'Pattern Match'}
                           </span>
                           
                           {clause.ai_confidence && (
