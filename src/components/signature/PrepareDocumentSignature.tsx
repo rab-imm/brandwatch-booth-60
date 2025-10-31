@@ -222,8 +222,9 @@ export const PrepareDocumentSignature = ({
           </Card>
         </div>
 
-        <ScrollArea className="h-[calc(100vh-2rem)] sticky top-4">
-          <div className="space-y-4 pr-4">
+          <div className="sticky top-4 self-start">
+            <ScrollArea className="h-[calc(100vh-8rem)] w-full">
+              <div className="space-y-4 pr-4 pb-4">
             <Card>
               <CardHeader>
                 <CardTitle>Request Settings</CardTitle>
@@ -299,9 +300,10 @@ export const PrepareDocumentSignature = ({
               <Send className="h-4 w-4 mr-2" />
               Send Signature Request
             </Button>
+              </div>
+            </ScrollArea>
           </div>
-        </ScrollArea>
-      </div>
+        </div>
     </div>
   );
 };
