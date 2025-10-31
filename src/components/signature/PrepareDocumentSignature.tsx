@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PDFDocumentViewer } from "./PDFDocumentViewer";
@@ -221,83 +222,85 @@ export const PrepareDocumentSignature = ({
           </Card>
         </div>
 
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Request Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Request Title</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-              </div>
+        <ScrollArea className="h-[calc(100vh-2rem)] sticky top-4">
+          <div className="space-y-4 pr-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Request Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Request Title</Label>
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="message">Message to Recipients</Label>
-                <Textarea
-                  id="message"
-                  placeholder="Please review and sign this document..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  rows={3}
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="message">Message to Recipients</Label>
+                  <Textarea
+                    id="message"
+                    placeholder="Please review and sign this document..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    rows={3}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="expires">Expires In (Days)</Label>
-                <Input
-                  id="expires"
-                  type="number"
-                  min="1"
-                  max="365"
-                  value={expiresInDays}
-                  onChange={(e) => setExpiresInDays(parseInt(e.target.value))}
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="expires">Expires In (Days)</Label>
+                  <Input
+                    id="expires"
+                    type="number"
+                    min="1"
+                    max="365"
+                    value={expiresInDays}
+                    onChange={(e) => setExpiresInDays(parseInt(e.target.value))}
+                  />
+                </div>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="allow-editing">Allow Document Editing</Label>
-                <Switch
-                  id="allow-editing"
-                  checked={allowEditing}
-                  onCheckedChange={setAllowEditing}
-                />
-              </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="allow-editing">Allow Document Editing</Label>
+                  <Switch
+                    id="allow-editing"
+                    checked={allowEditing}
+                    onCheckedChange={setAllowEditing}
+                  />
+                </div>
 
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <RecipientManager
-            recipients={recipients}
-            onAddRecipient={handleAddRecipient}
-            onRemoveRecipient={handleRemoveRecipient}
-            onSelectRecipient={setSelectedRecipient}
-            selectedRecipient={selectedRecipient}
-          />
+            <RecipientManager
+              recipients={recipients}
+              onAddRecipient={handleAddRecipient}
+              onRemoveRecipient={handleRemoveRecipient}
+              onSelectRecipient={setSelectedRecipient}
+              selectedRecipient={selectedRecipient}
+            />
 
-          <SignatureFieldPlacer
-            fields={fields}
-            currentRecipient={selectedRecipient}
-            selectedFieldType={selectedFieldType}
-            onFieldTypeChange={setSelectedFieldType}
-            onAddField={handleAddField}
-            onRemoveField={handleRemoveField}
-          />
+            <SignatureFieldPlacer
+              fields={fields}
+              currentRecipient={selectedRecipient}
+              selectedFieldType={selectedFieldType}
+              onFieldTypeChange={setSelectedFieldType}
+              onAddField={handleAddField}
+              onRemoveField={handleRemoveField}
+            />
 
-          <Button
-            onClick={handleSendRequest}
-            disabled={loading}
-            className="w-full"
-            size="lg"
-          >
-            <Send className="h-4 w-4 mr-2" />
-            Send Signature Request
-          </Button>
-        </div>
+            <Button
+              onClick={handleSendRequest}
+              disabled={loading}
+              className="w-full"
+              size="lg"
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Send Signature Request
+            </Button>
+          </div>
+        </ScrollArea>
       </div>
     </div>
   );
