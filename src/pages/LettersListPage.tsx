@@ -30,6 +30,15 @@ interface Letter {
   created_at: string
   updated_at: string
   credits_used: number
+  signed_at?: string | null
+  signature_request?: {
+    id: string
+    status: string
+    certificate_url?: string
+    completed_at?: string
+    recipients_count: number
+    signed_count: number
+  }
 }
 
 const LETTER_TYPE_LABELS: { [key: string]: string } = {
@@ -114,14 +123,56 @@ export default function LettersListPage() {
 
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
+      const { data: lettersData, error: lettersError } = await supabase
         .from('legal_letters')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
-      setLetters(data || [])
+      if (lettersError) throw lettersError
+      
+      // For signed letters, fetch signature details
+      const enrichedLetters = await Promise.all(
+        (lettersData || []).map(async (letter) => {
+          if (letter.status === 'signed') {
+            const { data: signatureData } = await supabase
+              .from('signature_requests')
+              .select(`
+                id,
+                status,
+                certificate_url,
+                completed_at,
+                signature_recipients (
+                  id,
+                  status
+                )
+              `)
+              .eq('letter_id', letter.id)
+              .eq('status', 'completed')
+              .order('completed_at', { ascending: false })
+              .limit(1)
+              .maybeSingle()
+            
+            if (signatureData) {
+              const recipients = signatureData.signature_recipients || []
+              return {
+                ...letter,
+                signature_request: {
+                  id: signatureData.id,
+                  status: signatureData.status,
+                  certificate_url: signatureData.certificate_url,
+                  completed_at: signatureData.completed_at,
+                  recipients_count: recipients.length,
+                  signed_count: recipients.filter((r: any) => r.status === 'signed').length
+                }
+              }
+            }
+          }
+          return letter
+        })
+      )
+      
+      setLetters(enrichedLetters)
     } catch (error: any) {
       console.error("Error fetching letters:", error)
       toast({
@@ -361,6 +412,12 @@ export default function LettersListPage() {
                       <Badge variant={STATUS_COLORS[letter.status]}>
                         {letter.status}
                       </Badge>
+                      {letter.status === 'signed' && (
+                        <Badge className="bg-emerald-600 hover:bg-emerald-700">
+                          <Icon name="check-circle" className="w-3 h-3 mr-1" />
+                          Fully Executed
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
@@ -376,6 +433,30 @@ export default function LettersListPage() {
                         {letter.credits_used} credits
                       </span>
                     </div>
+                    
+                    {/* Show signature details for signed letters */}
+                    {letter.status === 'signed' && letter.signature_request && (
+                      <div className="mt-3 p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200 dark:border-emerald-900">
+                        <div className="flex items-center gap-4 text-sm">
+                          <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                            <Icon name="users" className="w-4 h-4" />
+                            {letter.signature_request.signed_count}/{letter.signature_request.recipients_count} signatures
+                          </span>
+                          {letter.signed_at && (
+                            <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                              <Icon name="calendar" className="w-4 h-4" />
+                              Signed {formatDistanceToNow(new Date(letter.signed_at), { addSuffix: true })}
+                            </span>
+                          )}
+                          {letter.signature_request.certificate_url && (
+                            <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                              <Icon name="file-check" className="w-4 h-4" />
+                              Certificate available
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <Button
@@ -385,6 +466,23 @@ export default function LettersListPage() {
                     >
                       <Icon name="eye" className="w-4 h-4" />
                     </Button>
+                    {letter.status === 'signed' && letter.signature_request?.certificate_url && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        asChild
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <a 
+                          href={letter.signature_request.certificate_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          title="Download Certificate"
+                        >
+                          <Icon name="download" className="w-4 h-4 text-emerald-600" />
+                        </a>
+                      </Button>
+                    )}
                     {letter.status === 'draft' && (
                       <Button
                         variant="ghost"

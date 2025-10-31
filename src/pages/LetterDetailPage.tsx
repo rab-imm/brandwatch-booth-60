@@ -276,6 +276,30 @@ export default function LetterDetailPage() {
         </Button>
       </div>
 
+      {/* Signed Document Banner */}
+      {letter.status === 'signed' && (
+        <Card className="mb-6 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/20">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <Icon name="check-circle" className="w-8 h-8 text-emerald-600" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg text-emerald-900 dark:text-emerald-100">
+                  Fully Executed Document
+                </h3>
+                <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                  This document has been signed by all parties{letter.finalized_at && 
+                    ` on ${new Date(letter.finalized_at).toLocaleDateString()}`
+                  }
+                </p>
+              </div>
+              <Badge className="bg-emerald-600">
+                Signed
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Tabs defaultValue="letter" className="space-y-6">
         <TabsList>
           <TabsTrigger value="letter">Letter</TabsTrigger>
