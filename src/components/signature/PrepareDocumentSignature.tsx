@@ -28,9 +28,9 @@ export const PrepareDocumentSignature = ({
   const [message, setMessage] = useState("");
   const [expiresInDays, setExpiresInDays] = useState(30);
   const [allowEditing, setAllowEditing] = useState(false);
-  const [signingOrderEnabled, setSigningOrderEnabled] = useState(false);
-  const [webhookUrl, setWebhookUrl] = useState("");
-  const [enableWebhook, setEnableWebhook] = useState(false);
+  const signingOrderEnabled = false;
+  const webhookUrl = "";
+  const enableWebhook = false;
   
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [selectedRecipient, setSelectedRecipient] = useState<string>();
@@ -268,42 +268,6 @@ export const PrepareDocumentSignature = ({
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="signing-order">Sequential Signing</Label>
-                <Switch
-                  id="signing-order"
-                  checked={signingOrderEnabled}
-                  onCheckedChange={setSigningOrderEnabled}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="enable-webhook">Webhook Notifications</Label>
-                  <Switch
-                    id="enable-webhook"
-                    checked={enableWebhook}
-                    onCheckedChange={setEnableWebhook}
-                  />
-                </div>
-                {enableWebhook && (
-                  <div className="space-y-2 pt-2">
-                    <Label htmlFor="webhook-url" className="text-sm text-muted-foreground">
-                      Zapier/Webhook URL
-                    </Label>
-                    <Input
-                      id="webhook-url"
-                      type="url"
-                      placeholder="https://hooks.zapier.com/hooks/catch/..."
-                      value={webhookUrl}
-                      onChange={(e) => setWebhookUrl(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Receive notifications when signatures are completed
-                    </p>
-                  </div>
-                )}
-              </div>
             </CardContent>
           </Card>
 
