@@ -270,13 +270,11 @@ export const SignedDocumentViewer = ({
         </CardHeader>
         <CardContent className="p-8">
           {/* Document Content with Signature Overlays */}
-          <div className="relative">
-            <div className="bg-white border rounded-lg p-8 min-h-[800px]">
-              <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed">
-                {letterContent}
-              </pre>
-            </div>
-
+          <div className="bg-white border rounded-lg p-8 min-h-[800px] relative">
+            <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed">
+              {letterContent}
+            </pre>
+            
             {/* Signature Field Overlays */}
             {signatureFields.map(field => renderSignatureField(field))}
           </div>
