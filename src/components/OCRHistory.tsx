@@ -254,16 +254,6 @@ export const OCRHistory = () => {
                       <span>{formatDistanceToNow(new Date(record.created_at), { addSuffix: true })}</span>
                     </div>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelectedRecord(record)
-                    }}
-                  >
-                    <Icon name="chevron-right" className="h-4 w-4" />
-                  </Button>
                 </div>
               </div>
             ))}

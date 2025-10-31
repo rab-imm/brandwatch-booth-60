@@ -16,9 +16,10 @@ const OCRPage = () => {
         </div>
 
         <Tabs defaultValue="scan" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-3 max-w-2xl">
             <TabsTrigger value="scan">Scan Document</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
+            <TabsTrigger value="saved">Saved Documents</TabsTrigger>
           </TabsList>
 
           <TabsContent value="scan" className="mt-6">
@@ -27,6 +28,12 @@ const OCRPage = () => {
 
           <TabsContent value="history" className="mt-6">
             <OCRHistory />
+          </TabsContent>
+
+          <TabsContent value="saved" className="mt-6">
+            <div className="text-center p-12 border-2 border-dashed rounded-lg">
+              <p className="text-muted-foreground">Saved documents feature coming soon</p>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
