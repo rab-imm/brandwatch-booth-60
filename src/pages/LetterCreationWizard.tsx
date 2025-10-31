@@ -1778,16 +1778,20 @@ export default function LetterCreationWizard() {
       // Generate a title for the letter
       const letterTitle = `${LETTER_TYPES.find(t => t.value === letterType)?.label} - ${format(new Date(), 'dd/MM/yyyy')}`;
 
-      const { error: saveError } = await supabase.from("legal_letters").insert({
-        user_id: profile?.user_id!,
-        company_id: profile?.current_company_id,
-        letter_type: letterType as any,
-        title: letterTitle,
-        content,
-        status: 'finalized' as any,
-        credits_used: creditsUsed,
-        metadata: details,
-      });
+      const { data: newLetter, error: saveError } = await supabase
+        .from("legal_letters")
+        .insert({
+          user_id: profile?.user_id!,
+          company_id: profile?.current_company_id,
+          letter_type: letterType as any,
+          title: letterTitle,
+          content,
+          status: 'finalized' as any,
+          credits_used: creditsUsed,
+          metadata: details,
+        })
+        .select()
+        .single();
 
       if (saveError) throw saveError;
 
@@ -1796,7 +1800,7 @@ export default function LetterCreationWizard() {
         description: `${creditsUsed} credits used`,
       });
 
-      navigate("/letters");
+      navigate(`/letters/${newLetter.id}`);
     } catch (error: any) {
       console.error("Error generating letter:", error);
       toast({
