@@ -170,15 +170,37 @@ serve(async (req) => {
 
       // Update the associated legal letter status to signed
       if (signatureRequest?.letter_id) {
-        await supabaseClient
+        const { data: letterData } = await supabaseClient
           .from("legal_letters")
           .update({
             status: "signed",
             signed_at: new Date().toISOString()
           })
-          .eq("id", signatureRequest.letter_id);
+          .eq("id", signatureRequest.letter_id)
+          .select("user_id, title")
+          .single();
         
         logStep("Letter status updated to signed", { letterId: signatureRequest.letter_id });
+
+        // Create notification for the letter creator
+        if (letterData?.user_id) {
+          try {
+            await supabaseClient
+              .from("notifications")
+              .insert({
+                user_id: letterData.user_id,
+                type: "success",
+                title: "Document Fully Signed",
+                message: `"${letterData.title}" has been signed by all recipients. You can now download the signed copy.`,
+                action_url: `/letters/${signatureRequest.letter_id}`,
+                expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+              });
+            
+            logStep("Notification created for letter creator", { userId: letterData.user_id });
+          } catch (notificationError) {
+            logStep("Failed to create notification (non-blocking)", { error: notificationError });
+          }
+        }
       }
 
       // Trigger webhook notification in background
