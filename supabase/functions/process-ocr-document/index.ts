@@ -988,7 +988,7 @@ serve(async (req) => {
           messages: [
             {
               role: 'system',
-              content: 'You are a document summarization expert. Provide ultra-concise, bullet-point summaries focusing only on the most critical information.'
+              content: 'You are a document summarization expert. Provide ultra-concise, bullet-point summaries focusing only on the most critical information. Use a professional tone without emojis.'
             },
             {
               role: 'user',
