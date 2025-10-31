@@ -6,6 +6,16 @@ const logStep = (step: string, details?: any) => {
   console.log(`[generate-signed-document-pdf] ${step}`, details || "");
 };
 
+// Helper function to encode Unicode strings to base64
+function base64EncodeUnicode(str: string): string {
+  const encoder = new TextEncoder();
+  const uint8Array = encoder.encode(str);
+  const binaryString = Array.from(uint8Array)
+    .map(byte => String.fromCharCode(byte))
+    .join('');
+  return btoa(binaryString);
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -105,7 +115,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        pdfHtml: btoa(html),
+        pdfHtml: base64EncodeUnicode(html),
         filename
       }),
       {
