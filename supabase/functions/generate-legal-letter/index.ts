@@ -3873,8 +3873,10 @@ serve(async (req) => {
       }
       return acc;
     }, {} as Record<string, any>);
+    console.log('✓ Data sanitized successfully');
 
     // Check user credits (queries_used is the DB column name but represents credits)
+    console.log('Checking user credit balance...');
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('queries_used, max_credits_per_period, subscription_tier')
@@ -3882,6 +3884,7 @@ serve(async (req) => {
       .single();
 
     if (profileError || !profile) {
+      console.error('Profile fetch error:', profileError);
       return new Response(
         JSON.stringify({ error: "User profile not found" }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -3892,7 +3895,15 @@ serve(async (req) => {
     const creditsUsed = profile.queries_used || 0; // DB column is queries_used but tracks credits
     const creditsLimit = profile.max_credits_per_period || 0;
     
+    console.log('✓ Credit check complete:', { 
+      creditsUsed, 
+      creditsLimit, 
+      creditsNeeded, 
+      hasEnough: creditsUsed + creditsNeeded <= creditsLimit 
+    });
+    
     if (creditsUsed + creditsNeeded > creditsLimit) {
+      console.error('Insufficient credits:', { creditsUsed, creditsLimit, creditsNeeded });
       return new Response(
         JSON.stringify({ 
           error: "Insufficient credits",
@@ -3903,11 +3914,17 @@ serve(async (req) => {
       );
     }
 
+    console.log('Checking LOVABLE_API_KEY...');
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    console.log('✓ LOVABLE_API_KEY status:', LOVABLE_API_KEY ? 'Present' : 'MISSING');
+    
     if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY not configured");
+      console.error("LOVABLE_API_KEY not configured - this must be set in Supabase Edge Function secrets");
       return new Response(
-        JSON.stringify({ error: "AI service not configured" }),
+        JSON.stringify({ 
+          error: "AI service not configured",
+          details: "LOVABLE_API_KEY is missing. Please contact support."
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -3977,20 +3994,62 @@ ${conversationContext ? `\nContext from conversation:\n${conversationContext}` :
 
 Generate the complete letter now.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-      }),
+    console.log('Calling AI Gateway...', {
+      endpoint: 'https://ai.gateway.lovable.dev/v1/chat/completions',
+      model: 'google/gemini-2.5-flash',
+      letterType,
+      userId: user.id
     });
+
+    // Add timeout handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
+
+    let response;
+    try {
+      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+        }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      
+      console.log('✓ AI Gateway responded:', { 
+        status: response.status, 
+        ok: response.ok,
+        statusText: response.statusText
+      });
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        console.error('AI Gateway request timed out after 45 seconds');
+        return new Response(
+          JSON.stringify({ 
+            error: "Letter generation timed out. Please try again with simpler details or contact support.",
+            timeout: true
+          }),
+          { status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      console.error('Fetch error calling AI Gateway:', error);
+      return new Response(
+        JSON.stringify({ 
+          error: "Network error connecting to AI service. Please try again.",
+          details: error.message
+        }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
