@@ -3,6 +3,8 @@ import { Document, Page, pdfjs } from "react-pdf";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
@@ -71,14 +73,16 @@ export const PDFDocumentViewer = ({ content, onPageClick, overlayContent }: PDFD
           </div>
         </div>
 
-        <div className="relative border rounded-lg overflow-hidden bg-muted/20">
+        <div className="relative border rounded-lg overflow-hidden bg-background">
           <div onClick={handlePageClick} className="relative">
-            {/* Render content as HTML preview for now */}
             <div 
-              className="p-8 bg-background min-h-[800px]"
-              dangerouslySetInnerHTML={{ __html: content }}
+              className="p-8 bg-background min-h-[800px] prose prose-base max-w-none dark:prose-invert font-serif"
               style={{ transform: `scale(${scale})`, transformOrigin: "top left" }}
-            />
+            >
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {content}
+              </ReactMarkdown>
+            </div>
             
             {/* Overlay for field positions */}
             {overlayContent && (
