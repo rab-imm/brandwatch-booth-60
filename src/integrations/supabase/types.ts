@@ -1725,6 +1725,66 @@ export type Database = {
           },
         ]
       }
+      saved_ocr_documents: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          custom_title: string | null
+          file_name: string
+          file_type: string
+          id: string
+          notes: string | null
+          ocr_history_id: string
+          scan_results: Json
+          tags: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          custom_title?: string | null
+          file_name: string
+          file_type: string
+          id?: string
+          notes?: string | null
+          ocr_history_id: string
+          scan_results: Json
+          tags?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          custom_title?: string | null
+          file_name?: string
+          file_type?: string
+          id?: string
+          notes?: string | null
+          ocr_history_id?: string
+          scan_results?: Json
+          tags?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_ocr_documents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_ocr_documents_ocr_history_id_fkey"
+            columns: ["ocr_history_id"]
+            isOneToOne: false
+            referencedRelation: "ocr_history"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       signature_field_positions: {
         Row: {
           completed_at: string | null

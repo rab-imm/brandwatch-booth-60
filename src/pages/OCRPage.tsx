@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header"
 import { OCRUpload } from "@/components/OCRUpload"
 import { OCRHistory } from "@/components/OCRHistory"
+import { SavedDocuments } from "@/components/SavedDocuments"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const OCRPage = () => {
@@ -31,9 +32,7 @@ const OCRPage = () => {
           </TabsContent>
 
           <TabsContent value="saved" className="mt-6">
-            <div className="text-center p-12 border-2 border-dashed rounded-lg">
-              <p className="text-muted-foreground">Saved documents feature coming soon</p>
-            </div>
+            <SavedDocuments />
           </TabsContent>
         </Tabs>
       </div>

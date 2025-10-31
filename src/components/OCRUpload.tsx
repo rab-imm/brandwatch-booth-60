@@ -65,6 +65,8 @@ export const OCRUpload = () => {
   const [missingClausesExpanded, setMissingClausesExpanded] = useState(false)
   const [expandedViolations, setExpandedViolations] = useState<Set<number>>(new Set())
   const [expandedMissingClauses, setExpandedMissingClauses] = useState<Set<number>>(new Set())
+  const [isSaving, setIsSaving] = useState(false)
+  const [currentOcrHistoryId, setCurrentOcrHistoryId] = useState<string | null>(null)
   const [result, setResult] = useState<{
     extractedText: string
     aiSummary: string
@@ -221,6 +223,19 @@ export const OCRUpload = () => {
 
       setUploadProgress(100)
 
+      // Store OCR history ID for saving later
+      const { data: ocrHistoryData, error: historyError } = await supabase
+        .from('ocr_history')
+        .select('id')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (!historyError && ocrHistoryData) {
+        setCurrentOcrHistoryId(ocrHistoryData.id)
+      }
+
       setResult({
         extractedText: data.extracted_text,
         aiSummary: data.ai_summary,
@@ -308,6 +323,52 @@ export const OCRUpload = () => {
       newSet.add(index)
     }
     setter(newSet)
+  }
+
+  const handleSaveDocument = async () => {
+    if (!user || !result || !currentOcrHistoryId) return
+    
+    setIsSaving(true)
+    try {
+      const { data, error } = await supabase
+        .from('saved_ocr_documents')
+        .insert([{
+          user_id: user.id,
+          company_id: profile?.current_company_id || null,
+          ocr_history_id: currentOcrHistoryId,
+          file_name: selectedFile?.name || 'Scanned Document',
+          file_type: selectedFile?.type || 'application/pdf',
+          scan_results: result as any,
+        }])
+        .select()
+        .single()
+      
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Already Saved",
+            description: "This document is already in your saved documents.",
+            variant: "default",
+          })
+        } else {
+          throw error
+        }
+      } else {
+        toast({
+          title: "Document Saved",
+          description: "You can access this scan anytime from Saved Documents tab.",
+        })
+      }
+    } catch (error) {
+      console.error('Error saving document:', error)
+      toast({
+        title: "Error",
+        description: "Failed to save document. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -818,11 +879,23 @@ export const OCRUpload = () => {
       {result && (
         <Card>
           <CardHeader>
-            <CardTitle>OCR Results</CardTitle>
-            <CardDescription>
-              {result.statistics.words} words · {result.statistics.characters} characters · 
-              Processed in {(result.statistics.processing_time_ms / 1000).toFixed(1)}s
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>OCR Results</CardTitle>
+                <CardDescription>
+                  {result.statistics.words} words · {result.statistics.characters} characters · 
+                  Processed in {(result.statistics.processing_time_ms / 1000).toFixed(1)}s
+                </CardDescription>
+              </div>
+              <Button
+                onClick={handleSaveDocument}
+                disabled={isSaving}
+                variant="outline"
+              >
+                <Icon name="bookmark" className="mr-2 h-4 w-4" />
+                {isSaving ? 'Saving...' : 'Save Document'}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Detected Clauses - Colored Tags Above Text */}
