@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { Icon } from "@/components/ui/Icon"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
@@ -59,6 +60,8 @@ export const OCRUpload = () => {
   const [uploadProgress, setUploadProgress] = useState(0)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [expandedViolations, setExpandedViolations] = useState<Set<number>>(new Set())
+  const [expandedMissingClauses, setExpandedMissingClauses] = useState<Set<number>>(new Set())
   const [result, setResult] = useState<{
     extractedText: string
     aiSummary: string
@@ -294,6 +297,16 @@ export const OCRUpload = () => {
     })
   }
 
+  const toggleExpanded = (index: number, currentSet: Set<number>, setter: (set: Set<number>) => void) => {
+    const newSet = new Set(currentSet)
+    if (newSet.has(index)) {
+      newSet.delete(index)
+    } else {
+      newSet.add(index)
+    }
+    setter(newSet)
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -460,32 +473,70 @@ export const OCRUpload = () => {
               </div>
             </div>
             {result.compliance_check.violations.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="font-semibold text-sm flex items-center gap-2">
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm flex items-center gap-2 mb-3">
                   <Icon name="alert-triangle" className="h-4 w-4" />
                   Compliance Issues ({result.compliance_check.violations.length})
                 </h4>
                 {result.compliance_check.violations.map((v, i) => (
-                  <div key={i} className={`p-4 rounded-lg border-l-4 ${v.severity === 'critical' ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : v.severity === 'high' ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/20' : v.severity === 'medium' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20' : 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'}`}>
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs font-bold uppercase px-2 py-1 rounded ${v.severity === 'critical' ? 'bg-red-500 text-white' : v.severity === 'high' ? 'bg-orange-500 text-white' : v.severity === 'medium' ? 'bg-yellow-500 text-white' : 'bg-blue-500 text-white'}`}>{v.severity}</span>
-                        <Badge variant="outline">{v.rule.article}</Badge>
+                  <Collapsible key={i} open={expandedViolations.has(i)}>
+                    <CollapsibleTrigger
+                      onClick={() => toggleExpanded(i, expandedViolations, setExpandedViolations)}
+                      className="w-full"
+                    >
+                      <div className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all hover:shadow-md cursor-pointer ${
+                        v.severity === 'critical' ? 'border-red-500 bg-red-50/50 dark:bg-red-950/10 hover:bg-red-50 dark:hover:bg-red-950/20' : 
+                        v.severity === 'high' ? 'border-orange-500 bg-orange-50/50 dark:bg-orange-950/10 hover:bg-orange-50 dark:hover:bg-orange-950/20' : 
+                        v.severity === 'medium' ? 'border-yellow-500 bg-yellow-50/50 dark:bg-yellow-950/10 hover:bg-yellow-50 dark:hover:bg-yellow-950/20' : 
+                        'border-blue-500 bg-blue-50/50 dark:bg-blue-950/10 hover:bg-blue-50 dark:hover:bg-blue-950/20'
+                      }`}>
+                        <div className="flex items-center gap-2 flex-1">
+                          <span className={`text-xs font-bold uppercase px-2 py-1 rounded ${
+                            v.severity === 'critical' ? 'bg-red-500 text-white' : 
+                            v.severity === 'high' ? 'bg-orange-500 text-white' : 
+                            v.severity === 'medium' ? 'bg-yellow-500 text-white' : 
+                            'bg-blue-500 text-white'
+                          }`}>
+                            {v.severity}
+                          </span>
+                          <Badge variant="outline" className="text-xs">{v.rule.article}</Badge>
+                          <span className="text-sm font-medium text-left flex-1">
+                            {v.violation_type === 'missing' ? 'Missing Clause' : 'Non-Compliant'}: {v.details.substring(0, 60)}...
+                          </span>
+                        </div>
+                        <Icon 
+                          name={expandedViolations.has(i) ? "chevron-up" : "chevron-down"} 
+                          className="h-4 w-4 shrink-0 text-muted-foreground"
+                        />
                       </div>
-                      <Icon name={v.violation_type === 'missing' ? 'alert-circle' : 'x-circle'} className="h-5 w-5 text-red-500" />
-                    </div>
-                    <h5 className="font-semibold text-sm mb-1">{v.violation_type === 'missing' ? 'Missing Clause' : 'Non-Compliant'}</h5>
-                    <p className="text-sm mb-2">{v.details}</p>
-                    {v.related_text && (
-                      <div className="text-xs bg-background/50 p-2 rounded mb-2 font-mono line-clamp-2">
-                        "{v.related_text}..."
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div className={`mt-2 p-4 rounded-lg border-l-4 ${
+                        v.severity === 'critical' ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : 
+                        v.severity === 'high' ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/20' : 
+                        v.severity === 'medium' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20' : 
+                        'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
+                      }`}>
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">{v.rule.category}</Badge>
+                          </div>
+                          <Icon name={v.violation_type === 'missing' ? 'alert-circle' : 'x-circle'} className="h-5 w-5 text-red-500" />
+                        </div>
+                        <h5 className="font-semibold text-sm mb-2">{v.details}</h5>
+                        {v.related_text && (
+                          <div className="text-xs bg-background/50 p-3 rounded mb-3 font-mono">
+                            <p className="font-semibold mb-1">Related Text:</p>
+                            "{v.related_text}"
+                          </div>
+                        )}
+                        <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded">
+                          <p className="text-xs font-semibold mb-1">Recommended Action:</p>
+                          <p className="text-xs">{v.recommended_action}</p>
+                        </div>
                       </div>
-                    )}
-                    <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded mt-2">
-                      <p className="text-xs font-semibold mb-1">Recommended Action:</p>
-                      <p className="text-xs">{v.recommended_action}</p>
-                    </div>
-                  </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 ))}
               </div>
             )}
@@ -520,21 +571,21 @@ export const OCRUpload = () => {
               </Badge>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-2">
               {result.missing_clauses.suggestions.map((suggestion, idx) => (
-                <div
-                  key={idx}
-                  className={`p-4 rounded-lg border-l-4 ${
-                    suggestion.importance === 'essential' 
-                      ? 'border-red-500 bg-red-50 dark:bg-red-950/20' 
-                      : suggestion.importance === 'recommended'
-                      ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20'
-                      : 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
+                <Collapsible key={idx} open={expandedMissingClauses.has(idx)}>
+                  <CollapsibleTrigger
+                    onClick={() => toggleExpanded(idx, expandedMissingClauses, setExpandedMissingClauses)}
+                    className="w-full"
+                  >
+                    <div className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all hover:shadow-md cursor-pointer ${
+                      suggestion.importance === 'essential' 
+                        ? 'border-red-500 bg-red-50/50 dark:bg-red-950/10 hover:bg-red-50 dark:hover:bg-red-950/20' 
+                        : suggestion.importance === 'recommended'
+                        ? 'border-yellow-500 bg-yellow-50/50 dark:bg-yellow-950/10 hover:bg-yellow-50 dark:hover:bg-yellow-950/20'
+                        : 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/10 hover:bg-blue-50 dark:hover:bg-blue-950/20'
+                    }`}>
+                      <div className="flex items-center gap-2 flex-1">
                         <span className={`text-xs font-bold uppercase px-2 py-1 rounded ${
                           suggestion.importance === 'essential' 
                             ? 'bg-red-500 text-white' 
@@ -544,87 +595,103 @@ export const OCRUpload = () => {
                         }`}>
                           {suggestion.importance}
                         </span>
-                        <Badge variant="outline" className="text-xs">
-                          {suggestion.category}
-                        </Badge>
+                        <Badge variant="outline" className="text-xs">{suggestion.category}</Badge>
+                        <span className="text-sm font-medium text-left flex-1">
+                          {suggestion.display_name}
+                        </span>
                       </div>
-                      <h5 className="font-semibold text-base">
-                        {suggestion.display_name}
-                        {suggestion.display_name_ar && (
-                          <span className="text-sm text-muted-foreground mr-2">
-                            {' '}({suggestion.display_name_ar})
-                          </span>
-                        )}
-                      </h5>
+                      <Icon 
+                        name={expandedMissingClauses.has(idx) ? "chevron-up" : "chevron-down"} 
+                        className="h-4 w-4 shrink-0 text-muted-foreground"
+                      />
                     </div>
-                    <Icon name="file-plus" className="h-5 w-5 text-amber-500" />
-                  </div>
-
-                  <p className="text-sm mb-2">{suggestion.description}</p>
-                  
-                  <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded mb-3">
-                    <p className="text-xs font-semibold mb-1 flex items-center gap-1">
-                      <Icon name="lightbulb" className="h-3 w-3" />
-                      Why This Clause is Needed:
-                    </p>
-                    <p className="text-xs">{suggestion.why_needed}</p>
-                  </div>
-
-                  <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-xs font-semibold flex items-center gap-1">
-                        <Icon name="file-text" className="h-3 w-3" />
-                        Suggested Sample Wording:
-                      </p>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          navigator.clipboard.writeText(suggestion.sample_wording_en)
-                          toast({
-                            title: "Copied!",
-                            description: "Sample wording copied to clipboard"
-                          })
-                        }}
-                      >
-                        <Icon name="copy" className="h-3 w-3 mr-1" />
-                        Copy
-                      </Button>
-                    </div>
-                    
-                    <div className="mb-3">
-                      <p className="text-xs font-medium mb-1">English:</p>
-                      <div className="text-xs bg-white dark:bg-background p-3 rounded border font-mono leading-relaxed">
-                        {suggestion.sample_wording_en}
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className={`mt-2 p-4 rounded-lg border-l-4 ${
+                      suggestion.importance === 'essential' 
+                        ? 'border-red-500 bg-red-50 dark:bg-red-950/20' 
+                        : suggestion.importance === 'recommended'
+                        ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20'
+                        : 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
+                    }`}>
+                      <div className="mb-3">
+                        <h5 className="font-semibold text-base mb-1">
+                          {suggestion.display_name}
+                          {suggestion.display_name_ar && (
+                            <span className="text-sm text-muted-foreground mr-2">
+                              {' '}({suggestion.display_name_ar})
+                            </span>
+                          )}
+                        </h5>
+                        <p className="text-sm">{suggestion.description}</p>
                       </div>
-                    </div>
-                    
-                    {suggestion.sample_wording_ar && (
-                      <div>
-                        <p className="text-xs font-medium mb-1">Arabic (العربية):</p>
-                        <div className="text-xs bg-white dark:bg-background p-3 rounded border font-mono leading-relaxed text-right" dir="rtl">
-                          {suggestion.sample_wording_ar}
+                      
+                      <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded mb-3">
+                        <p className="text-xs font-semibold mb-1 flex items-center gap-1">
+                          <Icon name="lightbulb" className="h-3 w-3" />
+                          Why This Clause is Needed:
+                        </p>
+                        <p className="text-xs">{suggestion.why_needed}</p>
+                      </div>
+
+                      <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-xs font-semibold flex items-center gap-1">
+                            <Icon name="file-text" className="h-3 w-3" />
+                            Suggested Sample Wording:
+                          </p>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              navigator.clipboard.writeText(suggestion.sample_wording_en)
+                              toast({
+                                title: "Copied!",
+                                description: "Sample wording copied to clipboard"
+                              })
+                            }}
+                          >
+                            <Icon name="copy" className="h-3 w-3 mr-1" />
+                            Copy
+                          </Button>
                         </div>
+                        
+                        <div className="mb-3">
+                          <p className="text-xs font-medium mb-1">English:</p>
+                          <div className="text-xs bg-white dark:bg-background p-3 rounded border font-mono leading-relaxed">
+                            {suggestion.sample_wording_en}
+                          </div>
+                        </div>
+                        
+                        {suggestion.sample_wording_ar && (
+                          <div>
+                            <p className="text-xs font-medium mb-1">Arabic (العربية):</p>
+                            <div className="text-xs bg-white dark:bg-background p-3 rounded border font-mono leading-relaxed text-right" dir="rtl">
+                              {suggestion.sample_wording_ar}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
 
-                  {suggestion.related_articles && suggestion.related_articles.length > 0 && (
-                    <div className="mt-3 text-xs text-muted-foreground">
-                      <span className="font-semibold">Related:</span>{' '}
-                      {suggestion.related_articles.join(', ')}
-                    </div>
-                  )}
+                      {suggestion.related_articles && suggestion.related_articles.length > 0 && (
+                        <div className="mt-3 text-xs text-muted-foreground">
+                          <span className="font-semibold">Related:</span>{' '}
+                          {suggestion.related_articles.join(', ')}
+                        </div>
+                      )}
 
-                  {suggestion.ai_confidence && (
-                    <div className="mt-2">
-                      <Badge variant="secondary" className="text-xs">
-                        <Icon name="sparkles" className="h-3 w-3 mr-1" />
-                        AI Confidence: {Math.round(suggestion.ai_confidence * 100)}%
-                      </Badge>
+                      {suggestion.ai_confidence && (
+                        <div className="mt-2">
+                          <Badge variant="secondary" className="text-xs">
+                            <Icon name="sparkles" className="h-3 w-3 mr-1" />
+                            AI Confidence: {Math.round(suggestion.ai_confidence * 100)}%
+                          </Badge>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </CollapsibleContent>
+                </Collapsible>
               ))}
             </div>
 
