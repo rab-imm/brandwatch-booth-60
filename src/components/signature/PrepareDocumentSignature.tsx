@@ -43,6 +43,7 @@ export const PrepareDocumentSignature = ({
   const [draggedField, setDraggedField] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
   
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -88,6 +89,7 @@ export const PrepareDocumentSignature = ({
 
   const handleFieldMouseDown = (e: React.MouseEvent, field: SignatureField) => {
     e.stopPropagation(); // Prevent triggering page click
+    isDraggingRef.current = true;
     
     if (!containerRef.current) return;
     
@@ -129,6 +131,11 @@ export const PrepareDocumentSignature = ({
   const handleFieldMouseUp = () => {
     setDraggedField(null);
     setDragOffset({ x: 0, y: 0 });
+    
+    // Delay resetting to prevent click handler from firing
+    setTimeout(() => {
+      isDraggingRef.current = false;
+    }, 50);
   };
 
   // Add document-level mouse up listener to handle drag ending outside field
@@ -146,6 +153,11 @@ export const PrepareDocumentSignature = ({
   }, [draggedField]);
 
   const handlePageClick = (pageNumber: number, x: number, y: number) => {
+    // Prevent adding field if we just finished dragging
+    if (isDraggingRef.current) {
+      return;
+    }
+    
     if (!selectedRecipient) {
       toast({
         title: "No recipient selected",
