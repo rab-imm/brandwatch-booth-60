@@ -60,6 +60,9 @@ export const OCRUpload = () => {
   const [uploadProgress, setUploadProgress] = useState(0)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [complianceCheckExpanded, setComplianceCheckExpanded] = useState(true)
+  const [complianceIssuesExpanded, setComplianceIssuesExpanded] = useState(false)
+  const [missingClausesExpanded, setMissingClausesExpanded] = useState(false)
   const [expandedViolations, setExpandedViolations] = useState<Set<number>>(new Set())
   const [expandedMissingClauses, setExpandedMissingClauses] = useState<Set<number>>(new Set())
   const [result, setResult] = useState<{
@@ -432,290 +435,384 @@ export const OCRUpload = () => {
         </CardContent>
       </Card>
 
-      {/* UAE Labour Law Compliance Check */}
-      {result?.compliance_check && (
-        <Card className={`border-2 ${
-          result.compliance_check.compliance_score >= 90 ? 'border-green-500' :
-          result.compliance_check.compliance_score >= 70 ? 'border-yellow-500' :
-          'border-red-500'
-        }`}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Icon name="shield" className="h-5 w-5" />
-              UAE Labour Law Compliance Check
-            </CardTitle>
-            <CardDescription>
-              Cross-referenced with Federal Decree-Law No. 33 of 2021
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between mb-6">
-              <div className="relative w-32 h-32">
-                <svg className="transform -rotate-90 w-32 h-32">
-                  <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-muted" />
-                  <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="8" fill="transparent"
-                    strokeDasharray={`${2 * Math.PI * 56}`}
-                    strokeDashoffset={`${2 * Math.PI * 56 * (1 - result.compliance_check.compliance_score / 100)}`}
-                    className={result.compliance_check.compliance_score >= 90 ? 'text-green-500' : result.compliance_check.compliance_score >= 70 ? 'text-yellow-500' : 'text-red-500'} />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center flex-col">
-                  <span className="text-3xl font-bold">{result.compliance_check.compliance_score}%</span>
-                  <span className="text-xs text-muted-foreground">Compliant</span>
+      {/* UAE Labour Law Compliance Check - Grouped Collapsible */}
+      {(result?.compliance_check || result?.missing_clauses) && (
+        <Collapsible open={complianceCheckExpanded} onOpenChange={setComplianceCheckExpanded}>
+          <Card className="border-2 border-primary">
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="text-left">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="shield" className="h-5 w-5" />
+                      UAE Labour Law Compliance Check
+                    </CardTitle>
+                    <CardDescription>
+                      Cross-referenced with Federal Decree-Law No. 33 of 2021
+                    </CardDescription>
+                  </div>
+                  <Icon 
+                    name={complianceCheckExpanded ? "chevron-up" : "chevron-down"} 
+                    className="h-5 w-5 shrink-0"
+                  />
                 </div>
-              </div>
-              <div className="flex-1 ml-6 space-y-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  {result.compliance_check.critical_count > 0 && <Badge variant="destructive">{result.compliance_check.critical_count} Critical</Badge>}
-                  {result.compliance_check.high_count > 0 && <Badge className="bg-orange-500 hover:bg-orange-600">{result.compliance_check.high_count} High</Badge>}
-                  <Badge variant="secondary">{result.compliance_check.total_violations} Total Issues</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">{result.compliance_check.ai_summary}</p>
-              </div>
-            </div>
-            {result.compliance_check.violations.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="font-semibold text-sm flex items-center gap-2 mb-3">
-                  <Icon name="alert-triangle" className="h-4 w-4" />
-                  Compliance Issues ({result.compliance_check.violations.length})
-                </h4>
-                {result.compliance_check.violations.map((v, i) => (
-                  <Collapsible key={i} open={expandedViolations.has(i)}>
-                    <CollapsibleTrigger
-                      onClick={() => toggleExpanded(i, expandedViolations, setExpandedViolations)}
-                      className="w-full"
-                    >
-                      <div className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all hover:shadow-md cursor-pointer ${
-                        v.severity === 'critical' ? 'border-red-500 bg-red-50/50 dark:bg-red-950/10 hover:bg-red-50 dark:hover:bg-red-950/20' : 
-                        v.severity === 'high' ? 'border-orange-500 bg-orange-50/50 dark:bg-orange-950/10 hover:bg-orange-50 dark:hover:bg-orange-950/20' : 
-                        v.severity === 'medium' ? 'border-yellow-500 bg-yellow-50/50 dark:bg-yellow-950/10 hover:bg-yellow-50 dark:hover:bg-yellow-950/20' : 
-                        'border-blue-500 bg-blue-50/50 dark:bg-blue-950/10 hover:bg-blue-50 dark:hover:bg-blue-950/20'
-                      }`}>
-                        <div className="flex items-center gap-2 flex-1">
-                          <span className={`text-xs font-bold uppercase px-2 py-1 rounded ${
-                            v.severity === 'critical' ? 'bg-red-500 text-white' : 
-                            v.severity === 'high' ? 'bg-orange-500 text-white' : 
-                            v.severity === 'medium' ? 'bg-yellow-500 text-white' : 
-                            'bg-blue-500 text-white'
-                          }`}>
-                            {v.severity}
-                          </span>
-                          <Badge variant="outline" className="text-xs">{v.rule.article}</Badge>
-                          <span className="text-sm font-medium text-left flex-1">
-                            {v.violation_type === 'missing' ? 'Missing Clause' : 'Non-Compliant'}: {v.details.substring(0, 60)}...
-                          </span>
+              </CardHeader>
+            </CollapsibleTrigger>
+            
+            <CollapsibleContent>
+              <CardContent className="space-y-6">
+                {/* Compliance Score and AI Summary - Always Visible When Expanded */}
+                {result?.compliance_check && (
+                  <div className="flex items-start gap-6 p-4 bg-accent/30 rounded-lg">
+                    {/* Compliance Score Circle */}
+                    <div className="relative w-28 h-28 shrink-0">
+                      <svg className="w-full h-full -rotate-90">
+                        <circle
+                          cx="56"
+                          cy="56"
+                          r="50"
+                          stroke="currentColor"
+                          strokeWidth="8"
+                          fill="none"
+                          className="text-muted"
+                        />
+                        <circle
+                          cx="56"
+                          cy="56"
+                          r="50"
+                          stroke="currentColor"
+                          strokeWidth="8"
+                          fill="none"
+                          strokeDasharray={`${2 * Math.PI * 50}`}
+                          strokeDashoffset={`${2 * Math.PI * 50 * (1 - result.compliance_check.compliance_score / 100)}`}
+                          className={
+                            result.compliance_check.compliance_score >= 80
+                              ? "text-green-500"
+                              : result.compliance_check.compliance_score >= 60
+                              ? "text-yellow-500"
+                              : "text-red-500"
+                          }
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-2xl font-bold">
+                          {result.compliance_check.compliance_score}%
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* AI Summary */}
+                    <div className="flex-1 space-y-3">
+                      <div className="flex flex-wrap gap-2">
+                        {result.compliance_check.critical_count > 0 && (
+                          <Badge variant="destructive" className="text-xs">
+                            {result.compliance_check.critical_count} Critical
+                          </Badge>
+                        )}
+                        {result.compliance_check.high_count > 0 && (
+                          <Badge className="bg-orange-500 hover:bg-orange-600 text-xs">
+                            {result.compliance_check.high_count} High
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        <strong className="text-foreground">AI Analysis:</strong> {result.compliance_check.ai_summary}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Inner Collapsible: Compliance Issues */}
+                {result?.compliance_check?.violations && result.compliance_check.violations.length > 0 && (
+                  <Collapsible open={complianceIssuesExpanded} onOpenChange={setComplianceIssuesExpanded}>
+                    <CollapsibleTrigger className="w-full">
+                      <div className="flex items-center justify-between p-4 rounded-lg border-2 border-orange-200 dark:border-orange-800 hover:bg-accent/50 transition-colors cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <Icon name="alert-triangle" className="h-5 w-5 text-orange-500" />
+                          <h4 className="font-semibold text-lg">
+                            Compliance Issues ({result.compliance_check.violations.length})
+                          </h4>
+                          <div className="flex items-center gap-2">
+                            {result.compliance_check.critical_count > 0 && (
+                              <Badge variant="destructive" className="text-xs">
+                                {result.compliance_check.critical_count} Critical
+                              </Badge>
+                            )}
+                            {result.compliance_check.high_count > 0 && (
+                              <Badge className="bg-orange-500 hover:bg-orange-600 text-xs">
+                                {result.compliance_check.high_count} High
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                         <Icon 
-                          name={expandedViolations.has(i) ? "chevron-up" : "chevron-down"} 
-                          className="h-4 w-4 shrink-0 text-muted-foreground"
+                          name={complianceIssuesExpanded ? "chevron-up" : "chevron-down"} 
+                          className="h-5 w-5"
                         />
                       </div>
                     </CollapsibleTrigger>
+                    
                     <CollapsibleContent>
-                      <div className={`mt-2 p-4 rounded-lg border-l-4 ${
-                        v.severity === 'critical' ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : 
-                        v.severity === 'high' ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/20' : 
-                        v.severity === 'medium' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20' : 
-                        'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
-                      }`}>
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline">{v.rule.category}</Badge>
-                          </div>
-                          <Icon name={v.violation_type === 'missing' ? 'alert-circle' : 'x-circle'} className="h-5 w-5 text-red-500" />
-                        </div>
-                        <h5 className="font-semibold text-sm mb-2">{v.details}</h5>
-                        {v.related_text && (
-                          <div className="text-xs bg-background/50 p-3 rounded mb-3 font-mono">
-                            <p className="font-semibold mb-1">Related Text:</p>
-                            "{v.related_text}"
-                          </div>
-                        )}
-                        <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded">
-                          <p className="text-xs font-semibold mb-1">Recommended Action:</p>
-                          <p className="text-xs">{v.recommended_action}</p>
-                        </div>
+                      <div className="space-y-2 mt-4">
+                        {result.compliance_check.violations.map((v, i) => (
+                          <Collapsible key={i} open={expandedViolations.has(i)}>
+                            <CollapsibleTrigger
+                              onClick={() => toggleExpanded(i, expandedViolations, setExpandedViolations)}
+                              className="w-full"
+                            >
+                              <div className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all hover:shadow-md cursor-pointer ${
+                                v.severity === 'critical' 
+                                  ? 'border-red-500 bg-red-50/50 dark:bg-red-950/10 hover:bg-red-50 dark:hover:bg-red-950/20' 
+                                  : v.severity === 'high' 
+                                  ? 'border-orange-500 bg-orange-50/50 dark:bg-orange-950/10 hover:bg-orange-50 dark:hover:bg-orange-950/20' 
+                                  : v.severity === 'medium' 
+                                  ? 'border-yellow-500 bg-yellow-50/50 dark:bg-yellow-950/10 hover:bg-yellow-50 dark:hover:bg-yellow-950/20' 
+                                  : 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/10 hover:bg-blue-50 dark:hover:bg-blue-950/20'
+                              }`}>
+                                <div className="flex items-center gap-2 flex-1">
+                                  <span className={`text-xs font-bold uppercase px-2 py-1 rounded ${
+                                    v.severity === 'critical' ? 'bg-red-500 text-white' : 
+                                    v.severity === 'high' ? 'bg-orange-500 text-white' : 
+                                    v.severity === 'medium' ? 'bg-yellow-500 text-white' : 
+                                    'bg-blue-500 text-white'
+                                  }`}>
+                                    {v.severity}
+                                  </span>
+                                  <Badge variant="outline" className="text-xs">{v.rule.article}</Badge>
+                                  <span className="text-sm font-medium text-left flex-1">
+                                    {v.violation_type === 'missing' ? 'Missing Clause' : 'Non-Compliant'}: {v.details.substring(0, 60)}...
+                                  </span>
+                                </div>
+                                <Icon 
+                                  name={expandedViolations.has(i) ? "chevron-up" : "chevron-down"} 
+                                  className="h-4 w-4 shrink-0 text-muted-foreground"
+                                />
+                              </div>
+                            </CollapsibleTrigger>
+                            
+                            <CollapsibleContent>
+                              <div className={`mt-2 p-4 rounded-lg border-l-4 ${
+                                v.severity === 'critical' ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : 
+                                v.severity === 'high' ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/20' : 
+                                v.severity === 'medium' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20' : 
+                                'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
+                              }`}>
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant="outline">{v.rule.category}</Badge>
+                                  </div>
+                                  <Icon name={v.violation_type === 'missing' ? 'alert-circle' : 'x-circle'} className="h-5 w-5 text-red-500" />
+                                </div>
+                                <h5 className="font-semibold text-sm mb-2">{v.details}</h5>
+                                {v.related_text && (
+                                  <div className="text-xs bg-background/50 p-3 rounded mb-3 font-mono">
+                                    <p className="font-semibold mb-1">Related Text:</p>
+                                    "{v.related_text}"
+                                  </div>
+                                )}
+                                <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded">
+                                  <p className="text-xs font-semibold mb-1">Recommended Action:</p>
+                                  <p className="text-xs">{v.recommended_action}</p>
+                                </div>
+                              </div>
+                            </CollapsibleContent>
+                          </Collapsible>
+                        ))}
                       </div>
                     </CollapsibleContent>
                   </Collapsible>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+                )}
 
-      {/* Missing Key Clauses Suggestions */}
-      {result?.missing_clauses && result.missing_clauses.suggestions.length > 0 && (
-        <Card className="border-2 border-amber-500">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Icon name="alert-triangle" className="h-5 w-5 text-amber-500" />
-              Missing Key Clauses Detected
-            </CardTitle>
-            <CardDescription>
-              {result.missing_clauses.gap_analysis_summary}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2 mb-4">
-              <Badge variant="destructive" className="flex items-center gap-1">
-                <Icon name="alert-circle" className="h-3 w-3" />
-                {result.missing_clauses.essential_count} Essential Missing
-              </Badge>
-              <Badge className="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600">
-                <Icon name="info" className="h-3 w-3" />
-                {result.missing_clauses.recommended_count} Recommended
-              </Badge>
-              <Badge variant="secondary">
-                {result.missing_clauses.total_missing} Total Suggestions
-              </Badge>
-            </div>
-
-            <div className="space-y-2">
-              {result.missing_clauses.suggestions.map((suggestion, idx) => (
-                <Collapsible key={idx} open={expandedMissingClauses.has(idx)}>
-                  <CollapsibleTrigger
-                    onClick={() => toggleExpanded(idx, expandedMissingClauses, setExpandedMissingClauses)}
-                    className="w-full"
-                  >
-                    <div className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all hover:shadow-md cursor-pointer ${
-                      suggestion.importance === 'essential' 
-                        ? 'border-red-500 bg-red-50/50 dark:bg-red-950/10 hover:bg-red-50 dark:hover:bg-red-950/20' 
-                        : suggestion.importance === 'recommended'
-                        ? 'border-yellow-500 bg-yellow-50/50 dark:bg-yellow-950/10 hover:bg-yellow-50 dark:hover:bg-yellow-950/20'
-                        : 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/10 hover:bg-blue-50 dark:hover:bg-blue-950/20'
-                    }`}>
-                      <div className="flex items-center gap-2 flex-1">
-                        <span className={`text-xs font-bold uppercase px-2 py-1 rounded ${
-                          suggestion.importance === 'essential' 
-                            ? 'bg-red-500 text-white' 
-                            : suggestion.importance === 'recommended'
-                            ? 'bg-yellow-500 text-white'
-                            : 'bg-blue-500 text-white'
-                        }`}>
-                          {suggestion.importance}
-                        </span>
-                        <Badge variant="outline" className="text-xs">{suggestion.category}</Badge>
-                        <span className="text-sm font-medium text-left flex-1">
-                          {suggestion.display_name}
-                        </span>
+                {/* Inner Collapsible: Missing Clauses */}
+                {result?.missing_clauses?.suggestions && result.missing_clauses.suggestions.length > 0 && (
+                  <Collapsible open={missingClausesExpanded} onOpenChange={setMissingClausesExpanded}>
+                    <CollapsibleTrigger className="w-full">
+                      <div className="flex items-center justify-between p-4 rounded-lg border-2 border-amber-200 dark:border-amber-800 hover:bg-accent/50 transition-colors cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <Icon name="alert-triangle" className="h-5 w-5 text-amber-500" />
+                          <h4 className="font-semibold text-lg">
+                            Missing Clauses ({result.missing_clauses.suggestions.length})
+                          </h4>
+                          <div className="flex items-center gap-2">
+                            {result.missing_clauses.essential_count > 0 && (
+                              <Badge variant="destructive" className="text-xs">
+                                {result.missing_clauses.essential_count} Essential
+                              </Badge>
+                            )}
+                            {result.missing_clauses.recommended_count > 0 && (
+                              <Badge className="bg-yellow-500 hover:bg-yellow-600 text-xs">
+                                {result.missing_clauses.recommended_count} Recommended
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        <Icon 
+                          name={missingClausesExpanded ? "chevron-up" : "chevron-down"} 
+                          className="h-5 w-5"
+                        />
                       </div>
-                      <Icon 
-                        name={expandedMissingClauses.has(idx) ? "chevron-up" : "chevron-down"} 
-                        className="h-4 w-4 shrink-0 text-muted-foreground"
-                      />
-                    </div>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <div className={`mt-2 p-4 rounded-lg border-l-4 ${
-                      suggestion.importance === 'essential' 
-                        ? 'border-red-500 bg-red-50 dark:bg-red-950/20' 
-                        : suggestion.importance === 'recommended'
-                        ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20'
-                        : 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
-                    }`}>
-                      <div className="mb-3">
-                        <h5 className="font-semibold text-base mb-1">
-                          {suggestion.display_name}
-                          {suggestion.display_name_ar && (
-                            <span className="text-sm text-muted-foreground mr-2">
-                              {' '}({suggestion.display_name_ar})
-                            </span>
-                          )}
-                        </h5>
-                        <p className="text-sm">{suggestion.description}</p>
-                      </div>
-                      
-                      <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded mb-3">
-                        <p className="text-xs font-semibold mb-1 flex items-center gap-1">
-                          <Icon name="lightbulb" className="h-3 w-3" />
-                          Why This Clause is Needed:
+                    </CollapsibleTrigger>
+                    
+                    <CollapsibleContent>
+                      <div className="mt-4">
+                        <p className="text-sm text-muted-foreground mb-4 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                          <strong className="text-amber-700 dark:text-amber-400">Gap Analysis:</strong>{" "}
+                          {result.missing_clauses.gap_analysis_summary}
                         </p>
-                        <p className="text-xs">{suggestion.why_needed}</p>
-                      </div>
+                        
+                        <div className="space-y-2">
+                          {result.missing_clauses.suggestions.map((suggestion, idx) => (
+                            <Collapsible key={idx} open={expandedMissingClauses.has(idx)}>
+                              <CollapsibleTrigger
+                                onClick={() => toggleExpanded(idx, expandedMissingClauses, setExpandedMissingClauses)}
+                                className="w-full"
+                              >
+                                <div className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all hover:shadow-md cursor-pointer ${
+                                  suggestion.importance === 'essential' 
+                                    ? 'border-red-500 bg-red-50/50 dark:bg-red-950/10 hover:bg-red-50 dark:hover:bg-red-950/20' 
+                                    : suggestion.importance === 'recommended'
+                                    ? 'border-yellow-500 bg-yellow-50/50 dark:bg-yellow-950/10 hover:bg-yellow-50 dark:hover:bg-yellow-950/20'
+                                    : 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/10 hover:bg-blue-50 dark:hover:bg-blue-950/20'
+                                }`}>
+                                  <div className="flex items-center gap-2 flex-1">
+                                    <span className={`text-xs font-bold uppercase px-2 py-1 rounded ${
+                                      suggestion.importance === 'essential' 
+                                        ? 'bg-red-500 text-white' 
+                                        : suggestion.importance === 'recommended'
+                                        ? 'bg-yellow-500 text-white'
+                                        : 'bg-blue-500 text-white'
+                                    }`}>
+                                      {suggestion.importance}
+                                    </span>
+                                    <Badge variant="outline" className="text-xs">{suggestion.category}</Badge>
+                                    <span className="text-sm font-medium text-left flex-1">
+                                      {suggestion.display_name}
+                                    </span>
+                                  </div>
+                                  <Icon 
+                                    name={expandedMissingClauses.has(idx) ? "chevron-up" : "chevron-down"} 
+                                    className="h-4 w-4 shrink-0 text-muted-foreground"
+                                  />
+                                </div>
+                              </CollapsibleTrigger>
+                              
+                              <CollapsibleContent>
+                                <div className={`mt-2 p-4 rounded-lg border-l-4 ${
+                                  suggestion.importance === 'essential' 
+                                    ? 'border-red-500 bg-red-50 dark:bg-red-950/20' 
+                                    : suggestion.importance === 'recommended'
+                                    ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20'
+                                    : 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
+                                }`}>
+                                  <div className="mb-3">
+                                    <h5 className="font-semibold text-base mb-1">
+                                      {suggestion.display_name}
+                                      {suggestion.display_name_ar && (
+                                        <span className="text-sm text-muted-foreground mr-2">
+                                          {' '}({suggestion.display_name_ar})
+                                        </span>
+                                      )}
+                                    </h5>
+                                    <p className="text-sm">{suggestion.description}</p>
+                                  </div>
+                                  
+                                  <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded mb-3">
+                                    <p className="text-xs font-semibold mb-1 flex items-center gap-1">
+                                      <Icon name="lightbulb" className="h-3 w-3" />
+                                      Why This Clause is Needed:
+                                    </p>
+                                    <p className="text-xs">{suggestion.why_needed}</p>
+                                  </div>
 
-                      <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded">
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="text-xs font-semibold flex items-center gap-1">
-                            <Icon name="file-text" className="h-3 w-3" />
-                            Suggested Sample Wording:
-                          </p>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              navigator.clipboard.writeText(suggestion.sample_wording_en)
-                              toast({
-                                title: "Copied!",
-                                description: "Sample wording copied to clipboard"
-                              })
-                            }}
-                          >
-                            <Icon name="copy" className="h-3 w-3 mr-1" />
-                            Copy
-                          </Button>
+                                  <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <p className="text-xs font-semibold flex items-center gap-1">
+                                        <Icon name="file-text" className="h-3 w-3" />
+                                        Suggested Sample Wording:
+                                      </p>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          navigator.clipboard.writeText(suggestion.sample_wording_en)
+                                          toast({
+                                            title: "Copied!",
+                                            description: "Sample wording copied to clipboard"
+                                          })
+                                        }}
+                                      >
+                                        <Icon name="copy" className="h-3 w-3 mr-1" />
+                                        Copy
+                                      </Button>
+                                    </div>
+                                    
+                                    <div className="mb-3">
+                                      <p className="text-xs font-medium mb-1">English:</p>
+                                      <div className="text-xs bg-white dark:bg-background p-3 rounded border font-mono leading-relaxed">
+                                        {suggestion.sample_wording_en}
+                                      </div>
+                                    </div>
+                                    
+                                    {suggestion.sample_wording_ar && (
+                                      <div>
+                                        <p className="text-xs font-medium mb-1">Arabic (العربية):</p>
+                                        <div className="text-xs bg-white dark:bg-background p-3 rounded border font-mono leading-relaxed text-right" dir="rtl">
+                                          {suggestion.sample_wording_ar}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {suggestion.related_articles && suggestion.related_articles.length > 0 && (
+                                    <div className="mt-3 text-xs text-muted-foreground">
+                                      <span className="font-semibold">Related:</span>{' '}
+                                      {suggestion.related_articles.join(', ')}
+                                    </div>
+                                  )}
+
+                                  {suggestion.ai_confidence && (
+                                    <div className="mt-2">
+                                      <Badge variant="secondary" className="text-xs">
+                                        <Icon name="sparkles" className="h-3 w-3 mr-1" />
+                                        AI Confidence: {Math.round(suggestion.ai_confidence * 100)}%
+                                      </Badge>
+                                    </div>
+                                  )}
+                                </div>
+                              </CollapsibleContent>
+                            </Collapsible>
+                          ))}
                         </div>
                         
-                        <div className="mb-3">
-                          <p className="text-xs font-medium mb-1">English:</p>
-                          <div className="text-xs bg-white dark:bg-background p-3 rounded border font-mono leading-relaxed">
-                            {suggestion.sample_wording_en}
-                          </div>
-                        </div>
-                        
-                        {suggestion.sample_wording_ar && (
-                          <div>
-                            <p className="text-xs font-medium mb-1">Arabic (العربية):</p>
-                            <div className="text-xs bg-white dark:bg-background p-3 rounded border font-mono leading-relaxed text-right" dir="rtl">
-                              {suggestion.sample_wording_ar}
-                            </div>
-                          </div>
-                        )}
+                        <Button
+                          variant="outline"
+                          className="w-full mt-4"
+                          onClick={() => {
+                            const allSuggestions = result.missing_clauses!.suggestions
+                              .map(s => `${s.display_name}\n\nWhy Needed: ${s.why_needed}\n\nSample Wording (EN):\n${s.sample_wording_en}\n\nSample Wording (AR):\n${s.sample_wording_ar}`)
+                              .join('\n\n---\n\n')
+                            
+                            const blob = new Blob([allSuggestions], { type: 'text/plain' })
+                            const url = URL.createObjectURL(blob)
+                            const a = document.createElement('a')
+                            a.href = url
+                            a.download = 'missing-clauses-suggestions.txt'
+                            a.click()
+                          }}
+                        >
+                          <Icon name="download" className="mr-2 h-4 w-4" />
+                          Export All Suggestions
+                        </Button>
                       </div>
-
-                      {suggestion.related_articles && suggestion.related_articles.length > 0 && (
-                        <div className="mt-3 text-xs text-muted-foreground">
-                          <span className="font-semibold">Related:</span>{' '}
-                          {suggestion.related_articles.join(', ')}
-                        </div>
-                      )}
-
-                      {suggestion.ai_confidence && (
-                        <div className="mt-2">
-                          <Badge variant="secondary" className="text-xs">
-                            <Icon name="sparkles" className="h-3 w-3 mr-1" />
-                            AI Confidence: {Math.round(suggestion.ai_confidence * 100)}%
-                          </Badge>
-                        </div>
-                      )}
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              ))}
-            </div>
-
-            <Button
-              variant="outline"
-              className="w-full mt-4"
-              onClick={() => {
-                const allSuggestions = result.missing_clauses!.suggestions
-                  .map(s => `${s.display_name}\n\nWhy Needed: ${s.why_needed}\n\nSample Wording (EN):\n${s.sample_wording_en}\n\nSample Wording (AR):\n${s.sample_wording_ar}`)
-                  .join('\n\n---\n\n')
-                
-                const blob = new Blob([allSuggestions], { type: 'text/plain' })
-                const url = URL.createObjectURL(blob)
-                const a = document.createElement('a')
-                a.href = url
-                a.download = 'missing-clauses-suggestions.txt'
-                a.click()
-              }}
-            >
-              <Icon name="download" className="mr-2 h-4 w-4" />
-              Export All Suggestions
-            </Button>
-          </CardContent>
-        </Card>
+                    </CollapsibleContent>
+                  </Collapsible>
+                )}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       )}
 
       {result && (
