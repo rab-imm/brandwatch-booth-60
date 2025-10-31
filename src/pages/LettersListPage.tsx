@@ -541,6 +541,17 @@ export default function LettersListPage() {
                     >
                       <Icon name="eye" className="w-4 h-4" />
                     </Button>
+                    {letter.status === 'signed' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/letters/${letter.id}?tab=signed`)}
+                        className="text-emerald-600 hover:text-emerald-700 border-emerald-600"
+                      >
+                        <Icon name="file-check" className="w-4 h-4 mr-1" />
+                        View Signed
+                      </Button>
+                    )}
                     {letter.status === 'signed' && letter.signature_request?.certificate_url && (
                       <Button
                         variant="ghost"

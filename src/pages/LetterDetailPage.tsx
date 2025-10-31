@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ShareLetterDialog } from "@/components/ShareLetterDialog"
 import { PrepareDocumentSignature } from "@/components/signature/PrepareDocumentSignature"
 import { SignatureRequestStatus } from "@/components/signature/SignatureRequestStatus"
+import { SignedDocumentViewer } from "@/components/signature/SignedDocumentViewer"
 import { ManageShareLinks } from "@/components/ManageShareLinks"
 import {
   AlertDialog,
@@ -58,6 +59,10 @@ export default function LetterDetailPage() {
   const navigate = useNavigate()
   const { user, profile, refetchProfile } = useAuth()
   const { toast } = useToast()
+
+  // Check for tab query parameter
+  const searchParams = new URLSearchParams(window.location.search)
+  const initialTab = searchParams.get('tab') || 'letter'
 
   const [letter, setLetter] = useState<Letter | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -300,9 +305,12 @@ export default function LetterDetailPage() {
         </Card>
       )}
 
-      <Tabs defaultValue="letter" className="space-y-6">
+      <Tabs defaultValue={initialTab} className="space-y-6">
         <TabsList>
           <TabsTrigger value="letter">Letter</TabsTrigger>
+          {letter.status === 'signed' && (
+            <TabsTrigger value="signed">Signed Document</TabsTrigger>
+          )}
           <TabsTrigger value="signature">Request Signature</TabsTrigger>
           <TabsTrigger value="share">Share & Links</TabsTrigger>
         </TabsList>
@@ -440,6 +448,14 @@ export default function LetterDetailPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="signed">
+          <SignedDocumentViewer
+            letterId={letter.id}
+            letterTitle={letter.title}
+            letterContent={letter.content}
+          />
         </TabsContent>
 
         <TabsContent value="signature">
