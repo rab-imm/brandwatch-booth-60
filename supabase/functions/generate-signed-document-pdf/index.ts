@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { marked } from "https://esm.sh/marked@11.1.1";
 import { corsHeaders } from "../_shared/cors.ts";
 
 const logStep = (step: string, details?: any) => {
@@ -100,7 +101,7 @@ serve(async (req) => {
     logStep("Generating HTML");
 
     // Generate HTML with signatures
-    const html = generateSignedDocumentHTML(
+    const html = await generateSignedDocumentHTML(
       request.legal_letters.title,
       request.legal_letters.content,
       fields,
@@ -135,13 +136,15 @@ serve(async (req) => {
   }
 });
 
-function generateSignedDocumentHTML(
+async function generateSignedDocumentHTML(
   title: string,
   content: string,
   fields: any[],
   recipients: any[],
   request: any
-): string {
+): Promise<string> {
+  // Convert markdown to HTML
+  const renderedContent = await marked.parse(content);
   const fieldOverlays = fields
     .map((field) => {
       let fieldContent = '';
@@ -271,11 +274,18 @@ function generateSignedDocumentHTML(
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
     .content {
-      white-space: pre-wrap;
       font-size: 14px;
       line-height: 1.8;
       color: #374151;
     }
+    .content h1 { font-size: 24px; margin: 24px 0 16px; font-weight: 600; }
+    .content h2 { font-size: 20px; margin: 20px 0 12px; font-weight: 600; }
+    .content h3 { font-size: 18px; margin: 16px 0 10px; font-weight: 600; }
+    .content p { margin: 12px 0; }
+    .content ul, .content ol { margin: 12px 0; padding-left: 24px; }
+    .content li { margin: 6px 0; }
+    .content strong { font-weight: 600; }
+    .content em { font-style: italic; }
     .verification {
       background: white;
       border: 1px solid #e5e7eb;
@@ -316,7 +326,7 @@ function generateSignedDocumentHTML(
   </div>
 
   <div class="document-container">
-    <div class="content">${content}</div>
+    <div class="content">${renderedContent}</div>
     ${fieldOverlays}
   </div>
 

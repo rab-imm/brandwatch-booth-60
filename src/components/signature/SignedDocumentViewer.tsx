@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Download, Printer, CheckCircle, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface SignedDocumentViewerProps {
   letterId: string;
@@ -271,9 +273,11 @@ export const SignedDocumentViewer = ({
         <CardContent className="p-8">
           {/* Document Content with Signature Overlays */}
           <div className="bg-white border rounded-lg p-8 min-h-[800px] relative">
-            <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed">
-              {letterContent}
-            </pre>
+            <div className="prose prose-sm max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {letterContent}
+              </ReactMarkdown>
+            </div>
             
             {/* Signature Field Overlays */}
             {signatureFields.map(field => renderSignatureField(field))}
