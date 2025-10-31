@@ -1706,6 +1706,24 @@ export default function LetterCreationWizard() {
     setCurrentStep(prev => Math.max(prev - 1, 0));
   };
 
+  const invokeWithRetry = async (functionName: string, options: any, maxRetries = 2) => {
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await supabase.functions.invoke(functionName, options);
+      } catch (error) {
+        console.error(`Attempt ${attempt + 1} failed:`, error);
+        
+        if (attempt === maxRetries) throw error;
+        
+        // Wait before retrying (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
+        
+        // Refresh session before retry
+        await supabase.auth.refreshSession();
+      }
+    }
+  };
+
   const handleGenerate = async () => {
     if (!validateStep()) {
       return;
@@ -1713,19 +1731,35 @@ export default function LetterCreationWizard() {
 
     setIsGenerating(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      // Explicitly refresh session to ensure valid token
+      const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
       
-      if (!session) {
+      if (sessionError || !session) {
+        console.error("Session refresh failed:", sessionError);
         toast({
-          title: "Authentication Required",
-          description: "Please log in to generate letters",
+          title: "Authentication Error",
+          description: "Your session has expired. Please log in again.",
           variant: "destructive",
         });
-        navigate("/login");
+        navigate("/auth");
         return;
       }
 
-      const response = await supabase.functions.invoke("generate-legal-letter", {
+      // Check connectivity before attempting generation
+      const { error: healthCheckError } = await supabase.from('profiles').select('id').limit(1);
+      
+      if (healthCheckError && healthCheckError.message.includes('fetch')) {
+        toast({
+          title: "Connection Issue",
+          description: "Cannot reach the server. Please check your internet connection.",
+          variant: "destructive",
+        });
+        setIsGenerating(false);
+        return;
+      }
+
+      // Call edge function with retry logic
+      const response = await invokeWithRetry("generate-legal-letter", {
         body: {
           letterType,
           details,
@@ -1803,9 +1837,22 @@ export default function LetterCreationWizard() {
       navigate(`/letters/${newLetter.id}`);
     } catch (error: any) {
       console.error("Error generating letter:", error);
+      
+      // Provide specific error messages based on error type
+      let errorTitle = "Generation Failed";
+      let errorDescription = error.message || "Failed to generate letter";
+      
+      if (error.message?.includes("fetch") || error.message?.includes("network") || error.message?.includes("Failed to send")) {
+        errorTitle = "Connection Error";
+        errorDescription = "Failed to connect to the server. Please check your internet connection and try again.";
+      } else if (error.message?.includes("session") || error.message?.includes("auth")) {
+        errorTitle = "Authentication Error";
+        errorDescription = "Your session has expired. Please refresh the page and try again.";
+      }
+      
       toast({
-        title: "Generation Failed",
-        description: error.message || "Failed to generate letter",
+        title: errorTitle,
+        description: errorDescription,
         variant: "destructive",
       });
     } finally {
