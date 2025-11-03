@@ -27,7 +27,37 @@ export function validateEmail(email: string): { valid: boolean; error?: string }
 }
 
 /**
- * Validate UAE phone number
+ * Validate international phone number
+ */
+export function validatePhoneNumber(phone: string): { 
+  valid: boolean; 
+  error?: string;
+  normalized?: string;
+} {
+  if (!phone || typeof phone !== 'string') {
+    return { valid: false, error: 'Phone number is required' };
+  }
+  
+  const cleaned = phone.replace(/[\s\-()]/g, '');
+  
+  // International format: +[country_code][number]
+  const internationalPattern = /^\+?\d{10,15}$/;
+  
+  if (!internationalPattern.test(cleaned)) {
+    return { 
+      valid: false, 
+      error: 'Invalid phone format. Use international format (+XXX...)'
+    };
+  }
+  
+  // Normalize to E.164 format
+  const normalized = cleaned.startsWith('+') ? cleaned : `+${cleaned}`;
+  
+  return { valid: true, normalized };
+}
+
+/**
+ * Validate UAE phone number (legacy - use validatePhoneNumber for international)
  */
 export function validateUAEPhone(phone: string): { valid: boolean; error?: string } {
   if (!phone || typeof phone !== 'string') {
@@ -267,7 +297,7 @@ export function validateLetterFields(
     
     // Phone fields
     if (key.toLowerCase().includes('phone')) {
-      const result = validateUAEPhone(value);
+      const result = validatePhoneNumber(value);
       if (!result.valid) errors[key] = result.error!;
     }
     

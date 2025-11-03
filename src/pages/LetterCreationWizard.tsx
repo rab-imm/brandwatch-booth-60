@@ -8,6 +8,7 @@ import { ValidatedInput } from "@/components/ui/validated-input";
 import { ValidatedTextarea } from "@/components/ui/validated-textarea";
 import { ValidatedSelect } from "@/components/ui/validated-select";
 import { ValidatedDatePicker } from "@/components/ui/validated-date-picker";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -185,6 +186,23 @@ function FieldWithValidation({
         required={field.required}
         disabled={!fieldEnabled}
         naLabel={parentInfo?.naLabel}
+      />
+    );
+  }
+
+  if (field.type === "tel" || field.type === "phone") {
+    return (
+      <PhoneInput
+        label={field.label}
+        value={fieldEnabled ? (details[field.name] || "") : ""}
+        onChange={(value) => handleFieldChange(field.name, value)}
+        error={error}
+        isValid={!error && isDirty}
+        isDirty={isDirty}
+        required={field.required}
+        disabled={!fieldEnabled}
+        naLabel={parentInfo?.naLabel}
+        placeholder="50 123 4567"
       />
     );
   }

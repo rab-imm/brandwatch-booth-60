@@ -2,7 +2,8 @@ import { z } from 'zod'
 import { 
   emiratesIdSchema, 
   emailSchema, 
-  uaePhoneSchema, 
+  uaePhoneSchema,
+  internationalPhoneSchema,
   aedAmountSchema,
   nameSchema,
   companyNameSchema,
@@ -190,11 +191,11 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
   demand_letter: {
     senderName: { validator: nameSchema },
     senderAddress: { validator: addressSchema },
-    senderPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    senderPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     senderEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     recipientName: { validator: nameSchema },
     recipientAddress: { validator: addressSchema },
-    recipientPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    recipientPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     recipientEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     referenceNumber: { 
       validator: referenceNumberSchema, 
@@ -250,7 +251,7 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
       message: 'Emirates ID must be in format 784-XXXX-XXXXXXX-X'
     },
     partyAAddress: { validator: addressSchema },
-    partyAPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    partyAPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     partyAEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     partyBName: { validator: nameSchema },
     partyBEmiratesId: { 
@@ -261,7 +262,7 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
       message: 'Emirates ID must be in format 784-XXXX-XXXXXXX-X'
     },
     partyBAddress: { validator: addressSchema },
-    partyBPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    partyBPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     partyBEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     settlementAmount: { 
       validator: aedAmountSchema, 
@@ -277,7 +278,7 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
   employment_termination: {
     employerName: { validator: companyNameSchema },
     employerAddress: { validator: addressSchema },
-    employerPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    employerPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     employerEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     employeeName: { validator: nameSchema },
     employeePosition: { validator: requiredTextSchema },
@@ -287,7 +288,7 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
       maxLength: 20 
     },
     employeeAddress: { validator: addressSchema },
-    employeePhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    employeePhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     employeeEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     noticePeriodProvided: { 
       validator: noticePeriodSchema, 
@@ -331,7 +332,7 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
       pattern: '[A-Z0-9-]*',
       message: 'Trade license number required'
     },
-    employerPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    employerPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     employerEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     employeeName: { validator: nameSchema },
     passportOrEmiratesId: { 
@@ -342,7 +343,7 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
     nationality: { validator: requiredTextSchema },
     dateOfBirth: { validator: dateSchema, type: 'date' },
     employeeAddress: { validator: addressSchema },
-    employeePhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    employeePhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     employeeEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     jobTitle: { validator: requiredTextSchema },
     basicSalary: { 
@@ -402,7 +403,7 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
       maxLength: 18 
     },
     landlordAddress: { validator: addressSchema },
-    landlordPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    landlordPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     landlordEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     tenantName: { validator: nameSchema },
     tenantEmiratesId: { 
@@ -412,7 +413,7 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
       maxLength: 18 
     },
     tenantAddress: { validator: addressSchema },
-    tenantPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    tenantPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     tenantEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     propertyAddress: { validator: addressSchema },
     monthlyRent: { 
@@ -456,11 +457,11 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
   lease_termination: {
     landlordName: { validator: nameSchema },
     landlordAddress: { validator: addressSchema },
-    landlordPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    landlordPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     landlordEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     tenantName: { validator: nameSchema },
     tenantAddress: { validator: addressSchema },
-    tenantPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    tenantPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     tenantEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     propertyAddress: { validator: addressSchema },
     leaseStartDate: { 
@@ -542,7 +543,7 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
       inputMode: 'numeric', 
       maxLength: 18 
     },
-    complainantPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    complainantPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     complainantEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     respondentName: { validator: nameSchema },
     respondentPosition: { validator: requiredTextSchema },
@@ -568,7 +569,7 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
       maxLength: 18 
     },
     principalAddress: { validator: addressSchema },
-    principalPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    principalPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     principalEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     agentName: { validator: nameSchema },
     agentEmiratesId: { 
@@ -578,7 +579,7 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
       maxLength: 18 
     },
     agentAddress: { validator: addressSchema },
-    agentPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    agentPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     agentEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     effectiveDate: { 
       validator: dateSchema, 
@@ -601,11 +602,11 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
   general_legal: {
     senderName: { validator: nameSchema },
     senderAddress: { validator: addressSchema },
-    senderPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    senderPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     senderEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
     recipientName: { validator: nameSchema },
     recipientAddress: { validator: addressSchema },
-    recipientPhone: { validator: uaePhoneSchema, type: 'tel', inputMode: 'tel' },
+    recipientPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
     recipientEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
   },
 }

@@ -289,31 +289,57 @@ export function safeValidate<T>(
 }
 
 /**
- * Normalize phone number to E.164 format
+ * International Phone Number Validation
+ * Supports all major international formats
  */
-export function normalizeUAEPhone(phone: string): string {
+export const internationalPhoneSchema = z
+  .string()
+  .trim()
+  .min(10, 'Phone number too short')
+  .max(20, 'Phone number too long')
+  .refine(
+    (val) => {
+      const cleaned = val.replace(/[\s\-()]/g, '');
+      // Support international formats: +[country_code][number]
+      return /^\+?\d{10,15}$/.test(cleaned);
+    },
+    {
+      message: 'Invalid phone number format. Use international format (+XXX...)',
+    }
+  );
+
+/**
+ * Normalize phone number to E.164 format
+ * Handles multiple country codes
+ */
+export function normalizePhoneNumber(phone: string, countryCode: string = "ae"): string {
   const cleaned = phone.replace(/[\s\-()]/g, '');
   
   // Already in international format
-  if (cleaned.startsWith('+971')) {
+  if (cleaned.startsWith('+')) {
     return cleaned;
   }
   
-  // Add +971 prefix
-  if (cleaned.startsWith('00971')) {
-    return '+' + cleaned.substring(2);
-  }
+  // Map country codes to dial codes
+  const dialCodes: Record<string, string> = {
+    ae: '+971', sa: '+966', qa: '+974', kw: '+965', bh: '+973', om: '+968',
+    us: '+1', ca: '+1', gb: '+44', in: '+91', pk: '+92', au: '+61',
+    de: '+49', fr: '+33', es: '+34', it: '+39', nl: '+31', ch: '+41'
+  };
   
-  if (cleaned.startsWith('971')) {
-    return '+' + cleaned;
-  }
+  const dialCode = dialCodes[countryCode] || '+971';
   
-  // Local format (0XX XXX XXXX)
-  if (cleaned.startsWith('0')) {
-    return '+971' + cleaned.substring(1);
-  }
+  // Remove leading zeros
+  const number = cleaned.replace(/^0+/, '');
   
-  return '+971' + cleaned;
+  return `${dialCode}${number}`;
+}
+
+/**
+ * Normalize phone number to E.164 format (UAE specific)
+ */
+export function normalizeUAEPhone(phone: string): string {
+  return normalizePhoneNumber(phone, 'ae');
 }
 
 /**
