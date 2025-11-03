@@ -16,6 +16,8 @@ import { PrepareDocumentSignature } from "@/components/signature/PrepareDocument
 import { SignatureRequestStatus } from "@/components/signature/SignatureRequestStatus"
 import { SignedDocumentViewer } from "@/components/signature/SignedDocumentViewer"
 import { ManageShareLinks } from "@/components/ManageShareLinks"
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -359,9 +361,11 @@ export default function LetterDetailPage() {
                 />
               ) : (
                 <div className="bg-card border rounded-lg p-6">
-                  <pre className="whitespace-pre-wrap font-serif text-sm">
-                    {letter.content}
-                  </pre>
+                  <div className="prose prose-sm max-w-none dark:prose-invert font-serif">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {letter.content}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               )}
 
