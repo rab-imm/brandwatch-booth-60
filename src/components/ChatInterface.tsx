@@ -138,8 +138,8 @@ export const ChatInterface = () => {
   }
 
   return (
-    <div className="flex flex-col h-full w-full bg-background">
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 min-h-0">
+    <div className="flex flex-col h-full w-full bg-background relative">
+      <div className="flex-1 overflow-y-auto px-4 py-6 pb-[180px] space-y-4 min-h-0">
         <div className="max-w-4xl mx-auto space-y-4">
         {(() => {
           const shouldShowEmpty = messages.length === 0 && !loading;
@@ -257,7 +257,7 @@ export const ChatInterface = () => {
         </div>
       </div>
       
-      <div className="border-t bg-muted/30 backdrop-blur-sm p-4 space-y-3 flex-shrink-0">
+      <div className="absolute bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur-sm p-4 space-y-3 shadow-lg">
         <div className="max-w-4xl mx-auto space-y-3">
           <div className="flex justify-center items-center gap-3">
             <LawyerRequestButton conversationId={currentConversationId} />
