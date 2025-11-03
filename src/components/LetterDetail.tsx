@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
+import rehypeSanitize from 'rehype-sanitize'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -324,7 +326,10 @@ export function LetterDetail({ letterId, onBack }: LetterDetailProps) {
           ) : (
             <div className="bg-card border rounded-lg p-6">
               <div className="prose prose-base max-w-none dark:prose-invert font-serif">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                <ReactMarkdown 
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw, rehypeSanitize]}
+                >
                   {letter.content}
                 </ReactMarkdown>
               </div>

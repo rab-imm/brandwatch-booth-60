@@ -9,6 +9,8 @@ import { Download, Printer, CheckCircle, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 
 interface SignedDocumentViewerProps {
   letterId: string;
@@ -274,7 +276,10 @@ export const SignedDocumentViewer = ({
           {/* Document Content with Signature Overlays */}
           <div className="bg-white border rounded-lg p-8 min-h-[800px] relative">
             <div className="prose prose-sm max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw, rehypeSanitize]}
+              >
                 {letterContent}
               </ReactMarkdown>
             </div>
