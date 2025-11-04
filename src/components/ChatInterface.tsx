@@ -24,11 +24,13 @@ export const ChatInterface = () => {
   } = useChatContext()
   const [inputValue, setInputValue] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
   const [showAutoPopup, setShowAutoPopup] = useState(false)
   const [lastShownMessageId, setLastShownMessageId] = useState<string | null>(null)
   const [showLawyerDialog, setShowLawyerDialog] = useState(false)
   const [showLetterDialog, setShowLetterDialog] = useState(false)
+  const [showScrollButtons, setShowScrollButtons] = useState(false)
 
   // Debug logging
   console.log('💬 ChatInterface render:', {
@@ -42,8 +44,35 @@ export const ChatInterface = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
+  const scrollUp = () => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollBy({ top: -400, behavior: "smooth" })
+    }
+  }
+
+  const scrollDown = () => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollBy({ top: 400, behavior: "smooth" })
+    }
+  }
+
   useEffect(() => {
     scrollToBottom()
+  }, [messages])
+
+  // Check if content is scrollable
+  useEffect(() => {
+    const checkScrollable = () => {
+      if (messagesContainerRef.current) {
+        const { scrollHeight, clientHeight } = messagesContainerRef.current
+        setShowScrollButtons(scrollHeight > clientHeight)
+      }
+    }
+    
+    checkScrollable()
+    window.addEventListener('resize', checkScrollable)
+    
+    return () => window.removeEventListener('resize', checkScrollable)
   }, [messages])
 
   // Auto-popup logic: Show popup when lastLetterSuggestion updates with high confidence
@@ -139,8 +168,8 @@ export const ChatInterface = () => {
   }
 
   return (
-    <div className="flex flex-col h-full w-full bg-background">
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 min-h-0">
+    <div className="flex flex-col h-full w-full bg-background relative">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-4 min-h-0">
         <div className="max-w-4xl mx-auto space-y-4 pb-4">
         {(() => {
           const shouldShowEmpty = messages.length === 0 && !loading;
@@ -307,6 +336,30 @@ export const ChatInterface = () => {
           conversationId={currentConversationId}
           onDismiss={handleDismissPopup}
         />
+      )}
+
+      {/* Scroll Navigation Buttons */}
+      {showScrollButtons && (
+        <div className="fixed right-8 bottom-32 flex flex-col gap-2 z-10">
+          <Button
+            size="icon"
+            variant="secondary"
+            onClick={scrollUp}
+            className="h-10 w-10 rounded-full shadow-lg hover:shadow-xl transition-all"
+            title="Scroll up"
+          >
+            <Icon name="chevron-up" className="h-5 w-5" />
+          </Button>
+          <Button
+            size="icon"
+            variant="secondary"
+            onClick={scrollDown}
+            className="h-10 w-10 rounded-full shadow-lg hover:shadow-xl transition-all"
+            title="Scroll down"
+          >
+            <Icon name="chevron-down" className="h-5 w-5" />
+          </Button>
+        </div>
       )}
     </div>
   )
