@@ -948,7 +948,15 @@ export const OCRUpload = () => {
                 <Icon name="file-text" className="h-4 w-4" />
                 Extracted Text
               </h3>
-              <div className="p-4 bg-muted rounded-lg max-h-96 overflow-y-auto whitespace-pre-wrap text-sm font-mono">
+              <div 
+                className="p-4 bg-muted rounded-lg max-h-96 overflow-y-auto whitespace-pre-wrap text-sm"
+                style={{ 
+                  fontFamily: 'Arial, "Noto Sans Arabic", "Tahoma", sans-serif',
+                  direction: 'rtl',
+                  textAlign: 'right',
+                  unicodeBidi: 'embed'
+                }}
+              >
                 {result.extractedText}
               </div>
             </div>
@@ -1002,7 +1010,15 @@ export const OCRUpload = () => {
                         </Button>
                       </div>
                       
-                      <p className="text-sm whitespace-pre-wrap text-foreground/90 leading-relaxed">
+                      <p 
+                        className="text-sm whitespace-pre-wrap text-foreground/90 leading-relaxed"
+                        style={{ 
+                          fontFamily: 'Arial, "Noto Sans Arabic", "Tahoma", sans-serif',
+                          direction: 'rtl',
+                          textAlign: 'right',
+                          unicodeBidi: 'embed'
+                        }}
+                      >
                         {clause.text.substring(0, 300)}
                         {clause.text.length > 300 && '...'}
                       </p>
@@ -1034,7 +1050,14 @@ export const OCRUpload = () => {
 
             <div>
               <h3 className="text-sm font-semibold mb-2">AI Summary</h3>
-              <div className="p-4 bg-muted rounded-lg prose prose-sm dark:prose-invert max-w-none">
+              <div 
+                className="p-4 bg-muted rounded-lg prose prose-sm dark:prose-invert max-w-none"
+                style={{ 
+                  fontFamily: 'Arial, "Noto Sans Arabic", "Tahoma", sans-serif',
+                  direction: 'rtl',
+                  textAlign: 'right'
+                }}
+              >
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {result.aiSummary}
                 </ReactMarkdown>

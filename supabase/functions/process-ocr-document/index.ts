@@ -937,7 +937,7 @@ serve(async (req) => {
               content: [
                 {
                   type: 'text',
-                  text: 'Extract all visible text from this image using OCR. Return ONLY the extracted text without any additional commentary or formatting.'
+                  text: 'Extract all visible text from this image using OCR. For Arabic text, ensure letters are properly connected (cursive form). Return ONLY the extracted text without any additional commentary or formatting.'
                 },
                 {
                   type: 'image_url',
