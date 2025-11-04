@@ -206,8 +206,8 @@ export const ConversationSidebar = () => {
                   }`}
                   onClick={() => handleSelectConversation(conversation.id)}
                 >
-                  <div className="space-y-1 w-full overflow-hidden pointer-events-none">
-                    <div className="font-medium truncate max-w-full" title={conversation.title}>
+                  <div className="space-y-1 w-full overflow-hidden pointer-events-none min-w-0">
+                    <div className="font-medium truncate" title={conversation.title}>
                       {conversation.title}
                     </div>
                     <div className="text-xs text-muted-foreground truncate">
