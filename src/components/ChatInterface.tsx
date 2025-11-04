@@ -257,7 +257,7 @@ export const ChatInterface = () => {
         </div>
       </div>
       
-      <div className="flex-shrink-0 border-t bg-background/95 backdrop-blur-sm p-4 space-y-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+      <div className="flex-shrink-0 bg-background px-4 py-6 space-y-4">
         <div className="max-w-4xl mx-auto space-y-3">
           <div className="flex justify-center items-center gap-3">
             <LawyerRequestButton conversationId={currentConversationId} />
