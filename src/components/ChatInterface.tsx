@@ -3,9 +3,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useChatContext, Message } from "@/contexts/ChatContext"
 import { MessageBubble } from "@/components/MessageBubble"
 import { ChatInput } from "@/components/ChatInput"
-import { LawyerRequestButton } from "@/components/LawyerRequestButton"
-import { SuggestLetterButton } from "@/components/SuggestLetterButton"
-import { DeleteConversationButton } from "@/components/DeleteConversationButton"
+
 import { AutoLetterSuggestionPopup } from "@/components/AutoLetterSuggestionPopup"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
@@ -257,13 +255,8 @@ export const ChatInterface = () => {
         </div>
       </div>
       
-      <div className="flex-shrink-0 bg-background px-4 py-6 space-y-4">
-        <div className="max-w-4xl mx-auto space-y-3">
-          <div className="flex justify-center items-center gap-3">
-            <LawyerRequestButton conversationId={currentConversationId} />
-            <SuggestLetterButton conversationId={currentConversationId} />
-            <DeleteConversationButton conversationId={currentConversationId} />
-          </div>
+      <div className="flex-shrink-0 bg-background px-4 py-6">
+        <div className="max-w-4xl mx-auto">
           <ChatInput
             value={inputValue}
             onChange={setInputValue}

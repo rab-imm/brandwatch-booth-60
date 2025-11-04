@@ -1,7 +1,14 @@
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
 import { Badge } from "@/components/ui/badge"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { LawyerRequestButton } from "@/components/LawyerRequestButton"
+import { SuggestLetterButton } from "@/components/SuggestLetterButton"
 
 interface ConversationHeaderProps {
   currentConversationId: string | null
@@ -11,8 +18,8 @@ interface ConversationHeaderProps {
 
 export const ConversationHeader = ({ currentConversationId, onNewChat, loading }: ConversationHeaderProps) => {
   return (
-    <div className="border-b p-4 bg-secondary/20">
-      <div className="flex items-center justify-between mb-3">
+    <div className="border-b p-4 bg-secondary/20 space-y-3">
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Icon name="message-square" className="h-5 w-5 text-primary" />
           <h2 className="font-semibold text-foreground">Conversations</h2>
@@ -32,6 +39,11 @@ export const ConversationHeader = ({ currentConversationId, onNewChat, loading }
         <Icon name="plus" className="h-4 w-4" />
         New Chat
       </Button>
+
+      <div className="flex gap-2">
+        <LawyerRequestButton conversationId={currentConversationId} />
+        <SuggestLetterButton conversationId={currentConversationId} />
+      </div>
     </div>
   )
 }

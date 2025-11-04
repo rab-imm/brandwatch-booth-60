@@ -115,6 +115,28 @@ export const ConversationSidebar = () => {
     }
   }
 
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId)
+      
+      if (error) throw error
+      
+      // If deleting current conversation, create new one
+      if (currentConversationId === conversationId) {
+        await createNewConversation()
+      }
+      
+      toast.success('Conversation deleted')
+      fetchConversations()
+    } catch (error) {
+      console.error('Error deleting conversation:', error)
+      toast.error('Failed to delete conversation')
+    }
+  }
+
   const handleResetQueries = async () => {
     setResetting(true)
     try {
@@ -157,27 +179,40 @@ export const ConversationSidebar = () => {
               </div>
             ) : (
               conversations.map((conversation) => (
-                <Button
-                  key={conversation.id}
-                  variant="ghost"
-                  className={`w-full justify-start h-auto p-3 text-left rounded-md transition-colors ${
-                    currentConversationId === conversation.id 
-                      ? "bg-secondary" 
-                      : "hover:bg-muted/50"
-                  }`}
-                  onClick={() => handleSelectConversation(conversation.id)}
-                >
-                  <div className="space-y-1 overflow-hidden">
-                    <div className="font-medium line-clamp-1" title={conversation.title}>
-                      {conversation.title}
+                <div key={conversation.id} className="group relative">
+                  <Button
+                    variant="ghost"
+                    className={`w-full justify-start h-auto p-3 pr-10 text-left rounded-md transition-colors ${
+                      currentConversationId === conversation.id 
+                        ? "bg-secondary" 
+                        : "hover:bg-muted/50"
+                    }`}
+                    onClick={() => handleSelectConversation(conversation.id)}
+                  >
+                    <div className="space-y-1 overflow-hidden">
+                      <div className="font-medium line-clamp-1" title={conversation.title}>
+                        {conversation.title}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(conversation.updated_at), {
+                          addSuffix: true
+                        })}
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(conversation.updated_at), {
-                        addSuffix: true
-                      })}
-                    </div>
-                  </div>
-                </Button>
+                  </Button>
+                  
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDeleteConversation(conversation.id)
+                    }}
+                  >
+                    <Icon name="trash-2" className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
               ))
             )}
           </div>
