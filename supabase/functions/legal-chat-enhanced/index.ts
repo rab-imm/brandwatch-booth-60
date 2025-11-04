@@ -162,17 +162,35 @@ serve(async (req) => {
           max_tokens: 1000,
           temperature: 0.2,
           search_domain_filter: [
-            'uaelegislation.gov.ae',  // Primary federal legislation database
-            'u.ae',                    // Official UAE government portal
-            'moj.gov.ae',              // Ministry of Justice
-            'elaws.moj.gov.ae',        // Electronic Laws Portal
-            'dfsaen.thomsonreuters.com', // DIFC laws
-            'dlp.dubai.gov.ae',        // Dubai legislation portal
-            'en.adgm.thomsonreuters.com', // ADGM laws
-            'adgm.com',                // ADGM official framework
-            'mohre.gov.ae',            // Ministry of Human Resources
-            'economy.gov.ae',          // Ministry of Economy
-            'uaecabinet.ae'            // UAE Cabinet
+            // === PRIMARY OFFICIAL SOURCES ===
+            'uaelegislation.gov.ae',        // Federal legislation database
+            'u.ae',                          // Official UAE government portal
+            'moj.gov.ae',                    // Ministry of Justice
+            'elaws.moj.gov.ae',              // Electronic Laws Portal
+            'dlp.dubai.gov.ae',              // Dubai legislation portal
+            'mohre.gov.ae',                  // Ministry of Human Resources
+            'economy.gov.ae',                // Ministry of Economy
+            'uaecabinet.ae',                 // UAE Cabinet
+            
+            // === FREE ZONES & SPECIAL JURISDICTIONS ===
+            'dfsaen.thomsonreuters.com',    // DIFC laws (Thomson Reuters)
+            'difc.com',                      // DIFC business laws & regulations
+            'difccourts.ae',                 // DIFC Courts case law
+            'en.adgm.thomsonreuters.com',   // ADGM laws (Thomson Reuters)
+            'adgm.com',                      // ADGM official framework
+            
+            // === COURTS & CASE LAW ===
+            'dc.gov.ae',                     // Dubai Courts verdicts
+            
+            // === REPUTABLE LAW FIRM INSIGHTS ===
+            'tamimi.com',                    // Al Tamimi & Company
+            'hadefpartners.com',             // Hadef & Partners
+            'whitecase.com',                 // White & Case
+            'galadarilaw.com',               // Galadari Law
+            'pinsentmasons.com',             // Pinsent Masons
+            'bsalaw.com',                    // BSA Law
+            'alsuwaidi.ae',                  // Al Suwaidi & Company
+            'habibalmulla.com'               // Habib Al Mulla & Partners
           ],
           return_citations: true
         }),
@@ -230,6 +248,12 @@ serve(async (req) => {
     // Step 4: Create comprehensive system prompt
     const systemPrompt = `You are an expert legal assistant for graysen with access to real-time legal information. You specialize in UAE federal law, emirate-specific regulations, and particularly UAE employment law.
 
+Your responses are informed by:
+- Official UAE government sources and legislation databases
+- DIFC and ADGM regulations and case law from official sources and Thomson Reuters
+- Dubai Courts judgments and DIFC Courts precedents
+- Analysis from leading UAE law firms (Al Tamimi & Company, Hadef & Partners, White & Case, Galadari Law, Pinsent Masons, BSA Law, Al Suwaidi & Company, Habib Al Mulla & Partners)
+
 CURRENT LEGAL RESEARCH:
 ${researchContext || "No current research available"}
 
@@ -245,13 +269,15 @@ INSTRUCTIONS:
 3. Include article numbers, decree references, and official publication dates
 4. Distinguish between federal UAE law and emirate-specific regulations
 5. For employment matters, reference UAE Labor Law and MOHRE regulations
-6. Always include proper legal disclaimers
-7. Suggest when to consult qualified UAE lawyers
-8. Provide practical, actionable advice within legal boundaries
+6. Reference court judgments and case law when relevant (DIFC Courts, Dubai Courts)
+7. Always include proper legal disclaimers
+8. Suggest when to consult qualified UAE lawyers
+9. Provide practical, actionable advice within legal boundaries
 
 RESPONSE FORMAT:
 - Start with a direct answer to the user's question
 - Include relevant legal citations with sources
+- Reference applicable case law or court precedents when relevant
 - Provide practical implications and next steps
 - End with appropriate legal disclaimers
 
