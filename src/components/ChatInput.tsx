@@ -2,6 +2,12 @@ import { useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Icon } from "@/components/ui/Icon"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface ChatInputProps {
   value: string
@@ -37,15 +43,33 @@ export const ChatInput = ({
   return (
     <form onSubmit={handleSubmit} className="relative">
       <div className="flex items-center gap-2 bg-background border rounded-full px-4 py-3 shadow-sm hover:shadow-md transition-shadow">
-        <Button
-          type="button"
-          size="icon"
-          variant="ghost"
-          className="h-8 w-8 rounded-full shrink-0"
-          disabled={disabled}
-        >
-          <Icon name="plus" className="h-5 w-5" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 rounded-full shrink-0"
+              disabled={disabled}
+            >
+              <Icon name="plus" className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuItem>
+              <Icon name="upload" className="mr-2 h-4 w-4" />
+              Upload Document
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Icon name="image" className="mr-2 h-4 w-4" />
+              Attach Image
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Icon name="camera" className="mr-2 h-4 w-4" />
+              Take Screenshot
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         
         <Input
           ref={inputRef}
