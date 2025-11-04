@@ -207,10 +207,10 @@ export const ConversationSidebar = () => {
                   onClick={() => handleSelectConversation(conversation.id)}
                 >
                   <div className="space-y-1 w-full overflow-hidden pointer-events-none">
-                    <div className="font-medium truncate" title={conversation.title}>
+                    <div className="font-medium truncate max-w-full" title={conversation.title}>
                       {conversation.title}
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-muted-foreground truncate">
                       {formatDistanceToNow(new Date(conversation.updated_at), {
                         addSuffix: true
                       })}
