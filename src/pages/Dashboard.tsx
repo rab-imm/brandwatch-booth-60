@@ -7,7 +7,6 @@ import { PersonalCreditCounter } from "@/components/PersonalCreditCounter"
 import { Header } from "@/components/Header"
 import { ChatProvider } from "@/contexts/ChatContext"
 import { UpsellModal } from "@/components/UpsellModal"
-import { NotificationCenter } from "@/components/NotificationCenter"
 
 const Dashboard = () => {
   const { user, profile, loading } = useAuth()
@@ -65,7 +64,6 @@ const Dashboard = () => {
             subscriptionTier={profile?.subscription_tier || 'free'}
             rolloverCredits={profile?.rollover_credits || 0}
           />
-              <NotificationCenter />
             </div>
             <div className="flex-1 overflow-hidden">
               <ChatInterface />
