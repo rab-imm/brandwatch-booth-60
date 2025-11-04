@@ -16,6 +16,14 @@ interface Conversation {
   updated_at: string
 }
 
+const truncateToWords = (text: string, maxWords: number = 4): string => {
+  const words = text.trim().split(/\s+/);
+  if (words.length <= maxWords) {
+    return text;
+  }
+  return words.slice(0, maxWords).join(' ') + '...';
+};
+
 export const ConversationSidebar = () => {
   const { user, refetchProfile } = useAuth()
   const { currentConversationId, switchConversation, createNewConversation } = useChatContext()
@@ -208,7 +216,7 @@ export const ConversationSidebar = () => {
                 >
                   <div className="space-y-1 w-full overflow-hidden pointer-events-none min-w-0">
                     <div className="font-medium truncate" title={conversation.title}>
-                      {conversation.title}
+                      {truncateToWords(conversation.title)}
                     </div>
                     <div className="text-xs text-muted-foreground truncate">
                       {formatDistanceToNow(new Date(conversation.updated_at), {
