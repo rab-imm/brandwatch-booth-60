@@ -7,8 +7,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LawyerRequestButton } from "@/components/LawyerRequestButton"
-import { SuggestLetterButton } from "@/components/SuggestLetterButton"
 
 interface ConversationHeaderProps {
   currentConversationId: string | null
@@ -39,11 +37,6 @@ export const ConversationHeader = ({ currentConversationId, onNewChat, loading }
         <Icon name="plus" className="h-4 w-4" />
         New Chat
       </Button>
-
-      <div className="flex gap-2">
-        <LawyerRequestButton conversationId={currentConversationId} />
-        <SuggestLetterButton conversationId={currentConversationId} />
-      </div>
     </div>
   )
 }

@@ -181,7 +181,21 @@ export const ConversationSidebar = () => {
               conversations.map((conversation) => (
               <div 
                 key={conversation.id} 
-                className="group relative hover:bg-transparent"
+                className="relative"
+                onMouseEnter={(e) => {
+                  const trashBtn = e.currentTarget.querySelector('.trash-icon-btn');
+                  if (trashBtn) {
+                    trashBtn.classList.remove('opacity-0');
+                    trashBtn.classList.add('opacity-100');
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  const trashBtn = e.currentTarget.querySelector('.trash-icon-btn');
+                  if (trashBtn) {
+                    trashBtn.classList.remove('opacity-100');
+                    trashBtn.classList.add('opacity-0');
+                  }
+                }}
               >
                 <Button
                   variant="ghost"
@@ -207,7 +221,7 @@ export const ConversationSidebar = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 z-10 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10"
+                  className="trash-icon-btn absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 z-10 opacity-0 transition-opacity hover:bg-destructive/10"
                   onClick={(e) => {
                     e.stopPropagation()
                     handleDeleteConversation(conversation.id)
