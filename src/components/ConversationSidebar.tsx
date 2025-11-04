@@ -235,7 +235,7 @@ export const ConversationSidebar = () => {
                     handleDeleteConversation(conversation.id)
                   }}
                 >
-                  <Icon name="trash-2" className="h-4 w-4 text-destructive" />
+                  <Icon name="trash" className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
               ))
