@@ -179,17 +179,20 @@ export const ConversationSidebar = () => {
               </div>
             ) : (
               conversations.map((conversation) => (
-              <div key={conversation.id} className="group relative">
+              <div 
+                key={conversation.id} 
+                className="group relative hover:bg-transparent"
+              >
                 <Button
                   variant="ghost"
-                  className={`w-full justify-start h-auto p-3 pr-10 text-left rounded-md transition-colors relative z-0 ${
+                  className={`w-full justify-start h-auto p-3 pr-10 text-left rounded-md transition-colors relative ${
                     currentConversationId === conversation.id 
                       ? "bg-secondary" 
                       : "hover:bg-muted/50"
                   }`}
                   onClick={() => handleSelectConversation(conversation.id)}
                 >
-                  <div className="space-y-1 overflow-hidden">
+                  <div className="space-y-1 overflow-hidden pointer-events-none">
                     <div className="font-medium line-clamp-1" title={conversation.title}>
                       {conversation.title}
                     </div>

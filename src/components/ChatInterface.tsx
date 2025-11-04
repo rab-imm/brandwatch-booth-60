@@ -3,7 +3,8 @@ import { useAuth } from "@/hooks/useAuth"
 import { useChatContext, Message } from "@/contexts/ChatContext"
 import { MessageBubble } from "@/components/MessageBubble"
 import { ChatInput } from "@/components/ChatInput"
-
+import { LawyerRequestButton } from "@/components/LawyerRequestButton"
+import { SuggestLetterButton } from "@/components/SuggestLetterButton"
 import { AutoLetterSuggestionPopup } from "@/components/AutoLetterSuggestionPopup"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
@@ -26,6 +27,8 @@ export const ChatInterface = () => {
   const { toast } = useToast()
   const [showAutoPopup, setShowAutoPopup] = useState(false)
   const [lastShownMessageId, setLastShownMessageId] = useState<string | null>(null)
+  const [showLawyerDialog, setShowLawyerDialog] = useState(false)
+  const [showLetterDialog, setShowLetterDialog] = useState(false)
 
   // Debug logging
   console.log('💬 ChatInterface render:', {
@@ -263,7 +266,37 @@ export const ChatInterface = () => {
             onSend={handleSendMessage}
             disabled={loading}
             placeholder="Ask a question about UAE law..."
+            onLawyerRequest={() => setShowLawyerDialog(true)}
+            onSuggestLetter={() => setShowLetterDialog(true)}
           />
+          
+          {showLawyerDialog && (
+            <div className="mt-4">
+              <LawyerRequestButton conversationId={currentConversationId} />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowLawyerDialog(false)}
+                className="mt-2"
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+          
+          {showLetterDialog && (
+            <div className="mt-4">
+              <SuggestLetterButton conversationId={currentConversationId} />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowLetterDialog(false)}
+                className="mt-2"
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 

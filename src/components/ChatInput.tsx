@@ -15,6 +15,8 @@ interface ChatInputProps {
   onSend: (message: string) => void
   disabled?: boolean
   placeholder?: string
+  onLawyerRequest?: () => void
+  onSuggestLetter?: () => void
 }
 
 export const ChatInput = ({ 
@@ -22,7 +24,9 @@ export const ChatInput = ({
   onChange, 
   onSend, 
   disabled = false, 
-  placeholder = "Type your message..." 
+  placeholder = "Type your message...",
+  onLawyerRequest,
+  onSuggestLetter
 }: ChatInputProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -55,19 +59,19 @@ export const ChatInput = ({
               <Icon name="plus" className="h-5 w-5" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuItem>
-              <Icon name="upload" className="mr-2 h-4 w-4" />
-              Upload Document
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Icon name="image" className="mr-2 h-4 w-4" />
-              Attach Image
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Icon name="camera" className="mr-2 h-4 w-4" />
-              Take Screenshot
-            </DropdownMenuItem>
+          <DropdownMenuContent align="start" className="w-56 bg-background border shadow-md z-50">
+            {onLawyerRequest && (
+              <DropdownMenuItem onClick={onLawyerRequest}>
+                <Icon name="user" className="mr-2 h-4 w-4" />
+                Speak to a Lawyer
+              </DropdownMenuItem>
+            )}
+            {onSuggestLetter && (
+              <DropdownMenuItem onClick={onSuggestLetter}>
+                <Icon name="file-text" className="mr-2 h-4 w-4" />
+                Suggest Letter
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
         
