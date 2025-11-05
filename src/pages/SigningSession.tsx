@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { SigningField } from "@/components/signature/SigningField";
 import { Loader, AlertCircle, CheckCircle } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function SigningSession() {
   const { token: accessToken } = useParams();
@@ -254,9 +256,11 @@ export default function SigningSession() {
           </CardHeader>
           <CardContent>
             <div className="relative bg-background border rounded-lg p-8 min-h-[800px]">
-              <pre className="whitespace-pre-wrap font-serif text-sm relative z-0">
-                {sessionData.letter?.content}
-              </pre>
+              <div className="prose prose-sm max-w-none relative z-0">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {sessionData.letter?.content || ""}
+                </ReactMarkdown>
+              </div>
               
               {/* Render interactive fields */}
               {sessionData.fields?.map((field: any) => (
