@@ -256,7 +256,7 @@ export default function SigningSession() {
           </CardHeader>
           <CardContent>
             <div className="relative bg-background border rounded-lg p-8 min-h-[800px]">
-              <div className="prose prose-sm prose-slate dark:prose-invert max-w-none relative z-0 font-serif whitespace-pre-wrap">
+              <div className="prose prose-sm prose-slate dark:prose-invert max-w-none relative z-0">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {sessionData.letter?.content || ""}
                 </ReactMarkdown>
