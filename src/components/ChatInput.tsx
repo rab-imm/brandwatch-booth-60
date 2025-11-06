@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import { useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Icon } from "@/components/ui/Icon"
@@ -29,6 +29,16 @@ export const ChatInput = ({
   onSuggestLetter
 }: ChatInputProps) => {
   const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  // Auto-resize textarea based on content
+  useEffect(() => {
+    const textarea = inputRef.current
+    if (textarea) {
+      textarea.style.height = '24px' // Reset to min height
+      const newHeight = Math.min(textarea.scrollHeight, 120) // Max 120px
+      textarea.style.height = `${newHeight}px`
+    }
+  }, [value])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -83,7 +93,7 @@ export const ChatInput = ({
           placeholder={placeholder}
           disabled={disabled}
           rows={1}
-          className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[24px] max-h-[120px] resize-none break-words overflow-wrap-anywhere whitespace-pre-wrap"
+          className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[24px] resize-none break-words overflow-wrap-anywhere whitespace-pre-wrap overflow-hidden"
         />
         
         <Button
