@@ -32,6 +32,7 @@ export default function Auth() {
   const [showResetPassword, setShowResetPassword] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [updatePasswordLoading, setUpdatePasswordLoading] = useState(false)
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false)
   
   const { user, signIn, signUp } = useAuth()
   const { toast } = useToast()
@@ -39,14 +40,14 @@ export default function Auth() {
 
   // Redirect if already logged in - let ProtectedRoute handle role-based routing
   useEffect(() => {
-    if (user) {
+    if (user && !isRecoveryMode) {
       // Small delay to ensure profile is loaded
       const timer = setTimeout(() => {
         navigate('/dashboard')
       }, 100)
       return () => clearTimeout(timer)
     }
-  }, [user, navigate])
+  }, [user, navigate, isRecoveryMode])
 
   // Check for password reset token
   useEffect(() => {
@@ -54,10 +55,11 @@ export default function Auth() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', { event, session: !!session })
       
-      if (event === 'PASSWORD_RECOVERY') {
-        console.log('Password recovery event detected')
-        setShowResetPassword(true)
-      }
+        if (event === 'PASSWORD_RECOVERY') {
+          console.log('Password recovery event detected')
+          setIsRecoveryMode(true)
+          setShowResetPassword(true)
+        }
     })
 
     return () => {
@@ -221,6 +223,7 @@ export default function Auth() {
           title: "Password Updated",
           description: "Your password has been successfully updated."
         })
+        setIsRecoveryMode(false)
         setShowResetPassword(false)
         setNewPassword('')
         navigate('/dashboard')
