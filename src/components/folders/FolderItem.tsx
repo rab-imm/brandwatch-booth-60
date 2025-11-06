@@ -199,13 +199,16 @@ export const FolderItem = ({
           {conversations.map((conversation) => (
             <div
               key={conversation.id}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer group ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg group transition-all cursor-grab active:cursor-grabbing ${
                 currentConversationId === conversation.id
                   ? "bg-accent"
                   : "hover:bg-accent/50"
-              } ${draggedConversationId === conversation.id ? "opacity-50" : ""}`}
-              draggable
-              onDragStart={(e) => onDragStart(e, conversation.id, folder.id)}
+              } ${draggedConversationId === conversation.id ? "opacity-50 scale-95" : ""}`}
+              draggable="true"
+              onDragStart={(e) => {
+                e.stopPropagation()
+                onDragStart(e, conversation.id, folder.id)
+              }}
               onDragEnd={onDragEnd}
               onClick={() => onSelectConversation(conversation.id)}
             >

@@ -370,8 +370,8 @@ export const ConversationSidebar = () => {
                     onMoveComplete={fetchConversations}
                   >
                     <div 
-                      className={`relative ${draggedConversationId === conversation.id ? "opacity-50" : ""}`}
-                      draggable
+                      className={`relative cursor-grab active:cursor-grabbing ${draggedConversationId === conversation.id ? "opacity-50" : ""}`}
+                      draggable="true"
                       onDragStart={(e) => handleDragStart(e, conversation.id, conversation.folder_id)}
                       onDragEnd={handleDragEnd}
                       onMouseEnter={(e) => {
