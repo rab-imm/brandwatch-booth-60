@@ -46,6 +46,8 @@ export const ConversationSidebar = () => {
   const [resetting, setResetting] = useState(false)
   const [showFolderManager, setShowFolderManager] = useState(false)
   const [editingFolder, setEditingFolder] = useState<Folder | undefined>()
+  const [draggedConversationId, setDraggedConversationId] = useState<string | null>(null)
+  const [dropTargetFolderId, setDropTargetFolderId] = useState<string | null>(null)
 
   const fetchConversations = async () => {
     if (!user) return
@@ -221,6 +223,57 @@ export const ConversationSidebar = () => {
     }
   }
 
+  const handleDragStart = (e: React.DragEvent, conversationId: string, currentFolderId?: string) => {
+    e.dataTransfer.effectAllowed = "move"
+    e.dataTransfer.setData("conversationId", conversationId)
+    e.dataTransfer.setData("currentFolderId", currentFolderId || "")
+    setDraggedConversationId(conversationId)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedConversationId(null)
+    setDropTargetFolderId(null)
+  }
+
+  const moveConversationToFolder = async (conversationId: string, targetFolderId: string | null) => {
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .update({ folder_id: targetFolderId })
+        .eq('id', conversationId)
+
+      if (error) throw error
+      
+      toast.success(targetFolderId ? 'Moved to folder' : 'Removed from folder')
+      fetchConversations()
+    } catch (error) {
+      console.error('Error moving conversation:', error)
+      toast.error('Failed to move conversation')
+    }
+  }
+
+  const handleDropOnUncategorized = async (e: React.DragEvent) => {
+    e.preventDefault()
+    const conversationId = e.dataTransfer.getData("conversationId")
+    const currentFolderId = e.dataTransfer.getData("currentFolderId") || null
+    
+    if (conversationId && currentFolderId) {
+      await moveConversationToFolder(conversationId, null)
+    }
+    
+    setDraggedConversationId(null)
+    setDropTargetFolderId(null)
+  }
+
+  const handleDragOverUncategorized = (e: React.DragEvent) => {
+    e.preventDefault()
+    setDropTargetFolderId("uncategorized")
+  }
+
+  const handleDragLeaveUncategorized = () => {
+    setDropTargetFolderId(null)
+  }
+
   // Group conversations by folder
   const conversationsByFolder = conversations.reduce((acc, conv) => {
     const folderId = conv.folder_id || "uncategorized"
@@ -271,12 +324,39 @@ export const ConversationSidebar = () => {
                   setShowFolderManager(true)
                 }}
                 onFolderDeleted={fetchFolders}
+                onNewChatInFolder={async (folderId) => {
+                  await createNewConversation()
+                  // Wait a bit for the conversation to be created
+                  setTimeout(async () => {
+                    const newConvId = currentConversationId
+                    if (newConvId) {
+                      await supabase
+                        .from('conversations')
+                        .update({ folder_id: folderId })
+                        .eq('id', newConvId)
+                      fetchConversations()
+                    }
+                  }, 100)
+                }}
+                draggedConversationId={draggedConversationId}
+                dropTargetFolderId={dropTargetFolderId}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onMoveToFolder={moveConversationToFolder}
+                onDropTargetChange={setDropTargetFolderId}
               />
             ))}
 
             {/* Uncategorized conversations */}
             {uncategorizedConversations.length > 0 && (
-              <div className="space-y-1">
+              <div 
+                className={`space-y-1 rounded-lg transition-colors ${
+                  dropTargetFolderId === "uncategorized" ? "bg-accent/50 border-2 border-primary" : ""
+                }`}
+                onDrop={handleDropOnUncategorized}
+                onDragOver={handleDragOverUncategorized}
+                onDragLeave={handleDragLeaveUncategorized}
+              >
                 <div className="px-2 py-1 text-xs font-medium text-muted-foreground">
                   Uncategorized ({uncategorizedConversations.length})
                 </div>
@@ -290,7 +370,10 @@ export const ConversationSidebar = () => {
                     onMoveComplete={fetchConversations}
                   >
                     <div 
-                      className="relative"
+                      className={`relative ${draggedConversationId === conversation.id ? "opacity-50" : ""}`}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, conversation.id, conversation.folder_id)}
+                      onDragEnd={handleDragEnd}
                       onMouseEnter={(e) => {
                         const trashBtn = e.currentTarget.querySelector('.trash-icon-btn');
                         if (trashBtn) {

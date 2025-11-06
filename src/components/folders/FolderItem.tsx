@@ -40,6 +40,13 @@ interface FolderItemProps {
   onDeleteConversation: (id: string) => void
   onEditFolder: () => void
   onFolderDeleted: () => void
+  onNewChatInFolder: (folderId: string) => void
+  draggedConversationId: string | null
+  dropTargetFolderId: string | null
+  onDragStart: (e: React.DragEvent, conversationId: string, currentFolderId?: string) => void
+  onDragEnd: () => void
+  onMoveToFolder: (conversationId: string, targetFolderId: string | null) => Promise<void>
+  onDropTargetChange: (folderId: string | null) => void
 }
 
 export const FolderItem = ({
@@ -50,6 +57,13 @@ export const FolderItem = ({
   onDeleteConversation,
   onEditFolder,
   onFolderDeleted,
+  onNewChatInFolder,
+  draggedConversationId,
+  dropTargetFolderId,
+  onDragStart,
+  onDragEnd,
+  onMoveToFolder,
+  onDropTargetChange,
 }: FolderItemProps) => {
   const [isExpanded, setIsExpanded] = useState(() => {
     const saved = localStorage.getItem(`folder-expanded-${folder.id}`)
@@ -84,9 +98,44 @@ export const FolderItem = ({
     }
   }
 
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const conversationId = e.dataTransfer.getData("conversationId")
+    const currentFolderId = e.dataTransfer.getData("currentFolderId") || null
+    
+    if (conversationId && currentFolderId !== folder.id) {
+      await onMoveToFolder(conversationId, folder.id)
+      setIsExpanded(true) // Auto-expand to show the new conversation
+    }
+    
+    onDropTargetChange(null)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onDropTargetChange(folder.id)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.stopPropagation()
+    // Only clear if we're actually leaving the folder (not entering a child)
+    if (e.currentTarget === e.target) {
+      onDropTargetChange(null)
+    }
+  }
+
   return (
     <div className="mb-2">
-      <div className="flex items-center gap-2 px-3 py-2 hover:bg-accent rounded-lg group">
+      <div 
+        className={`flex items-center gap-2 px-3 py-2 hover:bg-accent rounded-lg group transition-colors ${
+          dropTargetFolderId === folder.id ? "bg-accent/50 border-2 border-primary" : ""
+        }`}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+      >
         <Button
           variant="ghost"
           size="sm"
@@ -108,6 +157,16 @@ export const FolderItem = ({
         <span className="flex-1 text-sm font-medium truncate">{folder.name}</span>
 
         <span className="text-xs text-muted-foreground">{conversations.length}</span>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
+          onClick={() => onNewChatInFolder(folder.id)}
+          title="New chat in folder"
+        >
+          <Icon name="plus" className="h-4 w-4" />
+        </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -144,7 +203,10 @@ export const FolderItem = ({
                 currentConversationId === conversation.id
                   ? "bg-accent"
                   : "hover:bg-accent/50"
-              }`}
+              } ${draggedConversationId === conversation.id ? "opacity-50" : ""}`}
+              draggable
+              onDragStart={(e) => onDragStart(e, conversation.id, folder.id)}
+              onDragEnd={onDragEnd}
               onClick={() => onSelectConversation(conversation.id)}
             >
               <Icon name="message-circle" className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
