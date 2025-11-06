@@ -81,6 +81,15 @@ export const FolderItem = ({
   const handleDeleteFolder = async () => {
     setDeleting(true)
     try {
+      // First, move all conversations out of the folder to "Uncategorized"
+      const { error: updateError } = await supabase
+        .from("conversations")
+        .update({ folder_id: null })
+        .eq("folder_id", folder.id)
+      
+      if (updateError) throw updateError
+
+      // Then delete the folder
       const { error } = await supabase
         .from("conversation_folders")
         .delete()
@@ -166,6 +175,19 @@ export const FolderItem = ({
           title="New chat in folder"
         >
           <Icon name="plus" className="h-4 w-4" />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive"
+          onClick={(e) => {
+            e.stopPropagation()
+            setShowDeleteDialog(true)
+          }}
+          title="Delete folder"
+        >
+          <Icon name="trash" className="h-4 w-4" />
         </Button>
 
         <DropdownMenu>

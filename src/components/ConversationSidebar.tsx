@@ -341,6 +341,7 @@ export const ConversationSidebar = () => {
                     if (error) throw error
 
                     await switchConversation(data.id)
+                    fetchConversations()
                     toast.success('Started new chat in folder')
                   } catch (error) {
                     console.error('Error creating conversation in folder:', error)
