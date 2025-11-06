@@ -8,6 +8,7 @@ import { Icon } from '@/components/ui/Icon'
 import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/integrations/supabase/client'
+import { PasswordStrengthIndicator } from '@/components/PasswordStrengthIndicator'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -360,6 +361,9 @@ export default function Auth() {
                 placeholder="Enter your password"
                 minLength={6}
               />
+              {!isLogin && !isCompanyLogin && (
+                <PasswordStrengthIndicator password={password} />
+              )}
             </div>
 
             <Button
@@ -491,6 +495,7 @@ export default function Auth() {
                 className="mt-1"
                 minLength={6}
               />
+              <PasswordStrengthIndicator password={newPassword} />
             </div>
             <AlertDialogFooter>
               <Button
