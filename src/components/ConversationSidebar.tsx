@@ -325,18 +325,27 @@ export const ConversationSidebar = () => {
                 }}
                 onFolderDeleted={fetchFolders}
                 onNewChatInFolder={async (folderId) => {
-                  await createNewConversation()
-                  // Wait a bit for the conversation to be created
-                  setTimeout(async () => {
-                    const newConvId = currentConversationId
-                    if (newConvId) {
-                      await supabase
-                        .from('conversations')
-                        .update({ folder_id: folderId })
-                        .eq('id', newConvId)
-                      fetchConversations()
-                    }
-                  }, 100)
+                  try {
+                    const { data, error } = await supabase
+                      .from('conversations')
+                      .insert([
+                        { 
+                          user_id: user!.id,
+                          title: 'New Conversation',
+                          folder_id: folderId
+                        }
+                      ])
+                      .select()
+                      .single()
+
+                    if (error) throw error
+
+                    await switchConversation(data.id)
+                    toast.success('Started new chat in folder')
+                  } catch (error) {
+                    console.error('Error creating conversation in folder:', error)
+                    toast.error('Failed to create new chat')
+                  }
                 }}
                 draggedConversationId={draggedConversationId}
                 dropTargetFolderId={dropTargetFolderId}
