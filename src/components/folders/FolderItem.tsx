@@ -132,7 +132,7 @@ export const FolderItem = ({
   return (
     <div className="mb-2">
       <div 
-        className={`flex items-center gap-2 px-3 py-2 hover:bg-accent rounded-lg group transition-colors ${
+        className={`flex items-center gap-1.5 px-3 py-2 hover:bg-accent rounded-lg group transition-colors ${
           dropTargetFolderId === folder.id ? "bg-accent/50 border-2 border-primary" : ""
         }`}
         onDrop={handleDrop}
@@ -164,34 +164,24 @@ export const FolderItem = ({
         <Button
           variant="ghost"
           size="sm"
-          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 flex-shrink-0"
+          className="h-5 w-5 p-0 opacity-60 hover:opacity-100 flex-shrink-0"
           onClick={() => onNewChatInFolder(folder.id)}
           title="New chat in folder"
         >
-          <Icon name="plus" className="h-4 w-4" />
+          <Icon name="plus" className="h-3.5 w-3.5" />
         </Button>
 
         <Button
           variant="ghost"
           size="sm"
-          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 flex-shrink-0"
-          onClick={onEditFolder}
-          title="Rename folder"
-        >
-          <Icon name="edit" className="h-4 w-4" />
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive flex-shrink-0"
+          className="h-5 w-5 p-0 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive flex-shrink-0"
           onClick={(e) => {
             e.stopPropagation()
             setShowDeleteDialog(true)
           }}
           title="Delete folder"
         >
-          <Icon name="trash" className="h-4 w-4" />
+          <Icon name="trash" className="h-3.5 w-3.5" />
         </Button>
       </div>
 
