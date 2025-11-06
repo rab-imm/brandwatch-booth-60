@@ -159,8 +159,6 @@ export const FolderItem = ({
 
         <span className="flex-1 text-sm font-medium truncate">{folder.name}</span>
 
-        <span className="text-xs text-muted-foreground flex-shrink-0">{conversations.length}</span>
-
         <Button
           variant="ghost"
           size="sm"
@@ -183,6 +181,8 @@ export const FolderItem = ({
         >
           <Icon name="trash" className="h-3.5 w-3.5" />
         </Button>
+
+        <span className="text-xs text-muted-foreground flex-shrink-0">{conversations.length}</span>
       </div>
 
       {isExpanded && conversations.length > 0 && (
