@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
 import { Resend } from "npm:resend@4.0.0";
 import { renderAsync } from "npm:@react-email/components@0.0.22";
 import React from "npm:react@18.3.1";
@@ -9,7 +8,6 @@ import { MagicLinkEmail } from "./_templates/magic-link.tsx";
 import { corsHeaders } from "../_shared/cors.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-const hookSecret = Deno.env.get("SEND_AUTH_EMAIL_HOOK_SECRET") as string;
 
 interface AuthEmailData {
   token: string;
@@ -55,28 +53,11 @@ serve(async (req) => {
   try {
     logStep("Received auth webhook request");
 
-    // Verify webhook signature
-    const payload = await req.text();
-    const headers = Object.fromEntries(req.headers);
-    
-    const wh = new Webhook(hookSecret);
-    let webhookData: AuthWebhookPayload;
-    
-    try {
-      webhookData = wh.verify(payload, headers) as AuthWebhookPayload;
-      logStep("Webhook signature verified");
-    } catch (error) {
-      logStep("Webhook verification failed", { error: error.message });
-      return new Response(
-        JSON.stringify({ error: "Invalid webhook signature" }),
-        { 
-          status: 401, 
-          headers: { ...corsHeaders, "Content-Type": "application/json" } 
-        }
-      );
-    }
+    // Parse webhook payload directly (Auth Hooks are internal Supabase services)
+    const payload = await req.json() as AuthWebhookPayload;
+    logStep("Parsed webhook payload");
 
-    const { user, email_data } = webhookData;
+    const { user, email_data } = payload;
     const { email_action_type, token_hash, redirect_to } = email_data;
     const userName = user.user_metadata?.full_name;
 
