@@ -40,7 +40,7 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
           />
         </div>
         
-        <Card className={`p-4 ${isUser ? 'bg-primary text-primary-foreground' : 'bg-card'}`}>
+        <Card className={`p-4 overflow-hidden ${isUser ? 'bg-primary text-primary-foreground' : 'bg-card'}`}>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className={`text-xs font-medium ${
@@ -55,7 +55,7 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
               </span>
             </div>
             
-            <div className="prose prose-sm max-w-none">
+            <div className="prose prose-sm max-w-none break-words">
               {isLoading ? (
                 <div className="flex items-center space-x-2">
                   <div className="animate-pulse flex space-x-1">
@@ -66,7 +66,7 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
                   <span className="text-sm">Analyzing your query...</span>
                 </div>
               ) : (
-                <div className={`text-sm leading-relaxed ${
+                <div className={`text-sm leading-relaxed break-words overflow-wrap-anywhere whitespace-pre-wrap ${
                   isUser ? 'text-primary-foreground' : 'text-foreground'
                 }`} dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(
@@ -134,7 +134,7 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
                             )}
                           </div>
                           {source.snippet && (
-                            <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
+                            <p className="text-muted-foreground mt-2 text-xs leading-relaxed break-words">
                               {source.snippet}
                             </p>
                           )}
