@@ -138,7 +138,7 @@ export const FolderItem = ({
   return (
     <div className="mb-2">
       <div 
-        className={`flex items-center gap-2 px-3 py-2 hover:bg-accent rounded-lg group transition-colors ${
+        className={`flex items-center gap-1.5 px-3 py-2 hover:bg-accent rounded-lg group transition-colors ${
           dropTargetFolderId === folder.id ? "bg-accent/50 border-2 border-primary" : ""
         }`}
         onDrop={handleDrop}
@@ -204,13 +204,6 @@ export const FolderItem = ({
             <DropdownMenuItem onClick={onEditFolder}>
               <Icon name="edit" className="h-4 w-4 mr-2" />
               Rename
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => setShowDeleteDialog(true)}
-              className="text-destructive"
-            >
-              <Icon name="trash" className="h-4 w-4 mr-2" />
-              Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
