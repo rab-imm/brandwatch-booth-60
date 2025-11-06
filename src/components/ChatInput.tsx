@@ -1,6 +1,6 @@
 import { useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Icon } from "@/components/ui/Icon"
 import {
   DropdownMenu,
@@ -28,7 +28,7 @@ export const ChatInput = ({
   onLawyerRequest,
   onSuggestLetter
 }: ChatInputProps) => {
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,7 +38,7 @@ export const ChatInput = ({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSubmit(e)
     }
@@ -75,14 +75,15 @@ export const ChatInput = ({
           </DropdownMenuContent>
         </DropdownMenu>
         
-        <Input
+        <Textarea
           ref={inputRef}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto"
+          rows={1}
+          className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[24px] max-h-[120px] resize-none break-words overflow-wrap-anywhere whitespace-pre-wrap"
         />
         
         <Button
