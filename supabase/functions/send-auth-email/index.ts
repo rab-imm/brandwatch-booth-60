@@ -34,34 +34,14 @@ const logStep = (step: string, data?: any) => {
   console.log(`[send-auth-email] ${step}`, data ? JSON.stringify(data, null, 2) : "");
 };
 
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  if (req.method !== "POST") {
-    return new Response(
-      JSON.stringify({ error: "Method not allowed" }),
-      { 
-        status: 405, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      }
-    );
-  }
-
+// Background task to process and send email
+async function processAndSendEmail(payload: AuthWebhookPayload) {
   try {
-    logStep("Received auth webhook request");
-
-    // Parse webhook payload directly (Auth Hooks are internal Supabase services)
-    const payload = await req.json() as AuthWebhookPayload;
-    logStep("Parsed webhook payload");
-
     const { user, email_data } = payload;
     const { email_action_type, token_hash, redirect_to } = email_data;
     const userName = user.user_metadata?.full_name;
 
-    logStep("Processing auth email", { 
+    logStep("Processing auth email in background", { 
       email: user.email, 
       action_type: email_action_type 
     });
@@ -133,13 +113,7 @@ serve(async (req) => {
 
       default:
         logStep("Unknown email action type", { email_action_type });
-        return new Response(
-          JSON.stringify({ error: `Unknown email action type: ${email_action_type}` }),
-          { 
-            status: 400, 
-            headers: { ...corsHeaders, "Content-Type": "application/json" } 
-          }
-        );
+        return;
     }
 
     // Send email via Resend
@@ -159,21 +133,62 @@ serve(async (req) => {
 
     logStep("Email sent successfully", { messageId: data?.id });
 
+  } catch (error) {
+    logStep("Error in background email processing", { 
+      error: error.message,
+      stack: error.stack,
+    });
+  }
+}
+
+serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({ error: "Method not allowed" }),
+      { 
+        status: 405, 
+        headers: { ...corsHeaders, "Content-Type": "application/json" } 
+      }
+    );
+  }
+
+  try {
+    logStep("Received auth webhook request");
+
+    // Parse webhook payload directly (Auth Hooks are internal Supabase services)
+    const payload = await req.json() as AuthWebhookPayload;
+    logStep("Parsed webhook payload");
+
+    const { user, email_data } = payload;
+    const { email_action_type } = email_data;
+
+    // Start background task to process and send email
+    // @ts-ignore - EdgeRuntime is available in Deno Deploy
+    EdgeRuntime.waitUntil(processAndSendEmail(payload));
+
+    logStep("Background task started, returning immediate response");
+
+    // Return immediate 202 (Accepted) response to prevent timeout
     return new Response(
       JSON.stringify({ 
         success: true, 
-        messageId: data?.id,
+        message: "Email processing started",
         recipient: user.email,
         action_type: email_action_type,
       }),
       { 
-        status: 200, 
+        status: 202, 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       }
     );
 
   } catch (error) {
-    logStep("Error processing auth email", { 
+    logStep("Error parsing webhook request", { 
       error: error.message,
       stack: error.stack,
     });
@@ -181,7 +196,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: "Failed to send authentication email",
+        details: "Failed to process authentication email request",
       }),
       { 
         status: 500, 
