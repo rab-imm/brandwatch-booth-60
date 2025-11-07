@@ -43,15 +43,15 @@ export function CompanyDashboardOverview({
       color: "bg-blue-500/10 text-blue-600",
     },
     {
-      title: "Create Letter",
+      title: "Create Document",
       description: "Generate legal document",
       icon: "file-plus",
       onClick: () => navigate("/letters/create"),
       color: "bg-green-500/10 text-green-600",
     },
     {
-      title: "View Letters",
-      description: "Browse your letters",
+      title: "View Documents",
+      description: "Browse your documents",
       icon: "file-text",
       onClick: () => navigate("/letters"),
       color: "bg-purple-500/10 text-purple-600",

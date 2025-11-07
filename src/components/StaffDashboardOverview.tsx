@@ -262,7 +262,7 @@ export function StaffDashboardOverview({ userId, companyId, onNavigateToSection 
             </Button>
             <Button variant="outline" onClick={() => onNavigateToSection('letters')} className="justify-start">
               <FileText className="mr-2 h-4 w-4" />
-              Create Letter
+              Create Document
             </Button>
             <Button variant="outline" onClick={() => onNavigateToSection('templates')} className="justify-start">
               <Package className="mr-2 h-4 w-4" />

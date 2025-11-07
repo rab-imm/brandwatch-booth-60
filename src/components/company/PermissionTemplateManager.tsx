@@ -19,13 +19,13 @@ interface PermissionTemplate {
 }
 
 const AVAILABLE_PERMISSIONS = [
-  { key: 'can_create_letters', label: 'Create Letters', description: 'Create new legal letters' },
-  { key: 'can_edit_letters', label: 'Edit Letters', description: 'Edit existing letters' },
-  { key: 'can_delete_letters', label: 'Delete Letters', description: 'Delete letters' },
-  { key: 'can_approve_letters', label: 'Approve Letters', description: 'Approve letters for finalization' },
-  { key: 'can_view_all_letters', label: 'View All Letters', description: 'View all company letters' },
+  { key: 'can_create_letters', label: 'Create Documents', description: 'Create new legal documents' },
+  { key: 'can_edit_letters', label: 'Edit Documents', description: 'Edit existing documents' },
+  { key: 'can_delete_letters', label: 'Delete Documents', description: 'Delete documents' },
+  { key: 'can_approve_letters', label: 'Approve Documents', description: 'Approve documents for finalization' },
+  { key: 'can_view_all_letters', label: 'View All Documents', description: 'View all company documents' },
   { key: 'can_upload_documents', label: 'Upload Documents', description: 'Upload company documents' },
-  { key: 'can_manage_templates', label: 'Manage Templates', description: 'Create and edit letter templates' },
+  { key: 'can_manage_templates', label: 'Manage Templates', description: 'Create and edit document templates' },
   { key: 'can_view_analytics', label: 'View Analytics', description: 'Access usage analytics' },
   { key: 'can_manage_users', label: 'Manage Users', description: 'Invite and manage team members' },
   { key: 'can_manage_departments', label: 'Manage Departments', description: 'Create and manage departments' },

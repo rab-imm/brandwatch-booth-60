@@ -133,7 +133,7 @@ export const AutoLetterSuggestionPopup = ({
             </Button>
             <Button size="sm" onClick={handleCreateLetter} className="gap-2">
               <FileText className="h-4 w-4" />
-              Create Letter
+              Create Document
             </Button>
           </div>
 

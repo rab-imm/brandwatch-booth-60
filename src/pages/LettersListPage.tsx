@@ -338,12 +338,12 @@ export default function LettersListPage() {
 
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Legal Letters</h1>
-            <p className="text-muted-foreground">Manage your generated legal letters</p>
+            <h1 className="text-3xl font-bold">Legal Documents</h1>
+            <p className="text-muted-foreground">Manage your generated legal documents</p>
           </div>
           <Button onClick={() => navigate('/letters/create')} className="gap-2">
             <Icon name="file-plus" className="w-4 h-4" />
-            Create New Letter
+            Create New Document
           </Button>
         </div>
 
@@ -353,7 +353,7 @@ export default function LettersListPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Letters</p>
+                <p className="text-sm text-muted-foreground">Total Documents</p>
                 <p className="text-2xl font-bold">{stats.total}</p>
               </div>
               <Icon name="file-text" className="w-8 h-8 text-muted-foreground" />
@@ -404,7 +404,7 @@ export default function LettersListPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Input
-                placeholder="Search letters..."
+                placeholder="Search documents..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full"
@@ -457,15 +457,15 @@ export default function LettersListPage() {
           <CardContent className="py-12">
             <div className="text-center">
               <Icon name="inbox" className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="font-semibold mb-2">No letters found</h3>
+              <h3 className="font-semibold mb-2">No documents found</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 {letters.length === 0
-                  ? "Get started by creating your first legal letter"
+                  ? "Get started by creating your first legal document"
                   : "Try adjusting your filters"}
               </p>
               {letters.length === 0 && (
                 <Button onClick={() => navigate('/letters/create')}>
-                  Create Your First Letter
+                  Create Your First Document
                 </Button>
               )}
             </div>

@@ -96,7 +96,7 @@ export default function CompanyUserDashboard() {
       case "chat":
         return 'Legal Assistant'
       case "letters":
-        return 'Legal Letters'
+        return 'Legal Documents'
       case "templates":
         return 'Template Store'
       case "ocr":

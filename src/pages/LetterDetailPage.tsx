@@ -281,7 +281,7 @@ export default function LetterDetailPage() {
       <div className="mb-6">
         <Button variant="ghost" onClick={() => navigate('/letters')} className="mb-4">
           <Icon name="arrow-left" className="w-4 h-4 mr-2" />
-          Back to Letters
+          Back to Documents
         </Button>
       </div>
 

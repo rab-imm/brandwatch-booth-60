@@ -99,13 +99,13 @@ export default function TeamWorkspace() {
               Team Workspace
             </CardTitle>
             <CardDescription>
-              Collaborate on legal letters with your team
+              Collaborate on legal documents with your team
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button>
               <IconPlus className="h-4 w-4 mr-2" />
-              Assign Letter
+              Assign Document
             </Button>
           </CardContent>
         </Card>
@@ -113,8 +113,8 @@ export default function TeamWorkspace() {
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Team Letters</CardTitle>
-              <CardDescription>All company legal letters</CardDescription>
+              <CardTitle>Team Documents</CardTitle>
+              <CardDescription>All company legal documents</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">

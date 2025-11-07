@@ -26,11 +26,11 @@ interface PermissionTemplate {
 }
 
 const AVAILABLE_PERMISSIONS = [
-  { key: "view_letters", label: "View Letters" },
-  { key: "create_letters", label: "Create Letters" },
-  { key: "edit_letters", label: "Edit Letters" },
-  { key: "delete_letters", label: "Delete Letters" },
-  { key: "assign_letters", label: "Assign Letters" },
+  { key: "view_letters", label: "View Documents" },
+  { key: "create_letters", label: "Create Documents" },
+  { key: "edit_letters", label: "Edit Documents" },
+  { key: "delete_letters", label: "Delete Documents" },
+  { key: "assign_letters", label: "Assign Documents" },
   { key: "view_templates", label: "View Templates" },
   { key: "create_templates", label: "Create Templates" },
   { key: "manage_team", label: "Manage Team" },

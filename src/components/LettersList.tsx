@@ -170,13 +170,13 @@ export function LettersList({ onLetterClick, onCreateClick }: LettersListProps) 
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Legal Letters</h2>
-          <p className="text-muted-foreground">Manage your generated legal letters</p>
+          <h2 className="text-2xl font-bold">Legal Documents</h2>
+          <p className="text-muted-foreground">Manage your generated legal documents</p>
         </div>
         {onCreateClick && (
           <Button onClick={onCreateClick} className="gap-2">
             <Icon name="file-plus" className="w-4 h-4" />
-            Create New Letter
+            Create New Document
           </Button>
         )}
       </div>
@@ -187,7 +187,7 @@ export function LettersList({ onLetterClick, onCreateClick }: LettersListProps) 
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Letters</p>
+                <p className="text-sm text-muted-foreground">Total Documents</p>
                 <p className="text-2xl font-bold">{stats.total}</p>
               </div>
               <Icon name="file-text" className="w-8 h-8 text-muted-foreground" />
@@ -237,7 +237,7 @@ export function LettersList({ onLetterClick, onCreateClick }: LettersListProps) 
         <CardContent className="pt-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
-              placeholder="Search letters..."
+              placeholder="Search documents..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -288,15 +288,15 @@ export function LettersList({ onLetterClick, onCreateClick }: LettersListProps) 
           <CardContent className="py-12">
             <div className="text-center">
               <Icon name="inbox" className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="font-semibold mb-2">No letters found</h3>
+              <h3 className="font-semibold mb-2">No documents found</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 {letters.length === 0
-                  ? "Get started by creating your first legal letter"
+                  ? "Get started by creating your first legal document"
                   : "Try adjusting your filters"}
               </p>
               {letters.length === 0 && onCreateClick && (
                 <Button onClick={onCreateClick}>
-                  Create Your First Letter
+                  Create Your First Document
                 </Button>
               )}
             </div>

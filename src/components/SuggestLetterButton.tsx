@@ -178,7 +178,7 @@ export const SuggestLetterButton = ({ conversationId }: SuggestLetterButtonProps
                 </Button>
                 <Button onClick={handleCreateLetter} className="flex-1 gap-2">
                   <Icon name="file-plus" className="w-4 h-4" />
-                  Create Letter
+                  Create Document
                 </Button>
               </div>
             </div>
