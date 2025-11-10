@@ -506,10 +506,10 @@ export const OCRUpload = () => {
                   <div className="text-left">
                     <CardTitle className="flex items-center gap-2">
                       <Icon name="shield" className="h-5 w-5" />
-                      UAE Labour Law Compliance Check
+                      UAE Governance Compliance Check
                     </CardTitle>
                     <CardDescription>
-                      Cross-referenced with Federal Decree-Law No. 33 of 2021
+                      UAE Federal Laws & Regulations
                     </CardDescription>
                   </div>
                   <Icon 

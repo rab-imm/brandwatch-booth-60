@@ -211,10 +211,138 @@ const MissingClauseRules: MissingClauseRule[] = [
     sample_wording_en: 'All notices required or permitted under this Agreement shall be in writing and delivered by registered mail, courier service, or email to the addresses specified in this Agreement. Notices shall be deemed received: (i) if by registered mail, five business days after posting; (ii) if by courier, upon delivery; (iii) if by email, upon confirmation of receipt.',
     sample_wording_ar: 'يجب أن تكون جميع الإخطارات المطلوبة أو المسموح بها بموجب هذا العقد كتابية ويتم تسليمها بالبريد المسجل أو خدمة البريد السريع أو البريد الإلكتروني إلى العناوين المحددة في هذا العقد. تعتبر الإخطارات مستلمة: (1) إذا كانت بالبريد المسجل، بعد خمسة أيام عمل من الإرسال؛ (2) إذا كانت بالبريد السريع، عند التسليم؛ (3) إذا كانت بالبريد الإلكتروني، عند تأكيد الاستلام.',
     common_in_document_types: ['contract', 'agreement', 'employment_contract']
+  },
+  {
+    clause_type: 'data_protection',
+    display_name: 'Data Protection & Privacy',
+    display_name_ar: 'حماية البيانات والخصوصية',
+    importance: 'essential',
+    category: 'legal',
+    description: 'Addresses handling of personal data and privacy obligations',
+    description_ar: 'يعالج التعامل مع البيانات الشخصية والتزامات الخصوصية',
+    why_needed: 'Required by UAE Data Protection Law (Federal Decree-Law No. 45 of 2021) for any contract processing personal data.',
+    why_needed_ar: 'مطلوب بموجب قانون حماية البيانات الإماراتي (المرسوم بقانون اتحادي رقم 45 لسنة 2021) لأي عقد يعالج البيانات الشخصية.',
+    detection_patterns: [
+      /\b(data protection|privacy|personal data|data processing|GDPR|data subject)\b/gi,
+      /\b(confidential information|data security)\b/gi
+    ],
+    arabic_patterns: [
+      /\b(حماية البيانات|الخصوصية|البيانات الشخصية|معالجة البيانات)\b/gu
+    ],
+    sample_wording_en: 'Each party shall comply with all applicable data protection laws, including UAE Federal Decree-Law No. 45 of 2021. Personal data shall be processed only for the purposes stated in this Agreement, and appropriate technical and organizational measures shall be implemented to protect such data.',
+    sample_wording_ar: 'يلتزم كل طرف بالامتثال لجميع قوانين حماية البيانات المعمول بها، بما في ذلك المرسوم بقانون اتحادي رقم 45 لسنة 2021. تتم معالجة البيانات الشخصية فقط للأغراض المذكورة في هذا العقد، ويتم تطبيق التدابير التقنية والتنظيمية المناسبة لحماية هذه البيانات.',
+    related_articles: ['Federal Decree-Law No. 45 of 2021'],
+    common_in_document_types: ['contract', 'agreement', 'service_agreement', 'employment_contract']
+  },
+  {
+    clause_type: 'intellectual_property',
+    display_name: 'Intellectual Property Rights',
+    display_name_ar: 'حقوق الملكية الفكرية',
+    importance: 'essential',
+    category: 'commercial',
+    description: 'Defines ownership and usage rights of intellectual property',
+    description_ar: 'يحدد ملكية وحقوق استخدام الملكية الفكرية',
+    why_needed: 'Protects IP rights and prevents disputes over ownership of creative work, inventions, or business assets.',
+    why_needed_ar: 'يحمي حقوق الملكية الفكرية ويمنع النزاعات حول ملكية الأعمال الإبداعية أو الاختراعات أو الأصول التجارية.',
+    detection_patterns: [
+      /\b(intellectual property|IP rights|copyright|trademark|patent|trade secret)\b/gi,
+      /\b(ownership|proprietary rights|work product)\b/gi
+    ],
+    arabic_patterns: [
+      /\b(الملكية الفكرية|حقوق النشر|العلامة التجارية|براءة اختراع)\b/gu
+    ],
+    sample_wording_en: 'All intellectual property rights, including but not limited to copyrights, trademarks, patents, and trade secrets, created or developed in connection with this Agreement shall be owned by [Party Name]. The other party shall not use, reproduce, or distribute such intellectual property without prior written consent.',
+    sample_wording_ar: 'جميع حقوق الملكية الفكرية، بما في ذلك على سبيل المثال لا الحصر حقوق النشر والعلامات التجارية وبراءات الاختراع والأسرار التجارية، التي يتم إنشاؤها أو تطويرها فيما يتعلق بهذا العقد تكون ملكاً لـ [اسم الطرف]. لا يجوز للطرف الآخر استخدام أو استنساخ أو توزيع هذه الملكية الفكرية دون موافقة كتابية مسبقة.',
+    related_articles: ['Federal Law No. 7 of 2002 - Copyrights', 'Federal Law No. 37 of 1992 - Trademarks'],
+    common_in_document_types: ['contract', 'agreement', 'service_agreement', 'employment_contract']
+  },
+  {
+    clause_type: 'limitation_of_liability',
+    display_name: 'Limitation of Liability',
+    display_name_ar: 'تحديد المسؤولية',
+    importance: 'recommended',
+    category: 'commercial',
+    description: 'Limits liability exposure for each party',
+    description_ar: 'يحد من التعرض للمسؤولية لكل طرف',
+    why_needed: 'Protects parties from excessive financial exposure and defines the scope of liability.',
+    why_needed_ar: 'يحمي الأطراف من التعرض المالي المفرط ويحدد نطاق المسؤولية.',
+    detection_patterns: [
+      /\b(limitation of liability|liability cap|maximum liability|damages limit)\b/gi,
+      /\b(indirect damages|consequential damages|liability exclusion)\b/gi
+    ],
+    arabic_patterns: [
+      /\b(تحديد المسؤولية|حد المسؤولية|الأضرار غير المباشرة)\b/gu
+    ],
+    sample_wording_en: 'Neither party shall be liable for any indirect, incidental, special, consequential, or punitive damages arising out of this Agreement. The total liability of each party shall not exceed the total amount paid under this Agreement in the twelve months preceding the claim.',
+    sample_wording_ar: 'لا يكون أي طرف مسؤولاً عن أي أضرار غير مباشرة أو عرضية أو خاصة أو تبعية أو عقابية ناشئة عن هذا العقد. لا تتجاوز المسؤولية الإجمالية لكل طرف المبلغ الإجمالي المدفوع بموجب هذا العقد في الاثني عشر شهرًا السابقة للمطالبة.',
+    common_in_document_types: ['contract', 'agreement', 'service_agreement']
+  },
+  {
+    clause_type: 'indemnification',
+    display_name: 'Indemnification',
+    display_name_ar: 'التعويض',
+    importance: 'recommended',
+    category: 'commercial',
+    description: 'Defines who compensates whom for losses or damages',
+    description_ar: 'يحدد من يعوض من عن الخسائر أو الأضرار',
+    why_needed: 'Allocates risk between parties and provides protection against third-party claims.',
+    why_needed_ar: 'يوزع المخاطر بين الأطراف ويوفر الحماية ضد مطالبات الأطراف الثالثة.',
+    detection_patterns: [
+      /\b(indemnif(y|ication)|hold harmless|defend|reimburse)\b/gi,
+      /\b(third.party claims?|losses|damages)\b/gi
+    ],
+    arabic_patterns: [
+      /\b(تعويض|تحمل المسؤولية|الدفاع|مطالبات الغير)\b/gu
+    ],
+    sample_wording_en: 'Each party shall indemnify, defend, and hold harmless the other party from and against any and all claims, damages, losses, liabilities, costs, and expenses (including reasonable attorneys\' fees) arising out of or resulting from any breach of this Agreement or negligent acts by the indemnifying party.',
+    sample_wording_ar: 'يتعهد كل طرف بتعويض والدفاع عن وحماية الطرف الآخر من وضد جميع المطالبات والأضرار والخسائر والالتزامات والتكاليف والنفقات (بما في ذلك أتعاب المحاماة المعقولة) الناشئة عن أو الناتجة عن أي خرق لهذا العقد أو الأفعال المهملة من قبل الطرف المعوض.',
+    common_in_document_types: ['contract', 'agreement', 'service_agreement']
+  },
+  {
+    clause_type: 'assignment',
+    display_name: 'Assignment & Transfer',
+    display_name_ar: 'التنازل والنقل',
+    importance: 'recommended',
+    category: 'legal',
+    description: 'Governs whether and how the contract can be transferred',
+    description_ar: 'ينظم ما إذا كان يمكن نقل العقد وكيفية نقله',
+    why_needed: 'Controls whether parties can transfer their rights and obligations to third parties.',
+    why_needed_ar: 'يتحكم في ما إذا كان يمكن للأطراف نقل حقوقهم والتزاماتهم إلى أطراف ثالثة.',
+    detection_patterns: [
+      /\b(assignment|transfer|assign rights|delegate)\b/gi,
+      /\b(successor|permitted assignee|binding upon)\b/gi
+    ],
+    arabic_patterns: [
+      /\b(التنازل|النقل|نقل الحقوق|التفويض)\b/gu
+    ],
+    sample_wording_en: 'Neither party may assign or transfer this Agreement or any rights or obligations hereunder without the prior written consent of the other party. Any attempted assignment in violation of this provision shall be void.',
+    sample_wording_ar: 'لا يجوز لأي طرف التنازل عن هذا العقد أو نقله أو أي حقوق أو التزامات بموجبه دون موافقة كتابية مسبقة من الطرف الآخر. يعتبر أي تنازل يتم في انتهاك لهذا الحكم باطلاً.',
+    common_in_document_types: ['contract', 'agreement', 'service_agreement']
+  },
+  {
+    clause_type: 'amendment_procedures',
+    display_name: 'Amendment Procedures',
+    display_name_ar: 'إجراءات التعديل',
+    importance: 'recommended',
+    category: 'operational',
+    description: 'Specifies how the contract can be modified',
+    description_ar: 'يحدد كيفية تعديل العقد',
+    why_needed: 'Prevents unauthorized changes and ensures both parties agree to modifications.',
+    why_needed_ar: 'يمنع التغييرات غير المصرح بها ويضمن موافقة الطرفين على التعديلات.',
+    detection_patterns: [
+      /\b(amendment|modification|change|waiver)\b/gi,
+      /\b(written consent|mutual agreement|signed by both)\b/gi
+    ],
+    arabic_patterns: [
+      /\b(تعديل|تغيير|موافقة كتابية|اتفاق متبادل)\b/gu
+    ],
+    sample_wording_en: 'This Agreement may be amended or modified only by a written instrument signed by both parties. No waiver of any provision shall be effective unless in writing and signed by the party waiving its rights.',
+    sample_wording_ar: 'لا يجوز تعديل أو تغيير هذا العقد إلا بوثيقة مكتوبة موقعة من الطرفين. لا يكون أي تنازل عن أي حكم ساريًا ما لم يكن كتابيًا وموقعًا من الطرف الذي يتنازل عن حقوقه.',
+    common_in_document_types: ['contract', 'agreement']
   }
 ]
 
-const UAELabourComplianceRules: ComplianceRule[] = [
+const UAEGovernanceComplianceRules: ComplianceRule[] = [
   {
     article: 'Article 17',
     category: 'working_hours',
@@ -337,6 +465,103 @@ const UAELabourComplianceRules: ComplianceRule[] = [
     violation_severity: 'high',
     recommendation: 'Ensure contract includes Arabic version or is bilingual',
     recommendation_ar: 'يجب أن يتضمن العقد نسخة عربية أو يكون ثنائي اللغة'
+  },
+  // Additional UAE Governance Compliance Rules (Civil, Commercial, Data Protection Laws)
+  {
+    article: 'Civil Law - Article 125',
+    category: 'contract_validity',
+    requirement: 'Contract must have valid offer and acceptance between parties with legal capacity',
+    requirement_ar: 'يجب أن يحتوي العقد على إيجاب وقبول صحيح بين أطراف ذوي أهلية قانونية',
+    mandatory: true,
+    regex_patterns: [/\b(offer|acceptance|mutual consent|agreement|parties)\b/gi],
+    arabic_patterns: [/\b(إيجاب|قبول|توافق|اتفاق|أطراف)\b/gu],
+    violation_severity: 'critical',
+    recommendation: 'Ensure contract clearly identifies parties, offer, and acceptance',
+    recommendation_ar: 'تأكد من أن العقد يحدد بوضوح الأطراف والإيجاب والقبول'
+  },
+  {
+    article: 'Civil Law - Article 129',
+    category: 'consideration',
+    requirement: 'Contract must have lawful consideration (subject matter)',
+    requirement_ar: 'يجب أن يكون للعقد محل مشروع',
+    mandatory: true,
+    regex_patterns: [/\b(consideration|subject matter|purpose|scope of work)\b/gi],
+    arabic_patterns: [/\b(المحل|موضوع العقد|الغرض|نطاق العمل)\b/gu],
+    violation_severity: 'critical',
+    recommendation: 'Include clear description of the subject matter and consideration',
+    recommendation_ar: 'قم بتضمين وصف واضح لموضوع العقد والمحل'
+  },
+  {
+    article: 'Commercial Law - Article 2',
+    category: 'commercial_registration',
+    requirement: 'Commercial parties must reference valid trade license',
+    requirement_ar: 'يجب على الأطراف التجارية الإشارة إلى رخصة تجارية سارية',
+    mandatory: false,
+    regex_patterns: [/\b(trade license|commercial license|license number)\b/gi],
+    arabic_patterns: [/\b(رخصة تجارية|رقم الرخصة)\b/gu],
+    violation_severity: 'medium',
+    recommendation: 'For commercial contracts, include trade license details of parties',
+    recommendation_ar: 'بالنسبة للعقود التجارية، قم بتضمين تفاصيل الرخصة التجارية للأطراف'
+  },
+  {
+    article: 'Data Protection Law - Article 5',
+    category: 'data_processing',
+    requirement: 'Data processing must have legal basis and specified purpose',
+    requirement_ar: 'يجب أن تكون معالجة البيانات لها أساس قانوني وغرض محدد',
+    mandatory: false,
+    regex_patterns: [/\b(personal data|data processing|data protection|privacy)\b/gi],
+    arabic_patterns: [/\b(بيانات شخصية|معالجة البيانات|حماية البيانات|الخصوصية)\b/gu],
+    violation_severity: 'high',
+    recommendation: 'If processing personal data, include data protection clauses compliant with UAE law',
+    recommendation_ar: 'إذا كانت معالجة البيانات الشخصية، قم بتضمين بنود حماية البيانات المتوافقة مع القانون الإماراتي'
+  },
+  {
+    article: 'Consumer Protection Law - Article 10',
+    category: 'consumer_rights',
+    requirement: 'Consumer contracts must clearly state terms, pricing, and return policies',
+    requirement_ar: 'يجب أن توضح عقود المستهلك الشروط والأسعار وسياسات الإرجاع بوضوح',
+    mandatory: false,
+    regex_patterns: [/\b(consumer|customer|return policy|warranty|refund)\b/gi],
+    arabic_patterns: [/\b(مستهلك|عميل|سياسة الإرجاع|ضمان|استرداد)\b/gu],
+    violation_severity: 'medium',
+    recommendation: 'For consumer-facing contracts, include clear terms, pricing, and return policies',
+    recommendation_ar: 'بالنسبة للعقود الموجهة للمستهلكين، قم بتضمين شروط وأسعار وسياسات إرجاع واضحة'
+  },
+  {
+    article: 'Companies Law - Article 25',
+    category: 'corporate_authority',
+    requirement: 'Corporate entities must demonstrate authority to contract',
+    requirement_ar: 'يجب على الكيانات الشركات إثبات الصلاحية للتعاقد',
+    mandatory: false,
+    regex_patterns: [/\b(authorized signatory|board approval|corporate resolution)\b/gi],
+    arabic_patterns: [/\b(مفوض بالتوقيع|موافقة مجلس الإدارة|قرار الشركة)\b/gu],
+    violation_severity: 'medium',
+    recommendation: 'For corporate parties, reference authorized signatory or board approval',
+    recommendation_ar: 'بالنسبة للأطراف الشركات، أشر إلى المفوض بالتوقيع أو موافقة مجلس الإدارة'
+  },
+  {
+    article: 'Civil Law - Article 246',
+    category: 'contract_execution',
+    requirement: 'Contract performance obligations must be clearly defined',
+    requirement_ar: 'يجب تحديد التزامات تنفيذ العقد بوضوح',
+    mandatory: true,
+    regex_patterns: [/\b(obligations|performance|deliverables|duties)\b/gi],
+    arabic_patterns: [/\b(التزامات|تنفيذ|المخرجات|واجبات)\b/gu],
+    violation_severity: 'high',
+    recommendation: 'Clearly define performance obligations and deliverables for each party',
+    recommendation_ar: 'حدد بوضوح التزامات الأداء والمخرجات لكل طرف'
+  },
+  {
+    article: 'Commercial Law - Article 90',
+    category: 'payment_terms',
+    requirement: 'Payment terms, currency, and methods must be specified',
+    requirement_ar: 'يجب تحديد شروط الدفع والعملة والطرق',
+    mandatory: true,
+    regex_patterns: [/\b(payment|price|fees?|currency|AED|USD|invoice)\b/gi],
+    arabic_patterns: [/\b(دفع|سعر|رسوم|عملة|درهم|فاتورة)\b/gu],
+    violation_severity: 'high',
+    recommendation: 'Include clear payment terms, amounts, currency, and payment methods',
+    recommendation_ar: 'قم بتضمين شروط دفع واضحة، والمبالغ، والعملة، وطرق الدفع'
   }
 ]
 
@@ -459,14 +684,14 @@ function detectClausesByPattern(text: string): DetectedClause[] {
   return detectedClauses
 }
 
-function checkUAELabourCompliance(
+function checkUAEGovernanceCompliance(
   extractedText: string,
   detectedClauses: DetectedClause[]
 ): ComplianceViolation[] {
   const violations: ComplianceViolation[] = []
   const textLower = extractedText.toLowerCase()
   
-  for (const rule of UAELabourComplianceRules) {
+  for (const rule of UAEGovernanceComplianceRules) {
     const clausesOfType = detectedClauses.filter(c => c.type === rule.category)
     
     // Check if required clause exists
@@ -538,19 +763,18 @@ async function analyzeComplianceWithAI(
       messages: [
         {
           role: 'system',
-          content: `You are a UAE employment law expert specializing in Federal Decree-Law No. 33 of 2021.
+          content: `You are a UAE legal expert specializing in UAE Federal Laws and Regulations.
 
-Analyze the employment document for compliance with UAE Labour Law. Check for:
-1. Working hours (max 8h/day, 48h/week - Article 17)
-2. Annual leave (min 30 days - Article 29)
-3. Sick leave (90 days - Article 31)
-4. Maternity leave (60 days - Article 30)
-5. Notice period (min 30 days - Article 43-44)
-6. End of service gratuity (Articles 51-54)
-7. Probation (max 6 months - Article 10)
-8. Overtime rates (125%/150% - Article 18)
-9. Wage protection (Articles 56-61)
-10. Termination rights (Articles 42-48)
+Analyze this document for compliance with UAE Governance Laws including:
+1. UAE Civil Transactions Law (Federal Law No. 5 of 1985) - Contract validity, offer/acceptance, legal capacity
+2. UAE Commercial Transactions Law (Federal Law No. 18 of 1993) - Commercial contracts, trade requirements
+3. UAE Labour Law (Federal Decree-Law No. 33 of 2021) - Employment terms, working hours, leave entitlements
+4. UAE Data Protection Law (Federal Decree-Law No. 45 of 2021) - Personal data processing, privacy
+5. UAE Consumer Protection Law (Federal Law No. 15 of 2020) - Consumer rights, warranties
+6. UAE Companies Law (Federal Law No. 2 of 2015) - Corporate capacity, authority to contract
+7. UAE Contract Law fundamentals - Performance obligations, payment terms, signatures
+
+Check for contract validity, parties' legal capacity, lawful consideration, clear obligations, proper execution, and compliance with applicable sector-specific regulations.
 
 Return ONLY raw JSON (NO markdown code fences):
 {
@@ -561,7 +785,7 @@ Return ONLY raw JSON (NO markdown code fences):
         },
         {
           role: 'user',
-          content: `Analyze this employment document for UAE Labour Law compliance:\n\n${extractedText.substring(0, 8000)}`
+          content: `Analyze this document for UAE Governance Laws compliance:\n\n${extractedText.substring(0, 8000)}`
         }
       ]
     })
@@ -760,7 +984,17 @@ async function analyzeGapsWithAI(
       messages: [
         {
           role: 'system',
-          content: `You are a UAE legal expert analyzing contract completeness. Identify missing essential legal clauses. Return ONLY raw JSON (NO markdown):
+          content: `You are a UAE legal expert analyzing contract completeness under UAE Governance Laws.
+
+Identify missing essential clauses based on:
+- UAE Civil Transactions Law - Contract fundamentals, validity requirements
+- UAE Commercial Transactions Law - Commercial contract requirements
+- UAE Labour Law - Employment contract clauses
+- UAE Data Protection Law - Privacy and data processing clauses
+- UAE Consumer Protection Law - Consumer-facing contract requirements
+- General UAE contract law best practices
+
+Return ONLY raw JSON (NO markdown):
 {
   "missing_clauses": [
     {
@@ -768,7 +1002,7 @@ async function analyzeGapsWithAI(
       "display_name": "string",
       "importance": "essential|recommended|optional",
       "category": "legal|commercial|operational",
-      "why_needed": "explanation",
+      "why_needed": "explanation referencing specific UAE law",
       "sample_wording": "suggested clause text",
       "confidence": 0.95
     }
@@ -778,7 +1012,7 @@ async function analyzeGapsWithAI(
         },
         {
           role: 'user',
-          content: `Analyze this document for missing critical legal clauses:\n\n${extractedText.substring(0, 8000)}`
+          content: `Analyze this document for missing critical legal clauses under UAE Governance Laws:\n\n${extractedText.substring(0, 8000)}`
         }
       ]
     })

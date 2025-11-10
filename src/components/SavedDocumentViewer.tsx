@@ -139,8 +139,8 @@ export const SavedDocumentViewer = ({ document, isOpen, onClose, onDelete }: Sav
                             <Icon name="shield-check" className="h-6 w-6 text-primary" />
                           </div>
                           <div className="text-left">
-                            <CardTitle className="text-xl">UAE Labour Law Compliance Check</CardTitle>
-                            <CardDescription>Federal Decree-Law No. 33 of 2021</CardDescription>
+                            <CardTitle className="text-xl">UAE Governance Compliance Check</CardTitle>
+                            <CardDescription>UAE Federal Laws & Regulations</CardDescription>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
