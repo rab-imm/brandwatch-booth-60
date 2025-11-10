@@ -124,7 +124,7 @@ export const Header = () => {
                 to="/letters" 
                 className="text-sm font-medium px-6 py-2 rounded-md hover:bg-background transition-colors"
               >
-                My Letters
+                Documents
               </Link>
               <Link 
                 to="/contacts" 

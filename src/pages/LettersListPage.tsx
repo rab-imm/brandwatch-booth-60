@@ -333,7 +333,7 @@ export default function LettersListPage() {
             Dashboard
           </Link>
           <Icon name="chevron-right" className="h-4 w-4" />
-          <span className="text-foreground font-medium">My Letters</span>
+          <span className="text-foreground font-medium">Documents</span>
         </nav>
 
         <div className="flex items-center justify-between mb-6">

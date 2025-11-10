@@ -50,7 +50,7 @@
     "subscription": "Subscription",
     "team": "Team",
     "workspace": "Workspace",
-    "myLetters": "My Letters",
+    "myLetters": "Documents",
     "createLetter": "Create Letter"
   },
   "hero": {
@@ -157,7 +157,7 @@
     "analyzing": "Analyzing..."
   },
   "letters": {
-    "title": "My Letters",
+    "title": "Documents",
     "createNew": "Create New Letter",
     "draft": "Draft",
     "completed": "Completed",

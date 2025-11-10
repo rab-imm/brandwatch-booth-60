@@ -50,7 +50,7 @@
     "subscription": "الاشتراك",
     "team": "الفريق",
     "workspace": "مساحة العمل",
-    "myLetters": "خطاباتي",
+    "myLetters": "الوثائق",
     "createLetter": "إنشاء خطاب"
   },
   "hero": {
@@ -157,7 +157,7 @@
     "analyzing": "جاري التحليل..."
   },
   "letters": {
-    "title": "خطاباتي",
+    "title": "الوثائق",
     "createNew": "إنشاء خطاب جديد",
     "draft": "مسودة",
     "completed": "مكتمل",
