@@ -53,6 +53,18 @@ interface MissingClauseSuggestion {
   ai_reasoning?: string
 }
 
+// Detect if text contains Arabic characters
+const detectTextDirection = (text: string): { direction: 'rtl' | 'ltr', textAlign: 'right' | 'left' } => {
+  // Check if text contains Arabic Unicode characters (U+0600 to U+06FF, U+0750 to U+077F, U+FB50 to U+FDFF, U+FE70 to U+FEFF)
+  const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/;
+  const hasArabic = arabicRegex.test(text);
+  
+  if (hasArabic) {
+    return { direction: 'rtl', textAlign: 'right' };
+  }
+  return { direction: 'ltr', textAlign: 'left' };
+};
+
 export const OCRUpload = () => {
   const { user, profile } = useAuth()
   const { toast } = useToast()
@@ -952,8 +964,7 @@ export const OCRUpload = () => {
                 className="p-4 bg-muted rounded-lg max-h-96 overflow-y-auto whitespace-pre-wrap text-sm"
                 style={{ 
                   fontFamily: 'Arial, "Noto Sans Arabic", "Tahoma", sans-serif',
-                  direction: 'rtl',
-                  textAlign: 'right',
+                  ...detectTextDirection(result.extractedText),
                   unicodeBidi: 'embed'
                 }}
               >
@@ -1014,8 +1025,7 @@ export const OCRUpload = () => {
                         className="text-sm whitespace-pre-wrap text-foreground/90 leading-relaxed"
                         style={{ 
                           fontFamily: 'Arial, "Noto Sans Arabic", "Tahoma", sans-serif',
-                          direction: 'rtl',
-                          textAlign: 'right',
+                          ...detectTextDirection(clause.text),
                           unicodeBidi: 'embed'
                         }}
                       >
@@ -1054,8 +1064,7 @@ export const OCRUpload = () => {
                 className="p-4 bg-muted rounded-lg prose prose-sm dark:prose-invert max-w-none"
                 style={{ 
                   fontFamily: 'Arial, "Noto Sans Arabic", "Tahoma", sans-serif',
-                  direction: 'rtl',
-                  textAlign: 'right'
+                  ...detectTextDirection(result.aiSummary)
                 }}
               >
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
