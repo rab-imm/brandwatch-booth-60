@@ -1283,8 +1283,8 @@ ${extractedText.substring(0, 4000)}`
     }))
 
     // UAE Labour Law Compliance Check
-    console.log('Checking UAE Labour Law compliance...')
-    const patternViolations = checkUAELabourCompliance(extractedText, allClauses)
+    console.log('Checking UAE Governance compliance...')
+    const patternViolations = checkUAEGovernanceCompliance(extractedText, allClauses)
     console.log(`Found ${patternViolations.length} pattern-based violations`)
     
     const aiCompliance = await analyzeComplianceWithAI(
