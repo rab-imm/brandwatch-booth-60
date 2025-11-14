@@ -20,6 +20,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ContactCard } from "@/components/contacts/ContactCard"
+import { ContactForm } from "@/components/contacts/ContactForm"
 import { formatDistanceToNow } from "date-fns"
 
 interface Letter {
@@ -39,6 +42,16 @@ interface Letter {
     recipients_count: number
     signed_count: number
   }
+}
+
+interface Contact {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  notes?: string
+  tags?: string[]
+  created_at: string
 }
 
 const LETTER_TYPE_LABELS: { [key: string]: string } = {
@@ -74,12 +87,38 @@ export default function LettersListPage() {
   const [typeFilter, setTypeFilter] = useState("all")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [letterToDelete, setLetterToDelete] = useState<string | null>(null)
+  
+  // Contact management state
+  const [contacts, setContacts] = useState<Contact[]>([])
+  const [filteredContacts, setFilteredContacts] = useState<Contact[]>([])
+  const [contactSearchQuery, setContactSearchQuery] = useState("")
+  const [contactFormOpen, setContactFormOpen] = useState(false)
+  const [editingContact, setEditingContact] = useState<Contact | null>(null)
+  const [contactDeleteDialogOpen, setContactDeleteDialogOpen] = useState(false)
+  const [contactToDelete, setContactToDelete] = useState<string | null>(null)
 
   useEffect(() => {
     if (user) {
       fetchLetters()
     }
   }, [user])
+
+  // Contact filtering
+  useEffect(() => {
+    if (contactSearchQuery) {
+      const query = contactSearchQuery.toLowerCase()
+      setFilteredContacts(
+        contacts.filter(
+          (contact) =>
+            contact.name.toLowerCase().includes(query) ||
+            contact.email.toLowerCase().includes(query) ||
+            contact.phone?.toLowerCase().includes(query)
+        )
+      )
+    } else {
+      setFilteredContacts(contacts)
+    }
+  }, [contactSearchQuery, contacts])
 
   useEffect(() => {
     filterLetters()
@@ -288,6 +327,80 @@ export default function LettersListPage() {
     setDeleteDialogOpen(true)
   }
 
+  // Contact management functions
+  const loadContacts = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+
+      const { data, error } = await supabase.functions.invoke('manage-contacts', {
+        body: { action: 'list' },
+      })
+
+      if (error) throw error
+      if (data.success) {
+        setContacts(data.contacts || [])
+      }
+    } catch (error) {
+      console.error('Error loading contacts:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load contacts",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleEditContact = (contact: Contact) => {
+    setEditingContact(contact)
+    setContactFormOpen(true)
+  }
+
+  const handleDeleteContact = async (contactId: string) => {
+    setContactToDelete(contactId)
+    setContactDeleteDialogOpen(true)
+  }
+
+  const confirmDeleteContact = async () => {
+    if (!contactToDelete) return
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+
+      const { data, error } = await supabase.functions.invoke('manage-contacts', {
+        body: {
+          action: 'delete',
+          contactId: contactToDelete,
+        },
+      })
+
+      if (error) throw error
+      if (!data.success) throw new Error(data.error || 'Failed to delete contact')
+
+      toast({
+        title: "Success",
+        description: "Contact deleted successfully"
+      })
+      loadContacts()
+    } catch (error) {
+      console.error('Error deleting contact:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete contact",
+        variant: "destructive"
+      })
+    } finally {
+      setContactDeleteDialogOpen(false)
+      setContactToDelete(null)
+    }
+  }
+
+  const handleAddNewContact = () => {
+    setEditingContact(null)
+    setContactFormOpen(true)
+  }
+
   const handleDeleteConfirm = async () => {
     if (!letterToDelete) return
 
@@ -327,14 +440,25 @@ export default function LettersListPage() {
 
   return (
     <div className="container max-w-7xl py-8">
-        {/* Breadcrumb */}
-        <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
-          <Link to="/dashboard" className="hover:text-foreground transition-colors">
-            Dashboard
-          </Link>
-          <Icon name="chevron-right" className="h-4 w-4" />
-          <span className="text-foreground font-medium">Documents</span>
-        </nav>
+      <Tabs defaultValue="documents" className="w-full">
+        {/* Breadcrumb and Tabs */}
+        <div className="mb-6">
+          <nav className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <Link to="/dashboard" className="hover:text-foreground transition-colors">
+              Dashboard
+            </Link>
+            <Icon name="chevron-right" className="h-4 w-4" />
+            <span className="text-foreground font-medium">Documents & Contacts</span>
+          </nav>
+
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="contacts" onClick={() => loadContacts()}>Contacts</TabsTrigger>
+          </TabsList>
+        </div>
+
+        {/* Documents Tab */}
+        <TabsContent value="documents" className="space-y-6">
 
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -600,6 +724,91 @@ export default function LettersListPage() {
             <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive">
               Delete
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+        </TabsContent>
+
+        {/* Contacts Tab */}
+        <TabsContent value="contacts" className="space-y-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold">Contacts</h1>
+              <p className="text-muted-foreground">Manage your contact directory</p>
+            </div>
+            <Button onClick={handleAddNewContact} className="gap-2">
+              <Icon name="user-plus" className="w-4 h-4" />
+              Create Contact
+            </Button>
+          </div>
+
+          {/* Search */}
+          <Card>
+            <CardContent className="pt-6">
+              <Input
+                placeholder="Search contacts by name, email, or phone..."
+                value={contactSearchQuery}
+                onChange={(e) => setContactSearchQuery(e.target.value)}
+                className="w-full"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Contacts Grid */}
+          {filteredContacts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredContacts.map((contact) => (
+                <ContactCard
+                  key={contact.id}
+                  contact={contact}
+                  onEdit={handleEditContact}
+                  onDelete={handleDeleteContact}
+                />
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="pt-12 pb-12 text-center">
+                <Icon name="users" className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-lg font-medium mb-2">No contacts yet</p>
+                <p className="text-muted-foreground mb-4">
+                  {contactSearchQuery ? "No contacts match your search" : "Get started by creating your first contact"}
+                </p>
+                {!contactSearchQuery && (
+                  <Button onClick={handleAddNewContact}>
+                    <Icon name="user-plus" className="w-4 h-4 mr-2" />
+                    Create Contact
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      {/* Contact Form Dialog */}
+      <ContactForm
+        open={contactFormOpen}
+        onOpenChange={setContactFormOpen}
+        contact={editingContact}
+        onSuccess={() => {
+          loadContacts()
+          setContactFormOpen(false)
+        }}
+      />
+
+      {/* Contact Delete Confirmation Dialog */}
+      <AlertDialog open={contactDeleteDialogOpen} onOpenChange={setContactDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Contact</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this contact? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteContact}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
