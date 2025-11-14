@@ -127,12 +127,6 @@ export const Header = () => {
                 Documents
               </Link>
               <Link 
-                to="/contacts" 
-                className="text-sm font-medium px-6 py-2 rounded-md hover:bg-background transition-colors"
-              >
-                My Contacts
-              </Link>
-              <Link 
                 to="/ocr" 
                 className="text-sm font-medium px-6 py-2 rounded-md hover:bg-background transition-colors"
               >
