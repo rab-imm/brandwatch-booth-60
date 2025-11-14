@@ -283,67 +283,18 @@ RESPONSE FORMAT:
 
 CRITICAL: You provide legal information, not legal advice. Always recommend consulting qualified UAE legal professionals for specific matters.`
 
-    // Step 5: Generate response using GPT-4o
-    console.log('Generating AI response with GPT-4o...')
-    let finalResponse = ""
-    
-    try {
-      const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: message }
-          ],
-          max_tokens: 1500,
-        }),
-      })
-
-      if (!aiResponse.ok) {
-        const errorData = await aiResponse.json()
-        console.error('OpenAI API error:', errorData)
-        throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`)
-      }
-
-      const data = await aiResponse.json()
-      console.log('OpenAI response received, choices length:', data.choices?.length)
-      
-      if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
-        finalResponse = data.choices[0].message.content.trim()
-        console.log('AI response length:', finalResponse.length)
-      }
-      
-      // Fallback if empty response
-      if (!finalResponse) {
-        console.log('Empty response from GPT-4o, providing fallback')
-        finalResponse = "I apologize, but I'm unable to process your legal query at this moment. This could be due to temporary service limitations. Please try rephrasing your question or contact a qualified UAE legal professional for immediate assistance."
-      }
-      
-    } catch (error) {
-      console.error('Error calling OpenAI API:', error)
-      finalResponse = "I apologize, but there was an error processing your legal query. Please try again later or consult with a qualified UAE legal professional for immediate assistance."
-    }
-
-    // Step 6: Update credit usage - deduct from rollover first, then from regular credits
+    // Step 5: Update credits BEFORE streaming starts
     try {
       let newCreditsUsed = creditsUsed
       let newRolloverCredits = rolloverCredits
       
       if (rolloverCredits >= creditCost) {
-        // Deduct from rollover credits first
         newRolloverCredits = rolloverCredits - creditCost
       } else if (rolloverCredits > 0) {
-        // Use remaining rollover credits, then regular credits
         const remainingCost = creditCost - rolloverCredits
         newRolloverCredits = 0
         newCreditsUsed = creditsUsed + remainingCost
       } else {
-        // Use regular credits
         newCreditsUsed = creditsUsed + creditCost
       }
 
@@ -364,7 +315,7 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
       console.error('Error with credit usage update:', creditError)
     }
 
-    // Step 7: Log the successful interaction
+    // Step 6: Log the interaction
     await supabase
       .from('activity_logs')
       .insert({
@@ -381,78 +332,154 @@ CRITICAL: You provide legal information, not legal advice. Always recommend cons
           query_complexity: isComplexQuery ? 'complex' : 'basic'
         }
       })
-      .select()
 
-    // Prepare source information - match frontend expected format
+    // Step 7: Generate streaming response using GPT-4o
+    console.log('Generating AI response with GPT-4o (streaming)...')
+    
+    const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message }
+        ],
+        max_tokens: 1500,
+        stream: true
+      }),
+    })
+
+    if (!aiResponse.ok) {
+      const errorData = await aiResponse.json()
+      console.error('OpenAI API error:', errorData)
+      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`)
+    }
+
+    // Stream the response back to client
+    const reader = aiResponse.body?.getReader()
+    const encoder = new TextEncoder()
+    const decoder = new TextDecoder()
+
+    if (!reader) {
+      throw new Error('No response body to stream')
+    }
+
+    // Prepare letter analysis before streaming
+    let letterSuggestion = null
+    try {
+      const { data: analysisResult } = await supabase.functions.invoke('analyze-message-for-letter', {
+        body: { message, response: "" }
+      })
+      
+      if (analysisResult && analysisResult.shouldSuggest) {
+        letterSuggestion = analysisResult
+        console.log('Letter suggestion available:', letterSuggestion)
+      }
+    } catch (error) {
+      console.error('Error analyzing message for letter:', error)
+    }
+
+    // Prepare source information
     const sourceInfo = {
       research: researchSources.slice(0, 5).map(source => ({
         title: source.title || 'UAE Legal Source',
         url: source.url || '',
-        snippet: source.text?.substring(0, 150) || ''
+        snippet: source.text?.substring(0, 150) || '',
+        domain: source.url ? new URL(source.url).hostname : 'uae-legal-source'
       })),
-      documents: documentSources.map(doc => ({
-        title: doc.title,
-        category: doc.category,
-        similarity: doc.similarity
-      }))
+      documents: documentSources
     }
 
-    // Step 8: Analyze message for letter generation opportunity
-    let letterSuggestion = null
-    try {
-      console.log('Analyzing message for letter opportunities...')
-      
-      // Get conversation history for context
-      const { data: recentMessages } = await supabase
-        .from('messages')
-        .select('role, content')
-        .eq('conversation_id', conversationId)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(5)
-
-      const conversationHistory = recentMessages?.reverse() || []
-
-      const analysisResponse = await supabase.functions.invoke('analyze-message-for-letter', {
-        body: { 
-          message,
-          conversationHistory 
+    // Create a TransformStream to handle SSE formatting
+    const stream = new ReadableStream({
+      async start(controller) {
+        let fullResponse = ""
+        
+        try {
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            
+            const chunk = decoder.decode(value, { stream: true })
+            const lines = chunk.split('\n').filter(line => line.trim() !== '')
+            
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6)
+                
+                if (data === '[DONE]') {
+                  // Send final metadata
+                  const metadata = {
+                    sources: sourceInfo,
+                    suggestedLetter: letterSuggestion,
+                    creditCost,
+                    timestamp: new Date().toISOString()
+                  }
+                  
+                  controller.enqueue(
+                    encoder.encode(`data: ${JSON.stringify({ type: 'metadata', data: metadata })}\n\n`)
+                  )
+                  
+                  // Save complete AI response to database
+                  await supabase
+                    .from('messages')
+                    .insert({
+                      user_id: user.id,
+                      conversation_id: conversationId,
+                      role: 'assistant',
+                      content: fullResponse,
+                      metadata: {
+                        sources: sourceInfo,
+                        suggestedLetter: letterSuggestion
+                      }
+                    })
+                  
+                  // Update conversation timestamp
+                  await supabase
+                    .from('conversations')
+                    .update({ updated_at: new Date().toISOString() })
+                    .eq('id', conversationId)
+                  
+                  controller.enqueue(encoder.encode(`data: [DONE]\n\n`))
+                  controller.close()
+                  break
+                }
+                
+                try {
+                  const parsed = JSON.parse(data)
+                  const content = parsed.choices?.[0]?.delta?.content
+                  
+                  if (content) {
+                    fullResponse += content
+                    controller.enqueue(
+                      encoder.encode(`data: ${JSON.stringify({ type: 'token', content })}\n\n`)
+                    )
+                  }
+                } catch (e) {
+                  console.error('Error parsing SSE data:', e)
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Streaming error:', error)
+          controller.error(error)
         }
-      })
-
-      if (analysisResponse.data && analysisResponse.data.shouldSuggestLetter) {
-        letterSuggestion = {
-          shouldSuggest: true,
-          letterType: analysisResponse.data.letterType,
-          confidence: analysisResponse.data.confidence,
-          reasoning: analysisResponse.data.reasoning,
-          suggestedTitle: analysisResponse.data.suggestedTitle,
-          topicKeywords: analysisResponse.data.topicKeywords || []
-        }
-        console.log('Letter opportunity detected:', letterSuggestion)
       }
-    } catch (error) {
-      console.error('Error analyzing for letter opportunity:', error)
-      // Don't fail the entire request if letter analysis fails
-    }
+    })
 
-    console.log('Legal chat response generated successfully')
-
-    return new Response(JSON.stringify({ 
-      response: finalResponse,
-      sources: {
-        research: researchSources.slice(0, 5).map(source => ({
-          title: source.title || 'UAE Legal Source',
-          url: source.url || '',
-          snippet: source.text?.substring(0, 150) || ''
-        })),
-        documents: documentSources
+    // Return SSE stream
+    return new Response(stream, {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
       },
-      suggestedLetter: letterSuggestion,
-      creditCost,
-      timestamp: new Date().toISOString()
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
 
   } catch (error) {
