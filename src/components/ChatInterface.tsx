@@ -290,15 +290,34 @@ export const ChatInterface = () => {
       
       <div className="flex-shrink-0 bg-background px-4 py-6">
         <div className="max-w-4xl mx-auto">
-          <ChatInput
-            value={inputValue}
-            onChange={setInputValue}
-            onSend={handleSendMessage}
-            disabled={loading}
-            placeholder="Ask a question about UAE law..."
-            onLawyerRequest={() => setShowLawyerDialog(true)}
-            onSuggestLetter={() => setShowLetterDialog(true)}
-          />
+              <ChatInput
+                value={inputValue}
+                onChange={setInputValue}
+                onSend={handleSendMessage}
+                disabled={loading}
+                placeholder="Ask a question about UAE law..."
+              />
+              
+              {/* Action buttons below chat input */}
+              <div className="flex items-center gap-4 mt-2 px-1">
+                <button
+                  onClick={() => setShowLawyerDialog(true)}
+                  disabled={loading}
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <Icon name="user" className="h-4 w-4" />
+                  <span>Speak to a Lawyer</span>
+                </button>
+                
+                <button
+                  onClick={() => setShowLetterDialog(true)}
+                  disabled={loading}
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <Icon name="file-text" className="h-4 w-4" />
+                  <span>Suggest Document</span>
+                </button>
+              </div>
           
           {showLawyerDialog && (
             <div className="mt-4">

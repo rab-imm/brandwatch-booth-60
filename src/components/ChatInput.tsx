@@ -2,12 +2,6 @@ import { useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Icon } from "@/components/ui/Icon"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 interface ChatInputProps {
   value: string
@@ -15,8 +9,6 @@ interface ChatInputProps {
   onSend: (message: string) => void
   disabled?: boolean
   placeholder?: string
-  onLawyerRequest?: () => void
-  onSuggestLetter?: () => void
 }
 
 export const ChatInput = ({ 
@@ -24,9 +16,7 @@ export const ChatInput = ({
   onChange, 
   onSend, 
   disabled = false, 
-  placeholder = "Type your message...",
-  onLawyerRequest,
-  onSuggestLetter
+  placeholder = "Type your message..."
 }: ChatInputProps) => {
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -57,34 +47,6 @@ export const ChatInput = ({
   return (
     <form onSubmit={handleSubmit} className="relative">
       <div className="flex items-center gap-2 bg-background border rounded-full px-4 py-3 shadow-sm hover:shadow-md transition-shadow">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 rounded-full shrink-0"
-              disabled={disabled}
-            >
-              <Icon name="plus" className="h-5 w-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56 bg-background border shadow-md z-50">
-            {onLawyerRequest && (
-              <DropdownMenuItem onClick={onLawyerRequest}>
-                <Icon name="user" className="mr-2 h-4 w-4" />
-                Speak to a Lawyer
-              </DropdownMenuItem>
-            )}
-            {onSuggestLetter && (
-              <DropdownMenuItem onClick={onSuggestLetter}>
-                <Icon name="file-text" className="mr-2 h-4 w-4" />
-                Suggest Document
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        
         <Textarea
           ref={inputRef}
           value={value}
