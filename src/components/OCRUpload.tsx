@@ -259,7 +259,7 @@ export const OCRUpload = () => {
       })
 
       toast({
-        title: "OCR Complete",
+        title: "Scan Complete",
         description: `Successfully extracted ${data.statistics.words} words in ${(data.statistics.processing_time_ms / 1000).toFixed(1)}s`,
       })
 
@@ -268,7 +268,7 @@ export const OCRUpload = () => {
     } catch (error: any) {
       console.error('OCR error:', error)
       toast({
-        title: "OCR Failed",
+        title: "Scan Failed",
         description: error.message || "Failed to process document. Please try again.",
         variant: "destructive"
       })
@@ -389,7 +389,7 @@ export const OCRUpload = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Icon name="scan" className="h-5 w-5" />
-            OCR Document Scanner
+            Contract Scanner
           </CardTitle>
           <CardDescription>
             Upload a PDF or image to extract text and get an AI summary (1 credit per scan)
@@ -501,7 +501,7 @@ export const OCRUpload = () => {
             <div className="space-y-2">
               <Progress value={uploadProgress} />
               <p className="text-xs text-center text-muted-foreground">
-                {uploadProgress < 40 ? 'Uploading...' : uploadProgress < 80 ? 'Processing OCR...' : 'Finalizing...'}
+                {uploadProgress < 40 ? 'Uploading...' : uploadProgress < 80 ? 'Analyzing contract...' : 'Finalizing...'}
               </p>
             </div>
           )}
@@ -893,7 +893,7 @@ export const OCRUpload = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>OCR Results</CardTitle>
+                <CardTitle>Scan Results</CardTitle>
                 <CardDescription>
                   {result.statistics.words} words · {result.statistics.characters} characters · 
                   Processed in {(result.statistics.processing_time_ms / 1000).toFixed(1)}s

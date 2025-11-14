@@ -439,8 +439,8 @@ export const PersonalDashboard = () => {
               </Button>
               <Button variant="outline" size="sm" onClick={() => window.location.href = '/ocr'} className="flex-1 sm:flex-none">
                 <Icon name="scan" className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">OCR Scanner</span>
-                <span className="sm:hidden">OCR</span>
+                <span className="hidden sm:inline">Contract Scanner</span>
+                <span className="sm:hidden">Contract</span>
               </Button>
             </div>
           </CardContent>

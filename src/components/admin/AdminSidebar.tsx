@@ -49,8 +49,8 @@ const adminGroups: AdminGroup[] = [
       { id: "documents", title: "Documents", icon: "file-text" },
       { id: "templates", title: "Templates", icon: "file-plus" },
       { id: "upload", title: "Upload", icon: "upload" },
-      { id: "ocr", title: "OCR Scanner", icon: "scan" },
-      { id: "ocr-management", title: "OCR Management", icon: "database" },
+      { id: "ocr", title: "Contract Scanner", icon: "scan" },
+      { id: "ocr-management", title: "Contract Management", icon: "database" },
       { id: "workflow", title: "Workflow", icon: "workflow" },
     ]
   },
