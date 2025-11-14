@@ -299,7 +299,7 @@ export const ChatInterface = () => {
               />
               
               {/* Action buttons below chat input */}
-              <div className="flex items-center gap-4 mt-2 px-1">
+              <div className="flex items-center justify-center gap-4 mt-2 px-1">
                 <button
                   onClick={() => setShowLawyerDialog(true)}
                   disabled={loading}
