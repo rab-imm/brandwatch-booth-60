@@ -106,6 +106,7 @@ export const OCRUpload = () => {
       gap_analysis_summary: string
     }
   } | null>(null)
+  const [hasScanned, setHasScanned] = useState(false)
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -257,6 +258,7 @@ export const OCRUpload = () => {
         compliance_check: data.compliance_check,
         missing_clauses: data.missing_clauses
       })
+      setHasScanned(true)
 
       toast({
         title: "Scan Complete",
@@ -383,130 +385,158 @@ export const OCRUpload = () => {
     }
   }
 
+  const handleScanNewDocument = () => {
+    setResult(null)
+    setSelectedFile(null)
+    setHasScanned(false)
+    setUploadProgress(0)
+    setCurrentOcrHistoryId(null)
+    setComplianceCheckExpanded(true)
+    setComplianceIssuesExpanded(false)
+    setMissingClausesExpanded(false)
+    setExpandedViolations(new Set())
+    setExpandedMissingClauses(new Set())
+  }
+
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Icon name="scan" className="h-5 w-5" />
-            Contract Scanner
-          </CardTitle>
-          <CardDescription>
-            Upload a PDF or image to extract text and get an AI summary (1 credit per scan)
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            className={`
-              relative border-2 border-dashed rounded-lg p-8 text-center transition-all
-              ${isDragging 
-                ? 'border-primary bg-primary/5 scale-[1.02]' 
-                : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/30'
-              }
-              ${isProcessing ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}
-            `}
-            onClick={() => document.getElementById('ocr-file-input')?.click()}
-          >
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              onChange={handleFileSelect}
-              disabled={isProcessing}
-              className="hidden"
-              id="ocr-file-input"
-            />
-            
-            <div className="space-y-3">
-              <div className="flex justify-center gap-3">
-                <div className="p-3 rounded-full bg-primary/10">
-                  <Icon name="upload" className="h-6 w-6 text-primary" />
-                </div>
-                <div className="p-3 rounded-full bg-primary/10">
-                  <Icon name="image" className="h-6 w-6 text-primary" />
-                </div>
-                <div className="p-3 rounded-full bg-primary/10">
-                  <Icon name="file-text" className="h-6 w-6 text-primary" />
-                </div>
-              </div>
-              
-              <div>
-                <p className="text-sm font-medium mb-1">
-                  {isDragging 
-                    ? 'Drop your document here' 
-                    : 'Choose from Gallery or Upload File'
-                  }
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Click to browse • Drag & drop files here
-                </p>
-              </div>
-              
-              <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
-                <Badge variant="secondary" className="text-xs">PDF</Badge>
-                <Badge variant="secondary" className="text-xs">JPG</Badge>
-                <Badge variant="secondary" className="text-xs">PNG</Badge>
-                <Badge variant="secondary" className="text-xs">HEIC</Badge>
-                <Badge variant="secondary" className="text-xs">WebP</Badge>
-                <Badge variant="secondary" className="text-xs">BMP</Badge>
-                <Badge variant="secondary" className="text-xs">TIFF</Badge>
-                <span>• Max 10MB</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Gallery Button (Mobile-friendly) */}
-          <Button
-            variant="outline"
-            className="w-full h-14 flex items-center justify-center gap-2"
-            onClick={() => document.getElementById('ocr-file-input')?.click()}
-            disabled={isProcessing}
-          >
-            <Icon name="image" className="h-5 w-5" />
-            <span className="font-medium">Choose Photo from Gallery</span>
-          </Button>
-
-          {selectedFile && (
-            <div className="p-3 bg-muted rounded-lg flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Icon name="file" className="h-4 w-4" />
-                <span className="text-sm font-medium">{selectedFile.name}</span>
-                <span className="text-xs text-muted-foreground">
-                  ({(selectedFile.size / 1024).toFixed(0)} KB)
-                </span>
-              </div>
-              <Button
-                size="sm"
-                onClick={processOCR}
+      {result && hasScanned ? (
+        <Card>
+          <CardContent className="py-6">
+            <Button
+              onClick={handleScanNewDocument}
+              variant="outline"
+              className="w-full h-16 flex items-center justify-center gap-3 text-base hover:bg-primary hover:text-primary-foreground transition-all"
+            >
+              <Icon name="scan" className="h-5 w-5" />
+              <span className="font-medium">Scan New Document</span>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="scan" className="h-5 w-5" />
+              Contract Scanner
+            </CardTitle>
+            <CardDescription>
+              Upload a PDF or image to extract text and get an AI summary (1 credit per scan)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`
+                relative border-2 border-dashed rounded-lg p-8 text-center transition-all
+                ${isDragging 
+                  ? 'border-primary bg-primary/5 scale-[1.02]' 
+                  : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/30'
+                }
+                ${isProcessing ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}
+              `}
+              onClick={() => document.getElementById('ocr-file-input')?.click()}
+            >
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={handleFileSelect}
                 disabled={isProcessing}
-              >
-                {isProcessing ? (
-                  <>
-                    <Icon name="loader" className="h-4 w-4 mr-2 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Icon name="scan" className="h-4 w-4 mr-2" />
-                    Scan Document
-                  </>
-                )}
-              </Button>
+                className="hidden"
+                id="ocr-file-input"
+              />
+              
+              <div className="space-y-3">
+                <div className="flex justify-center gap-3">
+                  <div className="p-3 rounded-full bg-primary/10">
+                    <Icon name="upload" className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="p-3 rounded-full bg-primary/10">
+                    <Icon name="image" className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="p-3 rounded-full bg-primary/10">
+                    <Icon name="file-text" className="h-6 w-6 text-primary" />
+                  </div>
+                </div>
+                
+                <div>
+                  <p className="text-sm font-medium mb-1">
+                    {isDragging 
+                      ? 'Drop your document here' 
+                      : 'Choose from Gallery or Upload File'
+                    }
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Click to browse • Drag & drop files here
+                  </p>
+                </div>
+                
+                <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
+                  <Badge variant="secondary" className="text-xs">PDF</Badge>
+                  <Badge variant="secondary" className="text-xs">JPG</Badge>
+                  <Badge variant="secondary" className="text-xs">PNG</Badge>
+                  <Badge variant="secondary" className="text-xs">HEIC</Badge>
+                  <Badge variant="secondary" className="text-xs">WebP</Badge>
+                  <Badge variant="secondary" className="text-xs">BMP</Badge>
+                  <Badge variant="secondary" className="text-xs">TIFF</Badge>
+                  <span>• Max 10MB</span>
+                </div>
+              </div>
             </div>
-          )}
 
-          {isProcessing && (
-            <div className="space-y-2">
-              <Progress value={uploadProgress} />
-              <p className="text-xs text-center text-muted-foreground">
-                {uploadProgress < 40 ? 'Uploading...' : uploadProgress < 80 ? 'Analyzing contract...' : 'Finalizing...'}
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            {/* Gallery Button (Mobile-friendly) */}
+            <Button
+              variant="outline"
+              className="w-full h-14 flex items-center justify-center gap-2"
+              onClick={() => document.getElementById('ocr-file-input')?.click()}
+              disabled={isProcessing}
+            >
+              <Icon name="image" className="h-5 w-5" />
+              <span className="font-medium">Choose Photo from Gallery</span>
+            </Button>
+
+            {selectedFile && (
+              <div className="p-3 bg-muted rounded-lg flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Icon name="file" className="h-4 w-4" />
+                  <span className="text-sm font-medium">{selectedFile.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    ({(selectedFile.size / 1024).toFixed(0)} KB)
+                  </span>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={processOCR}
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? (
+                    <>
+                      <Icon name="loader" className="h-4 w-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="scan" className="h-4 w-4 mr-2" />
+                      Scan Document
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+
+            {isProcessing && (
+              <div className="space-y-2">
+                <Progress value={uploadProgress} />
+                <p className="text-xs text-center text-muted-foreground">
+                  {uploadProgress < 40 ? 'Uploading...' : uploadProgress < 80 ? 'Analyzing contract...' : 'Finalizing...'}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* UAE Labour Law Compliance Check - Grouped Collapsible */}
       {(result?.compliance_check || result?.missing_clauses) && (
