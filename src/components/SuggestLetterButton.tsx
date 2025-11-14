@@ -45,7 +45,7 @@ export const SuggestLetterButton = ({ conversationId }: SuggestLetterButtonProps
     if (!conversationId || messages.length === 0) {
       toast({
         title: "No conversation to analyze",
-        description: "Start a conversation first to get letter suggestions",
+        description: "Start a conversation first to get document suggestions",
         variant: "destructive"
       })
       return
@@ -75,8 +75,8 @@ export const SuggestLetterButton = ({ conversationId }: SuggestLetterButtonProps
         setShowDialog(true)
       } else {
         toast({
-          title: "No letter needed",
-          description: data.reasoning || "The conversation doesn't seem to require a formal letter at this time.",
+          title: "No document needed",
+          description: data.reasoning || "The conversation doesn't seem to require a formal document at this time.",
         })
       }
     } catch (error: any) {
@@ -122,7 +122,7 @@ export const SuggestLetterButton = ({ conversationId }: SuggestLetterButtonProps
         ) : (
           <>
             <Icon name="file-text" className="h-4 w-4 mr-2" />
-            Suggest Letter
+            Suggest Document
           </>
         )}
       </Button>
@@ -132,10 +132,10 @@ export const SuggestLetterButton = ({ conversationId }: SuggestLetterButtonProps
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Icon name="file-text" className="w-5 h-5 text-primary" />
-              Letter Suggestion
+              Document Suggestion
             </DialogTitle>
             <DialogDescription>
-              Based on your conversation, we recommend creating a formal letter
+              Based on your conversation, we recommend creating a formal document
             </DialogDescription>
           </DialogHeader>
 
@@ -143,7 +143,7 @@ export const SuggestLetterButton = ({ conversationId }: SuggestLetterButtonProps
             <div className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Letter Type</span>
+                  <span className="text-sm font-medium">Document Type</span>
                   <Badge variant="secondary">
                     {analysis.letterType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                   </Badge>
@@ -159,7 +159,7 @@ export const SuggestLetterButton = ({ conversationId }: SuggestLetterButtonProps
               </div>
 
               <div className="bg-muted/50 rounded-lg p-3 space-y-2">
-                <p className="text-sm font-medium">Why this letter?</p>
+                <p className="text-sm font-medium">Why this document?</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {analysis.reasoning}
                 </p>
@@ -168,7 +168,7 @@ export const SuggestLetterButton = ({ conversationId }: SuggestLetterButtonProps
               <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 flex items-start gap-2">
                 <Icon name="zap" className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-muted-foreground">
-                  Creating this letter will use 5 credits
+                  Creating this document will use 5 credits
                 </p>
               </div>
 
