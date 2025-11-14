@@ -249,11 +249,12 @@ export const ChatInterface = () => {
           </div>
         ) : (
           <>
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-              />
+            {messages.map((message, index) => (
+          <MessageBubble 
+            key={message.id} 
+            message={message}
+            isStreaming={index === messages.length - 1 && loading}
+          />
             ))}
             {loading && (
               <div className="flex items-start space-x-4 animate-pulse">

@@ -10,9 +10,10 @@ import DOMPurify from "dompurify"
 interface MessageBubbleProps {
   message: Message
   isLoading?: boolean
+  isStreaming?: boolean
 }
 
-export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps) => {
+export const MessageBubble = ({ message, isLoading = false, isStreaming = false }: MessageBubbleProps) => {
   const isUser = message.role === 'user'
   const navigate = useNavigate()
 
@@ -66,25 +67,30 @@ export const MessageBubble = ({ message, isLoading = false }: MessageBubbleProps
                   <span className="text-sm">Analyzing your query...</span>
                 </div>
               ) : (
-                <div className={`text-sm leading-relaxed break-words overflow-wrap-anywhere whitespace-pre-wrap ${
-                  isUser ? 'text-primary-foreground' : 'text-foreground'
-                }`} dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(
-                    isUser 
-                      ? message.content.replace(/\n/g, '<br/>') 
-                      : message.content
-                          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                          .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                          .replace(/(^|\n)### (.*$)/gim, '$1<h3 class="font-semibold text-base mb-2 mt-4">$2</h3>')
-                          .replace(/(^|\n)## (.*$)/gim, '$1<h2 class="font-semibold text-lg mb-2 mt-4">$2</h2>')
-                          .replace(/(^|\n)# (.*$)/gim, '$1<h1 class="font-bold text-xl mb-2 mt-4">$2</h1>')
-                          .replace(/\n/g, '<br/>'),
-                    {
-                      ALLOWED_TAGS: ['br', 'strong', 'em', 'h1', 'h2', 'h3', 'p', 'ul', 'ol', 'li'],
-                      ALLOWED_ATTR: ['class']
-                    }
-                  )
-                }} />
+                <>
+                  <div className={`text-sm leading-relaxed break-words overflow-wrap-anywhere whitespace-pre-wrap ${
+                    isUser ? 'text-primary-foreground' : 'text-foreground'
+                  }`} dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(
+                      isUser 
+                        ? message.content.replace(/\n/g, '<br/>') 
+                        : message.content
+                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                            .replace(/(^|\n)### (.*$)/gim, '$1<h3 class="font-semibold text-base mb-2 mt-4">$2</h3>')
+                            .replace(/(^|\n)## (.*$)/gim, '$1<h2 class="font-semibold text-lg mb-2 mt-4">$2</h2>')
+                            .replace(/(^|\n)# (.*$)/gim, '$1<h1 class="font-bold text-xl mb-2 mt-4">$2</h1>')
+                            .replace(/\n/g, '<br/>'),
+                      {
+                        ALLOWED_TAGS: ['br', 'strong', 'em', 'h1', 'h2', 'h3', 'p', 'ul', 'ol', 'li'],
+                        ALLOWED_ATTR: ['class']
+                      }
+                    )
+                  }} />
+                  {message.role === 'assistant' && isStreaming && (
+                    <span className="inline-block w-0.5 h-4 ml-1 bg-current animate-pulse" />
+                  )}
+                </>
               )}
             </div>
 

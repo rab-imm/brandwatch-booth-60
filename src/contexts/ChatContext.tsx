@@ -78,6 +78,41 @@ interface ChatProviderProps {
   children: ReactNode
 }
 
+// Helper to parse SSE stream
+async function* parseSSEStream(response: Response) {
+  const reader = response.body?.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  if (!reader) throw new Error('No response body')
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6).trim()
+          if (data === '[DONE]') return
+          
+          try {
+            yield JSON.parse(data)
+          } catch (e) {
+            console.error('Error parsing SSE data:', e)
+          }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock()
+  }
+}
+
 export const ChatProvider = ({ children }: ChatProviderProps) => {
   const { user, refetchProfile } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
@@ -295,90 +330,117 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
         await updateConversationTitle(conversationId, title)
       }
 
-      // Call the enhanced legal chat function
-      const { data: result, error: aiCallError } = await supabase.functions.invoke('legal-chat-enhanced', {
-        body: {
-          message: content,
-          conversationId: conversationId
-        }
-      })
-
-      if (aiCallError) {
-        console.error('AI function error:', aiCallError)
-        throw new Error('Failed to get AI response')
-      }
-
-      console.log('AI service response:', result)
-      
-      if (!result) {
-        console.error('No result from AI service')
-        throw new Error('No response from AI service')
-      }
-      
-      if (result.error) {
-        console.error('AI service returned error:', result.error)
-        throw new Error(result.error)
-      }
-      
-      if (!result.response || result.response.trim() === '') {
-        console.error('Empty AI response:', result)
-        throw new Error('Empty response from AI service')
-      }
-
-      // Create AI message with sources and letter suggestion
-      const aiMessage: Message = {
-        id: crypto.randomUUID(),
-        content: result.response,
+      // Create placeholder assistant message that will be updated
+      const assistantMessageId = crypto.randomUUID()
+      const assistantMessage: Message = {
+        id: assistantMessageId,
+        content: '',
         role: 'assistant',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         user_id: user.id,
-        conversation_id: conversationId,
-        sources: result.sources ? {
-          research: result.sources.research || [],
-          documents: result.sources.documents || []
-        } : undefined,
-        suggestedLetter: result.suggestedLetter || undefined
+        conversation_id: conversationId
       }
 
-      const { error: aiMessageError } = await supabase
-        .from('messages')
-        .insert([{
-          content: aiMessage.content,
-          role: aiMessage.role,
-          user_id: aiMessage.user_id,
-          conversation_id: aiMessage.conversation_id,
-          created_at: aiMessage.created_at,
-          updated_at: aiMessage.updated_at,
-          metadata: { 
-            sources: aiMessage.sources || null,
-            suggestedLetter: aiMessage.suggestedLetter || null
+      setMessages(prev => [...prev, assistantMessage])
+
+      // Stream the response
+      const { data: { session } } = await supabase.auth.getSession()
+      const response = await fetch(
+        `https://icsttnftxcfgnwhifsdm.supabase.co/functions/v1/legal-chat-enhanced`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            message: content,
+            conversationId: conversationId
+          })
+        }
+      )
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Insufficient credits')
+        }
+        throw new Error('Failed to get AI response')
+      }
+
+      // Process streaming response
+      let fullContent = ''
+      let metadata: any = null
+
+      for await (const event of parseSSEStream(response)) {
+        if (event.type === 'token') {
+          fullContent += event.content
+          
+          // Update assistant message progressively
+          setMessages(prev =>
+            prev.map(msg =>
+              msg.id === assistantMessageId
+                ? { ...msg, content: fullContent, updated_at: new Date().toISOString() }
+                : msg
+            )
+          )
+        } else if (event.type === 'metadata') {
+          metadata = event.data
+          
+          // Set sources if available
+          if (metadata?.sources) {
+            setMessages(prev =>
+              prev.map(msg =>
+                msg.id === assistantMessageId
+                  ? { ...msg, sources: metadata.sources }
+                  : msg
+              )
+            )
           }
-        }])
-
-      if (aiMessageError) throw aiMessageError
-
-      // Update messages state with AI response
-      setMessages(prev => [...prev, aiMessage])
-
-      // Store letter suggestion if available and high confidence
-      if (result.suggestedLetter && result.suggestedLetter.confidence >= 70) {
-        console.log('✅ High-confidence letter suggestion detected:', result.suggestedLetter);
-        setLastLetterSuggestion({
-          ...result.suggestedLetter,
-          shouldSuggest: true
-        });
-        setLetterTopicActive(true);
-      } else if (result.suggestedLetter) {
-        console.log('ℹ️ Letter suggestion below threshold:', result.suggestedLetter.confidence);
+          
+          // Set letter suggestion if available
+          if (metadata?.suggestedLetter?.shouldSuggest && metadata.suggestedLetter.confidence >= 70) {
+            console.log('✅ High-confidence letter suggestion detected:', metadata.suggestedLetter)
+            setLastLetterSuggestion({
+              ...metadata.suggestedLetter,
+              shouldSuggest: true
+            })
+            setLetterTopicActive(true)
+          }
+        }
       }
+
+      console.log('✅ Streaming complete, final content length:', fullContent.length)
 
       // Refetch profile to update query count in UI
       await refetchProfile()
 
-    } catch (error) {
-      console.error('Error sending message:', error)
-      throw error
+    } catch (error: any) {
+      console.error('❌ Error in sendMessage:', error)
+      
+      // Show appropriate error message
+      if (error.message?.includes('Insufficient credits') || error.message?.includes('credit')) {
+        setMessages(prev => [...prev, {
+          id: crypto.randomUUID(),
+          content: "⚠️ " + error.message,
+          role: 'assistant',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          user_id: user.id,
+          conversation_id: conversationId || ''
+        }])
+      } else {
+        setMessages(prev => [...prev, {
+          id: crypto.randomUUID(),
+          content: "I apologize, but I encountered an error processing your message. Please try again.",
+          role: 'assistant',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          user_id: user.id,
+          conversation_id: conversationId || ''
+        }])
+      }
     } finally {
       setLoading(false)
     }
