@@ -106,7 +106,7 @@ export const OCRManagement = () => {
       console.error('Error loading OCR data:', error)
       toast({
         title: "Error",
-        description: "Failed to load OCR data",
+        description: "Failed to load scan data",
         variant: "destructive"
       })
     } finally {
@@ -212,8 +212,8 @@ export const OCRManagement = () => {
       {/* Search and Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>OCR Scan History</CardTitle>
-          <CardDescription>View and search all OCR scans across the platform</CardDescription>
+          <CardTitle>Contract Scan History</CardTitle>
+          <CardDescription>View and search all contract scans across the platform</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2 mb-4">
@@ -234,7 +234,7 @@ export const OCRManagement = () => {
           <div className="space-y-2">
             {filteredRecords.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                No OCR scans found
+                No contract scans found
               </div>
             ) : (
               filteredRecords.map((record) => (

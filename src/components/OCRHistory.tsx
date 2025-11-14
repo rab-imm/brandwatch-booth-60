@@ -54,7 +54,7 @@ export const OCRHistory = () => {
       console.error('Error loading OCR history:', error)
       toast({
         title: "Error",
-        description: "Failed to load OCR history",
+        description: "Failed to load scan history",
         variant: "destructive"
       })
     } finally {
@@ -130,7 +130,7 @@ export const OCRHistory = () => {
         <CardContent className="p-6">
           <div className="text-center text-muted-foreground">
             <Icon name="file" className="h-12 w-12 mx-auto mb-2 opacity-50" />
-            <p>No OCR scans yet</p>
+            <p>No contract scans yet</p>
             <p className="text-sm">Upload a document to get started</p>
           </div>
         </CardContent>
@@ -165,7 +165,7 @@ export const OCRHistory = () => {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Icon name="history" className="h-5 w-5" />
-                OCR History
+                Contract Scan History
               </CardTitle>
               <CardDescription>
                 Your recent document scans

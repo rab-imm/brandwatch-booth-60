@@ -10,9 +10,9 @@ const OCRPage = () => {
       <Header />
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">OCR Document Scanner</h1>
+          <h1 className="text-3xl font-bold mb-2">Contract Scanner</h1>
           <p className="text-muted-foreground">
-            Extract text from PDFs and images using AI-powered OCR technology
+            Extract and analyze text from contracts and legal documents using AI technology
           </p>
         </div>
 
