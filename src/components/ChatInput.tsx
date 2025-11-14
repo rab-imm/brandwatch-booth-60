@@ -79,7 +79,7 @@ export const ChatInput = ({
             {onSuggestLetter && (
               <DropdownMenuItem onClick={onSuggestLetter}>
                 <Icon name="file-text" className="mr-2 h-4 w-4" />
-                Suggest Letter
+                Suggest Document
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
