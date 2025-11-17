@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,7 @@ import { Icon } from "@/components/ui/Icon"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
@@ -1229,52 +1230,103 @@ export const OCRUpload = () => {
               </Card>
             )}
 
-            {/* Document Chat Assistant */}
+            {/* Floating Chat Button - Only show when document is scanned */}
             {result && (
-              <Card className="mt-6">
-                <CardHeader 
-                  className="cursor-pointer hover:bg-accent/50 transition-colors"
-                  onClick={() => setIsChatOpen(!isChatOpen)}
+              <>
+                {/* Floating Action Button */}
+                <button
+                  onClick={() => setIsChatOpen(true)}
+                  className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 px-5 py-3 group"
+                  aria-label="Open Document Q&A Assistant"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Icon name="message-circle" className="h-5 w-5 text-primary" />
-                      <div>
-                        <CardTitle className="text-lg">Document Q&A Assistant</CardTitle>
-                        <CardDescription>
-                          Ask questions about your scanned document
-                        </CardDescription>
+                  <Icon name="message-circle" className="h-5 w-5" />
+                  <span className="font-medium hidden sm:inline">Ask Questions</span>
+                  {chatState.messages.filter(m => m.role === 'user').length > 0 && (
+                    <Badge 
+                      variant="secondary" 
+                      className="ml-1 bg-white text-primary px-2 py-0.5 text-xs font-bold"
+                    >
+                      {chatState.messages.filter(m => m.role === 'user').length}
+                    </Badge>
+                  )}
+                </button>
+
+                {/* Chat Sheet */}
+                <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
+                  <SheetContent 
+                    side="right" 
+                    className="w-full sm:max-w-xl p-0 flex flex-col h-full"
+                  >
+                    {/* Header */}
+                    <SheetHeader className="px-6 py-4 border-b bg-gradient-to-r from-primary/5 to-primary/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Icon name="bot" className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="text-left">
+                          <SheetTitle className="text-lg">Document Q&A Assistant</SheetTitle>
+                          <SheetDescription className="text-xs">
+                            Powered by UAE Legal AI
+                          </SheetDescription>
+                        </div>
+                      </div>
+                    </SheetHeader>
+
+                    {/* Document Context Bar */}
+                    <div className="px-6 py-3 bg-muted/50 border-b">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Icon name="file-text" className="h-3 w-3" />
+                        <span className="font-medium">
+                          {result.document_analysis?.document_subtype || 'Legal Document'}
+                        </span>
+                        <span>•</span>
+                        <span>{result.document_analysis?.jurisdiction || 'UAE'}</span>
+                        {result.compliance_check && (
+                          <>
+                            <span>•</span>
+                            <span className="text-primary font-semibold">
+                              {result.compliance_check.compliance_score}% Compliant
+                            </span>
+                          </>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {chatState.messages.length > 0 && (
-                        <Badge variant="secondary">
-                          {chatState.messages.filter(m => m.role === 'user').length} questions
-                        </Badge>
-                      )}
-                      <Icon 
-                        name={isChatOpen ? "chevron-up" : "chevron-down"} 
-                        className="h-5 w-5 text-muted-foreground" 
-                      />
-                    </div>
-                  </div>
-                </CardHeader>
 
-                {isChatOpen && (
-                  <CardContent className="space-y-4">
-                    {/* Chat Messages */}
-                    <div className="space-y-4 max-h-[500px] overflow-y-auto p-4 bg-muted/30 rounded-lg">
+                    {/* Chat Messages Area */}
+                    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
                       {chatState.messages.length === 0 ? (
-                        <div className="text-center py-8 text-muted-foreground">
-                          <Icon name="message-circle" className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                          <p className="text-sm font-medium mb-2">No questions yet</p>
-                          <p className="text-xs max-w-md mx-auto">
-                            Ask questions about your document, such as:
+                        <div className="flex flex-col items-center justify-center h-full text-center py-12">
+                          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                            <Icon name="message-circle" className="h-8 w-8 text-primary" />
+                          </div>
+                          <h3 className="font-semibold text-lg mb-2">Ask me anything about your document</h3>
+                          <p className="text-sm text-muted-foreground max-w-sm mb-6">
+                            I can help you understand clauses, compliance issues, and legal implications.
                           </p>
-                          <div className="mt-3 space-y-1 text-xs">
-                            <p className="opacity-75">• "Does this document contain housing provisions?"</p>
-                            <p className="opacity-75">• "What are the payment terms?"</p>
-                            <p className="opacity-75">• "Is this compliant with UAE labor law?"</p>
+                          
+                          {/* Suggested Questions */}
+                          <div className="space-y-2 w-full max-w-sm">
+                            <p className="text-xs font-semibold text-muted-foreground mb-3">Try asking:</p>
+                            {[
+                              "What are the payment terms?",
+                              "Are there any compliance issues?",
+                              "What laws govern this document?",
+                              "What clauses are missing?"
+                            ].map((suggestion, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => {
+                                  setChatInput(suggestion)
+                                  setTimeout(() => {
+                                    const input = document.querySelector('input[placeholder*="Ask"]') as HTMLInputElement
+                                    input?.focus()
+                                  }, 100)
+                                }}
+                                className="w-full text-left px-4 py-2.5 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition-colors text-sm"
+                              >
+                                <span className="opacity-60">💬</span> {suggestion}
+                              </button>
+                            ))}
                           </div>
                         </div>
                       ) : (
@@ -1285,17 +1337,17 @@ export const OCRUpload = () => {
                               className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                             >
                               {msg.role === 'assistant' && (
-                                <div className="flex-shrink-0">
+                                <div className="flex-shrink-0 pt-1">
                                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                                     <Icon name="bot" className="h-4 w-4 text-primary" />
                                   </div>
                                 </div>
                               )}
                               
-                              <div className={`max-w-[80%] rounded-lg p-3 ${
+                              <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
                                 msg.role === 'user' 
-                                  ? 'bg-primary text-primary-foreground' 
-                                  : 'bg-background border border-border'
+                                  ? 'bg-primary text-primary-foreground rounded-tr-sm' 
+                                  : 'bg-muted border border-border rounded-tl-sm'
                               }`}>
                                 {msg.role === 'assistant' ? (
                                   <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -1304,17 +1356,17 @@ export const OCRUpload = () => {
                                     </ReactMarkdown>
                                   </div>
                                 ) : (
-                                  <p className="text-sm">{msg.content}</p>
+                                  <p className="text-sm leading-relaxed">{msg.content}</p>
                                 )}
-                                <p className={`text-xs mt-2 opacity-70 ${
-                                  msg.role === 'user' ? 'text-right' : 'text-left'
+                                <p className={`text-[10px] mt-1.5 ${
+                                  msg.role === 'user' ? 'text-primary-foreground/70 text-right' : 'text-muted-foreground'
                                 }`}>
-                                  {new Date(msg.timestamp).toLocaleTimeString()}
+                                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </p>
                               </div>
 
                               {msg.role === 'user' && (
-                                <div className="flex-shrink-0">
+                                <div className="flex-shrink-0 pt-1">
                                   <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                                     <Icon name="user" className="h-4 w-4 text-primary-foreground" />
                                   </div>
@@ -1323,14 +1375,15 @@ export const OCRUpload = () => {
                             </div>
                           ))}
 
+                          {/* Loading Indicator */}
                           {chatState.isLoading && (
                             <div className="flex gap-3 justify-start">
-                              <div className="flex-shrink-0">
+                              <div className="flex-shrink-0 pt-1">
                                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                                   <Icon name="bot" className="h-4 w-4 text-primary animate-pulse" />
                                 </div>
                               </div>
-                              <div className="bg-background border border-border rounded-lg p-3">
+                              <div className="bg-muted border border-border rounded-2xl rounded-tl-sm px-4 py-3">
                                 <div className="flex gap-1">
                                   <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }}></div>
                                   <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }}></div>
@@ -1339,133 +1392,145 @@ export const OCRUpload = () => {
                               </div>
                             </div>
                           )}
+
+                          {/* Auto-scroll anchor */}
+                          <div ref={(el) => el?.scrollIntoView({ behavior: 'smooth' })} />
                         </>
+                      )}
+
+                      {/* Error Display */}
+                      {chatState.error && (
+                        <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 flex items-start gap-2">
+                          <Icon name="alert-circle" className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <p className="text-sm text-destructive font-medium">{chatState.error}</p>
+                          </div>
+                        </div>
                       )}
                     </div>
 
-                    {/* Error Display */}
-                    {chatState.error && (
-                      <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start gap-2">
-                        <Icon name="alert-circle" className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
-                        <div className="flex-1">
-                          <p className="text-sm text-destructive">{chatState.error}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Chat Input */}
-                    <form onSubmit={async (e) => {
-                      e.preventDefault()
-                      
-                      if (!chatInput.trim() || !result) {
-                        return
-                      }
-
-                      if (!user) {
-                        toast({
-                          title: "Authentication Required",
-                          description: "Please log in to use the document chat feature",
-                          variant: "destructive"
-                        })
-                        return
-                      }
-
-                      const userMessage: ChatMessage = {
-                        role: 'user',
-                        content: chatInput,
-                        timestamp: new Date().toISOString()
-                      }
-
-                      setChatState(prev => ({
-                        ...prev,
-                        messages: [...prev.messages, userMessage],
-                        isLoading: true,
-                        error: null
-                      }))
-                      
-                      setChatInput('')
-
-                      try {
-                        const { data, error } = await supabase.functions.invoke('ocr-document-chat', {
-                          body: {
-                            question: chatInput,
-                            documentText: result.extractedText,
-                            documentAnalysis: result.document_analysis,
-                            complianceSummary: result.compliance_check,
-                            conversationHistory: chatState.messages
-                          }
-                        })
-
-                        if (error) throw error
-
-                        const assistantMessage: ChatMessage = {
-                          role: 'assistant',
-                          content: data.answer,
-                          timestamp: data.timestamp
-                        }
-
-                        setChatState(prev => ({
-                          ...prev,
-                          messages: [...prev.messages, assistantMessage],
-                          isLoading: false
-                        }))
-
-                      } catch (error: any) {
-                        console.error('Chat error:', error)
-                        setChatState(prev => ({
-                          ...prev,
-                          isLoading: false,
-                          error: error.message || 'Failed to get response'
-                        }))
-                        
-                        toast({
-                          title: "Chat Error",
-                          description: error.message || "Failed to get response from AI",
-                          variant: "destructive"
-                        })
-                      }
-                    }} className="flex gap-2">
-                      <Input
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        placeholder="Ask a question about this document..."
-                        disabled={chatState.isLoading}
-                        className="flex-1"
-                      />
-                      <Button 
-                        type="submit" 
-                        disabled={chatState.isLoading || !chatInput.trim()}
-                        size="icon"
-                      >
-                        <Icon name="send" className="h-4 w-4" />
-                      </Button>
+                    {/* Input Footer */}
+                    <div className="border-t bg-background px-6 py-4 space-y-3">
+                      {/* Quick Actions */}
                       {chatState.messages.length > 0 && (
                         <Button 
-                          type="button"
-                          variant="outline"
+                          variant="ghost" 
+                          size="sm"
                           onClick={() => setChatState({
                             messages: [],
                             isLoading: false,
                             error: null
                           })}
                           disabled={chatState.isLoading}
+                          className="w-full"
                         >
-                          <Icon name="trash-2" className="h-4 w-4 mr-2" />
-                          Clear
+                          <Icon name="trash-2" className="h-3 w-3 mr-2" />
+                          Clear conversation
                         </Button>
                       )}
-                    </form>
 
-                    {/* Helper Text */}
-                    <div className="text-xs text-muted-foreground bg-muted/50 rounded p-3 space-y-1">
-                      <p className="font-semibold">💡 Tips:</p>
-                      <p>• Ask about specific clauses, terms, or compliance issues</p>
-                      <p>• Questions should be about <strong>this document only</strong></p>
-                      <p>• For document generation, visit the Documents or Templates page</p>
+                      {/* Chat Input Form */}
+                      <form onSubmit={async (e) => {
+                        e.preventDefault()
+                        
+                        if (!chatInput.trim() || !result) {
+                          return
+                        }
+
+                        if (!user) {
+                          toast({
+                            title: "Authentication Required",
+                            description: "Please log in to use the document chat feature",
+                            variant: "destructive"
+                          })
+                          return
+                        }
+
+                        const userMessage: ChatMessage = {
+                          role: 'user',
+                          content: chatInput,
+                          timestamp: new Date().toISOString()
+                        }
+
+                        setChatState(prev => ({
+                          ...prev,
+                          messages: [...prev.messages, userMessage],
+                          isLoading: true,
+                          error: null
+                        }))
+                        
+                        setChatInput('')
+
+                        try {
+                          const { data, error } = await supabase.functions.invoke('ocr-document-chat', {
+                            body: {
+                              question: chatInput,
+                              documentText: result.extractedText,
+                              documentAnalysis: result.document_analysis,
+                              complianceSummary: result.compliance_check,
+                              conversationHistory: chatState.messages
+                            }
+                          })
+
+                          if (error) throw error
+
+                          const assistantMessage: ChatMessage = {
+                            role: 'assistant',
+                            content: data.answer,
+                            timestamp: data.timestamp
+                          }
+
+                          setChatState(prev => ({
+                            ...prev,
+                            messages: [...prev.messages, assistantMessage],
+                            isLoading: false
+                          }))
+
+                        } catch (error: any) {
+                          console.error('Chat error:', error)
+                          setChatState(prev => ({
+                            ...prev,
+                            isLoading: false,
+                            error: error.message || 'Failed to get response'
+                          }))
+                          
+                          toast({
+                            title: "Chat Error",
+                            description: error.message || "Failed to get response from AI",
+                            variant: "destructive"
+                          })
+                        }
+                      }} className="flex gap-2">
+                        <Input
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          placeholder="Ask about this document..."
+                          disabled={chatState.isLoading}
+                          className="flex-1 rounded-full"
+                          autoFocus
+                        />
+                        <Button 
+                          type="submit" 
+                          disabled={chatState.isLoading || !chatInput.trim()}
+                          size="icon"
+                          className="rounded-full shrink-0"
+                        >
+                          {chatState.isLoading ? (
+                            <Icon name="loader-2" className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Icon name="send" className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </form>
+
+                      {/* Disclaimer */}
+                      <p className="text-[10px] text-muted-foreground text-center">
+                        AI responses are for informational purposes only. Always consult a lawyer for legal advice.
+                      </p>
                     </div>
-                  </CardContent>
-                )}
-              </Card>
+                  </SheetContent>
+                </Sheet>
+              </>
             )}
           </CardContent>
         </Card>
