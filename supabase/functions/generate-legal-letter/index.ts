@@ -2664,11 +2664,8 @@ Use these EXACT section headers in order:
 8. EFFECTIVE DATE & DURATION
 9. REVOCATION PROVISIONS
 10. RATIFICATION CLAUSE
-11. CONFLICT WITH UAE LAW CLAUSE
-12. GOVERNING LAW & DISPUTE RESOLUTION
-13. DATA PROTECTION & CONFIDENTIALITY
-14. NOTARIZATION & WITNESS REQUIREMENTS
-15. SIGNATURE SECTION
+11. NOTARIZATION REQUIREMENT
+12. SIGNATURE SECTION
 
 LANGUAGE REQUIREMENTS:
 - Use simple, clear sentences (maximum 20 words per sentence)
@@ -2777,156 +2774,21 @@ NOTARY & WITNESS REQUIREMENTS:
 
 FOR LEGAL VALIDITY IN THE UAE, THIS POWER OF ATTORNEY MUST BE:
 
-1. NOTARIZATION (MANDATORY):
-   • This document must be notarized by a licensed UAE notary public or at a UAE notary public office in [emirate]
-   • Both the Principal and Attorney-in-Fact should appear before the notary (or as required by local jurisdiction)
-   • The notary will verify the identity of all parties using valid Emirates ID or passport
-   • Notary fees apply (typically AED 50-200 depending on emirate and document complexity)
+NOTARIZATION REQUIREMENT:
 
-2. WITNESSES (REQUIRED):
-   • Minimum of TWO (2) competent witnesses must be present during signing
-   • Witnesses must be adults (18+ years old)
-   • Witnesses must provide valid identification (Emirates ID or passport)
-   • Witnesses should not be:
-     - Family members of the Principal or Attorney-in-Fact
-     - Beneficiaries of the Power of Attorney
-     - Employees of the Principal (to avoid conflict of interest)
+This Power of Attorney must be notarized by a UAE-authorized notary public to be legally valid.
 
-3. WITNESS INFORMATION:
-   
-   WITNESS 1:
-   Name: [witness1Name]
-   Emirates ID/Passport: [witness1EmiratesId]
-   Contact Phone: [witness1Phone]
-   Address: [witness1Address]
-   Signature: ____________________
+The notary will verify the identity of the Principal and Attorney-in-Fact and attest to the voluntary signing of this document.
 
-   WITNESS 2:
-   Name: [witness2Name]
-   Emirates ID/Passport: [witness2EmiratesId]
-   Contact Phone: [witness2Phone]
-   Address: [witness2Address]
-   Signature: ____________________
+If this Power of Attorney will be used outside the UAE, it may require MOFA attestation and embassy legalization."
 
-4. ATTESTATION & LEGALIZATION (if applicable):
-   • If this Power of Attorney will be used outside the UAE, it may require:
-     - UAE Ministry of Foreign Affairs (MOFA) attestation
-     - Embassy legalization of the destination country
-   • Consult with the notary or legal advisor if international use is intended
 
-5. NOTARY'S CERTIFICATION:
-   The notary will affix an official stamp and signature certifying:
-   • Identity verification of all parties
-   • Voluntary signing by the Principal
-   • Witnesses' attestation
-   • Compliance with UAE notarization requirements"
-
-DATA PROTECTION & CONFIDENTIALITY:
-"DATA PROTECTION & CONFIDENTIALITY:
-
-This Power of Attorney contains personal data protected under UAE Federal Law No. 45 of 2021 (Personal Data Protection Law - PDPL).
-
-PERSONAL DATA COLLECTED:
-• Principal's full name, Emirates ID/passport number, contact details
-• Attorney-in-Fact's full name, Emirates ID/passport number, contact details
-• Witnesses' identification and contact information
-• Scope of powers and any financial/property information disclosed
-
-WHO CAN ACCESS THIS DATA:
-Access to this Power of Attorney and the personal data contained herein is restricted to:
-• The Principal (grantor)
-• The Attorney-in-Fact (agent)
-• Authorized legal representatives of the Principal
-• UAE notary public and government authorities (as required by law)
-• Third parties specifically authorized in writing by the Principal for legitimate purposes related to the powers granted
-• Courts and law enforcement (if legally required)
-
-PURPOSE OF DATA PROCESSING:
-Personal data is processed solely for the purpose of:
-• Executing the powers granted in this Power of Attorney
-• Verifying identity of parties for legal and notarization purposes
-• Fulfilling legal and regulatory obligations
-• Maintaining records as required by UAE law
-
-DATA RETENTION:
-• This Power of Attorney and associated personal data will be retained for the duration of the power of attorney plus a minimum of 5 years as required by UAE legal record-keeping requirements
-• Upon revocation, the Principal may request return or destruction of copies, subject to mandatory legal retention periods
-
-DATA SUBJECT RIGHTS:
-Under UAE PDPL, parties have the right to:
-• Access their personal data contained in this document
-• Request correction of inaccurate data
-• Object to data processing (subject to legal requirements)
-• Lodge complaints with the UAE Data Protection Office
-
-CONFIDENTIALITY:
-The Attorney-in-Fact agrees to:
-• Keep all information obtained through this Power of Attorney strictly confidential
-• Not disclose the Principal's personal, financial, or business information to unauthorized parties
-• Use information solely for purposes authorized by this Power of Attorney
-• Take reasonable security measures to protect confidential information"
-
-RATIFICATION CLAUSE (SIMPLIFIED):
+RATIFICATION CLAUSE:
 "RATIFICATION OF ACTS:
 
-The Principal hereby ratifies and confirms all acts lawfully performed by the Attorney-in-Fact under this Power of Attorney.
+The Principal hereby ratifies and confirms all acts lawfully performed by the Attorney-in-Fact within the scope of powers granted under this Power of Attorney."
 
-WHAT THIS MEANS:
-• The Principal agrees in advance that any actions taken by the Attorney-in-Fact within the scope of granted powers are legally binding on the Principal
-• The Principal accepts responsibility for the Attorney-in-Fact's actions as if the Principal had performed them personally
-• This ratification applies ONLY to actions within the scope of powers granted - it does not cover unauthorized acts
 
-LIMITATION:
-• Actions taken outside the scope of granted powers are NOT ratified
-• Fraudulent or illegal acts are NOT ratified
-• Acts performed after revocation or expiry are NOT ratified"
-
-CONFLICT WITH UAE LAW CLAUSE:
-"CONFLICT WITH UAE LAW:
-
-SUPREMACY OF UAE LAW:
-This Power of Attorney is subject to the laws of the United Arab Emirates. Any provision of this Power of Attorney that conflicts with, violates, or is prohibited by UAE federal or emirate-specific laws is:
-• Void and unenforceable
-• Automatically severed from this document
-• Not binding on any party
-
-The remaining provisions of this Power of Attorney shall remain in full force and effect.
-
-PROHIBITED ACTS:
-The Attorney-in-Fact may NOT use this Power of Attorney to perform any act that:
-• Violates UAE criminal law (Federal Law No. 31 of 2021 - UAE Penal Code)
-• Violates UAE civil law (Federal Law No. 5 of 1985 - Civil Transactions Law)
-• Breaches public policy or Islamic Sharia principles as applied in the UAE
-• Involves illegal transactions, money laundering, or fraud
-• Violates regulatory requirements of UAE government authorities
-
-Any such act is void and provides grounds for immediate revocation and potential legal liability."
-
-GOVERNING LAW & DISPUTE RESOLUTION:
-"GOVERNING LAW:
-This Power of Attorney is governed by and construed in accordance with:
-• UAE Federal Law No. 5 of 1985 (Civil Transactions Law - Civil Code), as amended
-• UAE Federal Law No. 10 of 1993 (Civil Procedure Law), as amended
-• Any other applicable UAE federal and [emirate]-specific laws and regulations
-
-DISPUTE RESOLUTION:
-In the event of any dispute arising from or relating to this Power of Attorney:
-
-1. NEGOTIATION (First Step):
-   Parties agree to attempt to resolve disputes through good-faith negotiation
-
-2. MEDIATION (Optional Second Step):
-   If negotiation fails, parties may agree to mediation through an accredited UAE mediation center
-
-3. JURISDICTION (Final Step):
-   Any unresolved disputes shall be subject to the exclusive jurisdiction of the competent courts of [emirate], United Arab Emirates
-
-APPLICABLE COURT:
-• Civil disputes: [emirate] Court of First Instance
-• Appeals: [emirate] Court of Appeal
-• Final appeals: Federal Supreme Court (if applicable)
-
-NOTE: The Attorney-in-Fact may not use this Power of Attorney to waive the Principal's right to bring legal claims or to settle disputes without the Principal's express written consent (unless such power is explicitly granted)."
 
 PROFESSIONAL FORMATTING:
 - Use proper document header with "POWER OF ATTORNEY" title
@@ -2936,8 +2798,6 @@ PROFESSIONAL FORMATTING:
 - Include signature lines for:
   * Principal (Grantor): [principalFullName]
   * Attorney-in-Fact (Agent): [attorneyFullName]
-  * Witness 1: [witness1Name]
-  * Witness 2: [witness2Name]
   * Notary Public
 - Include spaces for Emirates ID/Passport numbers, dates, and contact information
 
@@ -3683,28 +3543,6 @@ const POWER_OF_ATTORNEY_CLAUSES = `
 
 ADDITIONAL LEGAL PROVISIONS FOR POWER OF ATTORNEY:
 
-FIDUCIARY DUTY:
-The Attorney-in-Fact acknowledges and agrees that they owe a fiduciary duty to the Principal, which includes:
-• Duty of Loyalty: Acting in the Principal's best interests at all times
-• Duty of Care: Exercising reasonable care, skill, and diligence
-• Duty of Good Faith: Acting honestly and transparently
-• Duty to Account: Maintaining accurate records of all transactions and providing accountings upon request
-• Duty to Avoid Conflicts of Interest: Not using the power for personal benefit unless explicitly authorized
-
-RECORD-KEEPING REQUIREMENTS:
-The Attorney-in-Fact shall:
-• Maintain detailed records of all transactions performed under this Power of Attorney
-• Keep the Principal's funds and property separate from the Attorney-in-Fact's personal funds
-• Provide written accountings to the Principal upon request (or at regular intervals if specified)
-• Retain all receipts, contracts, and documentation for a minimum of 5 years
-
-PROHIBITED SELF-DEALING:
-Unless explicitly authorized in writing, the Attorney-in-Fact may NOT:
-• Make gifts of the Principal's property to themselves or their family members
-• Borrow money from the Principal or use the Principal's assets as collateral
-• Enter into contracts where the Attorney-in-Fact has a personal interest
-• Transfer the Principal's property to the Attorney-in-Fact except for reasonable compensation
-
 THIRD PARTY RELIANCE:
 Third parties (banks, government agencies, businesses) may rely on this Power of Attorney if:
 • It appears genuine and has been properly notarized
@@ -3714,33 +3552,13 @@ Third parties (banks, government agencies, businesses) may rely on this Power of
 
 The Principal agrees that third parties who rely on this Power of Attorney in good faith shall not be liable for actions taken before receiving notice of revocation.
 
-LIABILITY & INDEMNIFICATION:
-• The Attorney-in-Fact is personally liable for:
-  - Fraudulent acts or willful misconduct
-  - Gross negligence in performing duties
-  - Acts outside the scope of granted powers
-  - Acts performed after revocation or expiry
-
-• The Principal agrees to indemnify and hold harmless the Attorney-in-Fact for reasonable acts performed in good faith within the scope of authority, provided such acts do not constitute fraud, gross negligence, or willful misconduct.
-
 COMPENSATION:
 [Insert compensation details based on compensation field]
 
 COPIES & VALIDITY:
 • Photocopies, scanned copies, and certified copies of this Power of Attorney shall have the same legal effect as the original
 • The Principal may execute multiple originals, all of which shall be considered one instrument
-• If any copy is lost or destroyed, the Principal may execute a replacement copy with the same effective date
-
-AMENDMENTS:
-This Power of Attorney may only be amended by:
-• Written agreement signed by both the Principal and Attorney-in-Fact
-• Notarization of the amendment
-• Notification to all parties who received copies of the original
-
-No oral amendments or modifications are valid.
-
-SURVIVAL:
-The provisions regarding record-keeping, confidentiality, data protection, and liability shall survive the termination or revocation of this Power of Attorney.`;
+• If any copy is lost or destroyed, the Principal may execute a replacement copy with the same effective date`;
 
 const DEMAND_LETTER_CLAUSES = `
 
