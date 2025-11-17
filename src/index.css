@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Enhanced shadow for floating button */
+.shadow-3xl {
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.15), 0 10px 10px -5px rgb(0 0 0 / 0.1);
+}
+
 /* Brand Intelligence Design System - Inspired by Pact's sophisticated aesthetic
 All colors MUST be HSL.
 */
