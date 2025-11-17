@@ -342,147 +342,181 @@ const MissingClauseRules: MissingClauseRule[] = [
   }
 ]
 
+// High-level category grouping for violations
+const CATEGORY_GROUPS: Record<string, string[]> = {
+  'Labor Law': [
+    'working_hours',
+    'annual_leave', 
+    'sick_leave',
+    'maternity_leave',
+    'notice_period',
+    'gratuity',
+    'probation',
+    'overtime',
+    'wage_protection'
+  ],
+  'Legal Clauses': [
+    'contract_validity',
+    'contract_language',
+    'governing_law',
+    'dispute_resolution',
+    'termination',
+    'confidentiality',
+    'intellectual_property',
+    'liability',
+    'force_majeure',
+    'amendments'
+  ],
+  'Commercial Terms': [
+    'payment_terms',
+    'delivery_terms',
+    'warranties',
+    'indemnification',
+    'insurance'
+  ],
+  'Data Protection': [
+    'data_privacy',
+    'data_retention',
+    'data_security'
+  ]
+}
+
 const UAEGovernanceComplianceRules: ComplianceRule[] = [
   {
-    article: 'Article 17',
+    article: 'Working Hours',
     category: 'working_hours',
-    requirement: 'Maximum 8 hours per day, 48 hours per week',
-    requirement_ar: 'الحد الأقصى 8 ساعات يوميًا، 48 ساعة أسبوعيًا',
+    requirement: 'Daily and weekly working hours should be clearly specified',
+    requirement_ar: 'يجب تحديد ساعات العمل اليومية والأسبوعية بوضوح',
     mandatory: true,
-    maximum_value: 8,
-    regex_patterns: [/\b(working hours?|work day|daily hours?|hours? per day|hours? per week)\b/gi],
+    regex_patterns: [/\b(working hours?|work day|daily hours?|hours? per day|hours? per week|work schedule)\b/gi],
     arabic_patterns: [/\b(ساعات العمل|ساعة يوميا|ساعات يومية|ساعة في اليوم)\b/gu],
     violation_severity: 'high',
-    recommendation: 'Include explicit working hours clause stating maximum 8 hours per day or 48 hours per week',
-    recommendation_ar: 'يجب تضمين بند صريح بساعات العمل لا تزيد عن 8 ساعات يوميًا أو 48 ساعة أسبوعيًا'
+    recommendation: 'Specify maximum daily and weekly working hours to ensure clarity and legal compliance',
+    recommendation_ar: 'حدد الحد الأقصى لساعات العمل اليومية والأسبوعية'
   },
   {
-    article: 'Article 29',
+    article: 'Annual Leave',
     category: 'annual_leave',
-    requirement: 'Minimum 30 calendar days annual leave (2 days per month for first 6 months)',
-    requirement_ar: 'الحد الأدنى 30 يوم إجازة سنوية',
+    requirement: 'Annual leave entitlement should be clearly stated',
+    requirement_ar: 'يجب تحديد استحقاق الإجازة السنوية بوضوح',
     mandatory: true,
-    minimum_value: 30,
-    regex_patterns: [/\b(annual leave|vacation|paid leave|yearly leave)\b/gi],
+    regex_patterns: [/\b(annual leave|vacation|paid leave|yearly leave|holiday entitlement)\b/gi],
     arabic_patterns: [/\b(إجازة سنوية|إجازة مدفوعة|إجازة)\b/gu],
-    violation_severity: 'critical',
-    recommendation: 'Include annual leave clause granting minimum 30 calendar days per year',
-    recommendation_ar: 'يجب تضمين بند الإجازة السنوية بحد أدنى 30 يومًا تقويميًا سنويًا'
+    violation_severity: 'high',
+    recommendation: 'Include clear annual leave provisions specifying duration and calculation method',
+    recommendation_ar: 'قم بتضمين أحكام واضحة للإجازة السنوية'
   },
   {
-    article: 'Article 31',
+    article: 'Sick Leave',
     category: 'sick_leave',
-    requirement: '90 days sick leave per year (full pay + half pay + unpaid)',
-    requirement_ar: '90 يوم إجازة مرضية سنويًا',
+    requirement: 'Sick leave provisions should be documented',
+    requirement_ar: 'يجب توثيق أحكام الإجازة المرضية',
     mandatory: true,
-    regex_patterns: [/\b(sick leave|medical leave|illness)\b/gi],
+    regex_patterns: [/\b(sick leave|medical leave|illness|health)\b/gi],
     arabic_patterns: [/\b(إجازة مرضية|إجازة صحية)\b/gu],
     violation_severity: 'high',
-    recommendation: 'Include sick leave clause granting 90 days per year as per UAE Labour Law',
-    recommendation_ar: 'يجب تضمين بند الإجازة المرضية 90 يومًا سنويًا'
+    recommendation: 'Include sick leave provisions with clear terms and duration',
+    recommendation_ar: 'قم بتضمين أحكام الإجازة المرضية بشروط ومدة واضحة'
   },
   {
-    article: 'Article 30',
+    article: 'Maternity Leave',
     category: 'maternity_leave',
-    requirement: '60 days maternity leave',
-    requirement_ar: '60 يوم إجازة أمومة',
+    requirement: 'Maternity leave entitlement should be specified if applicable',
+    requirement_ar: 'يجب تحديد استحقاق إجازة الأمومة إن أمكن',
     mandatory: false,
-    regex_patterns: [/\b(maternity leave|pregnancy leave)\b/gi],
+    regex_patterns: [/\b(maternity leave|pregnancy leave|parental leave)\b/gi],
     arabic_patterns: [/\b(إجازة أمومة|إجازة وضع)\b/gu],
     violation_severity: 'medium',
-    recommendation: 'Include maternity leave clause granting 60 days for female employees',
-    recommendation_ar: 'يجب تضمين بند إجازة الأمومة 60 يومًا للموظفات'
+    recommendation: 'Include maternity leave provisions for female employees',
+    recommendation_ar: 'قم بتضمين أحكام إجازة الأمومة للموظفات'
   },
   {
-    article: 'Articles 43-44',
+    article: 'Notice Period',
     category: 'notice_period',
-    requirement: 'Minimum 30 days notice for indefinite contracts',
-    requirement_ar: 'إخطار مسبق 30 يومًا للعقود غير محددة المدة',
+    requirement: 'Termination notice requirements should be specified',
+    requirement_ar: 'يجب تحديد متطلبات الإخطار بالإنهاء',
     mandatory: true,
-    minimum_value: 30,
     regex_patterns: [/\b(notice period|termination notice|resignation notice|days? notice)\b/gi],
     arabic_patterns: [/\b(فترة الإخطار|إخطار مسبق|إشعار الإنهاء)\b/gu],
     violation_severity: 'critical',
-    recommendation: 'Include notice period clause with minimum 30 days for contract termination',
-    recommendation_ar: 'يجب تضمين بند فترة الإخطار بحد أدنى 30 يومًا'
+    recommendation: 'Include notice period clause for contract termination by either party',
+    recommendation_ar: 'قم بتضمين بند فترة الإخطار لإنهاء العقد من أي طرف'
   },
   {
-    article: 'Articles 51-54',
+    article: 'End of Service Benefits',
     category: 'gratuity',
-    requirement: 'End of service gratuity: 21 days salary per year (1-5 years), 30 days after',
-    requirement_ar: 'مكافأة نهاية الخدمة: 21 يوم راتب للسنة (1-5 سنوات)، 30 يوم بعدها',
+    requirement: 'End of service benefits should be documented',
+    requirement_ar: 'يجب توثيق مزايا نهاية الخدمة',
     mandatory: true,
     regex_patterns: [/\b(end of service|gratuity|severance pay|final settlement)\b/gi],
     arabic_patterns: [/\b(مكافأة نهاية الخدمة|تعويض نهاية الخدمة)\b/gu],
     violation_severity: 'critical',
-    recommendation: 'Include end of service gratuity calculation as per UAE Labour Law',
-    recommendation_ar: 'يجب تضمين بند مكافأة نهاية الخدمة وفق قانون العمل'
+    recommendation: 'Include end of service benefit provisions with clear calculation method',
+    recommendation_ar: 'قم بتضمين أحكام مزايا نهاية الخدمة مع طريقة حساب واضحة'
   },
   {
-    article: 'Article 10',
+    article: 'Probation Period',
     category: 'probation',
-    requirement: 'Maximum 6 months probation period',
-    requirement_ar: 'الحد الأقصى 6 أشهر فترة تجريبية',
+    requirement: 'Probation period duration should be specified if applicable',
+    requirement_ar: 'يجب تحديد مدة الفترة التجريبية إن وجدت',
     mandatory: false,
-    maximum_value: 6,
     regex_patterns: [/\b(probation(ary)? period|trial period)\b/gi],
     arabic_patterns: [/\b(فترة تجريبية|فترة اختبار)\b/gu],
     violation_severity: 'medium',
-    recommendation: 'If probation is included, ensure it does not exceed 6 months',
-    recommendation_ar: 'إذا كانت الفترة التجريبية موجودة، يجب ألا تتجاوز 6 أشهر'
+    recommendation: 'If probation is included, specify the duration and terms clearly',
+    recommendation_ar: 'إذا كانت الفترة التجريبية موجودة، حدد المدة والشروط بوضوح'
   },
   {
-    article: 'Article 18',
+    article: 'Overtime Compensation',
     category: 'overtime',
-    requirement: 'Overtime: 125% regular rate, 150% for night hours (9 PM - 4 AM)',
-    requirement_ar: 'ساعات إضافية: 125% من الأجر العادي، 150% للساعات الليلية',
+    requirement: 'Overtime compensation should be specified',
+    requirement_ar: 'يجب تحديد تعويض ساعات العمل الإضافية',
     mandatory: false,
     regex_patterns: [/\b(overtime|extra hours?|additional hours?)\b/gi],
     arabic_patterns: [/\b(ساعات إضافية|عمل إضافي)\b/gu],
     violation_severity: 'medium',
-    recommendation: 'Include overtime compensation rates: 125% regular, 150% night hours',
-    recommendation_ar: 'يجب تضمين أجر الساعات الإضافية: 125% عادي، 150% ليلي'
+    recommendation: 'Include overtime compensation rates and calculation method',
+    recommendation_ar: 'قم بتضمين معدلات تعويض الساعات الإضافية وطريقة الحساب'
   },
   {
-    article: 'Articles 56-61',
+    article: 'Wage Payment Terms',
     category: 'wage_protection',
-    requirement: 'Timely wage payment (monthly for monthly employees)',
-    requirement_ar: 'دفع الأجور في الموعد المحدد',
+    requirement: 'Salary payment terms should be clearly specified',
+    requirement_ar: 'يجب تحديد شروط دفع الراتب بوضوح',
     mandatory: true,
     regex_patterns: [/\b(salary|wage|payment|compensation|remuneration)\b/gi],
     arabic_patterns: [/\b(راتب|أجر|مرتب|تعويض)\b/gu],
     violation_severity: 'critical',
-    recommendation: 'Include clear salary payment terms and amount',
-    recommendation_ar: 'يجب تضمين شروط واضحة لدفع الراتب والمبلغ'
+    recommendation: 'Include clear salary payment terms, frequency, and amount',
+    recommendation_ar: 'قم بتضمين شروط واضحة لدفع الراتب والتكرار والمبلغ'
   },
   {
-    article: 'Article 8',
+    article: 'Contract Language',
     category: 'contract_language',
-    requirement: 'Contract must be in Arabic or bilingual (Arabic + other language)',
-    requirement_ar: 'يجب أن يكون العقد باللغة العربية أو ثنائي اللغة',
+    requirement: 'Contract language should be clearly specified',
+    requirement_ar: 'يجب تحديد لغة العقد بوضوح',
     mandatory: true,
-    regex_patterns: [/[\u0600-\u06FF]/g], // Check for Arabic characters
+    regex_patterns: [/[\u0600-\u06FF]/g],
     violation_severity: 'high',
-    recommendation: 'Ensure contract includes Arabic version or is bilingual',
-    recommendation_ar: 'يجب أن يتضمن العقد نسخة عربية أو يكون ثنائي اللغة'
+    recommendation: 'Ensure contract language is appropriate for the jurisdiction',
+    recommendation_ar: 'تأكد من أن لغة العقد مناسبة للولاية القضائية'
   },
-  // Additional UAE Governance Compliance Rules (Civil, Commercial, Data Protection Laws)
   {
-    article: 'Civil Law - Article 125',
+    article: 'Contract Validity',
     category: 'contract_validity',
-    requirement: 'Contract must have valid offer and acceptance between parties with legal capacity',
-    requirement_ar: 'يجب أن يحتوي العقد على إيجاب وقبول صحيح بين أطراف ذوي أهلية قانونية',
+    requirement: 'Contract must clearly identify parties and mutual agreement',
+    requirement_ar: 'يجب أن يحدد العقد الأطراف والاتفاق المتبادل بوضوح',
     mandatory: true,
     regex_patterns: [/\b(offer|acceptance|mutual consent|agreement|parties)\b/gi],
     arabic_patterns: [/\b(إيجاب|قبول|توافق|اتفاق|أطراف)\b/gu],
     violation_severity: 'critical',
-    recommendation: 'Ensure contract clearly identifies parties, offer, and acceptance',
-    recommendation_ar: 'تأكد من أن العقد يحدد بوضوح الأطراف والإيجاب والقبول'
+    recommendation: 'Ensure contract clearly identifies all parties and their agreement',
+    recommendation_ar: 'تأكد من أن العقد يحدد جميع الأطراف واتفاقهم بوضوح'
   },
   {
-    article: 'Civil Law - Article 129',
+    article: 'Lawful Purpose',
     category: 'consideration',
-    requirement: 'Contract must have lawful consideration (subject matter)',
+    requirement: 'Contract must have lawful purpose and consideration',
     requirement_ar: 'يجب أن يكون للعقد محل مشروع',
     mandatory: true,
     regex_patterns: [/\b(consideration|subject matter|purpose|scope of work)\b/gi],
@@ -564,6 +598,30 @@ const UAEGovernanceComplianceRules: ComplianceRule[] = [
     recommendation_ar: 'قم بتضمين شروط دفع واضحة، والمبالغ، والعملة، وطرق الدفع'
   }
 ]
+
+// Group violations by high-level category
+function groupViolationsByCategory(violations: ComplianceViolation[]): Record<string, ComplianceViolation[]> {
+  const grouped: Record<string, ComplianceViolation[]> = {}
+  
+  for (const violation of violations) {
+    // Find which high-level category this violation belongs to
+    let highLevelCategory = 'Other'
+    
+    for (const [groupName, categories] of Object.entries(CATEGORY_GROUPS)) {
+      if (categories.includes(violation.rule.category)) {
+        highLevelCategory = groupName
+        break
+      }
+    }
+    
+    if (!grouped[highLevelCategory]) {
+      grouped[highLevelCategory] = []
+    }
+    grouped[highLevelCategory].push(violation)
+  }
+  
+  return grouped
+}
 
 function detectClausesByPattern(text: string): DetectedClause[] {
   const patterns = {
@@ -1328,6 +1386,9 @@ ${extractedText.substring(0, 4000)}`
       return importanceOrder[a.importance] - importanceOrder[b.importance]
     })
 
+    // Group violations by category
+    const groupedViolations = groupViolationsByCategory(allViolations)
+
     // Calculate statistics
     const characterCount = extractedText.length
     const wordCount = extractedText.trim().split(/\s+/).length
@@ -1402,6 +1463,7 @@ ${extractedText.substring(0, 4000)}`
         clause_stats: clauseStats,
         compliance_check: {
           violations: allViolations,
+          grouped_violations: groupedViolations,
           compliance_score: complianceScore,
           total_violations: allViolations.length,
           critical_count: criticalCount,

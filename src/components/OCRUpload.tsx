@@ -65,6 +65,38 @@ const detectTextDirection = (text: string): { direction: 'rtl' | 'ltr', textAlig
   return { direction: 'ltr', textAlign: 'left' };
 };
 
+// Get icon for category group
+const getCategoryIcon = (category: string): string => {
+  switch (category) {
+    case 'Labor Law':
+      return 'briefcase'
+    case 'Legal Clauses':
+      return 'scale'
+    case 'Commercial Terms':
+      return 'shopping-cart'
+    case 'Data Protection':
+      return 'shield'
+    default:
+      return 'file-text'
+  }
+}
+
+// Get color for category group
+const getCategoryColor = (category: string): string => {
+  switch (category) {
+    case 'Labor Law':
+      return 'blue'
+    case 'Legal Clauses':
+      return 'purple'
+    case 'Commercial Terms':
+      return 'green'
+    case 'Data Protection':
+      return 'orange'
+    default:
+      return 'gray'
+  }
+}
+
 export const OCRUpload = () => {
   const { user, profile } = useAuth()
   const { toast } = useToast()
@@ -92,6 +124,7 @@ export const OCRUpload = () => {
     }
     compliance_check?: {
       violations: ComplianceViolation[]
+      grouped_violations?: Record<string, ComplianceViolation[]>
       compliance_score: number
       total_violations: number
       critical_count: number
@@ -626,28 +659,17 @@ export const OCRUpload = () => {
                   </div>
                 )}
 
-                {/* Inner Collapsible: Compliance Issues */}
-                {result?.compliance_check?.violations && result.compliance_check.violations.length > 0 && (
+                {/* Inner Collapsible: Grouped Findings by Category */}
+                {result?.compliance_check?.grouped_violations && 
+                 Object.keys(result.compliance_check.grouped_violations).length > 0 && (
                   <Collapsible open={complianceIssuesExpanded} onOpenChange={setComplianceIssuesExpanded}>
                     <CollapsibleTrigger className="w-full">
                       <div className="flex items-center justify-between p-4 rounded-lg border-2 border-orange-200 dark:border-orange-800 hover:bg-accent/50 transition-colors cursor-pointer">
                         <div className="flex items-center gap-3">
                           <Icon name="alert-triangle" className="h-5 w-5 text-orange-500" />
                           <h4 className="font-semibold text-lg">
-                            Compliance Issues ({result.compliance_check.violations.length})
+                            Findings by Category ({result.compliance_check.violations.length} total)
                           </h4>
-                          <div className="flex items-center gap-2">
-                            {result.compliance_check.critical_count > 0 && (
-                              <Badge variant="destructive" className="text-xs">
-                                {result.compliance_check.critical_count} Critical
-                              </Badge>
-                            )}
-                            {result.compliance_check.high_count > 0 && (
-                              <Badge className="bg-orange-500 hover:bg-orange-600 text-xs">
-                                {result.compliance_check.high_count} High
-                              </Badge>
-                            )}
-                          </div>
                         </div>
                         <Icon 
                           name={complianceIssuesExpanded ? "chevron-up" : "chevron-down"} 
@@ -657,71 +679,74 @@ export const OCRUpload = () => {
                     </CollapsibleTrigger>
                     
                     <CollapsibleContent>
-                      <div className="space-y-2 mt-4">
-                        {result.compliance_check.violations.map((v, i) => (
-                          <Collapsible key={i} open={expandedViolations.has(i)}>
-                            <CollapsibleTrigger
-                              onClick={() => toggleExpanded(i, expandedViolations, setExpandedViolations)}
-                              className="w-full"
-                            >
-                              <div className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all hover:shadow-md cursor-pointer ${
-                                v.severity === 'critical' 
-                                  ? 'border-red-500 bg-red-50/50 dark:bg-red-950/10 hover:bg-red-50 dark:hover:bg-red-950/20' 
-                                  : v.severity === 'high' 
-                                  ? 'border-orange-500 bg-orange-50/50 dark:bg-orange-950/10 hover:bg-orange-50 dark:hover:bg-orange-950/20' 
-                                  : v.severity === 'medium' 
-                                  ? 'border-yellow-500 bg-yellow-50/50 dark:bg-yellow-950/10 hover:bg-yellow-50 dark:hover:bg-yellow-950/20' 
-                                  : 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/10 hover:bg-blue-50 dark:hover:bg-blue-950/20'
-                              }`}>
-                                <div className="flex items-center gap-2 flex-1">
-                                  <span className={`text-xs font-bold uppercase px-2 py-1 rounded ${
-                                    v.severity === 'critical' ? 'bg-red-500 text-white' : 
-                                    v.severity === 'high' ? 'bg-orange-500 text-white' : 
-                                    v.severity === 'medium' ? 'bg-yellow-500 text-white' : 
-                                    'bg-blue-500 text-white'
-                                  }`}>
-                                    {v.severity}
-                                  </span>
-                                  <Badge variant="outline" className="text-xs">{v.rule.article}</Badge>
-                                  <span className="text-sm font-medium text-left flex-1">
-                                    {v.violation_type === 'missing' ? 'Missing Clause' : 'Non-Compliant'}: {v.details.substring(0, 60)}...
-                                  </span>
-                                </div>
-                                <Icon 
-                                  name={expandedViolations.has(i) ? "chevron-up" : "chevron-down"} 
-                                  className="h-4 w-4 shrink-0 text-muted-foreground"
-                                />
-                              </div>
-                            </CollapsibleTrigger>
-                            
-                            <CollapsibleContent>
-                              <div className={`mt-2 p-4 rounded-lg border-l-4 ${
-                                v.severity === 'critical' ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : 
-                                v.severity === 'high' ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/20' : 
-                                v.severity === 'medium' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20' : 
-                                'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
-                              }`}>
-                                <div className="flex items-start justify-between mb-2">
-                                  <div className="flex items-center gap-2">
-                                    <Badge variant="outline">{v.rule.category}</Badge>
+                      <div className="space-y-3 mt-4">
+                        {Object.entries(result.compliance_check.grouped_violations).map(([category, violations]) => {
+                          const categoryColor = getCategoryColor(category)
+                          const categoryIcon = getCategoryIcon(category)
+                          
+                          return (
+                            <Collapsible key={category}>
+                              <CollapsibleTrigger className="w-full">
+                                <div className={`flex items-center justify-between p-4 rounded-lg border-2 border-${categoryColor}-300 dark:border-${categoryColor}-700 bg-${categoryColor}-50/30 dark:bg-${categoryColor}-950/10 hover:bg-${categoryColor}-50 dark:hover:bg-${categoryColor}-950/20 transition-all cursor-pointer`}>
+                                  <div className="flex items-center gap-3">
+                                    <Icon name={categoryIcon} className={`h-5 w-5 text-${categoryColor}-600`} />
+                                    <span className="font-semibold text-base">{category}</span>
+                                    <Badge variant="outline" className="text-xs">
+                                      {violations.length} {violations.length === 1 ? 'finding' : 'findings'}
+                                    </Badge>
                                   </div>
-                                  <Icon name={v.violation_type === 'missing' ? 'alert-circle' : 'x-circle'} className="h-5 w-5 text-red-500" />
+                                  <Icon name="chevron-down" className="h-4 w-4" />
                                 </div>
-                                <h5 className="font-semibold text-sm mb-2">{v.details}</h5>
-                                {v.related_text && (
-                                  <div className="text-xs bg-background/50 p-3 rounded mb-3 font-mono">
-                                    <p className="font-semibold mb-1">Related Text:</p>
-                                    "{v.related_text}"
-                                  </div>
-                                )}
-                                <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded">
-                                  <p className="text-xs font-semibold mb-1">Recommended Action:</p>
-                                  <p className="text-xs">{v.recommended_action}</p>
+                              </CollapsibleTrigger>
+                              
+                              <CollapsibleContent>
+                                <div className="ml-4 mt-2 space-y-2 border-l-2 border-muted pl-4">
+                                  {violations.map((v, i) => (
+                                    <div key={i} className={`p-3 rounded-lg border transition-all ${
+                                      v.severity === 'critical' 
+                                        ? 'border-red-300 bg-red-50/50 dark:bg-red-950/10' 
+                                        : v.severity === 'high' 
+                                        ? 'border-orange-300 bg-orange-50/50 dark:bg-orange-950/10' 
+                                        : v.severity === 'medium' 
+                                        ? 'border-yellow-300 bg-yellow-50/50 dark:bg-yellow-950/10' 
+                                        : 'border-blue-300 bg-blue-50/50 dark:bg-blue-950/10'
+                                    }`}>
+                                      <div className="flex items-start gap-2 mb-2">
+                                        <span className={`text-xs font-bold uppercase px-2 py-1 rounded shrink-0 ${
+                                          v.severity === 'critical' ? 'bg-red-500 text-white' : 
+                                          v.severity === 'high' ? 'bg-orange-500 text-white' : 
+                                          v.severity === 'medium' ? 'bg-yellow-500 text-white' : 
+                                          'bg-blue-500 text-white'
+                                        }`}>
+                                          {v.severity}
+                                        </span>
+                                        <div className="flex-1">
+                                          <p className="font-semibold text-sm mb-1">{v.rule.article}</p>
+                                          <p className="text-sm text-muted-foreground">{v.details}</p>
+                                        </div>
+                                      </div>
+                                      
+                                      {v.related_text && (
+                                        <div className="text-xs bg-background/50 p-2 rounded mb-2 font-mono">
+                                          <p className="font-semibold mb-1">Related Text:</p>
+                                          <p className="text-muted-foreground">"{v.related_text.substring(0, 150)}..."</p>
+                                        </div>
+                                      )}
+                                      
+                                      <div className="bg-blue-50 dark:bg-blue-950/30 p-2 rounded">
+                                        <p className="text-xs font-semibold mb-1 flex items-center gap-1">
+                                          <Icon name="lightbulb" className="h-3 w-3" />
+                                          Recommended Action:
+                                        </p>
+                                        <p className="text-xs">{v.recommended_action}</p>
+                                      </div>
+                                    </div>
+                                  ))}
                                 </div>
-                              </div>
-                            </CollapsibleContent>
-                          </Collapsible>
-                        ))}
+                              </CollapsibleContent>
+                            </Collapsible>
+                          )
+                        })}
                       </div>
                     </CollapsibleContent>
                   </Collapsible>
