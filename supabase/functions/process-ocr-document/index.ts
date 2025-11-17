@@ -1601,14 +1601,14 @@ ${extractedText.substring(0, 4000)}`
             critical_count: criticalCount,
             high_count: highCount,
             checked_at: new Date().toISOString(),
-            ai_summary: aiCompliance.summary
+            ai_summary: complianceResult.summary
           },
           missing_clauses: {
             suggestions: sortedMissingClauses,
             total_missing: sortedMissingClauses.length,
             essential_count: sortedMissingClauses.filter(c => c.importance === 'essential').length,
             recommended_count: sortedMissingClauses.filter(c => c.importance === 'recommended').length,
-            gap_analysis_summary: aiGapAnalysis.gap_analysis_summary,
+            gap_analysis_summary: missingClausesResult.summary,
             analyzed_at: new Date().toISOString()
           }
         }
