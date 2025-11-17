@@ -120,32 +120,7 @@ export const CONDITIONAL_FIELD_DEPENDENCIES: Record<string, Record<string, {
       naLabel: 'Not Applicable - No previous reports filed'
     }
   },
-  power_of_attorney: {
-    financialPowers: {
-      fields: ['financialPowersDetails'],
-      naLabel: 'Not Applicable - Financial powers not granted'
-    },
-    propertyPowers: {
-      fields: ['propertyPowersDetails'],
-      naLabel: 'Not Applicable - Property powers not granted'
-    },
-    legalPowers: {
-      fields: ['legalPowersDetails'],
-      naLabel: 'Not Applicable - Legal powers not granted'
-    },
-    businessPowers: {
-      fields: ['businessPowersDetails'],
-      naLabel: 'Not Applicable - Business powers not granted'
-    },
-    healthcarePowers: {
-      fields: ['healthcarePowersDetails'],
-      naLabel: 'Not Applicable - Healthcare powers not granted'
-    },
-    govPowers: {
-      fields: ['govPowersDetails'],
-      naLabel: 'Not Applicable - Government powers not granted'
-    }
-  },
+  power_of_attorney: {},
   lease_agreement: {
     storageUnit: {
       fields: ['storageUnitDetails'],
@@ -561,40 +536,224 @@ export const LETTER_VALIDATION_RULES: LetterValidationRules = {
 
   // ============= POWER OF ATTORNEY =============
   power_of_attorney: {
-    principalName: { validator: nameSchema },
+    // Principal (Grantor) Information
+    principalFullName: { 
+      validator: nameSchema,
+      message: 'Principal full legal name is required'
+    },
     principalEmiratesId: { 
       validator: emiratesIdSchema, 
       pattern: '[0-9-]*', 
       inputMode: 'numeric', 
-      maxLength: 18 
+      maxLength: 18,
+      message: 'Valid Emirates ID or Passport number required (format: 784-XXXX-XXXXXXX-X)'
     },
-    principalAddress: { validator: addressSchema },
-    principalPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
-    principalEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
-    agentName: { validator: nameSchema },
-    agentEmiratesId: { 
+    principalAddress: { 
+      validator: addressSchema,
+      message: 'Complete principal address required including emirate'
+    },
+    principalPhone: { 
+      validator: internationalPhoneSchema, 
+      type: 'tel', 
+      inputMode: 'tel',
+      message: 'Valid UAE phone number required (format: +971 XX XXX XXXX)'
+    },
+    principalEmail: { 
+      validator: emailSchema, 
+      type: 'email', 
+      inputMode: 'email',
+      message: 'Valid email address required'
+    },
+    
+    // Attorney-in-Fact (Agent) Information
+    attorneyFullName: { 
+      validator: nameSchema,
+      message: 'Attorney-in-fact full legal name is required'
+    },
+    attorneyEmiratesId: { 
       validator: emiratesIdSchema, 
       pattern: '[0-9-]*', 
       inputMode: 'numeric', 
-      maxLength: 18 
+      maxLength: 18,
+      message: 'Valid Emirates ID or Passport number required (format: 784-XXXX-XXXXXXX-X)'
     },
-    agentAddress: { validator: addressSchema },
-    agentPhone: { validator: internationalPhoneSchema, type: 'tel', inputMode: 'tel' },
-    agentEmail: { validator: emailSchema, type: 'email', inputMode: 'email' },
+    attorneyAddress: { 
+      validator: addressSchema,
+      message: 'Complete attorney address required including emirate'
+    },
+    attorneyPhone: { 
+      validator: internationalPhoneSchema, 
+      type: 'tel', 
+      inputMode: 'tel',
+      message: 'Valid UAE phone number required (format: +971 XX XXX XXXX)'
+    },
+    attorneyEmail: { 
+      validator: emailSchema, 
+      type: 'email', 
+      inputMode: 'email',
+      message: 'Valid email address required'
+    },
+    attorneyRelationship: { 
+      validator: requiredTextSchema,
+      message: 'Relationship to principal must be specified (e.g., spouse, sibling, business partner)'
+    },
+    
+    // Powers Granted (Yes/No selections)
+    financialPowers: { 
+      validator: z.enum(['Yes', 'No']).refine((val) => val === 'Yes' || val === 'No', {
+        message: 'Please select whether financial powers are granted'
+      })
+    },
+    propertyPowers: { 
+      validator: z.enum(['Yes', 'No']).refine((val) => val === 'Yes' || val === 'No', {
+        message: 'Please select whether property powers are granted'
+      })
+    },
+    legalPowers: { 
+      validator: z.enum(['Yes', 'No']).refine((val) => val === 'Yes' || val === 'No', {
+        message: 'Please select whether legal powers are granted'
+      })
+    },
+    businessPowers: { 
+      validator: z.enum(['Yes', 'No']).refine((val) => val === 'Yes' || val === 'No', {
+        message: 'Please select whether business powers are granted'
+      })
+    },
+    healthcarePowers: { 
+      validator: z.enum(['Yes', 'No']).refine((val) => val === 'Yes' || val === 'No', {
+        message: 'Please select whether healthcare powers are granted'
+      })
+    },
+    govPowers: { 
+      validator: z.enum(['Yes', 'No']).refine((val) => val === 'Yes' || val === 'No', {
+        message: 'Please select whether government/administrative powers are granted'
+      })
+    },
+    
+    // Additional Powers & Limitations
+    additionalPowers: { 
+      validator: z.string().max(1000, 'Additional powers description cannot exceed 1000 characters').optional(),
+      message: 'Specify any additional specific powers not covered above'
+    },
+    explicitLimitations: { 
+      validator: z.string().max(1000, 'Limitations description cannot exceed 1000 characters').optional(),
+      message: 'Specify any explicit limitations on the attorney\'s authority'
+    },
+    
+    // Sub-Delegation
+    subDelegation: { 
+      validator: z.enum(['Allowed with restrictions', 'Not allowed', 'Allowed without restrictions']),
+      message: 'Specify whether attorney can delegate powers to others'
+    },
+    
+    // Duration & Termination
     effectiveDate: { 
       validator: dateSchema, 
-      type: 'date' 
+      type: 'date',
+      dateRelationships: [
+        {
+          type: 'cannotBeTooOld',
+          errorMessage: 'Effective date cannot be more than 30 days in the past'
+        }
+      ],
+      message: 'Effective date is required'
+    },
+    durationType: { 
+      validator: z.enum(['Permanent', 'Fixed term', 'Event-based']),
+      message: 'Specify whether POA is permanent, fixed term, or event-based'
     },
     expiryDate: { 
-      validator: dateSchema, 
+      validator: dateSchema.optional(), 
       type: 'date',
       dateRelationships: [
         {
           relatedField: 'effectiveDate',
           type: 'mustBeAfter',
-          errorMessage: 'Expiry date must be after effective date'
+          errorMessage: 'Expiry date must be after effective date',
+          minDaysDiff: 1
         }
-      ]
+      ],
+      message: 'Required for fixed term POA'
+    },
+    terminationEvent: { 
+      validator: z.string().min(10, 'Event description must be at least 10 characters').max(500).optional(),
+      message: 'Required for event-based POA - describe the event that terminates the POA'
+    },
+    revocationNotice: { 
+      validator: requiredTextSchema,
+      message: 'Specify revocation notice period (e.g., "30 days written notice", "immediate upon written notice")'
+    },
+    
+    // Witness 1
+    witness1Name: { 
+      validator: nameSchema,
+      message: 'First witness full legal name is required'
+    },
+    witness1EmiratesId: { 
+      validator: emiratesIdSchema, 
+      pattern: '[0-9-]*', 
+      inputMode: 'numeric', 
+      maxLength: 18,
+      message: 'Valid Emirates ID required for witness 1 (format: 784-XXXX-XXXXXXX-X)'
+    },
+    witness1Phone: { 
+      validator: internationalPhoneSchema, 
+      type: 'tel', 
+      inputMode: 'tel',
+      message: 'Valid UAE phone number required for witness 1'
+    },
+    witness1Address: { 
+      validator: addressSchema,
+      message: 'Complete address required for witness 1'
+    },
+    
+    // Witness 2
+    witness2Name: { 
+      validator: nameSchema,
+      message: 'Second witness full legal name is required'
+    },
+    witness2EmiratesId: { 
+      validator: emiratesIdSchema, 
+      pattern: '[0-9-]*', 
+      inputMode: 'numeric', 
+      maxLength: 18,
+      message: 'Valid Emirates ID required for witness 2 (format: 784-XXXX-XXXXXXX-X)'
+    },
+    witness2Phone: { 
+      validator: internationalPhoneSchema, 
+      type: 'tel', 
+      inputMode: 'tel',
+      message: 'Valid UAE phone number required for witness 2'
+    },
+    witness2Address: { 
+      validator: addressSchema,
+      message: 'Complete address required for witness 2'
+    },
+    
+    // Jurisdiction & Compensation
+    emirate: { 
+      validator: z.enum(['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Umm Al Quwain', 'Ras Al Khaimah', 'Fujairah']),
+      message: 'Select the emirate where POA will be executed'
+    },
+    compensation: { 
+      validator: z.string().optional(),
+      message: 'Specify compensation arrangement (if any) for the attorney'
+    },
+    compensationAmount: { 
+      validator: positiveNumberSchema.optional(), 
+      type: 'number', 
+      inputMode: 'decimal', 
+      min: 0, 
+      step: 0.01,
+      message: 'Enter compensation amount in AED (if applicable)'
+    },
+    accountingFrequency: { 
+      validator: z.string().max(200).optional(),
+      message: 'Specify how often attorney must provide accounting (e.g., "Monthly", "Quarterly", "Upon request")'
+    },
+    purposeContext: { 
+      validator: z.string().max(1000).optional(),
+      message: 'Provide context or purpose for granting this power of attorney'
     },
   },
 
