@@ -21,6 +21,15 @@ interface ClauseResult {
   reasoning?: string
 }
 
+interface DocumentAnalysis {
+  document_type: string
+  document_subtype: string
+  applicable_laws: string[]
+  key_parties: string[]
+  jurisdiction: string
+  type_summary: string
+}
+
 interface ComplianceViolation {
   rule: {
     article: string
@@ -68,14 +77,22 @@ const detectTextDirection = (text: string): { direction: 'rtl' | 'ltr', textAlig
 // Get icon for category group
 const getCategoryIcon = (category: string): string => {
   switch (category) {
-    case 'Labor Law':
+    case 'UAE Labor Law':
       return 'briefcase'
-    case 'Legal Clauses':
+    case 'UAE Legal Clauses':
       return 'scale'
     case 'Commercial Terms':
       return 'shopping-cart'
     case 'Data Protection':
       return 'shield'
+    case 'Real Estate Terms':
+      return 'home'
+    case 'Intellectual Property':
+      return 'lightbulb'
+    case 'Corporate Governance':
+      return 'building'
+    case 'Financial Terms':
+      return 'dollar-sign'
     default:
       return 'file-text'
   }
@@ -84,14 +101,22 @@ const getCategoryIcon = (category: string): string => {
 // Get color for category group
 const getCategoryColor = (category: string): string => {
   switch (category) {
-    case 'Labor Law':
+    case 'UAE Labor Law':
       return 'blue'
-    case 'Legal Clauses':
+    case 'UAE Legal Clauses':
       return 'purple'
     case 'Commercial Terms':
       return 'green'
     case 'Data Protection':
       return 'orange'
+    case 'Real Estate Terms':
+      return 'amber'
+    case 'Intellectual Property':
+      return 'pink'
+    case 'Corporate Governance':
+      return 'indigo'
+    case 'Financial Terms':
+      return 'emerald'
     default:
       return 'gray'
   }
@@ -114,6 +139,7 @@ export const OCRUpload = () => {
   const [result, setResult] = useState<{
     extractedText: string
     aiSummary: string
+    document_analysis?: DocumentAnalysis
     clauses?: ClauseResult[]
     clause_stats?: { type: string; count: number; total_characters: number }[]
     statistics: {
@@ -125,10 +151,13 @@ export const OCRUpload = () => {
     compliance_check?: {
       violations: ComplianceViolation[]
       grouped_violations?: Record<string, ComplianceViolation[]>
+      category_findings?: Record<string, number>
       compliance_score: number
       total_violations: number
       critical_count: number
       high_count: number
+      medium_count?: number
+      low_count?: number
       ai_summary: string
     }
     missing_clauses?: {
@@ -1127,6 +1156,59 @@ export const OCRUpload = () => {
                 </ReactMarkdown>
               </div>
             </div>
+
+            {/* Document Analysis Section */}
+            {result?.document_analysis && (
+              <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-2 border-blue-200 dark:border-blue-800">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Icon name="file-text" className="h-6 w-6 text-blue-600" />
+                    <h3 className="text-xl font-bold">Document Analysis</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4">
+                      <p className="text-sm font-semibold text-muted-foreground mb-1">Document Type</p>
+                      <p className="font-semibold text-lg capitalize">
+                        {result.document_analysis.document_subtype}
+                      </p>
+                    </div>
+                    
+                    <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4">
+                      <p className="text-sm font-semibold text-muted-foreground mb-1">Jurisdiction</p>
+                      <p className="font-semibold text-lg">{result.document_analysis.jurisdiction}</p>
+                    </div>
+                  </div>
+                  
+                  {result.document_analysis.key_parties.length > 0 && (
+                    <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4">
+                      <p className="text-sm font-semibold text-muted-foreground mb-2">Key Parties</p>
+                      <div className="flex flex-wrap gap-2">
+                        {result.document_analysis.key_parties.map((party, idx) => (
+                          <Badge key={idx} variant="secondary">{party}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4">
+                    <p className="text-sm font-semibold text-muted-foreground mb-2">Applicable UAE Laws</p>
+                    <ul className="space-y-1">
+                      {result.document_analysis.applicable_laws.map((law, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-sm">
+                          <Icon name="check-circle" className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
+                          <span>{law}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <p className="text-sm text-muted-foreground italic">
+                    {result.document_analysis.type_summary}
+                  </p>
+                </div>
+              </Card>
+            )}
           </CardContent>
         </Card>
       )}

@@ -344,7 +344,7 @@ const MissingClauseRules: MissingClauseRule[] = [
 
 // High-level category grouping for violations
 const CATEGORY_GROUPS: Record<string, string[]> = {
-  'Labor Law': [
+  'UAE Labor Law': [
     'working_hours',
     'annual_leave', 
     'sick_leave',
@@ -355,7 +355,7 @@ const CATEGORY_GROUPS: Record<string, string[]> = {
     'overtime',
     'wage_protection'
   ],
-  'Legal Clauses': [
+  'UAE Legal Clauses': [
     'contract_validity',
     'contract_language',
     'governing_law',
@@ -372,12 +372,41 @@ const CATEGORY_GROUPS: Record<string, string[]> = {
     'delivery_terms',
     'warranties',
     'indemnification',
-    'insurance'
+    'insurance',
+    'commission',
+    'territory',
+    'distribution_rights'
   ],
   'Data Protection': [
     'data_privacy',
     'data_retention',
     'data_security'
+  ],
+  'Real Estate Terms': [
+    'lease_terms',
+    'rent_payment',
+    'maintenance',
+    'security_deposit',
+    'property_description'
+  ],
+  'Intellectual Property': [
+    'trademark_rights',
+    'patent_rights',
+    'copyright_protection'
+  ],
+  'Corporate Governance': [
+    'shareholder_rights',
+    'director_duties',
+    'dividend_policy',
+    'share_transfer',
+    'corporate_governance'
+  ],
+  'Financial Terms': [
+    'loan_amount',
+    'interest_rate',
+    'repayment_terms',
+    'collateral',
+    'default_provisions'
   ]
 }
 
@@ -801,13 +830,15 @@ function checkUAEGovernanceCompliance(
   return violations
 }
 
-async function analyzeComplianceWithAI(
+async function detectDocumentTypeAndLaws(
   extractedText: string,
-  patternViolations: ComplianceViolation[],
   lovableApiKey: string
 ): Promise<{
-  additional_violations: ComplianceViolation[]
-  compliance_score: number
+  document_type: string
+  document_subtype: string
+  applicable_uae_laws: string[]
+  key_parties: string[]
+  jurisdiction: string
   summary: string
 }> {
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -821,40 +852,58 @@ async function analyzeComplianceWithAI(
       messages: [
         {
           role: 'system',
-          content: `You are a UAE legal expert specializing in UAE Federal Laws and Regulations.
+          content: `You are a UAE legal document classification expert.
 
-Analyze this document for compliance with UAE Governance Laws including:
-1. UAE Civil Transactions Law (Federal Law No. 5 of 1985) - Contract validity, offer/acceptance, legal capacity
-2. UAE Commercial Transactions Law (Federal Law No. 18 of 1993) - Commercial contracts, trade requirements
-3. UAE Labour Law (Federal Decree-Law No. 33 of 2021) - Employment terms, working hours, leave entitlements
-4. UAE Data Protection Law (Federal Decree-Law No. 45 of 2021) - Personal data processing, privacy
-5. UAE Consumer Protection Law (Federal Law No. 15 of 2020) - Consumer rights, warranties
-6. UAE Companies Law (Federal Law No. 2 of 2015) - Corporate capacity, authority to contract
-7. UAE Contract Law fundamentals - Performance obligations, payment terms, signatures
+Analyze the document and identify:
+1. Document Type (employment_contract, commercial_agreement, lease_agreement, service_contract, memorandum_of_understanding, power_of_attorney, loan_agreement, partnership_agreement, sales_agreement, nda, consulting_agreement, supply_agreement, distribution_agreement, franchise_agreement, license_agreement, construction_contract, real_estate_contract, insurance_policy, warranty, terms_and_conditions, privacy_policy, corporate_bylaws, shareholder_agreement, joint_venture_agreement, other)
 
-Check for contract validity, parties' legal capacity, lawful consideration, clear obligations, proper execution, and compliance with applicable sector-specific regulations.
+2. Document Subtype (e.g., "Fixed-term employment contract", "Commercial lease", "Software license", etc.)
 
-Return ONLY raw JSON (NO markdown code fences):
+3. Applicable UAE Laws (select all relevant):
+   - UAE Labour Law (Federal Decree-Law No. 33 of 2021)
+   - UAE Civil Transactions Law (Federal Law No. 5 of 1985)
+   - UAE Commercial Transactions Law (Federal Law No. 18 of 1993)
+   - UAE Companies Law (Federal Law No. 2 of 2015)
+   - UAE Consumer Protection Law (Federal Law No. 15 of 2020)
+   - UAE Data Protection Law (Federal Decree-Law No. 45 of 2021)
+   - UAE Real Property Law (Federal Law No. 24 of 2006)
+   - UAE Commercial Agency Law (Federal Law No. 18 of 1981)
+   - UAE Trademark Law (Federal Law No. 37 of 1992)
+   - UAE Copyright Law (Federal Law No. 7 of 2002)
+   - UAE Federal Penal Code (Federal Law No. 3 of 1987)
+   - UAE Contract Law principles
+
+4. Key parties mentioned (e.g., "employer and employee", "landlord and tenant")
+
+5. Jurisdiction (e.g., "UAE", "Dubai", "Abu Dhabi", "DIFC", "ADGM")
+
+Return ONLY raw JSON (NO markdown):
 {
-  "violations": [{"category": "string", "article": "string", "severity": "critical|high|medium|low", "details": "string", "recommendation": "string"}],
-  "compliance_score": 0-100,
-  "summary": "brief overview in 1-2 sentences"
+  "document_type": "string",
+  "document_subtype": "string",
+  "applicable_uae_laws": ["array of applicable laws"],
+  "key_parties": ["array of party types"],
+  "jurisdiction": "string",
+  "summary": "1-2 sentence description of what this document is"
 }`
         },
         {
           role: 'user',
-          content: `Analyze this document for UAE Governance Laws compliance:\n\n${extractedText.substring(0, 8000)}`
+          content: `Analyze this document:\n\n${extractedText.substring(0, 6000)}`
         }
       ]
     })
   })
   
   if (!response.ok) {
-    console.error('AI compliance check failed:', response.status)
+    console.error('Document type detection failed:', response.status)
     return {
-      additional_violations: [],
-      compliance_score: 50,
-      summary: 'AI compliance analysis unavailable'
+      document_type: 'unknown',
+      document_subtype: 'Unknown document type',
+      applicable_uae_laws: ['UAE Contract Law principles'],
+      key_parties: [],
+      jurisdiction: 'UAE',
+      summary: 'Document type could not be determined'
     }
   }
   
@@ -862,7 +911,129 @@ Return ONLY raw JSON (NO markdown code fences):
   let aiResponse = data.choices?.[0]?.message?.content || '{}'
   
   try {
-    // Strip markdown code fences if present
+    if (aiResponse.trim().startsWith('```')) {
+      aiResponse = aiResponse.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+    }
+    
+    const parsed = JSON.parse(aiResponse)
+    return {
+      document_type: parsed.document_type || 'unknown',
+      document_subtype: parsed.document_subtype || 'Unknown',
+      applicable_uae_laws: parsed.applicable_uae_laws || ['UAE Contract Law principles'],
+      key_parties: parsed.key_parties || [],
+      jurisdiction: parsed.jurisdiction || 'UAE',
+      summary: parsed.summary || 'Legal document analysis'
+    }
+  } catch (error) {
+    console.error('Failed to parse document type response:', error)
+    return {
+      document_type: 'unknown',
+      document_subtype: 'Unknown',
+      applicable_uae_laws: ['UAE Contract Law principles'],
+      key_parties: [],
+      jurisdiction: 'UAE',
+      summary: 'Document type analysis incomplete'
+    }
+  }
+}
+
+async function analyzeDynamicComplianceWithAI(
+  extractedText: string,
+  documentType: string,
+  applicableLaws: string[],
+  jurisdiction: string,
+  lovableApiKey: string
+): Promise<{
+  violations: ComplianceViolation[]
+  compliance_score: number
+  summary: string
+  category_findings: Record<string, number>
+}> {
+  
+  // Build dynamic prompt based on document type and applicable laws
+  const lawsContext = applicableLaws.join('\n- ')
+  
+  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${lovableApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a UAE legal compliance expert specializing in ${jurisdiction} law.
+
+DOCUMENT TYPE: ${documentType}
+
+APPLICABLE UAE LAWS:
+- ${lawsContext}
+
+Your task: Analyze this ${documentType} for compliance with the applicable UAE laws listed above. 
+
+Focus on:
+1. Mandatory clauses required by UAE law for this document type
+2. Missing legal requirements specific to ${jurisdiction}
+3. Compliance issues with specific UAE Federal Laws
+4. Essential legal protections for the parties involved
+5. Jurisdiction-specific requirements (e.g., DIFC, ADGM, UAE Federal)
+
+For each violation, specify:
+- The specific UAE law article/section (e.g., "Article 17, Labour Law No. 33/2021")
+- Category (use one of: working_hours, annual_leave, sick_leave, maternity_leave, notice_period, gratuity, probation, overtime, wage_protection, contract_validity, contract_language, governing_law, dispute_resolution, termination, confidentiality, intellectual_property, liability, force_majeure, amendments, payment_terms, delivery_terms, warranties, indemnification, insurance, data_privacy, data_retention, data_security, lease_terms, rent_payment, maintenance, security_deposit, property_description, trademark_rights, patent_rights, copyright_protection, agency_terms, distribution_rights, territory, commission, liability_limits, insurance_requirements, construction_standards, project_timeline, payment_schedule, defect_liability, corporate_governance, shareholder_rights, director_duties, dividend_policy, share_transfer, loan_amount, interest_rate, repayment_terms, collateral, default_provisions, or other)
+- Severity (critical, high, medium, low)
+- Specific details of what's missing
+- Actionable recommendation with UAE law reference
+
+Return ONLY raw JSON (NO markdown):
+{
+  "violations": [
+    {
+      "article": "Specific Article/Section of UAE Law",
+      "category": "category_name",
+      "severity": "critical|high|medium|low",
+      "details": "Specific issue found",
+      "recommendation": "Specific action with UAE law reference"
+    }
+  ],
+  "compliance_score": 0-100,
+  "summary": "Brief 1-2 sentence compliance overview",
+  "category_findings": {
+    "UAE Labor Law": 0,
+    "UAE Legal Clauses": 0,
+    "Commercial Terms": 0,
+    "Data Protection": 0,
+    "Real Estate Terms": 0,
+    "Intellectual Property": 0,
+    "Corporate Governance": 0,
+    "Financial Terms": 0
+  }
+}`
+        },
+        {
+          role: 'user',
+          content: `Analyze this ${documentType} for UAE compliance:\n\n${extractedText.substring(0, 12000)}`
+        }
+      ]
+    })
+  })
+  
+  if (!response.ok) {
+    console.error('AI dynamic compliance check failed:', response.status)
+    return {
+      violations: [],
+      compliance_score: 50,
+      summary: 'AI compliance analysis unavailable',
+      category_findings: {}
+    }
+  }
+  
+  const data = await response.json()
+  let aiResponse = data.choices?.[0]?.message?.content || '{}'
+  
+  try {
     if (aiResponse.trim().startsWith('```')) {
       aiResponse = aiResponse.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
     }
@@ -871,8 +1042,8 @@ Return ONLY raw JSON (NO markdown code fences):
     
     const aiViolations: ComplianceViolation[] = (parsed.violations || []).map((v: any) => ({
       rule: {
-        article: v.article || 'Various',
-        category: v.category || 'general',
+        article: v.article || 'General Requirement',
+        category: v.category || 'other',
         requirement: v.details || '',
         requirement_ar: ''
       },
@@ -884,16 +1055,18 @@ Return ONLY raw JSON (NO markdown code fences):
     }))
     
     return {
-      additional_violations: aiViolations,
+      violations: aiViolations,
       compliance_score: parsed.compliance_score || 50,
-      summary: parsed.summary || 'Compliance check complete'
+      summary: parsed.summary || 'Compliance check complete',
+      category_findings: parsed.category_findings || {}
     }
   } catch (error) {
     console.error('Failed to parse AI compliance response:', error)
     return {
-      additional_violations: [],
+      violations: [],
       compliance_score: 50,
-      summary: 'Compliance analysis partially complete'
+      summary: 'Compliance analysis partially complete',
+      category_findings: {}
     }
   }
 }
@@ -1023,14 +1196,18 @@ async function detectMissingClauses(
   return missingClauses
 }
 
-async function analyzeGapsWithAI(
+async function detectDynamicMissingClauses(
   extractedText: string,
-  patternMissingClauses: MissingClauseSuggestion[],
+  documentType: string,
+  applicableLaws: string[],
   lovableApiKey: string
 ): Promise<{
-  additional_missing: MissingClauseSuggestion[]
-  gap_analysis_summary: string
+  missing_clauses: MissingClauseSuggestion[]
+  summary: string
 }> {
+  
+  const lawsContext = applicableLaws.join('\n- ')
+  
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -1042,45 +1219,55 @@ async function analyzeGapsWithAI(
       messages: [
         {
           role: 'system',
-          content: `You are a UAE legal expert analyzing contract completeness under UAE Governance Laws.
+          content: `You are a UAE legal drafting expert.
 
-Identify missing essential clauses based on:
-- UAE Civil Transactions Law - Contract fundamentals, validity requirements
-- UAE Commercial Transactions Law - Commercial contract requirements
-- UAE Labour Law - Employment contract clauses
-- UAE Data Protection Law - Privacy and data processing clauses
-- UAE Consumer Protection Law - Consumer-facing contract requirements
-- General UAE contract law best practices
+DOCUMENT TYPE: ${documentType}
+
+APPLICABLE UAE LAWS:
+- ${lawsContext}
+
+Identify missing or weak clauses that should be included in this ${documentType} according to UAE law and best practices.
+
+Focus on:
+1. Mandatory clauses required by UAE law
+2. Important protective clauses for parties
+3. Jurisdiction-specific requirements
+4. Industry best practices in UAE
+
+For each missing clause:
+- Type: descriptive name (e.g., "Working Hours Specification", "Payment Terms", "Governing Law")
+- Category: matching category from violations (legal, commercial, operational)
+- Importance: essential (required by law), recommended (best practice), optional (nice to have)
+- Description: Why this clause is important
+- Sample: Brief example text in English showing how to include it
 
 Return ONLY raw JSON (NO markdown):
 {
   "missing_clauses": [
     {
-      "clause_type": "string",
-      "display_name": "string",
-      "importance": "essential|recommended|optional",
+      "type": "Clause Name",
       "category": "legal|commercial|operational",
-      "why_needed": "explanation referencing specific UAE law",
-      "sample_wording": "suggested clause text",
-      "confidence": 0.95
+      "importance": "essential|recommended|optional",
+      "description": "Why needed",
+      "sample_wording": "Example clause text"
     }
   ],
-  "gap_analysis": "brief overview"
+  "summary": "Brief gap analysis summary"
 }`
         },
         {
           role: 'user',
-          content: `Analyze this document for missing critical legal clauses under UAE Governance Laws:\n\n${extractedText.substring(0, 8000)}`
+          content: `Identify missing clauses in this ${documentType}:\n\n${extractedText.substring(0, 10000)}`
         }
       ]
     })
   })
   
   if (!response.ok) {
-    console.error('AI gap analysis failed:', response.status)
+    console.error('Missing clauses detection failed:', response.status)
     return {
-      additional_missing: [],
-      gap_analysis_summary: 'Gap analysis unavailable'
+      missing_clauses: [],
+      summary: 'Gap analysis unavailable'
     }
   }
   
@@ -1094,35 +1281,29 @@ Return ONLY raw JSON (NO markdown):
     
     const parsed = JSON.parse(aiResponse)
     
-    const aiMissingClauses: MissingClauseSuggestion[] = (parsed.missing_clauses || []).map((c: any) => ({
-      clause_type: c.clause_type || 'other',
-      display_name: c.display_name || 'Additional Clause',
+    const missingClauses: MissingClauseSuggestion[] = (parsed.missing_clauses || []).map((c: any) => ({
+      clause_type: c.type || 'other',
+      display_name: c.type || 'Additional Clause',
       display_name_ar: '',
-      importance: c.importance || 'optional',
+      importance: c.importance || 'recommended',
       category: c.category || 'operational',
-      description: c.why_needed || '',
+      description: c.description || '',
       description_ar: '',
-      why_needed: c.why_needed || '',
+      why_needed: c.description || '',
       why_needed_ar: '',
       sample_wording_en: c.sample_wording || '',
-      sample_wording_ar: '',
-      ai_confidence: c.confidence || 0.8,
-      ai_reasoning: c.why_needed || ''
+      sample_wording_ar: ''
     }))
     
-    const filteredAIClauses = aiMissingClauses.filter(aiClause => 
-      !patternMissingClauses.some(pc => pc.clause_type === aiClause.clause_type)
-    )
-    
     return {
-      additional_missing: filteredAIClauses,
-      gap_analysis_summary: parsed.gap_analysis || 'Document analysis complete'
+      missing_clauses: missingClauses,
+      summary: parsed.summary || 'Gap analysis complete'
     }
   } catch (error) {
-    console.error('Failed to parse AI gap analysis:', error)
+    console.error('Failed to parse missing clauses response:', error)
     return {
-      additional_missing: [],
-      gap_analysis_summary: 'Gap analysis partially complete'
+      missing_clauses: [],
+      summary: 'Gap analysis incomplete'
     }
   }
 }
@@ -1340,53 +1521,51 @@ ${extractedText.substring(0, 4000)}`
       total_characters: clauses.reduce((sum, c) => sum + c.text.length, 0)
     }))
 
-    // UAE Labour Law Compliance Check
-    console.log('Checking UAE Governance compliance...')
-    const patternViolations = checkUAEGovernanceCompliance(extractedText, allClauses)
-    console.log(`Found ${patternViolations.length} pattern-based violations`)
-    
-    const aiCompliance = await analyzeComplianceWithAI(
+    // STEP 1: Detect document type and applicable UAE laws
+    console.log('Detecting document type and applicable UAE laws...')
+    const documentAnalysis = await detectDocumentTypeAndLaws(extractedText, lovableApiKey)
+    console.log(`Document type: ${documentAnalysis.document_type}`)
+    console.log(`Applicable laws: ${documentAnalysis.applicable_uae_laws.join(', ')}`)
+
+    // STEP 2: Perform dynamic UAE compliance analysis
+    console.log('Performing dynamic UAE compliance analysis...')
+    const complianceResult = await analyzeDynamicComplianceWithAI(
       extractedText,
-      patternViolations,
+      documentAnalysis.document_type,
+      documentAnalysis.applicable_uae_laws,
+      documentAnalysis.jurisdiction,
       lovableApiKey
     )
-    console.log(`AI compliance score: ${aiCompliance.compliance_score}%`)
-    
-    const allViolations = [...patternViolations, ...aiCompliance.additional_violations]
+    console.log(`Found ${complianceResult.violations.length} compliance issues`)
+    console.log(`Compliance score: ${complianceResult.compliance_score}%`)
+
+    const allViolations = complianceResult.violations
     const criticalCount = allViolations.filter(v => v.severity === 'critical').length
     const highCount = allViolations.filter(v => v.severity === 'high').length
+    const mediumCount = allViolations.filter(v => v.severity === 'medium').length
+    const lowCount = allViolations.filter(v => v.severity === 'low').length
     
     // Calculate overall compliance score
-    const complianceScore = allViolations.length === 0 ? 100 :
-      Math.max(0, Math.min(100, aiCompliance.compliance_score - (criticalCount * 10) - (highCount * 5)))
+    const complianceScore = complianceResult.compliance_score
 
-    // Detect missing key clauses
-    console.log('Detecting missing key clauses...')
-    const patternMissingClauses = await detectMissingClauses(
+    // STEP 3: Detect missing clauses dynamically
+    console.log('Detecting missing clauses...')
+    const missingClausesResult = await detectDynamicMissingClauses(
       extractedText,
-      allClauses,
-      MissingClauseRules
-    )
-    console.log(`Found ${patternMissingClauses.length} missing clauses (pattern-based)`)
-
-    const aiGapAnalysis = await analyzeGapsWithAI(
-      extractedText,
-      patternMissingClauses,
+      documentAnalysis.document_type,
+      documentAnalysis.applicable_uae_laws,
       lovableApiKey
     )
-    console.log(`Found ${aiGapAnalysis.additional_missing.length} additional gaps (AI)`)
+    console.log(`Found ${missingClausesResult.missing_clauses.length} missing clauses`)
 
-    const allMissingClauses = [
-      ...patternMissingClauses,
-      ...aiGapAnalysis.additional_missing
-    ]
+    const allMissingClauses = missingClausesResult.missing_clauses
 
     const sortedMissingClauses = allMissingClauses.sort((a, b) => {
       const importanceOrder = { essential: 1, recommended: 2, optional: 3 }
       return importanceOrder[a.importance] - importanceOrder[b.importance]
     })
 
-    // Group violations by category
+    // STEP 4: Group violations by category
     const groupedViolations = groupViolationsByCategory(allViolations)
 
     // Calculate statistics
@@ -1453,6 +1632,14 @@ ${extractedText.substring(0, 4000)}`
         success: true,
         extracted_text: extractedText,
         ai_summary: aiSummary,
+        document_analysis: {
+          document_type: documentAnalysis.document_type,
+          document_subtype: documentAnalysis.document_subtype,
+          applicable_laws: documentAnalysis.applicable_uae_laws,
+          key_parties: documentAnalysis.key_parties,
+          jurisdiction: documentAnalysis.jurisdiction,
+          type_summary: documentAnalysis.summary
+        },
         statistics: {
           characters: characterCount,
           words: wordCount,
@@ -1464,18 +1651,21 @@ ${extractedText.substring(0, 4000)}`
         compliance_check: {
           violations: allViolations,
           grouped_violations: groupedViolations,
+          category_findings: complianceResult.category_findings,
           compliance_score: complianceScore,
           total_violations: allViolations.length,
           critical_count: criticalCount,
           high_count: highCount,
-          ai_summary: aiCompliance.summary
+          medium_count: mediumCount,
+          low_count: lowCount,
+          ai_summary: complianceResult.summary
         },
         missing_clauses: {
           suggestions: sortedMissingClauses,
           total_missing: sortedMissingClauses.length,
           essential_count: sortedMissingClauses.filter(c => c.importance === 'essential').length,
           recommended_count: sortedMissingClauses.filter(c => c.importance === 'recommended').length,
-          gap_analysis_summary: aiGapAnalysis.gap_analysis_summary
+          gap_analysis_summary: missingClausesResult.summary
         },
         history_id: historyData.id
       }),
