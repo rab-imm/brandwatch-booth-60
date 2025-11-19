@@ -18,6 +18,7 @@ serve(async (req) => {
       documentText, 
       documentAnalysis,
       complianceSummary,
+      substantiveRisks,
       conversationHistory 
     } = await req.json()
 
@@ -53,6 +54,19 @@ serve(async (req) => {
     }
 
     // Build context about the document
+    const riskContext = substantiveRisks ? `
+
+SUBSTANTIVE LEGAL RISKS:
+- Risk Score: ${substantiveRisks.overall_risk_score}/100
+- Summary: ${substantiveRisks.risk_summary}
+${substantiveRisks.risk_findings?.map((r: any) => 
+  `- ${r.risk_type}: ${r.substantive_issue}`
+).join('\n') || ''}
+${substantiveRisks.true_classification?.is_misclassified ? 
+  `\nWARNING: Document is misclassified as ${substantiveRisks.true_classification.stated_type} but is actually ${substantiveRisks.true_classification.actual_type}` 
+  : ''}
+` : '';
+
     const documentContext = `
 DOCUMENT INFORMATION:
 - Type: ${documentAnalysis?.document_type || 'Unknown'}
@@ -62,6 +76,7 @@ DOCUMENT INFORMATION:
 - Applicable Laws: ${documentAnalysis?.applicable_laws?.join(', ') || 'UAE Contract Law'}
 - Compliance Score: ${complianceSummary?.compliance_score || 'Not assessed'}%
 - Summary: ${documentAnalysis?.type_summary || 'Legal document'}
+${riskContext}
 
 DOCUMENT TEXT (First 8000 chars):
 ${documentText.substring(0, 8000)}
