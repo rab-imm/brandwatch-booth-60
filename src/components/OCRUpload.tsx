@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
+import { SubstantiveRiskDisplay } from "./SubstantiveRiskDisplay"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
@@ -61,6 +62,31 @@ interface MissingClauseSuggestion {
   related_articles?: string[]
   ai_confidence?: number
   ai_reasoning?: string
+}
+
+interface SubstantiveRiskFinding {
+  clause_reference: string
+  risk_type: 'misclassification' | 'unfair_terms' | 'hidden_obligations' | 'employment_risk' | 
+              'consent_defect' | 'agency_violation' | 'pdpl_violation' | 'proportionality_breach' | 
+              'good_faith_violation' | 'regulatory_gap'
+  severity: 'critical' | 'high' | 'medium' | 'low'
+  legal_basis: string
+  substantive_issue: string
+  litigation_risk: string
+  affected_clause_text: string
+  remediation: string
+}
+
+interface SubstantiveRiskAnalysis {
+  risk_findings: SubstantiveRiskFinding[]
+  true_classification: {
+    stated_type: string
+    actual_type: string
+    is_misclassified: boolean
+    reasoning: string
+  }
+  overall_risk_score: number
+  risk_summary: string
 }
 
 interface ChatMessage {
@@ -187,6 +213,7 @@ export const OCRUpload = () => {
       recommended_count: number
       gap_analysis_summary: string
     }
+    substantive_risk_analysis?: SubstantiveRiskAnalysis
   } | null>(null)
   const [hasScanned, setHasScanned] = useState(false)
 
@@ -990,6 +1017,11 @@ export const OCRUpload = () => {
             </CollapsibleContent>
           </Card>
         </Collapsible>
+      )}
+
+      {/* Substantive Risk Analysis */}
+      {result.substantive_risk_analysis && (
+        <SubstantiveRiskDisplay riskAnalysis={result.substantive_risk_analysis} />
       )}
 
       {result && (

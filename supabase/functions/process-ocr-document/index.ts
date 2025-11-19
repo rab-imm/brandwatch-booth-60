@@ -83,6 +83,19 @@ interface MissingClauseSuggestion {
   ai_reasoning?: string
 }
 
+interface SubstantiveRiskFinding {
+  clause_reference: string
+  risk_type: 'misclassification' | 'unfair_terms' | 'hidden_obligations' | 'employment_risk' | 
+              'consent_defect' | 'agency_violation' | 'pdpl_violation' | 'proportionality_breach' | 
+              'good_faith_violation' | 'regulatory_gap'
+  severity: 'critical' | 'high' | 'medium' | 'low'
+  legal_basis: string
+  substantive_issue: string
+  litigation_risk: string
+  affected_clause_text: string
+  remediation: string
+}
+
 const MissingClauseRules: MissingClauseRule[] = [
   {
     clause_type: 'governing_law',
@@ -1308,6 +1321,175 @@ Return ONLY raw JSON (NO markdown):
   }
 }
 
+async function analyzeSubstantiveLegalRisks(
+  extractedText: string,
+  documentType: string,
+  documentSubtype: string,
+  applicableLaws: string[],
+  detectedClauses: DetectedClause[],
+  lovableApiKey: string
+): Promise<{
+  risk_findings: SubstantiveRiskFinding[]
+  true_document_classification: {
+    stated_type: string
+    actual_type: string
+    is_misclassified: boolean
+    reasoning: string
+  }
+  overall_risk_score: number
+  risk_summary: string
+}> {
+  const lawsContext = applicableLaws.join('\n- ')
+  const clausesSummary = detectedClauses.map(c => `${c.type}: ${c.text.substring(0, 200)}`).join('\n')
+  
+  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${lovableApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a UAE litigation lawyer specializing in contract disputes and regulatory enforcement.
+
+CRITICAL: Your role is to identify SUBSTANTIVE LEGAL RISKS, not template compliance issues.
+
+DOCUMENT CLASSIFICATION:
+Stated Type: ${documentType} (${documentSubtype})
+Applicable Laws: ${lawsContext}
+
+YOUR ANALYSIS MUST FOCUS ON:
+
+1. TRUE DOCUMENT CLASSIFICATION
+   - What is this agreement ACTUALLY doing (substance over form)?
+   - Does it contain hidden or disguised agreements?
+   - Example: NDA that's actually a broker agreement
+   - Example: "Contractor" agreement that creates employment relationship
+
+2. MATERIAL RISK ASSESSMENT
+   - Unfair or grossly one-sided terms
+   - Penalty clauses violating proportionality (UAE Civil Code Article 390)
+   - Hidden commercial obligations
+   - Terms conflicting with UAE mandatory law
+   - Terms violating good faith principles (UAE Civil Code Article 246)
+   - Automatic renewals with unreasonable notice periods
+
+3. EMPLOYMENT MISCLASSIFICATION RISKS
+   For contractor/consulting agreements, check if they actually create employment:
+   - Fixed working hours or location requirements
+   - Integration into company structure
+   - Prohibition from working for others
+   - Supervision and control indicators
+
+4. CONSENT & FAIRNESS ISSUES
+   - Material mistake in contract formation
+   - Lack of genuine consent indicators
+   - Unconscionable terms
+
+5. COMMERCIAL AGENCY RISKS (Federal Law No. 18/1981)
+   - Distribution/sales terms without registered agency
+   - Commission structures indicating agency relationship
+
+6. PDPL COMPLIANCE (Federal Decree-Law No. 45/2021)
+   - Data processing WITHOUT legal basis (Article 9)
+   - Missing data subject rights
+   - Undefined retention periods
+
+Return ONLY raw JSON (NO markdown):
+{
+  "true_document_classification": {
+    "stated_type": "${documentType}",
+    "actual_type": "employment_contract | brokerage_agreement | commercial_agency | [actual type]",
+    "is_misclassified": true | false,
+    "reasoning": "Detailed explanation of why classification is incorrect"
+  },
+  "risk_findings": [
+    {
+      "clause_reference": "Exact text or clause number",
+      "risk_type": "misclassification | unfair_terms | hidden_obligations | employment_risk | consent_defect | agency_violation | pdpl_violation | proportionality_breach | good_faith_violation | regulatory_gap",
+      "severity": "critical | high | medium | low",
+      "legal_basis": "Specific UAE law article",
+      "substantive_issue": "Clear explanation of what's wrong",
+      "litigation_risk": "How UAE courts would likely treat this",
+      "affected_clause_text": "Excerpt of problematic clause",
+      "remediation": "What substantive change is needed"
+    }
+  ],
+  "overall_risk_score": 0-100,
+  "risk_summary": "Executive summary of material legal risks"
+}`
+        },
+        {
+          role: 'user',
+          content: `Perform substantive legal risk analysis on this document:
+
+FULL DOCUMENT TEXT:
+${extractedText.substring(0, 15000)}
+
+DETECTED CLAUSES:
+${clausesSummary}
+
+Analyze the SUBSTANCE of this agreement and identify material legal risks.`
+        }
+      ]
+    })
+  })
+  
+  if (!response.ok) {
+    console.error('Substantive risk analysis failed:', response.status)
+    return {
+      risk_findings: [],
+      true_document_classification: {
+        stated_type: documentType,
+        actual_type: documentType,
+        is_misclassified: false,
+        reasoning: 'Analysis unavailable'
+      },
+      overall_risk_score: 50,
+      risk_summary: 'Substantive risk analysis unavailable'
+    }
+  }
+  
+  const data = await response.json()
+  let aiResponse = data.choices?.[0]?.message?.content || '{}'
+  
+  try {
+    if (aiResponse.trim().startsWith('```')) {
+      aiResponse = aiResponse.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+    }
+    
+    const parsed = JSON.parse(aiResponse)
+    
+    return {
+      risk_findings: parsed.risk_findings || [],
+      true_document_classification: parsed.true_document_classification || {
+        stated_type: documentType,
+        actual_type: documentType,
+        is_misclassified: false,
+        reasoning: 'No misclassification detected'
+      },
+      overall_risk_score: parsed.overall_risk_score || 50,
+      risk_summary: parsed.risk_summary || 'Risk analysis complete'
+    }
+  } catch (error) {
+    console.error('Failed to parse substantive risk response:', error)
+    return {
+      risk_findings: [],
+      true_document_classification: {
+        stated_type: documentType,
+        actual_type: documentType,
+        is_misclassified: false,
+        reasoning: 'Parse error'
+      },
+      overall_risk_score: 50,
+      risk_summary: 'Risk analysis incomplete'
+    }
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -1568,6 +1750,17 @@ ${extractedText.substring(0, 4000)}`
     // STEP 4: Group violations by category
     const groupedViolations = groupViolationsByCategory(allViolations)
 
+    // ============= SUBSTANTIVE LEGAL RISK ANALYSIS =============
+    console.log('Performing substantive legal risk analysis...')
+    const substantiveRisks = await analyzeSubstantiveLegalRisks(
+      extractedText,
+      documentAnalysis.document_type,
+      documentAnalysis.document_subtype,
+      documentAnalysis.applicable_uae_laws,
+      allDetectedClauses,
+      lovableApiKey
+    )
+
     // Calculate statistics
     const characterCount = extractedText.length
     const wordCount = extractedText.trim().split(/\s+/).length
@@ -1610,6 +1803,12 @@ ${extractedText.substring(0, 4000)}`
             recommended_count: sortedMissingClauses.filter(c => c.importance === 'recommended').length,
             gap_analysis_summary: missingClausesResult.summary,
             analyzed_at: new Date().toISOString()
+          },
+          substantive_risk_analysis: {
+            risk_findings: substantiveRisks.risk_findings,
+            true_classification: substantiveRisks.true_document_classification,
+            overall_risk_score: substantiveRisks.overall_risk_score,
+            risk_summary: substantiveRisks.risk_summary
           }
         }
       })
@@ -1666,6 +1865,12 @@ ${extractedText.substring(0, 4000)}`
           essential_count: sortedMissingClauses.filter(c => c.importance === 'essential').length,
           recommended_count: sortedMissingClauses.filter(c => c.importance === 'recommended').length,
           gap_analysis_summary: missingClausesResult.summary
+        },
+        substantive_risk_analysis: {
+          risk_findings: substantiveRisks.risk_findings,
+          true_classification: substantiveRisks.true_document_classification,
+          overall_risk_score: substantiveRisks.overall_risk_score,
+          risk_summary: substantiveRisks.risk_summary
         },
         history_id: historyData.id
       }),
