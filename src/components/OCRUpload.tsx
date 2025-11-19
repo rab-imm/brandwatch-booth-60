@@ -113,6 +113,10 @@ const detectTextDirection = (text: string): { direction: 'rtl' | 'ltr', textAlig
   return { direction: 'ltr', textAlign: 'left' };
 };
 
+interface OCRUploadProps {
+  onScanComplete?: (result: any) => void
+}
+
 // Get icon for category group
 const getCategoryIcon = (category: string): string => {
   switch (category) {
@@ -161,7 +165,7 @@ const getCategoryColor = (category: string): string => {
   }
 }
 
-export const OCRUpload = () => {
+export const OCRUpload = ({ onScanComplete }: OCRUploadProps = {}) => {
   const { user, profile } = useAuth()
   const { toast } = useToast()
   const [isProcessing, setIsProcessing] = useState(false)
@@ -348,7 +352,7 @@ export const OCRUpload = () => {
       // Store OCR history ID for saving later
       const { data: ocrHistoryData, error: historyError } = await supabase
         .from('ocr_history')
-        .select('id')
+        .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(1)
@@ -356,6 +360,11 @@ export const OCRUpload = () => {
 
       if (!historyError && ocrHistoryData) {
         setCurrentOcrHistoryId(ocrHistoryData.id)
+        
+        // Call onScanComplete callback with the full record
+        if (onScanComplete) {
+          onScanComplete(ocrHistoryData)
+        }
       }
 
       setResult({
