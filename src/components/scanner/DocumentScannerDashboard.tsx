@@ -24,7 +24,7 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
     return (
       <div className="flex items-center justify-center h-full min-h-[400px]">
         <div className="text-center">
-          <Icon name="file-search" className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+          <Icon name="search" className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
           <h3 className="text-lg font-semibold mb-2">No Document Scanned</h3>
           <p className="text-muted-foreground">Upload a document to begin analysis</p>
         </div>
@@ -64,7 +64,7 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
         title: r.risk_type.replace(/_/g, ' ').toUpperCase(),
         severity: r.severity,
         description: r.substantive_issue,
-        icon: 'shield-alert'
+        icon: 'shield'
       }))
   ]
   
@@ -150,7 +150,7 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Icon name="sparkles" className="h-5 w-5" />
+                <Icon name="star" className="h-5 w-5" />
                 AI Summary and Analysis
               </CardTitle>
             </CardHeader>
@@ -170,13 +170,13 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
           
           {/* Detected Clauses */}
           {clauseCards.length > 0 && (
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <Icon name="layers" className="h-5 w-5" />
-                    Detected Clauses
-                  </CardTitle>
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="grid" className="h-5 w-5" />
+                  Detected Clauses
+                </CardTitle>
                   <Badge variant="secondary">
                     {clauseCards.length} clauses found
                   </Badge>
@@ -208,18 +208,18 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
 // Helper functions
 function getClauseIcon(type: string): string {
   const icons: Record<string, string> = {
-    termination: 'x-circle',
+    termination: 'close',
     confidentiality: 'lock',
     payment: 'credit-card',
     liability: 'shield',
-    intellectual_property: 'lightbulb',
+    intellectual_property: 'bulb',
     dispute_resolution: 'scale',
-    warranties: 'check-circle',
+    warranties: 'check',
     duration: 'clock',
     parties: 'users',
     obligations: 'list',
     force_majeure: 'alert-triangle',
-    non_compete: 'ban',
+    non_compete: 'close',
     amendments: 'edit',
     notices: 'bell',
     definitions: 'book'
