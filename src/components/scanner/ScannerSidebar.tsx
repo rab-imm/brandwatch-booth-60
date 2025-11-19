@@ -17,10 +17,10 @@ interface ScannerSidebarProps {
 
 export const ScannerSidebar = ({ activeSection, onSectionChange }: ScannerSidebarProps) => {
   const sections: SidebarItem[] = [
-    { id: 'scan', label: 'Scan Document', icon: 'file-scan' },
+    { id: 'scan', label: 'Scan Document', icon: 'file-plus' },
     { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
     { id: 'history', label: 'History', icon: 'clock' },
-    { id: 'saved', label: 'Saved Docs', icon: 'folder' },
+    { id: 'saved', label: 'Saved Docs', icon: 'inbox' },
   ]
   
   return (
@@ -70,7 +70,7 @@ export const ScannerSidebar = ({ activeSection, onSectionChange }: ScannerSideba
             Settings
           </Button>
           <Button variant="ghost" className="w-full justify-start gap-3">
-            <Icon name="help-circle" className="h-4 w-4" />
+            <Icon name="info" className="h-4 w-4" />
             Help
           </Button>
         </div>

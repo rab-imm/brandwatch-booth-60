@@ -24,7 +24,7 @@ export const KeyIssuesSummary = ({ issues }: KeyIssuesSummaryProps) => {
       case 'medium':
         return { variant: 'secondary' as const, icon: 'info', bgClass: 'bg-yellow-50 dark:bg-yellow-950' }
       default:
-        return { variant: 'outline' as const, icon: 'check-circle', bgClass: 'bg-blue-50 dark:bg-blue-950' }
+        return { variant: 'outline' as const, icon: 'check', bgClass: 'bg-blue-50 dark:bg-blue-950' }
     }
   }
   
@@ -40,7 +40,7 @@ export const KeyIssuesSummary = ({ issues }: KeyIssuesSummaryProps) => {
       <CardContent className="space-y-3">
         {issues.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <Icon name="check-circle" className="h-12 w-12 mx-auto mb-3 text-chart-2" />
+            <Icon name="check" className="h-12 w-12 mx-auto mb-3 text-chart-2" />
             <p>No critical issues detected</p>
           </div>
         ) : (
