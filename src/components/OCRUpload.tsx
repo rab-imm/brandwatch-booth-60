@@ -1029,7 +1029,7 @@ export const OCRUpload = ({ onScanComplete }: OCRUploadProps = {}) => {
       )}
 
       {/* Substantive Risk Analysis */}
-      {result.substantive_risk_analysis && (
+      {result && result.substantive_risk_analysis && (
         <SubstantiveRiskDisplay riskAnalysis={result.substantive_risk_analysis} />
       )}
 
