@@ -21,9 +21,14 @@ interface OCRRecord {
   processing_time_ms: number
   created_at: string
   metadata?: any
+  substantive_risk_analysis?: any
 }
 
-export const OCRHistory = () => {
+interface OCRHistoryProps {
+  onRecordSelect?: (record: OCRRecord) => void
+}
+
+export const OCRHistory = ({ onRecordSelect }: OCRHistoryProps = {}) => {
   const { user } = useAuth()
   const { toast } = useToast()
   const [history, setHistory] = useState<OCRRecord[]>([])
@@ -201,7 +206,12 @@ export const OCRHistory = () => {
               <div
                 key={record.id}
                 className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-                onClick={() => setSelectedRecord(record)}
+                onClick={() => {
+                  setSelectedRecord(record)
+                  if (onRecordSelect) {
+                    onRecordSelect(record)
+                  }
+                }}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
