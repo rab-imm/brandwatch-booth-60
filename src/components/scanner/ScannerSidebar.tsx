@@ -24,7 +24,7 @@ export const ScannerSidebar = ({ activeSection, onSectionChange }: ScannerSideba
   ]
   
   return (
-    <div className="w-64 border-r bg-card h-screen flex flex-col fixed left-0 top-0 z-30">
+    <div className="w-64 border-r bg-card h-full flex flex-col shrink-0">
       {/* Logo/Header */}
       <div className="p-6 border-b">
         <div className="flex items-center gap-3">
