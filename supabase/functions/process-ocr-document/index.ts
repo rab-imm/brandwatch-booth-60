@@ -1757,7 +1757,7 @@ ${extractedText.substring(0, 4000)}`
       documentAnalysis.document_type,
       documentAnalysis.document_subtype,
       documentAnalysis.applicable_uae_laws,
-      allDetectedClauses,
+      allClauses,
       lovableApiKey
     )
 
