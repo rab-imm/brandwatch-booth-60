@@ -23,7 +23,7 @@ const OCRPage = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1">
         {/* Sidebar */}
         <ScannerSidebar 
           activeSection={activeSection}
@@ -31,7 +31,7 @@ const OCRPage = () => {
         />
         
         {/* Main Content Area */}
-        <div className="flex-1 overflow-auto">
+        <div className="ml-64 overflow-auto min-h-full">
           {activeSection === 'scan' && (
             <div className="p-6 max-w-5xl mx-auto">
               <div className="mb-6">
