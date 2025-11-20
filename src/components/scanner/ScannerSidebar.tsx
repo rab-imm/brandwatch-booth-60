@@ -24,9 +24,9 @@ export const ScannerSidebar = ({ activeSection, onSectionChange }: ScannerSideba
   ]
   
   return (
-    <div className="w-64 border-r bg-card h-full flex flex-col shrink-0">
+    <div className="w-64 border-r bg-card h-screen flex flex-col fixed left-0 top-0 z-10">
       {/* Navigation */}
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1 p-4 pt-20">
         <div className="space-y-2">
           {sections.map((section) => (
             <Button
