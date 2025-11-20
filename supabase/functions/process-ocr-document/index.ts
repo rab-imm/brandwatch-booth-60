@@ -1783,12 +1783,13 @@ ${extractedText.substring(0, 4000)}`
         credits_used: 1,
         metadata: {
           processed_at: new Date().toISOString(),
-          clauses: allClauses,
+          detected_clauses: allClauses,
           clause_stats: clauseStats,
           clause_types_found: Object.keys(clausesByType),
           total_clauses: allClauses.length,
-          compliance_check: {
+          compliance_summary: {
             violations: allViolations,
+            overall_compliance_percentage: complianceScore,
             compliance_score: complianceScore,
             total_violations: allViolations.length,
             critical_count: criticalCount,
@@ -1803,13 +1804,13 @@ ${extractedText.substring(0, 4000)}`
             recommended_count: sortedMissingClauses.filter(c => c.importance === 'recommended').length,
             gap_analysis_summary: missingClausesResult.summary,
             analyzed_at: new Date().toISOString()
-          },
-          substantive_risk_analysis: {
-            risk_findings: substantiveRisks.risk_findings,
-            true_classification: substantiveRisks.true_document_classification,
-            overall_risk_score: substantiveRisks.overall_risk_score,
-            risk_summary: substantiveRisks.risk_summary
           }
+        },
+        substantive_risk_analysis: {
+          risk_findings: substantiveRisks.risk_findings,
+          true_classification: substantiveRisks.true_document_classification,
+          overall_risk_score: substantiveRisks.overall_risk_score,
+          risk_summary: substantiveRisks.risk_summary
         }
       })
       .select()
