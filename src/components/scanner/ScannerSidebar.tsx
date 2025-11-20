@@ -25,19 +25,6 @@ export const ScannerSidebar = ({ activeSection, onSectionChange }: ScannerSideba
   
   return (
     <div className="w-64 border-r bg-card h-full flex flex-col shrink-0">
-      {/* Logo/Header */}
-      <div className="p-6 border-b">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-            <Icon name="shield" className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <div>
-            <h2 className="font-bold text-lg">Contract Scanner</h2>
-            <p className="text-xs text-muted-foreground">AI-Powered Analysis</p>
-          </div>
-        </div>
-      </div>
-      
       {/* Navigation */}
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-2">
