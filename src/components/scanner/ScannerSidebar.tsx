@@ -26,8 +26,8 @@ export const ScannerSidebar = ({ activeSection, onSectionChange }: ScannerSideba
   return (
     <div className="w-64 border-r bg-card h-screen flex flex-col fixed left-0 top-0 z-10">
       {/* Navigation */}
-      <ScrollArea className="flex-1 p-4 pt-20">
-        <div className="space-y-2">
+      <ScrollArea className="flex-1 px-4 pt-24 pb-6">
+        <div className="space-y-1.5">
           {sections.map((section) => (
             <Button
               key={section.id}
@@ -48,10 +48,10 @@ export const ScannerSidebar = ({ activeSection, onSectionChange }: ScannerSideba
           ))}
         </div>
         
-        <Separator className="my-4" />
+        <Separator className="my-6" />
         
         {/* Settings/Help Section */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <Button variant="ghost" className="w-full justify-start gap-3">
             <Icon name="settings" className="h-4 w-4" />
             Settings
