@@ -10,7 +10,7 @@ import { SubstantiveRiskDisplay } from "../SubstantiveRiskDisplay"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/integrations/supabase/client"
@@ -182,141 +182,144 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
         </div>
       </div>
       
-      {/* Main Content */}
-      <ScrollArea className="flex-1 p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          
-          {/* Top Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Compliance Score */}
-            <Card>
-              <CardContent className="pt-6 flex justify-center">
-                <ComplianceScoreCircle
-                  score={Math.round(complianceScore)}
-                  label="Compliance Score"
-                  subtitle="Overall document compliance"
-                />
-              </CardContent>
-            </Card>
-            
-            {/* Risk Score */}
-            <Card>
-              <CardContent className="pt-6 flex justify-center">
-                <ComplianceScoreCircle
-                  score={Math.round(100 - riskScore)}
-                  label="Risk Assessment"
-                  subtitle="Substantive legal risks"
-                />
-              </CardContent>
-            </Card>
-            
-            {/* Document Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Document Info</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div>
-                  <p className="text-xs text-muted-foreground">Type</p>
-                  <p className="font-semibold">{scanResult.metadata?.document_analysis?.document_subtype || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Jurisdiction</p>
-                  <p className="font-semibold">{scanResult.metadata?.document_analysis?.jurisdiction || 'UAE'}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Word Count</p>
-                  <p className="font-semibold">{scanResult.word_count?.toLocaleString() || 'N/A'}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* AI Summary */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="star" className="h-5 w-5" />
-                AI Summary and Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="prose prose-sm max-w-none dark:prose-invert">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {scanResult.ai_summary || 'No summary available'}
-                </ReactMarkdown>
+      {/* Resizable Layout */}
+      <ResizablePanelGroup direction="horizontal" className="flex-1">
+        {/* Main Analysis Panel */}
+        <ResizablePanel defaultSize={isChatOpen ? 60 : 100} minSize={30}>
+          <ScrollArea className="h-full">
+            <div className="container py-6 space-y-6">
+              {/* Top Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Compliance Score */}
+                <Card>
+                  <CardContent className="pt-6 flex justify-center">
+                    <ComplianceScoreCircle
+                      score={Math.round(complianceScore)}
+                      label="Compliance Score"
+                      subtitle="Overall document compliance"
+                    />
+                  </CardContent>
+                </Card>
+                
+                {/* Risk Score */}
+                <Card>
+                  <CardContent className="pt-6 flex justify-center">
+                    <ComplianceScoreCircle
+                      score={Math.round(100 - riskScore)}
+                      label="Risk Assessment"
+                      subtitle="Substantive legal risks"
+                    />
+                  </CardContent>
+                </Card>
+                
+                {/* Document Info */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Document Info</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Type</p>
+                      <p className="font-semibold">{scanResult.metadata?.document_analysis?.document_subtype || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Jurisdiction</p>
+                      <p className="font-semibold">{scanResult.metadata?.document_analysis?.jurisdiction || 'UAE'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Word Count</p>
+                      <p className="font-semibold">{scanResult.word_count?.toLocaleString() || 'N/A'}</p>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
-          
-          {/* Key Issues */}
-          {keyIssues.length > 0 && (
-            <KeyIssuesSummary issues={keyIssues} />
-          )}
-          
-          {/* Detected Clauses */}
-          {clauseCards.length > 0 && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="grid" className="h-5 w-5" />
-                  Detected Clauses
-                </CardTitle>
-                  <Badge variant="secondary">
-                    {clauseCards.length} clauses found
-                  </Badge>
-                </div>
-                <CardDescription>
-                  Click on any clause to view details
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ClauseDetectionGrid 
-                  clauses={clauseCards}
-                  onClauseClick={setSelectedClause}
-                />
-              </CardContent>
-            </Card>
-          )}
-          
-          {/* Substantive Risk Analysis */}
-          {scanResult.substantive_risk_analysis && (
-            <SubstantiveRiskDisplay riskAnalysis={scanResult.substantive_risk_analysis} />
-          )}
-          
-        </div>
-      </ScrollArea>
+              
+              {/* AI Summary */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon name="star" className="h-5 w-5" />
+                    AI Summary and Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="prose prose-sm max-w-none dark:prose-invert">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {scanResult.ai_summary || 'No summary available'}
+                    </ReactMarkdown>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Key Issues */}
+              {keyIssues.length > 0 && (
+                <KeyIssuesSummary issues={keyIssues} />
+              )}
+              
+              {/* Detected Clauses */}
+              {clauseCards.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="grid" className="h-5 w-5" />
+                      Detected Clauses
+                    </CardTitle>
+                      <Badge variant="secondary">
+                        {clauseCards.length} clauses found
+                      </Badge>
+                    </div>
+                    <CardDescription>
+                      Click on any clause to view details
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ClauseDetectionGrid 
+                      clauses={clauseCards}
+                      onClauseClick={setSelectedClause}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+              
+              {/* Substantive Risk Analysis */}
+              {scanResult.substantive_risk_analysis && (
+                <SubstantiveRiskDisplay riskAnalysis={scanResult.substantive_risk_analysis} />
+              )}
+            </div>
+          </ScrollArea>
+        </ResizablePanel>
 
-      {/* Floating Chat Button */}
-      {scanResult && (
-        <>
-          <button
-            onClick={() => setIsChatOpen(true)}
-            className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 px-5 py-3 group"
-            aria-label="Open Document Q&A Assistant"
-          >
-            <Icon name="message-circle" className="h-5 w-5" />
-            <span className="font-medium hidden sm:inline">Ask Questions</span>
-          </button>
+        {/* Resizable Handle */}
+        {isChatOpen && <ResizableHandle withHandle />}
 
-          {/* Chat Sheet */}
-          <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
-            <SheetContent side="right" className="w-full sm:max-w-xl flex flex-col p-0">
-              <SheetHeader className="px-6 py-4 border-b bg-muted/30">
+        {/* Chat Panel */}
+        {isChatOpen && (
+          <ResizablePanel defaultSize={40} minSize={30} maxSize={70}>
+            <div className="h-full flex flex-col bg-card border-l">
+              {/* Chat Header */}
+              <div className="px-6 py-4 border-b bg-muted/30 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-primary/10">
                     <Icon name="message-circle" className="h-5 w-5 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <SheetTitle>Document Q&A Assistant</SheetTitle>
-                    <SheetDescription>
-                      Ask questions about this scanned document
-                    </SheetDescription>
+                    <h3 className="font-semibold text-lg">Document Q&A</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Ask questions about this document
+                    </p>
                   </div>
                 </div>
-              </SheetHeader>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsChatOpen(false)}
+                >
+                  <Icon name="x" className="h-4 w-4" />
+                </Button>
+              </div>
 
+              {/* Chat Messages */}
               <ScrollArea className="flex-1 px-6 py-4">
                 <div className="space-y-4">
                   {chatState.messages.length === 0 ? (
@@ -389,6 +392,7 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
                 </div>
               </ScrollArea>
 
+              {/* Chat Input */}
               <div className="border-t p-4 bg-muted/30">
                 <form onSubmit={handleChatSubmit} className="flex gap-2">
                   <Input
@@ -407,9 +411,21 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
                   </Button>
                 </form>
               </div>
-            </SheetContent>
-          </Sheet>
-        </>
+            </div>
+          </ResizablePanel>
+        )}
+      </ResizablePanelGroup>
+
+      {/* Floating Chat Button - Only show when chat is closed */}
+      {scanResult && !isChatOpen && (
+        <button
+          onClick={() => setIsChatOpen(true)}
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 px-5 py-3 group"
+          aria-label="Open Document Q&A Assistant"
+        >
+          <Icon name="message-circle" className="h-5 w-5" />
+          <span className="font-medium hidden sm:inline">Ask Questions</span>
+        </button>
       )}
     </div>
   )
