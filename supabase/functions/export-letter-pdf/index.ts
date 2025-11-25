@@ -94,73 +94,206 @@ serve(async (req) => {
       );
     }
 
-    // Generate HTML for PDF conversion
+    // Generate professional HTML for PDF conversion
     const htmlContent = `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${letter.title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Crimson+Pro:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    @page {
+      size: A4;
+      margin: 2.5cm 2cm;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
-      font-family: 'Times New Roman', Times, serif;
-      margin: 40px;
-      line-height: 1.6;
-      color: #000;
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 30px;
-      border-bottom: 2px solid #000;
-      padding-bottom: 20px;
-    }
-    .title {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .metadata {
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 5px;
-    }
-    .content {
-      white-space: pre-wrap;
-      margin-top: 30px;
+      font-family: 'Crimson Pro', Georgia, serif;
       font-size: 12pt;
+      line-height: 1.75;
+      color: #1e293b;
+      background: white;
     }
-    .footer {
-      margin-top: 50px;
-      padding-top: 20px;
-      border-top: 1px solid #ccc;
-      font-size: 10px;
-      color: #666;
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      page-break-after: avoid;
+    }
+    
+    h1 { 
+      font-size: 24pt; 
+      margin: 24px 0 16px; 
+      color: #0f172a;
+    }
+    
+    h2 { 
+      font-size: 20pt; 
+      margin: 20px 0 12px; 
+      color: #1e293b;
+    }
+    
+    h3 { 
+      font-size: 16pt; 
+      margin: 16px 0 10px; 
+      color: #334155;
+    }
+    
+    p {
+      margin: 12px 0;
+      text-align: justify;
+      hyphens: auto;
+      orphans: 3;
+      widows: 3;
+    }
+    
+    strong {
+      font-weight: 600;
+      color: #0f172a;
+    }
+    
+    em {
+      font-style: italic;
+    }
+    
+    ul, ol {
+      margin: 12px 0;
+      padding-left: 32px;
+    }
+    
+    li {
+      margin: 8px 0;
+      page-break-inside: avoid;
+    }
+    
+    blockquote {
+      border-left: 4px solid #3b82f6;
+      padding-left: 20px;
+      margin: 20px 0;
+      font-style: italic;
+      color: #475569;
+    }
+    
+    .document-header {
       text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 3px solid #3b82f6;
+      page-break-after: avoid;
+    }
+    
+    .brand {
+      font-family: 'Inter', sans-serif;
+      font-size: 16pt;
+      font-weight: 600;
+      color: #3b82f6;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    
+    .doc-meta {
+      font-family: 'Inter', sans-serif;
+      font-size: 10pt;
+      color: #64748b;
+      margin-top: 12px;
+    }
+    
+    .doc-title {
+      font-size: 22pt;
+      font-weight: 600;
+      color: #0f172a;
+      display: block;
+      margin: 16px 0 8px;
+    }
+    
+    .content {
+      margin-top: 30px;
+    }
+    
+    .footer {
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 2px solid #e2e8f0;
+      text-align: center;
+      font-family: 'Inter', sans-serif;
+      font-size: 9pt;
+      color: #64748b;
+    }
+    
+    .footer-brand {
+      font-weight: 600;
+      color: #3b82f6;
+    }
+    
+    @media print {
+      body {
+        background: white;
+      }
+      
+      .no-print {
+        display: none !important;
+      }
+      
+      h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+      }
+      
+      p, li {
+        orphans: 3;
+        widows: 3;
+      }
+      
+      blockquote, ul, ol {
+        page-break-inside: avoid;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="title">${letter.title}</div>
-    <div class="metadata">Type: ${letter.letter_type.replace(/_/g, ' ').toUpperCase()}</div>
-    <div class="metadata">Status: ${letter.status.toUpperCase()}</div>
-    <div class="metadata">Generated: ${new Date(letter.created_at).toLocaleDateString('en-AE', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    })}</div>
-  </div>
-  <div class="content">${letter.content.replace(/\n/g, '<br>')}</div>
-  <div class="footer">
-    Generated via UAE Legal AI Platform
-  </div>
+  <header class="document-header">
+    <div class="brand">Graysen.AI</div>
+    <div class="doc-title">${letter.title}</div>
+    <div class="doc-meta">
+      <div>Document Type: ${letter.letter_type.replace(/_/g, ' ').toUpperCase()}</div>
+      <div>Status: ${letter.status.toUpperCase()}</div>
+      <div>Generated: ${new Date(letter.created_at).toLocaleDateString('en-AE', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      })}</div>
+    </div>
+  </header>
+  
+  <main class="content">
+    ${letter.content.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}
+  </main>
+  
+  <footer class="footer">
+    <div class="footer-brand">Graysen.AI</div>
+    <div>Professional Legal Document Generation</div>
+    <div style="margin-top: 8px;">
+      Generated on ${new Date().toLocaleDateString('en-AE', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}
+    </div>
+  </footer>
 </body>
 </html>`;
 
-    // Use a PDF generation API (example with PDFShift API)
-    // Note: In production, you'd use a service like PDFShift, Puppeteer, or similar
-    // For now, we'll return the HTML that can be converted client-side or with a service
-    
-    // Simple approach: Return base64 encoded HTML that can be printed/converted
     const base64Html = btoa(unescape(encodeURIComponent(htmlContent)));
 
     console.log(`PDF exported for letter ${letterId}, 1 credit deducted (${creditResult.remaining_credits} remaining)`);

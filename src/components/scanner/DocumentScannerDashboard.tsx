@@ -243,11 +243,13 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {scanResult.ai_summary || 'No summary available'}
-                    </ReactMarkdown>
-                  </div>
+                  <ScrollArea className="max-h-[400px]">
+                    <div className="prose prose-sm max-w-none dark:prose-invert pr-4">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {scanResult.ai_summary || 'No summary available'}
+                      </ReactMarkdown>
+                    </div>
+                  </ScrollArea>
                 </CardContent>
               </Card>
               
@@ -274,10 +276,12 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <ClauseDetectionGrid 
-                      clauses={clauseCards}
-                      onClauseClick={setSelectedClause}
-                    />
+                    <ScrollArea className="max-h-[400px]">
+                      <ClauseDetectionGrid 
+                        clauses={clauseCards}
+                        onClauseClick={setSelectedClause}
+                      />
+                    </ScrollArea>
                   </CardContent>
                 </Card>
               )}
