@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Printer, CheckCircle, ShieldCheck } from "lucide-react";
+import { Download, Printer, CheckCircle, ShieldCheck, FileSignature } from "lucide-react";
 import { format } from "date-fns";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -55,6 +55,7 @@ export const SignedDocumentViewer = ({
   const [signatureFields, setSignatureFields] = useState<SignatureField[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   useEffect(() => {
@@ -169,12 +170,23 @@ export const SignedDocumentViewer = ({
       case 'signature':
       case 'initial':
         return field.field_value ? (
-          <div key={field.id} style={style} className="border-2 border-primary/30 bg-white/50 rounded">
-            <img 
-              src={field.field_value} 
-              alt={field.field_label}
-              className="w-full h-full object-contain"
-            />
+          <div key={field.id} style={style} className="border-2 border-primary/30 bg-white/50 rounded flex items-center justify-center">
+            {!failedImages.has(field.id) ? (
+              <img 
+                src={field.field_value} 
+                alt={field.field_label}
+                className="w-full h-full object-contain"
+                onError={() => {
+                  console.error('Failed to load signature image:', field.field_value);
+                  setFailedImages(prev => new Set([...prev, field.id]));
+                }}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-xs text-muted-foreground">
+                <FileSignature className="w-4 h-4 mr-1" />
+                Signed
+              </div>
+            )}
           </div>
         ) : null;
 
