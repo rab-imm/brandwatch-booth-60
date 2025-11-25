@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Icon } from "@/components/ui/Icon"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface KeyIssue {
   title: string
@@ -37,33 +38,37 @@ export const KeyIssuesSummary = ({ issues }: KeyIssuesSummaryProps) => {
           <Badge variant="secondary">{issues.length}</Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {issues.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Icon name="check" className="h-12 w-12 mx-auto mb-3 text-chart-2" />
-            <p>No critical issues detected</p>
+      <CardContent>
+        <ScrollArea className="max-h-[350px]">
+          <div className="space-y-3 pr-4">
+            {issues.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Icon name="check" className="h-12 w-12 mx-auto mb-3 text-chart-2" />
+                <p>No critical issues detected</p>
+              </div>
+            ) : (
+              issues.map((issue, idx) => {
+                const config = getSeverityConfig(issue.severity)
+                return (
+                  <Alert key={idx} className={config.bgClass}>
+                    <Icon name={config.icon as any} className="h-4 w-4" />
+                    <AlertDescription>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <p className="font-semibold text-sm mb-1">{issue.title}</p>
+                          <p className="text-xs text-muted-foreground">{issue.description}</p>
+                        </div>
+                        <Badge variant={config.variant} className="shrink-0">
+                          {issue.severity}
+                        </Badge>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                )
+              })
+            )}
           </div>
-        ) : (
-          issues.map((issue, idx) => {
-            const config = getSeverityConfig(issue.severity)
-            return (
-              <Alert key={idx} className={config.bgClass}>
-                <Icon name={config.icon as any} className="h-4 w-4" />
-                <AlertDescription>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <p className="font-semibold text-sm mb-1">{issue.title}</p>
-                      <p className="text-xs text-muted-foreground">{issue.description}</p>
-                    </div>
-                    <Badge variant={config.variant} className="shrink-0">
-                      {issue.severity}
-                    </Badge>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            )
-          })
-        )}
+        </ScrollArea>
       </CardContent>
     </Card>
   )

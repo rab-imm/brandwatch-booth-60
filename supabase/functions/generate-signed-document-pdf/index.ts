@@ -232,90 +232,184 @@ async function generateSignedDocumentHTML(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} - Signed Document</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Crimson+Pro:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    @media print {
-      body { margin: 0; padding: 20px; }
-      .no-print { display: none; }
+    @page {
+      size: A4;
+      margin: 2.5cm 2cm;
     }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
-      font-family: 'Georgia', serif;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 12pt;
+      line-height: 1.75;
+      color: #1e293b;
       background: #f9fafb;
     }
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      page-break-after: avoid;
+    }
+    
+    h1 { 
+      font-size: 22pt; 
+      margin: 20px 0 14px; 
+      color: #0f172a;
+    }
+    
+    h2 { 
+      font-size: 18pt; 
+      margin: 18px 0 10px; 
+      color: #1e293b;
+    }
+    
+    h3 { 
+      font-size: 15pt; 
+      margin: 14px 0 8px; 
+      color: #334155;
+    }
+    
+    p {
+      margin: 10px 0;
+      text-align: justify;
+      orphans: 3;
+      widows: 3;
+    }
+    
+    strong {
+      font-weight: 600;
+      color: #0f172a;
+    }
+    
+    em {
+      font-style: italic;
+    }
+    
+    ul, ol {
+      margin: 12px 0;
+      padding-left: 28px;
+    }
+    
+    li {
+      margin: 6px 0;
+      page-break-inside: avoid;
+    }
+    
     .header {
       text-align: center;
       margin-bottom: 40px;
-      padding-bottom: 20px;
+      padding-bottom: 24px;
       border-bottom: 3px solid #10b981;
+      page-break-after: avoid;
     }
+    
     .header h1 {
-      margin: 0 0 10px 0;
-      color: #111827;
+      margin: 0 0 12px 0;
+      color: #0f172a;
+      font-size: 24pt;
     }
+    
     .badge {
       display: inline-block;
       background: #10b981;
       color: white;
-      padding: 6px 16px;
-      border-radius: 6px;
-      font-size: 14px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 11pt;
       font-weight: 600;
+      font-family: 'Inter', sans-serif;
     }
+    
     .document-container {
       position: relative;
       background: white;
       border: 1px solid #e5e7eb;
       border-radius: 8px;
-      padding: 60px;
+      padding: 50px;
       margin-bottom: 40px;
-      min-height: 800px;
+      min-height: 600px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
+    
     .content {
-      font-size: 14px;
-      line-height: 1.8;
+      font-size: 11pt;
+      line-height: 1.75;
       color: #374151;
     }
-    .content h1 { font-size: 24px; margin: 24px 0 16px; font-weight: 600; }
-    .content h2 { font-size: 20px; margin: 20px 0 12px; font-weight: 600; }
-    .content h3 { font-size: 18px; margin: 16px 0 10px; font-weight: 600; }
-    .content p { margin: 12px 0; }
-    .content ul, .content ol { margin: 12px 0; padding-left: 24px; }
-    .content li { margin: 6px 0; }
-    .content strong { font-weight: 600; }
-    .content em { font-style: italic; }
+    
     .verification {
       background: white;
       border: 1px solid #e5e7eb;
       border-radius: 8px;
       padding: 30px;
       margin-top: 40px;
+      page-break-inside: avoid;
     }
+    
     .verification h2 {
       margin: 0 0 20px 0;
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #111827;
+      color: #0f172a;
+      font-size: 16pt;
     }
+    
     .verification-footer {
       margin-top: 30px;
       padding: 20px;
       background: rgba(249, 250, 251, 0.8);
       border-radius: 8px;
       border: 1px solid #e5e7eb;
+      page-break-inside: avoid;
     }
+    
     .verification-footer p {
       margin: 0;
-      font-size: 12px;
+      font-size: 10pt;
       color: #6b7280;
+      font-family: 'Inter', sans-serif;
     }
+    
     .verification-footer .doc-id {
       font-family: monospace;
       font-weight: 600;
       color: #374151;
+    }
+    
+    @media print {
+      body {
+        background: white;
+        margin: 0;
+        padding: 20px;
+      }
+      
+      .no-print {
+        display: none !important;
+      }
+      
+      h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+      }
+      
+      p, li {
+        orphans: 3;
+        widows: 3;
+      }
+      
+      .document-container, .verification {
+        page-break-inside: avoid;
+      }
     }
   </style>
 </head>
@@ -332,7 +426,7 @@ async function generateSignedDocumentHTML(
 
   <div class="verification">
     <h2>
-      <span style="color: #10b981; font-size: 24px;">🛡️</span>
+      <span style="color: #10b981; font-size: 22px;">🛡️</span>
       Digital Signature Verification
     </h2>
     ${recipientsList}
@@ -342,6 +436,9 @@ async function generateSignedDocumentHTML(
       <p style="margin-top: 8px;">
         This document has been digitally signed and is tamper-evident. 
         Any modifications will invalidate the signatures.
+      </p>
+      <p style="margin-top: 12px; font-weight: 500; color: #3b82f6;">
+        Generated via Graysen.AI Professional Document Platform
       </p>
     </div>
   </div>

@@ -21,7 +21,6 @@ interface LetterShareData {
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -117,108 +116,194 @@ Deno.serve(async (req) => {
     // Convert markdown to HTML
     const renderedContent = await marked.parse(letter.content);
 
-    // Generate PDF HTML with proper styling
+    // Generate professional PDF HTML with proper styling
     const htmlContent = `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${letter.title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Crimson+Pro:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     @page {
       size: A4;
-      margin: 2cm;
+      margin: 2.5cm 2cm;
     }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
-      font-family: 'Georgia', 'Times New Roman', serif;
-      line-height: 1.6;
-      color: #1a1a1a;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 12pt;
+      line-height: 1.75;
+      color: #1e293b;
       background: white;
     }
-    h1 {
-      color: #2c3e50;
-      font-size: 28px;
-      margin-bottom: 10px;
-      border-bottom: 2px solid #3b82f6;
-      padding-bottom: 10px;
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      page-break-after: avoid;
     }
-    h2 {
-      color: #34495e;
-      font-size: 22px;
-      margin-top: 24px;
-      margin-bottom: 12px;
+    
+    h1 { 
+      font-size: 24pt; 
+      margin: 24px 0 16px; 
+      color: #0f172a;
     }
-    h3 {
-      color: #4a5568;
-      font-size: 18px;
-      margin-top: 20px;
-      margin-bottom: 10px;
+    
+    h2 { 
+      font-size: 20pt; 
+      margin: 20px 0 12px; 
+      color: #1e293b;
     }
+    
+    h3 { 
+      font-size: 16pt; 
+      margin: 16px 0 10px; 
+      color: #334155;
+    }
+    
     p {
-      margin-bottom: 12px;
+      margin: 12px 0;
       text-align: justify;
+      hyphens: auto;
+      orphans: 3;
+      widows: 3;
     }
+    
     strong {
       font-weight: 600;
-      color: #2d3748;
+      color: #0f172a;
     }
+    
     em {
       font-style: italic;
     }
+    
     ul, ol {
-      margin-bottom: 16px;
-      padding-left: 30px;
+      margin: 16px 0;
+      padding-left: 32px;
     }
+    
     li {
-      margin-bottom: 8px;
+      margin: 8px 0;
+      page-break-inside: avoid;
     }
-    .header {
+    
+    blockquote {
+      border-left: 4px solid #3b82f6;
+      padding-left: 20px;
+      margin: 20px 0;
+      font-style: italic;
+      color: #475569;
+    }
+    
+    .document-header {
       text-align: center;
-      margin-bottom: 30px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 3px solid #3b82f6;
+      page-break-after: avoid;
     }
+    
+    .brand {
+      font-family: 'Inter', sans-serif;
+      font-size: 16pt;
+      font-weight: 600;
+      color: #3b82f6;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    
+    .doc-title {
+      font-size: 22pt;
+      font-weight: 600;
+      color: #0f172a;
+      display: block;
+      margin: 16px 0 8px;
+    }
+    
     .description {
+      font-family: 'Inter', sans-serif;
       color: #64748b;
       font-style: italic;
-      margin-bottom: 20px;
+      font-size: 11pt;
+      margin-top: 12px;
     }
+    
+    .content {
+      margin-top: 30px;
+    }
+    
     .footer {
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid #e2e8f0;
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 2px solid #e2e8f0;
       text-align: center;
-      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 9pt;
       color: #64748b;
     }
+    
+    .footer-brand {
+      font-weight: 600;
+      color: #3b82f6;
+    }
+    
     @media print {
       body {
-        max-width: 100%;
+        background: white;
       }
+      
       .no-print {
         display: none !important;
+      }
+      
+      h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+      }
+      
+      p, li {
+        orphans: 3;
+        widows: 3;
+      }
+      
+      blockquote, ul, ol {
+        page-break-inside: avoid;
       }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>${letter.title}</h1>
+  <header class="document-header">
+    <div class="brand">Graysen.AI</div>
+    <h1 class="doc-title">${letter.title}</h1>
     ${letter.description ? `<p class="description">${letter.description}</p>` : ''}
-  </div>
-  <div class="content">
+  </header>
+  
+  <main class="content">
     ${renderedContent}
-  </div>
-  <div class="footer">
-    <p>Generated on ${new Date().toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    })}</p>
-    <p>UAE Legal Assistant - Professional Document Generation</p>
-  </div>
+  </main>
+  
+  <footer class="footer">
+    <div class="footer-brand">Graysen.AI</div>
+    <div>Professional Legal Document Generation</div>
+    <div style="margin-top: 8px;">
+      Generated on ${new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric'
+      })}
+    </div>
+  </footer>
 </body>
 </html>
     `;
