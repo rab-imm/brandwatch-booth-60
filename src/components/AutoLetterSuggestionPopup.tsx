@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, FileText, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,24 +26,6 @@ export const AutoLetterSuggestionPopup = ({
   onDismiss,
 }: AutoLetterSuggestionPopupProps) => {
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(30);
-  const [isHovered, setIsHovered] = useState(false);
-
-  useEffect(() => {
-    if (isHovered) return;
-
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          onDismiss();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isHovered, onDismiss]);
 
   const handleCreateLetter = () => {
     navigate("/letters/create", {
@@ -71,11 +52,7 @@ export const AutoLetterSuggestionPopup = ({
 
   return (
     <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5 duration-300">
-      <Card
-        className="w-[400px] shadow-xl border-2"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+      <Card className="w-[400px] shadow-xl border-2">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
@@ -135,11 +112,6 @@ export const AutoLetterSuggestionPopup = ({
               <FileText className="h-4 w-4" />
               Create Document
             </Button>
-          </div>
-
-          {/* Auto-dismiss countdown */}
-          <div className="text-xs text-center text-muted-foreground">
-            Auto-closing in {countdown}s
           </div>
         </CardContent>
       </Card>
