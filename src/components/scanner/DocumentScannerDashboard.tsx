@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 interface DashboardProps {
   scanResult: any
@@ -183,7 +184,7 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
       </div>
       
       {/* Resizable Layout */}
-      <ResizablePanelGroup direction="horizontal" className="flex-1">
+      <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
         {/* Main Analysis Panel */}
         <ResizablePanel defaultSize={isChatOpen ? 60 : 100} minSize={30}>
           <ScrollArea className="h-full">
@@ -431,6 +432,65 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
           <span className="font-medium hidden sm:inline">Ask Questions</span>
         </button>
       )}
+      
+      {/* Clause Detail Modal */}
+      <Dialog open={!!selectedClause} onOpenChange={() => setSelectedClause(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon 
+                name={selectedClause?.icon || 'file-text'} 
+                className="h-5 w-5" 
+                style={{ color: selectedClause?.color }}
+              />
+              {selectedClause?.displayName}
+            </DialogTitle>
+            <DialogDescription>
+              Clause details and extracted text
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {selectedClause?.confidence && (
+              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                <span className="text-sm font-medium">AI Confidence</span>
+                <Badge variant="secondary">
+                  {Math.round(selectedClause.confidence * 100)}% match
+                </Badge>
+              </div>
+            )}
+            
+            <div>
+              <h4 className="text-sm font-semibold mb-2">Extracted Clause Text</h4>
+              <ScrollArea className="max-h-[400px]">
+                <div className="p-4 bg-muted/50 rounded-lg text-sm leading-relaxed">
+                  {selectedClause?.text || 'No text available'}
+                </div>
+              </ScrollArea>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => {
+                  if (selectedClause?.text) {
+                    setChatInput(`Tell me more about this ${selectedClause.displayName} clause: "${selectedClause.text.substring(0, 100)}..."`)
+                    setIsChatOpen(true)
+                    setSelectedClause(null)
+                  }
+                }}
+              >
+                <Icon name="message-circle" className="h-4 w-4 mr-2" />
+                Ask AI About This
+              </Button>
+              <Button variant="secondary" onClick={() => setSelectedClause(null)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
