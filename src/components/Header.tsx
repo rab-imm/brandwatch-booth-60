@@ -109,6 +109,12 @@ export const Header = () => {
           {user && (
             <nav className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border border-border">
               <Link 
+                to="/ocr" 
+                className="text-sm font-medium px-6 py-2 rounded-md hover:bg-background transition-colors"
+              >
+                Contract Scanner
+              </Link>
+              <Link 
                 to={getDashboardLink()} 
                 className="text-sm font-medium px-6 py-2 rounded-md hover:bg-background transition-colors"
               >
@@ -125,12 +131,6 @@ export const Header = () => {
                 className="text-sm font-medium px-6 py-2 rounded-md hover:bg-background transition-colors"
               >
                 Documents
-              </Link>
-              <Link 
-                to="/ocr" 
-                className="text-sm font-medium px-6 py-2 rounded-md hover:bg-background transition-colors"
-              >
-                Contract Scanner
               </Link>
             </nav>
           )}
