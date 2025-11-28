@@ -107,7 +107,7 @@ export const Header = () => {
           <Link to="/" className="text-2xl font-bold text-brand-primary font-pact-display whitespace-nowrap">graysen</Link>
           
           {user && (
-            <nav className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border border-border">
+            <nav className="flex items-center gap-1 bg-secondary/50 rounded-lg p-1 border border-border">
               <Link 
                 to="/ocr" 
                 className="text-sm font-medium px-6 py-2 rounded-md hover:bg-background transition-colors"
