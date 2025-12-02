@@ -1703,10 +1703,55 @@ ${extractedText.substring(0, 4000)}`
       total_characters: clauses.reduce((sum, c) => sum + c.text.length, 0)
     }))
 
-    // STEP 1: Detect document type and applicable UAE laws
-    console.log('Detecting document type and applicable UAE laws...')
-    const documentAnalysis = await detectDocumentTypeAndLaws(extractedText, lovableApiKey)
-    console.log(`Document type: ${documentAnalysis.document_type}`)
+    // STEP 1: AI SYNTHESIS - Detect document type and applicable UAE laws using multi-AI analysis
+    console.log('Performing AI Synthesis for document type detection (Gemini + Grok + Perplexity)...')
+    
+    const synthesisResponse = await fetch(`${supabaseUrl}/functions/v1/ai-synthesis`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${supabaseServiceKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        document_text: extractedText,
+        context: 'UAE legal document classification - identify document type, applicable UAE laws, and jurisdiction',
+        providers: ['gemini', 'grok', 'perplexity']
+      })
+    })
+
+    if (!synthesisResponse.ok) {
+      const errorText = await synthesisResponse.text()
+      console.error('AI Synthesis error:', errorText)
+      throw new Error(`AI Synthesis failed: ${synthesisResponse.status}`)
+    }
+
+    const synthesisResult = await synthesisResponse.json()
+    console.log(`AI Synthesis completed: ${synthesisResult.sources_used.length} sources used`)
+    console.log(`Overall confidence: ${synthesisResult.synthesized_analysis.overall_confidence}%`)
+    console.log(`Sources: ${synthesisResult.sources_used.join(', ')}`)
+    
+    // Extract document analysis from synthesis
+    const docClass = synthesisResult.synthesized_analysis.document_classification
+    const documentAnalysis = {
+      document_type: docClass.document_type,
+      document_subtype: docClass.category,
+      applicable_uae_laws: synthesisResult.synthesized_analysis.risk_findings
+        .filter((f: any) => f.article_reference)
+        .map((f: any) => f.article_reference)
+        .filter((v: any, i: any, a: any) => a.indexOf(v) === i)
+        .slice(0, 5) || ['UAE Civil Code', 'UAE Commercial Code'],
+      key_parties: [],
+      jurisdiction: 'UAE',
+      summary: docClass.reasoning,
+      ai_synthesis_metadata: {
+        sources_used: synthesisResult.sources_used,
+        consensus_items: synthesisResult.consensus_items,
+        disagreements: synthesisResult.disagreements,
+        confidence: synthesisResult.synthesized_analysis.overall_confidence
+      }
+    }
+    
+    console.log(`Document type: ${documentAnalysis.document_type} (Confidence: ${synthesisResult.synthesized_analysis.overall_confidence}%)`)
     console.log(`Applicable laws: ${documentAnalysis.applicable_uae_laws.join(', ')}`)
 
     // STEP 2: Perform dynamic UAE compliance analysis
@@ -1750,16 +1795,71 @@ ${extractedText.substring(0, 4000)}`
     // STEP 4: Group violations by category
     const groupedViolations = groupViolationsByCategory(allViolations)
 
-    // ============= SUBSTANTIVE LEGAL RISK ANALYSIS =============
-    console.log('Performing substantive legal risk analysis...')
-    const substantiveRisks = await analyzeSubstantiveLegalRisks(
-      extractedText,
-      documentAnalysis.document_type,
-      documentAnalysis.document_subtype,
-      documentAnalysis.applicable_uae_laws,
-      allClauses,
-      lovableApiKey
-    )
+    // ============= AI SYNTHESIS - SUBSTANTIVE LEGAL RISK ANALYSIS =============
+    console.log('Performing AI Synthesis for substantive legal risk analysis...')
+    
+    let substantiveRisks;
+    
+    const riskSynthesisResponse = await fetch(`${supabaseUrl}/functions/v1/ai-synthesis`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${supabaseServiceKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        document_text: extractedText,
+        context: `UAE substantive legal risk analysis for ${documentAnalysis.document_type}. Identify hidden obligations, unfair terms, misclassification risks, employment issues, consent defects, proportionality breaches, and regulatory gaps. Laws: ${documentAnalysis.applicable_uae_laws.join(', ')}`,
+        providers: ['gemini', 'grok', 'perplexity']
+      })
+    })
+
+    if (!riskSynthesisResponse.ok) {
+      console.error('Risk synthesis failed, falling back to single AI')
+      // Fallback to original analysis if synthesis fails
+      substantiveRisks = await analyzeSubstantiveLegalRisks(
+        extractedText,
+        documentAnalysis.document_type,
+        documentAnalysis.document_subtype,
+        documentAnalysis.applicable_uae_laws,
+        allClauses,
+        lovableApiKey
+      )
+    } else {
+      const riskSynthesisResult = await riskSynthesisResponse.json()
+      console.log(`Risk Synthesis completed: ${riskSynthesisResult.sources_used.length} sources consulted`)
+      console.log(`Risk confidence: ${riskSynthesisResult.synthesized_analysis.overall_confidence}%`)
+      
+      // Transform synthesis results to substantive risks format
+      substantiveRisks = {
+        risk_findings: riskSynthesisResult.synthesized_analysis.risk_findings.map((finding: any) => ({
+          clause_reference: finding.title,
+          risk_type: finding.severity === 'critical' ? 'misclassification' : 
+                     finding.severity === 'high' ? 'unfair_terms' : 'regulatory_gap',
+          severity: finding.severity,
+          legal_basis: finding.article_reference || 'UAE law',
+          substantive_issue: finding.description,
+          litigation_risk: `Risk level: ${finding.severity}. Sources: ${finding.source_providers?.join(', ')}`,
+          affected_clause_text: finding.description.substring(0, 200),
+          remediation: finding.recommendation,
+          source_providers: finding.source_providers
+        })),
+        true_document_classification: {
+          detected_type: riskSynthesisResult.synthesized_analysis.document_classification.document_type,
+          confidence: riskSynthesisResult.synthesized_analysis.document_classification.confidence,
+          reasoning: riskSynthesisResult.synthesized_analysis.document_classification.reasoning,
+          sources_agreeing: riskSynthesisResult.synthesized_analysis.document_classification.sources_agreeing
+        },
+        overall_risk_score: Math.round(100 - riskSynthesisResult.synthesized_analysis.overall_confidence),
+        risk_summary: riskSynthesisResult.synthesized_analysis.synthesis_reasoning,
+        ai_synthesis_metadata: {
+          sources_used: riskSynthesisResult.sources_used,
+          source_responses: riskSynthesisResult.source_responses,
+          consensus_items: riskSynthesisResult.consensus_items,
+          disagreements: riskSynthesisResult.disagreements,
+          processing_time_ms: riskSynthesisResult.processing_summary.total_time_ms
+        }
+      }
+    }
 
     // Calculate statistics
     const characterCount = extractedText.length

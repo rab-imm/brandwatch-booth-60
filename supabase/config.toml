@@ -156,3 +156,7 @@ verify_jwt = true
 [functions.ocr-document-chat]
 verify_jwt = true
 
+[functions.ai-synthesis]
+verify_jwt = true
+
+
