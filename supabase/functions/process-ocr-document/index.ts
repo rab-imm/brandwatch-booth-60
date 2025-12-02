@@ -1709,7 +1709,7 @@ ${extractedText.substring(0, 4000)}`
     const synthesisResponse = await fetch(`${supabaseUrl}/functions/v1/ai-synthesis`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${supabaseServiceKey}`,
+        'Authorization': `Bearer ${supabaseKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -1803,7 +1803,7 @@ ${extractedText.substring(0, 4000)}`
     const riskSynthesisResponse = await fetch(`${supabaseUrl}/functions/v1/ai-synthesis`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${supabaseServiceKey}`,
+        'Authorization': `Bearer ${supabaseKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
