@@ -1703,8 +1703,37 @@ ${extractedText.substring(0, 4000)}`
       total_characters: clauses.reduce((sum, c) => sum + c.text.length, 0)
     }))
 
+    // STEP 0.5: LANGUAGE DETECTION - Detect Arabic/English for bilingual analysis
+    console.log('Detecting document languages...')
+    const detectLanguagesLocal = (text: string) => {
+      const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/g;
+      const englishRegex = /[a-zA-Z]/g;
+      const arabicMatches = text.match(arabicRegex) || [];
+      const englishMatches = text.match(englishRegex) || [];
+      const totalAlphaChars = arabicMatches.length + englishMatches.length;
+      
+      if (totalAlphaChars === 0) {
+        return { hasArabic: false, hasEnglish: false, arabicPercentage: 0, englishPercentage: 0, primaryLanguage: 'english' as const, isBilingual: false };
+      }
+      
+      const arabicPercentage = Math.round((arabicMatches.length / totalAlphaChars) * 100);
+      const englishPercentage = Math.round((englishMatches.length / totalAlphaChars) * 100);
+      const primaryLanguage = arabicPercentage > 70 ? 'arabic' as const : englishPercentage > 70 ? 'english' as const : 'mixed' as const;
+      const isBilingual = arabicPercentage > 15 && englishPercentage > 15;
+      
+      return { hasArabic: arabicPercentage > 5, hasEnglish: englishPercentage > 5, arabicPercentage, englishPercentage, primaryLanguage, isBilingual };
+    };
+    
+    const languageInfo = detectLanguagesLocal(extractedText);
+    console.log(`Language detection: ${languageInfo.arabicPercentage}% Arabic, ${languageInfo.englishPercentage}% English`);
+    console.log(`Primary language: ${languageInfo.primaryLanguage}, Bilingual: ${languageInfo.isBilingual}`);
+
     // STEP 1: AI SYNTHESIS - Detect document type and applicable UAE laws using multi-AI analysis
     console.log('Performing AI Synthesis for document type detection (Gemini + Grok + Perplexity)...')
+    
+    const bilingualContextNote = languageInfo.isBilingual 
+      ? ` This is a BILINGUAL document (${languageInfo.arabicPercentage}% Arabic, ${languageInfo.englishPercentage}% English). Arabic version takes legal precedence in UAE. Flag any translation discrepancies.`
+      : '';
     
     const synthesisResponse = await fetch(`${supabaseUrl}/functions/v1/ai-synthesis`, {
       method: 'POST',
@@ -1714,8 +1743,9 @@ ${extractedText.substring(0, 4000)}`
       },
       body: JSON.stringify({
         document_text: extractedText,
-        context: 'UAE legal document classification - identify document type, applicable UAE laws, and jurisdiction',
-        providers: ['gemini', 'grok', 'perplexity']
+        context: `UAE legal document classification - identify document type, applicable UAE laws, and jurisdiction.${bilingualContextNote}`,
+        providers: ['gemini', 'grok', 'perplexity'],
+        language_info: languageInfo
       })
     })
 
@@ -1730,8 +1760,17 @@ ${extractedText.substring(0, 4000)}`
     console.log(`Overall confidence: ${synthesisResult.synthesized_analysis.overall_confidence}%`)
     console.log(`Sources: ${synthesisResult.sources_used.join(', ')}`)
     
+    // Log bilingual synthesis results if applicable
+    if (languageInfo.isBilingual && synthesisResult.synthesized_analysis.bilingual_synthesis) {
+      const bs = synthesisResult.synthesized_analysis.bilingual_synthesis;
+      console.log(`Bilingual Analysis: Translation consistency: ${bs.translation_consistency_consensus}`);
+      console.log(`Arabic-precedent risks: ${bs.arabic_precedent_risks?.length || 0}`);
+      console.log(`Bilingual risk score: ${bs.bilingual_risk_score}/100`);
+    }
+    
     // Extract document analysis from synthesis
     const docClass = synthesisResult.synthesized_analysis.document_classification
+    const bilingualSynthesis = synthesisResult.synthesized_analysis.bilingual_synthesis
     const documentAnalysis = {
       document_type: docClass.document_type,
       document_subtype: docClass.category,
@@ -1748,7 +1787,19 @@ ${extractedText.substring(0, 4000)}`
         consensus_items: synthesisResult.consensus_items,
         disagreements: synthesisResult.disagreements,
         confidence: synthesisResult.synthesized_analysis.overall_confidence
-      }
+      },
+      // Bilingual analysis metadata
+      language_detection: languageInfo,
+      bilingual_analysis: bilingualSynthesis ? {
+        is_bilingual: bilingualSynthesis.is_bilingual,
+        languages_detected: bilingualSynthesis.languages_detected,
+        primary_language: bilingualSynthesis.primary_language,
+        arabic_percentage: bilingualSynthesis.arabic_percentage || languageInfo.arabicPercentage,
+        translation_consistency: bilingualSynthesis.translation_consistency_consensus,
+        arabic_precedent_risks: bilingualSynthesis.arabic_precedent_risks || [],
+        untranslatable_terms: bilingualSynthesis.untranslatable_terms || [],
+        bilingual_risk_score: bilingualSynthesis.bilingual_risk_score || 0
+      } : null
     }
     
     console.log(`Document type: ${documentAnalysis.document_type} (Confidence: ${synthesisResult.synthesized_analysis.overall_confidence}%)`)
@@ -1800,6 +1851,10 @@ ${extractedText.substring(0, 4000)}`
     
     let substantiveRisks;
     
+    const riskBilingualContext = languageInfo.isBilingual 
+      ? ` CRITICAL: This is a BILINGUAL document. Identify risks where Arabic and English versions differ. Arabic takes legal precedence. Flag translation discrepancies as HIGH RISK.`
+      : '';
+    
     const riskSynthesisResponse = await fetch(`${supabaseUrl}/functions/v1/ai-synthesis`, {
       method: 'POST',
       headers: {
@@ -1808,8 +1863,9 @@ ${extractedText.substring(0, 4000)}`
       },
       body: JSON.stringify({
         document_text: extractedText,
-        context: `UAE substantive legal risk analysis for ${documentAnalysis.document_type}. Identify hidden obligations, unfair terms, misclassification risks, employment issues, consent defects, proportionality breaches, and regulatory gaps. Laws: ${documentAnalysis.applicable_uae_laws.join(', ')}`,
-        providers: ['gemini', 'grok', 'perplexity']
+        context: `UAE substantive legal risk analysis for ${documentAnalysis.document_type}. Identify hidden obligations, unfair terms, misclassification risks, employment issues, consent defects, proportionality breaches, and regulatory gaps. Laws: ${documentAnalysis.applicable_uae_laws.join(', ')}${riskBilingualContext}`,
+        providers: ['gemini', 'grok', 'perplexity'],
+        language_info: languageInfo
       })
     })
 
