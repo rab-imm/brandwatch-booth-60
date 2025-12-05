@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { ComplianceScoreCircle } from "./ComplianceScoreCircle"
 import { ClauseDetectionGrid } from "./ClauseDetectionGrid"
 import { KeyIssuesSummary } from "./KeyIssuesSummary"
-import { SubstantiveRiskDisplay } from "../SubstantiveRiskDisplay"
+import { ContractTextViewer } from "./ContractTextViewer"
+import { ClauseAnnotationPanel } from "./ClauseAnnotationPanel"
 import { StructuredContractSummary, StructuredSummary } from "./StructuredContractSummary"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ReactMarkdown from "react-markdown"
@@ -17,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
 
 interface AnalysisContext {
   questionnaire: {
@@ -39,6 +41,12 @@ interface DashboardProps {
   onStartNewScan?: () => void
 }
 
+interface Comment {
+  id: string
+  text: string
+  timestamp: string
+}
+
 export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument, analysisContext, onStartNewScan }: DashboardProps) => {
   const [selectedClause, setSelectedClause] = useState<any>(null)
   const [isChatOpen, setIsChatOpen] = useState(false)
@@ -52,8 +60,44 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument,
     error: null
   })
   const [chatInput, setChatInput] = useState('')
+  
+  // Annotation panel state
+  const [selectedRiskFinding, setSelectedRiskFinding] = useState<any>(null)
+  const [userComments, setUserComments] = useState<Record<string, Comment[]>>({})
+  const [reviewedClauses, setReviewedClauses] = useState<Set<string>>(new Set())
+  
   const { user } = useAuth()
   const { toast } = useToast()
+  
+  // Handle adding a comment to a clause
+  const handleSaveComment = useCallback((clauseRef: string, commentText: string) => {
+    const newComment: Comment = {
+      id: crypto.randomUUID(),
+      text: commentText,
+      timestamp: new Date().toISOString()
+    }
+    setUserComments(prev => ({
+      ...prev,
+      [clauseRef]: [...(prev[clauseRef] || []), newComment]
+    }))
+    toast({
+      title: "Comment saved",
+      description: "Your comment has been added to this clause."
+    })
+  }, [toast])
+  
+  // Handle toggling reviewed status
+  const handleToggleReviewed = useCallback((clauseRef: string, reviewed: boolean) => {
+    setReviewedClauses(prev => {
+      const newSet = new Set(prev)
+      if (reviewed) {
+        newSet.add(clauseRef)
+      } else {
+        newSet.delete(clauseRef)
+      }
+      return newSet
+    })
+  }, [])
 
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -442,9 +486,17 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument,
                 </Card>
               )}
               
-              {/* Substantive Risk Analysis */}
-              {scanResult.substantive_risk_analysis && (
-                <SubstantiveRiskDisplay riskAnalysis={scanResult.substantive_risk_analysis} />
+              {/* Full Contract Text with Highlighted Clauses */}
+              {scanResult.extracted_text && (
+                <ContractTextViewer
+                  contractText={scanResult.extracted_text}
+                  riskFindings={scanResult.substantive_risk_analysis?.risk_findings || []}
+                  onClauseClick={setSelectedRiskFinding}
+                  selectedClause={selectedRiskFinding}
+                  userComments={Object.fromEntries(
+                    Object.entries(userComments).map(([key, comments]) => [key, comments.map(c => c.text)])
+                  )}
+                />
               )}
             </div>
           </ScrollArea>
@@ -646,6 +698,28 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument,
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Risk Finding Annotation Sheet */}
+      <Sheet open={!!selectedRiskFinding} onOpenChange={(open) => !open && setSelectedRiskFinding(null)}>
+        <SheetContent side="right" className="w-full sm:max-w-3xl p-0">
+          {selectedRiskFinding && (
+            <ClauseAnnotationPanel
+              finding={selectedRiskFinding}
+              onClose={() => setSelectedRiskFinding(null)}
+              comments={userComments[selectedRiskFinding.clause_reference] || []}
+              onSaveComment={(comment) => handleSaveComment(selectedRiskFinding.clause_reference, comment)}
+              onScrollToClause={() => {
+                const element = document.querySelector(`[data-clause-ref="${selectedRiskFinding.clause_reference}"]`)
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                }
+              }}
+              isReviewed={reviewedClauses.has(selectedRiskFinding.clause_reference)}
+              onToggleReviewed={(reviewed) => handleToggleReviewed(selectedRiskFinding.clause_reference, reviewed)}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }
