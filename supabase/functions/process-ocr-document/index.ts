@@ -1771,6 +1771,97 @@ ${extractedText.substring(0, 4000)}`
     // Extract document analysis from synthesis
     const docClass = synthesisResult.synthesized_analysis.document_classification
     const bilingualSynthesis = synthesisResult.synthesized_analysis.bilingual_synthesis
+    
+    // Extract key parties based on document type
+    const extractKeyParties = (docType: string): Array<{role: string, name?: string, type: 'company' | 'individual' | 'organization' | 'unknown'}> => {
+      const partiesMap: Record<string, Array<{role: string, type: 'company' | 'individual' | 'organization' | 'unknown'}>> = {
+        'employment_contract': [
+          { role: 'Employer', type: 'company' },
+          { role: 'Employee', type: 'individual' }
+        ],
+        'service_agreement': [
+          { role: 'Service Provider', type: 'company' },
+          { role: 'Client', type: 'company' }
+        ],
+        'lease_agreement': [
+          { role: 'Landlord', type: 'individual' },
+          { role: 'Tenant', type: 'individual' }
+        ],
+        'rental_agreement': [
+          { role: 'Landlord', type: 'individual' },
+          { role: 'Tenant', type: 'individual' }
+        ],
+        'nda': [
+          { role: 'Disclosing Party', type: 'company' },
+          { role: 'Receiving Party', type: 'company' }
+        ],
+        'confidentiality_agreement': [
+          { role: 'Disclosing Party', type: 'company' },
+          { role: 'Receiving Party', type: 'company' }
+        ],
+        'sales_contract': [
+          { role: 'Seller', type: 'company' },
+          { role: 'Buyer', type: 'individual' }
+        ],
+        'purchase_agreement': [
+          { role: 'Seller', type: 'company' },
+          { role: 'Buyer', type: 'individual' }
+        ],
+        'partnership_agreement': [
+          { role: 'Partner 1', type: 'company' },
+          { role: 'Partner 2', type: 'company' }
+        ],
+        'joint_venture': [
+          { role: 'Joint Venture Partner 1', type: 'company' },
+          { role: 'Joint Venture Partner 2', type: 'company' }
+        ],
+        'loan_agreement': [
+          { role: 'Lender', type: 'company' },
+          { role: 'Borrower', type: 'individual' }
+        ],
+        'consultancy_agreement': [
+          { role: 'Consultant', type: 'individual' },
+          { role: 'Client', type: 'company' }
+        ],
+        'agency_agreement': [
+          { role: 'Principal', type: 'company' },
+          { role: 'Agent', type: 'company' }
+        ],
+        'distribution_agreement': [
+          { role: 'Supplier', type: 'company' },
+          { role: 'Distributor', type: 'company' }
+        ],
+        'franchise_agreement': [
+          { role: 'Franchisor', type: 'company' },
+          { role: 'Franchisee', type: 'company' }
+        ],
+        'power_of_attorney': [
+          { role: 'Principal', type: 'individual' },
+          { role: 'Attorney-in-Fact', type: 'individual' }
+        ],
+        'memorandum_of_understanding': [
+          { role: 'Party A', type: 'company' },
+          { role: 'Party B', type: 'company' }
+        ],
+        'construction_contract': [
+          { role: 'Contractor', type: 'company' },
+          { role: 'Client/Owner', type: 'company' }
+        ],
+        'supply_agreement': [
+          { role: 'Supplier', type: 'company' },
+          { role: 'Purchaser', type: 'company' }
+        ],
+      };
+      
+      const normalizedType = docType.toLowerCase().replace(/\s+/g, '_');
+      return partiesMap[normalizedType] || [
+        { role: 'Party A', type: 'unknown' },
+        { role: 'Party B', type: 'unknown' }
+      ];
+    };
+    
+    const keyParties = extractKeyParties(docClass.document_type);
+    
     const documentAnalysis = {
       document_type: docClass.document_type,
       document_subtype: docClass.category,
@@ -1779,7 +1870,7 @@ ${extractedText.substring(0, 4000)}`
         .map((f: any) => f.article_reference)
         .filter((v: any, i: any, a: any) => a.indexOf(v) === i)
         .slice(0, 5) || ['UAE Civil Code', 'UAE Commercial Code'],
-      key_parties: [],
+      key_parties: keyParties,
       jurisdiction: 'UAE',
       summary: docClass.reasoning,
       ai_synthesis_metadata: {
