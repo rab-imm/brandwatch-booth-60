@@ -17,7 +17,7 @@ interface ScannerSidebarProps {
 
 export const ScannerSidebar = ({ activeSection, onSectionChange }: ScannerSidebarProps) => {
   const sections: SidebarItem[] = [
-    { id: 'scan', label: 'Scan Document', icon: 'file-plus' },
+    { id: 'scan', label: 'Analyse Document', icon: 'file-plus' },
     { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
     { id: 'history', label: 'History', icon: 'clock' },
     { id: 'saved', label: 'Saved Docs', icon: 'inbox' },
