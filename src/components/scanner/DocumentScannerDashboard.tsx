@@ -252,6 +252,17 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument,
                       score={Math.round(complianceScore)}
                       label="Compliance Score"
                       subtitle="Overall document compliance"
+                      tooltipContent={{
+                        title: "Compliance Score",
+                        description: "Measures how well this document adheres to UAE legal requirements and standard contract provisions.",
+                        factors: [
+                          "Required clauses present",
+                          "UAE Civil Code compliance",
+                          "PDPL (Privacy) compliance",
+                          "Standard legal formatting",
+                          "Regulatory requirements met"
+                        ]
+                      }}
                     />
                   </CardContent>
                 </Card>
@@ -263,6 +274,17 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument,
                       score={Math.round(100 - riskScore)}
                       label="Risk Assessment"
                       subtitle="Substantive legal risks"
+                      tooltipContent={{
+                        title: "Risk Assessment",
+                        description: "Evaluates substantive legal risks that could affect enforceability or lead to disputes.",
+                        factors: [
+                          "Unfair or one-sided terms",
+                          "Hidden obligations",
+                          "Employment misclassification",
+                          "Penalty proportionality",
+                          "Good faith violations"
+                        ]
+                      }}
                     />
                   </CardContent>
                 </Card>
