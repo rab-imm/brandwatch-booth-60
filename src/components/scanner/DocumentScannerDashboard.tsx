@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
@@ -7,6 +7,7 @@ import { ComplianceScoreCircle } from "./ComplianceScoreCircle"
 import { ClauseDetectionGrid } from "./ClauseDetectionGrid"
 import { KeyIssuesSummary } from "./KeyIssuesSummary"
 import { SubstantiveRiskDisplay } from "../SubstantiveRiskDisplay"
+import { StructuredContractSummary, StructuredSummary } from "./StructuredContractSummary"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -170,6 +171,75 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument,
       }))
   ]
   
+  // Transform structured summary based on selected party
+  const transformedStructuredSummary = useMemo((): StructuredSummary | null => {
+    const raw = scanResult.structured_summary
+    if (!raw?.contract_overview) return null
+
+    const selectedRole = analysisContext?.selectedParty?.role?.toLowerCase()
+    const partyARole = raw.contract_overview.party_a_role?.toLowerCase() || ''
+    const partyBRole = raw.contract_overview.party_b_role?.toLowerCase() || ''
+    
+    // Determine if user is Party A or Party B based on selected role
+    const isPartyA = selectedRole && (
+      partyARole.includes(selectedRole) || 
+      selectedRole.includes(partyARole) ||
+      selectedRole === 'party a'
+    )
+    const isPartyB = selectedRole && !isPartyA && (
+      partyBRole.includes(selectedRole) || 
+      selectedRole.includes(partyBRole) ||
+      selectedRole === 'party b'
+    )
+    
+    // Default to Party A perspective if no clear match
+    const userIsPartyA = !selectedRole || isPartyA || !isPartyB
+
+    return {
+      contractOverview: {
+        description: raw.contract_overview.description || '',
+        userRole: userIsPartyA ? raw.contract_overview.party_a_role : raw.contract_overview.party_b_role,
+        counterparty: userIsPartyA ? raw.contract_overview.party_b_role : raw.contract_overview.party_a_role
+      },
+      financials: {
+        payments: userIsPartyA 
+          ? (raw.financial_terms?.party_a_payments || [])
+          : (raw.financial_terms?.party_b_payments || []),
+        receipts: userIsPartyA 
+          ? (raw.financial_terms?.party_a_receipts || [])
+          : (raw.financial_terms?.party_b_receipts || [])
+      },
+      keyDates: {
+        startDate: raw.key_dates?.start_date || null,
+        endDate: raw.key_dates?.end_date || null,
+        noticePeriod: raw.key_dates?.notice_period || null,
+        renewalTerms: raw.key_dates?.renewal_terms || null
+      },
+      termination: {
+        userRights: userIsPartyA 
+          ? (raw.termination?.party_a_rights || [])
+          : (raw.termination?.party_b_rights || []),
+        counterpartyRights: userIsPartyA 
+          ? (raw.termination?.party_b_rights || [])
+          : (raw.termination?.party_a_rights || []),
+        penalties: raw.termination?.penalties || [],
+        refundRules: raw.termination?.refund_rules || []
+      },
+      autoRenewal: {
+        hasAutoRenewal: raw.auto_renewal?.has_auto_renewal || false,
+        details: raw.auto_renewal?.details || null
+      },
+      obligations: {
+        userObligations: userIsPartyA 
+          ? (raw.obligations?.party_a_obligations || [])
+          : (raw.obligations?.party_b_obligations || []),
+        counterpartyObligations: userIsPartyA 
+          ? (raw.obligations?.party_b_obligations || [])
+          : (raw.obligations?.party_a_obligations || [])
+      }
+    }
+  }, [scanResult.structured_summary, analysisContext?.selectedParty])
+  
   return (
     <div className="h-full flex flex-col">
       {/* Header Actions */}
@@ -329,6 +399,15 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument,
                   </ScrollArea>
                 </CardContent>
               </Card>
+              
+              {/* Structured Contract Breakdown */}
+              {transformedStructuredSummary && (
+                <StructuredContractSummary 
+                  summary={transformedStructuredSummary}
+                  selectedParty={analysisContext?.selectedParty}
+                  counterpartyLabel={transformedStructuredSummary.contractOverview.counterparty}
+                />
+              )}
               
               {/* Key Issues */}
               {keyIssues.length > 0 && (
