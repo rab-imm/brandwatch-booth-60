@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/Icon"
@@ -7,7 +7,7 @@ import { ComplianceScoreCircle } from "./ComplianceScoreCircle"
 import { ClauseDetectionGrid } from "./ClauseDetectionGrid"
 import { KeyIssuesSummary } from "./KeyIssuesSummary"
 import { ContractTextViewer } from "./ContractTextViewer"
-import { ClauseAnnotationPanel } from "./ClauseAnnotationPanel"
+import { ClauseAnnotationPanel, Comment as ClauseComment } from "./ClauseAnnotationPanel"
 import { StructuredContractSummary, StructuredSummary } from "./StructuredContractSummary"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ReactMarkdown from "react-markdown"
@@ -18,7 +18,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { cn } from "@/lib/utils"
 
 interface AnalysisContext {
   questionnaire: {
@@ -39,15 +39,17 @@ interface DashboardProps {
   onSaveDocument?: () => void
   analysisContext?: AnalysisContext
   onStartNewScan?: () => void
+  onSidebarCollapse?: (collapsed: boolean) => void
 }
 
-interface Comment {
-  id: string
-  text: string
-  timestamp: string
-}
-
-export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument, analysisContext, onStartNewScan }: DashboardProps) => {
+export const DocumentScannerDashboard = ({ 
+  scanResult, 
+  onExport, 
+  onSaveDocument, 
+  analysisContext, 
+  onStartNewScan,
+  onSidebarCollapse 
+}: DashboardProps) => {
   const [selectedClause, setSelectedClause] = useState<any>(null)
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [chatState, setChatState] = useState<{
@@ -63,15 +65,28 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument,
   
   // Annotation panel state
   const [selectedRiskFinding, setSelectedRiskFinding] = useState<any>(null)
-  const [userComments, setUserComments] = useState<Record<string, Comment[]>>({})
+  const [userComments, setUserComments] = useState<Record<string, ClauseComment[]>>({})
   const [reviewedClauses, setReviewedClauses] = useState<Set<string>>(new Set())
   
+  const contractViewerRef = useRef<HTMLDivElement>(null)
   const { user } = useAuth()
   const { toast } = useToast()
   
+  // Handle clicking a risk finding - collapse sidebar and show inline annotation
+  const handleRiskFindingClick = useCallback((finding: any) => {
+    setSelectedRiskFinding(finding)
+    // Collapse sidebar to make more room for annotation panel
+    onSidebarCollapse?.(true)
+  }, [onSidebarCollapse])
+  
+  // Handle closing annotation panel
+  const handleCloseAnnotation = useCallback(() => {
+    setSelectedRiskFinding(null)
+  }, [])
+  
   // Handle adding a comment to a clause
   const handleSaveComment = useCallback((clauseRef: string, commentText: string) => {
-    const newComment: Comment = {
+    const newComment: ClauseComment = {
       id: crypto.randomUUID(),
       text: commentText,
       timestamp: new Date().toISOString()
@@ -97,6 +112,14 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument,
       }
       return newSet
     })
+  }, [])
+  
+  // Handle scrolling to clause in contract text
+  const handleScrollToClause = useCallback((clauseRef: string) => {
+    const element = document.querySelector(`[data-clause-ref="${clauseRef}"]`)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
   }, [])
 
   const handleChatSubmit = async (e: React.FormEvent) => {
@@ -285,7 +308,7 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument,
   }, [scanResult.structured_summary, analysisContext?.selectedParty])
   
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col relative">
       {/* Header Actions */}
       <div className="border-b bg-card p-4 flex items-center justify-between">
         <div>
@@ -351,294 +374,311 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument,
         </div>
       )}
       
-      {/* Resizable Layout */}
-      <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
+      {/* Main Content with Resizable Panels */}
+      <div className="flex-1 flex overflow-hidden">
         {/* Main Analysis Panel */}
-        <ResizablePanel defaultSize={isChatOpen ? 60 : 100} minSize={30}>
-          <ScrollArea className="h-full">
-            <div className="container py-6 space-y-6">
-              {/* Top Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Compliance Score */}
-                <Card>
-                  <CardContent className="pt-6 flex justify-center">
-                    <ComplianceScoreCircle
-                      score={Math.round(complianceScore)}
-                      label="Compliance Score"
-                      subtitle="Overall document compliance"
-                      tooltipContent={{
-                        title: "Compliance Score",
-                        description: "Measures how well this document adheres to UAE legal requirements and standard contract provisions.",
-                        factors: [
-                          "Required clauses present",
-                          "UAE Civil Code compliance",
-                          "PDPL (Privacy) compliance",
-                          "Standard legal formatting",
-                          "Regulatory requirements met"
-                        ]
-                      }}
-                    />
-                  </CardContent>
-                </Card>
+        <ResizablePanelGroup direction="horizontal" className="flex-1">
+          <ResizablePanel defaultSize={isChatOpen ? 60 : 100} minSize={30}>
+            <ScrollArea className="h-full">
+              <div className="container py-6 space-y-6" ref={contractViewerRef}>
+                {/* Top Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Compliance Score */}
+                  <Card>
+                    <CardContent className="pt-6 flex justify-center">
+                      <ComplianceScoreCircle
+                        score={Math.round(complianceScore)}
+                        label="Compliance Score"
+                        subtitle="Overall document compliance"
+                        tooltipContent={{
+                          title: "Compliance Score",
+                          description: "Measures how well this document adheres to UAE legal requirements and standard contract provisions.",
+                          factors: [
+                            "Required clauses present",
+                            "UAE Civil Code compliance",
+                            "PDPL (Privacy) compliance",
+                            "Standard legal formatting",
+                            "Regulatory requirements met"
+                          ]
+                        }}
+                      />
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Risk Score */}
+                  <Card>
+                    <CardContent className="pt-6 flex justify-center">
+                      <ComplianceScoreCircle
+                        score={Math.round(100 - riskScore)}
+                        label="Risk Assessment"
+                        subtitle="Substantive legal risks"
+                        tooltipContent={{
+                          title: "Risk Assessment",
+                          description: "Evaluates substantive legal risks that could affect enforceability or lead to disputes.",
+                          factors: [
+                            "Unfair or one-sided terms",
+                            "Hidden obligations",
+                            "Employment misclassification",
+                            "Penalty proportionality",
+                            "Good faith violations"
+                          ]
+                        }}
+                      />
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Document Info */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">Document Info</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Type</p>
+                        <p className="font-semibold">{scanResult.metadata?.document_analysis?.document_subtype || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Jurisdiction</p>
+                        <p className="font-semibold">{scanResult.metadata?.document_analysis?.jurisdiction || 'UAE'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Word Count</p>
+                        <p className="font-semibold">{scanResult.word_count?.toLocaleString() || 'N/A'}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
                 
-                {/* Risk Score */}
-                <Card>
-                  <CardContent className="pt-6 flex justify-center">
-                    <ComplianceScoreCircle
-                      score={Math.round(100 - riskScore)}
-                      label="Risk Assessment"
-                      subtitle="Substantive legal risks"
-                      tooltipContent={{
-                        title: "Risk Assessment",
-                        description: "Evaluates substantive legal risks that could affect enforceability or lead to disputes.",
-                        factors: [
-                          "Unfair or one-sided terms",
-                          "Hidden obligations",
-                          "Employment misclassification",
-                          "Penalty proportionality",
-                          "Good faith violations"
-                        ]
-                      }}
-                    />
-                  </CardContent>
-                </Card>
-                
-                {/* Document Info */}
+                {/* AI Summary */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">Document Info</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Type</p>
-                      <p className="font-semibold">{scanResult.metadata?.document_analysis?.document_subtype || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Jurisdiction</p>
-                      <p className="font-semibold">{scanResult.metadata?.document_analysis?.jurisdiction || 'UAE'}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Word Count</p>
-                      <p className="font-semibold">{scanResult.word_count?.toLocaleString() || 'N/A'}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              {/* AI Summary */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Icon name="star" className="h-5 w-5" />
-                    AI Summary and Analysis
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="max-h-[400px]">
-                    <div className="prose prose-sm max-w-none dark:prose-invert pr-4">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {scanResult.ai_summary || 'No summary available'}
-                      </ReactMarkdown>
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-              
-              {/* Structured Contract Breakdown */}
-              {transformedStructuredSummary && (
-                <StructuredContractSummary 
-                  summary={transformedStructuredSummary}
-                  selectedParty={analysisContext?.selectedParty}
-                  counterpartyLabel={transformedStructuredSummary.contractOverview.counterparty}
-                />
-              )}
-              
-              {/* Key Issues */}
-              {keyIssues.length > 0 && (
-                <KeyIssuesSummary issues={keyIssues} />
-              )}
-              
-              {/* Detected Clauses */}
-              {clauseCards.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                      <Icon name="grid" className="h-5 w-5" />
-                      Detected Clauses
+                      <Icon name="star" className="h-5 w-5" />
+                      AI Summary and Analysis
                     </CardTitle>
-                      <Badge variant="secondary">
-                        {clauseCards.length} clauses found
-                      </Badge>
-                    </div>
-                    <CardDescription>
-                      Click on any clause to view details
-                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ScrollArea className="max-h-[400px]">
-                      <ClauseDetectionGrid 
-                        clauses={clauseCards}
-                        onClauseClick={setSelectedClause}
-                      />
+                      <div className="prose prose-sm max-w-none dark:prose-invert pr-4">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {scanResult.ai_summary || 'No summary available'}
+                        </ReactMarkdown>
+                      </div>
                     </ScrollArea>
                   </CardContent>
                 </Card>
-              )}
-              
-              {/* Full Contract Text with Highlighted Clauses */}
-              {scanResult.extracted_text && (
-                <ContractTextViewer
-                  contractText={scanResult.extracted_text}
-                  riskFindings={scanResult.substantive_risk_analysis?.risk_findings || []}
-                  onClauseClick={setSelectedRiskFinding}
-                  selectedClause={selectedRiskFinding}
-                  userComments={Object.fromEntries(
-                    Object.entries(userComments).map(([key, comments]) => [key, comments.map(c => c.text)])
-                  )}
-                />
-              )}
-            </div>
-          </ScrollArea>
-        </ResizablePanel>
-
-        {/* Resizable Handle */}
-        {isChatOpen && <ResizableHandle withHandle />}
-
-        {/* Chat Panel */}
-        {isChatOpen && (
-          <ResizablePanel defaultSize={40} minSize={30} maxSize={70}>
-            <div className="h-full flex flex-col bg-card border-l">
-              {/* Chat Header */}
-              <div className="px-6 py-4 border-b bg-muted/30 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Icon name="message-circle" className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">Document Q&A</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Ask questions about this document
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsChatOpen(false)}
-                >
-                  <Icon name="x" className="h-4 w-4" />
-                </Button>
-              </div>
-
-              {/* Chat Messages */}
-              <ScrollArea className="flex-1 px-6 py-4">
-                <div className="space-y-4">
-                  {chatState.messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-center">
-                      <div className="p-4 rounded-full bg-primary/10 mb-4">
-                        <Icon name="sparkles" className="h-8 w-8 text-primary" />
+                
+                {/* Structured Contract Breakdown */}
+                {transformedStructuredSummary && (
+                  <StructuredContractSummary 
+                    summary={transformedStructuredSummary}
+                    selectedParty={analysisContext?.selectedParty}
+                    counterpartyLabel={transformedStructuredSummary.contractOverview.counterparty}
+                  />
+                )}
+                
+                {/* Key Issues */}
+                {keyIssues.length > 0 && (
+                  <KeyIssuesSummary issues={keyIssues} />
+                )}
+                
+                {/* Detected Clauses */}
+                {clauseCards.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <Icon name="grid" className="h-5 w-5" />
+                        Detected Clauses
+                      </CardTitle>
+                        <Badge variant="secondary">
+                          {clauseCards.length} clauses found
+                        </Badge>
                       </div>
-                      <h3 className="font-semibold text-lg mb-2">Start a Conversation</h3>
-                      <p className="text-muted-foreground text-sm max-w-sm">
-                        Ask me anything about this document - compliance issues, clauses, risks, or recommendations.
+                      <CardDescription>
+                        Click on any clause to view details
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ScrollArea className="max-h-[400px]">
+                        <ClauseDetectionGrid 
+                          clauses={clauseCards}
+                          onClauseClick={setSelectedClause}
+                        />
+                      </ScrollArea>
+                    </CardContent>
+                  </Card>
+                )}
+                
+                {/* Full Contract Text with Highlighted Clauses */}
+                {scanResult.extracted_text && (
+                  <ContractTextViewer
+                    contractText={scanResult.extracted_text}
+                    riskFindings={scanResult.substantive_risk_analysis?.risk_findings || []}
+                    onClauseClick={handleRiskFindingClick}
+                    selectedClause={selectedRiskFinding}
+                    userComments={Object.fromEntries(
+                      Object.entries(userComments).map(([key, comments]) => [key, comments.map(c => c.text)])
+                    )}
+                  />
+                )}
+                
+                {/* Inline Clause Annotation Panel */}
+                {selectedRiskFinding && (
+                  <div className="animate-fade-in">
+                    <ClauseAnnotationPanel
+                      finding={selectedRiskFinding}
+                      onClose={handleCloseAnnotation}
+                      comments={userComments[selectedRiskFinding.clause_reference] || []}
+                      onSaveComment={(comment) => handleSaveComment(selectedRiskFinding.clause_reference, comment)}
+                      onScrollToClause={() => handleScrollToClause(selectedRiskFinding.clause_reference)}
+                      isReviewed={reviewedClauses.has(selectedRiskFinding.clause_reference)}
+                      onToggleReviewed={(reviewed) => handleToggleReviewed(selectedRiskFinding.clause_reference, reviewed)}
+                    />
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </ResizablePanel>
+
+          {/* Resizable Handle */}
+          {isChatOpen && <ResizableHandle withHandle />}
+
+          {/* Chat Panel */}
+          {isChatOpen && (
+            <ResizablePanel defaultSize={40} minSize={25} maxSize={70}>
+              <div className="h-full flex flex-col bg-card border-l">
+                {/* Chat Header */}
+                <div className="px-6 py-4 border-b bg-muted/30 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Icon name="message-circle" className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg">Document Q&A</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Ask questions about this document
                       </p>
                     </div>
-                  ) : (
-                    chatState.messages.map((msg, idx) => (
-                      <div
-                        key={idx}
-                        className={`flex gap-3 ${
-                          msg.role === 'user' ? 'justify-end' : 'justify-start'
-                        }`}
-                      >
-                        {msg.role === 'assistant' && (
-                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                            <Icon name="bot" className="h-4 w-4 text-primary" />
-                          </div>
-                        )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsChatOpen(false)}
+                  >
+                    <Icon name="x" className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Chat Messages */}
+                <ScrollArea className="flex-1 px-6 py-4">
+                  <div className="space-y-4">
+                    {chatState.messages.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-12 text-center">
+                        <div className="p-4 rounded-full bg-primary/10 mb-4">
+                          <Icon name="sparkles" className="h-8 w-8 text-primary" />
+                        </div>
+                        <h3 className="font-semibold text-lg mb-2">Start a Conversation</h3>
+                        <p className="text-muted-foreground text-sm max-w-sm">
+                          Ask me anything about this document - compliance issues, clauses, risks, or recommendations.
+                        </p>
+                      </div>
+                    ) : (
+                      chatState.messages.map((msg, idx) => (
                         <div
-                          className={`rounded-lg px-4 py-3 max-w-[85%] ${
-                            msg.role === 'user'
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted'
+                          key={idx}
+                          className={`flex gap-3 ${
+                            msg.role === 'user' ? 'justify-end' : 'justify-start'
                           }`}
                         >
-                          <div className="text-sm whitespace-pre-wrap break-words">
-                            {msg.content}
+                          {msg.role === 'assistant' && (
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Icon name="bot" className="h-4 w-4 text-primary" />
+                            </div>
+                          )}
+                          <div
+                            className={`rounded-lg px-4 py-3 max-w-[85%] ${
+                              msg.role === 'user'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted'
+                            }`}
+                          >
+                            <div className="text-sm whitespace-pre-wrap break-words">
+                              {msg.content}
+                            </div>
+                            <div className={`text-xs mt-1 ${
+                              msg.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                            }`}>
+                              {new Date(msg.timestamp).toLocaleTimeString()}
+                            </div>
                           </div>
-                          <div className={`text-xs mt-1 ${
-                            msg.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                          }`}>
-                            {new Date(msg.timestamp).toLocaleTimeString()}
+                          {msg.role === 'user' && (
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                              <Icon name="user" className="h-4 w-4 text-primary-foreground" />
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
+                    {chatState.isLoading && (
+                      <div className="flex gap-3 justify-start">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Icon name="bot" className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="rounded-lg px-4 py-3 bg-muted">
+                          <div className="flex gap-1">
+                            <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                            <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                            <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }}></div>
                           </div>
                         </div>
-                        {msg.role === 'user' && (
-                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                            <Icon name="user" className="h-4 w-4 text-primary-foreground" />
-                          </div>
-                        )}
                       </div>
-                    ))
-                  )}
-                  {chatState.isLoading && (
-                    <div className="flex gap-3 justify-start">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Icon name="bot" className="h-4 w-4 text-primary" />
+                    )}
+                    {chatState.error && (
+                      <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                        <Icon name="alert-circle" className="h-4 w-4" />
+                        {chatState.error}
                       </div>
-                      <div className="rounded-lg px-4 py-3 bg-muted">
-                        <div className="flex gap-1">
-                          <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                          <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                          <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  {chatState.error && (
-                    <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-                      <Icon name="alert-circle" className="h-4 w-4" />
-                      {chatState.error}
-                    </div>
-                  )}
+                    )}
+                  </div>
+                </ScrollArea>
+
+                {/* Chat Input */}
+                <div className="border-t p-4 bg-muted/30">
+                  <form onSubmit={handleChatSubmit} className="flex gap-2">
+                    <Input
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      placeholder="Ask a question about this document..."
+                      disabled={chatState.isLoading}
+                      className="flex-1"
+                    />
+                    <Button 
+                      type="submit" 
+                      disabled={!chatInput.trim() || chatState.isLoading}
+                      size="icon"
+                    >
+                      <Icon name="send" className="h-4 w-4" />
+                    </Button>
+                  </form>
                 </div>
-              </ScrollArea>
-
-              {/* Chat Input */}
-              <div className="border-t p-4 bg-muted/30">
-                <form onSubmit={handleChatSubmit} className="flex gap-2">
-                  <Input
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    placeholder="Ask a question about this document..."
-                    disabled={chatState.isLoading}
-                    className="flex-1"
-                  />
-                  <Button 
-                    type="submit" 
-                    disabled={!chatInput.trim() || chatState.isLoading}
-                    size="icon"
-                  >
-                    <Icon name="send" className="h-4 w-4" />
-                  </Button>
-                </form>
               </div>
-            </div>
-          </ResizablePanel>
+            </ResizablePanel>
+          )}
+        </ResizablePanelGroup>
+        
+        {/* Chat Toggle Button - Fixed on right edge when chat is closed */}
+        {scanResult && !isChatOpen && (
+          <button
+            onClick={() => setIsChatOpen(true)}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-1 bg-primary hover:bg-primary/90 text-primary-foreground rounded-l-lg shadow-lg hover:shadow-xl transition-all duration-300 px-2 py-4 group"
+            aria-label="Open Document Q&A Assistant"
+          >
+            <Icon name="message-circle" className="h-5 w-5" />
+            <span className="text-xs font-medium [writing-mode:vertical-lr] rotate-180">Chat</span>
+          </button>
         )}
-      </ResizablePanelGroup>
-
-      {/* Floating Chat Button - Only show when chat is closed */}
-      {scanResult && !isChatOpen && (
-        <button
-          onClick={() => setIsChatOpen(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 px-5 py-3 group"
-          aria-label="Open Document Q&A Assistant"
-        >
-          <Icon name="message-circle" className="h-5 w-5" />
-          <span className="font-medium hidden sm:inline">Ask Questions</span>
-        </button>
-      )}
+      </div>
       
       {/* Clause Detail Modal */}
       <Dialog open={!!selectedClause} onOpenChange={() => setSelectedClause(null)}>
@@ -698,28 +738,6 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument,
           </div>
         </DialogContent>
       </Dialog>
-      
-      {/* Risk Finding Annotation Sheet */}
-      <Sheet open={!!selectedRiskFinding} onOpenChange={(open) => !open && setSelectedRiskFinding(null)}>
-        <SheetContent side="right" className="w-full sm:max-w-3xl p-0">
-          {selectedRiskFinding && (
-            <ClauseAnnotationPanel
-              finding={selectedRiskFinding}
-              onClose={() => setSelectedRiskFinding(null)}
-              comments={userComments[selectedRiskFinding.clause_reference] || []}
-              onSaveComment={(comment) => handleSaveComment(selectedRiskFinding.clause_reference, comment)}
-              onScrollToClause={() => {
-                const element = document.querySelector(`[data-clause-ref="${selectedRiskFinding.clause_reference}"]`)
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                }
-              }}
-              isReviewed={reviewedClauses.has(selectedRiskFinding.clause_reference)}
-              onToggleReviewed={(reviewed) => handleToggleReviewed(selectedRiskFinding.clause_reference, reviewed)}
-            />
-          )}
-        </SheetContent>
-      </Sheet>
     </div>
   )
 }
