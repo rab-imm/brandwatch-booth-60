@@ -163,7 +163,7 @@ export default function CompanyUserDashboard() {
         return (
           <Tabs defaultValue="scan" className="w-full">
             <TabsList className="grid w-full grid-cols-2 max-w-md mb-6">
-              <TabsTrigger value="scan">Scan Document</TabsTrigger>
+              <TabsTrigger value="scan">Analyse Document</TabsTrigger>
               <TabsTrigger value="history">History</TabsTrigger>
             </TabsList>
             <TabsContent value="scan">

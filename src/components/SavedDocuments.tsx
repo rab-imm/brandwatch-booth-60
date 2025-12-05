@@ -129,7 +129,7 @@ export const SavedDocuments = () => {
           <Icon name="bookmark" className="h-16 w-16 text-muted-foreground mb-4" />
           <CardTitle className="mb-2">No Saved Documents</CardTitle>
           <CardDescription className="mb-4">
-            Save OCR scan results from the "Scan Document" tab to access them here later
+            Save OCR scan results from the "Analyse Document" tab to access them here later
           </CardDescription>
         </CardContent>
       </Card>
