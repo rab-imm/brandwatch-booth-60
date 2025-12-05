@@ -113,8 +113,15 @@ const detectTextDirection = (text: string): { direction: 'rtl' | 'ltr', textAlig
   return { direction: 'ltr', textAlign: 'left' };
 };
 
+interface QuestionnaireData {
+  contractType: string | null
+  userRole: string | null
+  analysisGoal: string | null
+}
+
 interface OCRUploadProps {
   onScanComplete?: (result: any) => void
+  questionnaireData?: QuestionnaireData | null
 }
 
 // Get icon for category group
@@ -165,7 +172,7 @@ const getCategoryColor = (category: string): string => {
   }
 }
 
-export const OCRUpload = ({ onScanComplete }: OCRUploadProps = {}) => {
+export const OCRUpload = ({ onScanComplete, questionnaireData }: OCRUploadProps = {}) => {
   const { user, profile } = useAuth()
   const { toast } = useToast()
   const [isProcessing, setIsProcessing] = useState(false)

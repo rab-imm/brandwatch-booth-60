@@ -5,17 +5,113 @@ import { OCRHistory } from "@/components/OCRHistory"
 import { SavedDocuments } from "@/components/SavedDocuments"
 import { ScannerSidebar } from "@/components/scanner/ScannerSidebar"
 import { DocumentScannerDashboard } from "@/components/scanner/DocumentScannerDashboard"
+import { PreAnalysisQuestionnaire, QuestionnaireData } from "@/components/scanner/PreAnalysisQuestionnaire"
+import { PartySelectionDialog, IdentifiedParty } from "@/components/scanner/PartySelectionDialog"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 
+export interface AnalysisContext {
+  questionnaire: QuestionnaireData | null
+  selectedParty: IdentifiedParty | null
+}
+
 const OCRPage = () => {
   const [activeSection, setActiveSection] = useState('scan')
   const [currentScanResult, setCurrentScanResult] = useState<any>(null)
+  const [analysisContext, setAnalysisContext] = useState<AnalysisContext>({
+    questionnaire: null,
+    selectedParty: null
+  })
+  const [showQuestionnaire, setShowQuestionnaire] = useState(true)
+  const [showPartySelection, setShowPartySelection] = useState(false)
+  const [identifiedParties, setIdentifiedParties] = useState<IdentifiedParty[]>([])
   const { user } = useAuth()
+  
+  const handleQuestionnaireComplete = (data: QuestionnaireData) => {
+    setAnalysisContext(prev => ({ ...prev, questionnaire: data }))
+    setShowQuestionnaire(false)
+  }
+  
+  const handleQuestionnaireSkip = () => {
+    setShowQuestionnaire(false)
+  }
   
   const handleScanComplete = (result: any) => {
     setCurrentScanResult(result)
+    
+    // Extract parties from the scan result
+    const parties = extractPartiesFromResult(result)
+    
+    if (parties.length > 1) {
+      setIdentifiedParties(parties)
+      setShowPartySelection(true)
+    } else {
+      setActiveSection('dashboard')
+    }
+  }
+  
+  const extractPartiesFromResult = (result: any): IdentifiedParty[] => {
+    // Try to get parties from metadata or AI analysis
+    const metadata = result?.metadata || {}
+    const documentAnalysis = metadata?.document_analysis || {}
+    const keyParties = documentAnalysis?.key_parties || []
+    
+    if (Array.isArray(keyParties) && keyParties.length > 0) {
+      // If parties are objects with role/name/type
+      if (typeof keyParties[0] === 'object') {
+        return keyParties
+      }
+      // If parties are just strings
+      return keyParties.map((party: string) => ({
+        role: party,
+        type: party.toLowerCase().includes('company') || party.toLowerCase().includes('llc') || party.toLowerCase().includes('corp')
+          ? 'company' as const
+          : 'individual' as const
+      }))
+    }
+    
+    // Fallback: try to extract from AI summary or document type
+    const docType = documentAnalysis?.document_type || ''
+    const defaultParties: Record<string, IdentifiedParty[]> = {
+      'employment_contract': [
+        { role: 'Employer', type: 'company' },
+        { role: 'Employee', type: 'individual' }
+      ],
+      'service_agreement': [
+        { role: 'Service Provider', type: 'company' },
+        { role: 'Client', type: 'company' }
+      ],
+      'lease_agreement': [
+        { role: 'Landlord', type: 'individual' },
+        { role: 'Tenant', type: 'individual' }
+      ],
+      'nda': [
+        { role: 'Disclosing Party', type: 'company' },
+        { role: 'Receiving Party', type: 'company' }
+      ],
+      'sales_contract': [
+        { role: 'Seller', type: 'company' },
+        { role: 'Buyer', type: 'individual' }
+      ],
+      'partnership_agreement': [
+        { role: 'Partner 1', type: 'company' },
+        { role: 'Partner 2', type: 'company' }
+      ],
+    }
+    
+    const normalizedType = docType.toLowerCase().replace(/\s+/g, '_')
+    return defaultParties[normalizedType] || []
+  }
+  
+  const handlePartySelect = (party: IdentifiedParty | null) => {
+    setAnalysisContext(prev => ({ ...prev, selectedParty: party }))
+    setShowPartySelection(false)
+    setActiveSection('dashboard')
+  }
+  
+  const handlePartySkip = () => {
+    setShowPartySelection(false)
     setActiveSection('dashboard')
   }
   
@@ -35,7 +131,7 @@ const OCRPage = () => {
       
       const { error } = await supabase
         .from('saved_ocr_documents')
-        .insert({
+        .insert([{
           user_id: user.id,
           ocr_history_id: currentScanResult.id,
           file_name: currentScanResult.file_name,
@@ -46,9 +142,10 @@ const OCRPage = () => {
             substantive_risk_analysis: currentScanResult.substantive_risk_analysis,
             extracted_text: currentScanResult.extracted_text,
             word_count: currentScanResult.word_count,
-            character_count: currentScanResult.character_count
-          }
-        })
+            character_count: currentScanResult.character_count,
+            analysis_context: analysisContext as any
+          } as any
+        }])
       
       if (error) throw error
       
@@ -99,6 +196,13 @@ const OCRPage = () => {
     }
   }
   
+  const handleStartNewScan = () => {
+    setShowQuestionnaire(true)
+    setCurrentScanResult(null)
+    setAnalysisContext({ questionnaire: null, selectedParty: null })
+    setActiveSection('scan')
+  }
+  
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -119,7 +223,18 @@ const OCRPage = () => {
                   Upload and analyze legal documents with AI-powered insights
                 </p>
               </div>
-              <OCRUpload onScanComplete={handleScanComplete} />
+              
+              {showQuestionnaire ? (
+                <PreAnalysisQuestionnaire 
+                  onComplete={handleQuestionnaireComplete}
+                  onSkip={handleQuestionnaireSkip}
+                />
+              ) : (
+                <OCRUpload 
+                  onScanComplete={handleScanComplete}
+                  questionnaireData={analysisContext.questionnaire}
+                />
+              )}
             </div>
           )}
           
@@ -128,6 +243,8 @@ const OCRPage = () => {
               scanResult={currentScanResult}
               onExport={handleExportPDF}
               onSaveDocument={handleSaveDocument}
+              analysisContext={analysisContext}
+              onStartNewScan={handleStartNewScan}
             />
           )}
           
@@ -169,6 +286,15 @@ const OCRPage = () => {
           </div>
         </div>
       </div>
+      
+      {/* Party Selection Dialog */}
+      <PartySelectionDialog
+        open={showPartySelection}
+        parties={identifiedParties}
+        documentType={currentScanResult?.metadata?.document_analysis?.document_type}
+        onSelect={handlePartySelect}
+        onSkip={handlePartySkip}
+      />
     </div>
   )
 }

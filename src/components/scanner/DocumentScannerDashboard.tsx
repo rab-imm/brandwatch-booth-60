@@ -17,13 +17,28 @@ import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
+interface AnalysisContext {
+  questionnaire: {
+    contractType: string | null
+    userRole: string | null
+    analysisGoal: string | null
+  } | null
+  selectedParty: {
+    role: string
+    name?: string
+    type?: 'company' | 'individual' | 'organization' | 'unknown'
+  } | null
+}
+
 interface DashboardProps {
   scanResult: any
   onExport?: () => void
   onSaveDocument?: () => void
+  analysisContext?: AnalysisContext
+  onStartNewScan?: () => void
 }
 
-export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument }: DashboardProps) => {
+export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument, analysisContext, onStartNewScan }: DashboardProps) => {
   const [selectedClause, setSelectedClause] = useState<any>(null)
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [chatState, setChatState] = useState<{
@@ -168,6 +183,12 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
           </p>
         </div>
         <div className="flex gap-2">
+          {onStartNewScan && (
+            <Button variant="ghost" onClick={onStartNewScan}>
+              <Icon name="plus" className="h-4 w-4 mr-2" />
+              New Scan
+            </Button>
+          )}
           {onExport && (
             <Button variant="outline" onClick={onExport}>
               <Icon name="download" className="h-4 w-4 mr-2" />
@@ -182,6 +203,39 @@ export const DocumentScannerDashboard = ({ scanResult, onExport, onSaveDocument 
           )}
         </div>
       </div>
+      
+      {/* Analysis Context Banner */}
+      {(analysisContext?.questionnaire || analysisContext?.selectedParty) && (
+        <div className="border-b bg-primary/5 px-4 py-3 flex items-center gap-6 flex-wrap">
+          {analysisContext?.selectedParty && (
+            <div className="flex items-center gap-2">
+              <Icon name="user" className="h-4 w-4 text-primary" />
+              <span className="text-sm">
+                <span className="text-muted-foreground">Your role:</span>{' '}
+                <span className="font-medium">{analysisContext.selectedParty.role}</span>
+              </span>
+            </div>
+          )}
+          {analysisContext?.questionnaire?.contractType && (
+            <div className="flex items-center gap-2">
+              <Icon name="file-text" className="h-4 w-4 text-primary" />
+              <span className="text-sm">
+                <span className="text-muted-foreground">Type:</span>{' '}
+                <span className="font-medium capitalize">{analysisContext.questionnaire.contractType.replace(/_/g, ' ')}</span>
+              </span>
+            </div>
+          )}
+          {analysisContext?.questionnaire?.analysisGoal && (
+            <div className="flex items-center gap-2">
+              <Icon name="target" className="h-4 w-4 text-primary" />
+              <span className="text-sm">
+                <span className="text-muted-foreground">Focus:</span>{' '}
+                <span className="font-medium capitalize">{analysisContext.questionnaire.analysisGoal}</span>
+              </span>
+            </div>
+          )}
+        </div>
+      )}
       
       {/* Resizable Layout */}
       <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
