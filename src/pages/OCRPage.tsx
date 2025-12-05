@@ -10,6 +10,7 @@ import { PartySelectionDialog, IdentifiedParty } from "@/components/scanner/Part
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 export interface AnalysisContext {
   questionnaire: QuestionnaireData | null
@@ -26,6 +27,7 @@ const OCRPage = () => {
   const [showQuestionnaire, setShowQuestionnaire] = useState(true)
   const [showPartySelection, setShowPartySelection] = useState(false)
   const [identifiedParties, setIdentifiedParties] = useState<IdentifiedParty[]>([])
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const { user } = useAuth()
   
   const handleQuestionnaireComplete = (data: QuestionnaireData) => {
@@ -202,6 +204,10 @@ const OCRPage = () => {
     setAnalysisContext({ questionnaire: null, selectedParty: null })
     setActiveSection('scan')
   }
+
+  const handleSidebarCollapse = (collapsed: boolean) => {
+    setSidebarCollapsed(collapsed)
+  }
   
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -211,10 +217,17 @@ const OCRPage = () => {
         <ScannerSidebar 
           activeSection={activeSection}
           onSectionChange={setActiveSection}
+          isCollapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
         
         {/* Main Content Area */}
-        <div className="ml-64 h-[calc(100vh-73px)] overflow-hidden">
+        <div 
+          className={cn(
+            "h-[calc(100vh-73px)] overflow-hidden transition-all duration-300",
+            sidebarCollapsed ? "ml-14" : "ml-64"
+          )}
+        >
           {activeSection === 'scan' && (
             <div className="p-6 max-w-5xl mx-auto">
               <div className="mb-6">
@@ -245,6 +258,7 @@ const OCRPage = () => {
               onSaveDocument={handleSaveDocument}
               analysisContext={analysisContext}
               onStartNewScan={handleStartNewScan}
+              onSidebarCollapse={handleSidebarCollapse}
             />
           )}
           

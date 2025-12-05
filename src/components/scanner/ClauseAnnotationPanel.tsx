@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 
-interface SubstantiveRiskFinding {
+export interface SubstantiveRiskFinding {
   clause_reference: string
   risk_type: string
   severity: 'critical' | 'high' | 'medium' | 'low'
@@ -20,7 +20,7 @@ interface SubstantiveRiskFinding {
   remediation: string
 }
 
-interface Comment {
+export interface Comment {
   id: string
   text: string
   timestamp: string
