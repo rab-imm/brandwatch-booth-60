@@ -1678,6 +1678,119 @@ ${extractedText.substring(0, 4000)}`
 
     console.log('AI summary generated')
 
+    // Generate structured contract summary using tool calling
+    console.log('Generating structured contract summary...')
+    let structuredSummary = null
+    try {
+      const structuredResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${lovableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a contract analyst. Extract structured information from the contract. Be concise and specific. If information is not found, leave the field empty or null. Focus on extracting actionable, concrete information.`
+            },
+            {
+              role: 'user',
+              content: `Analyze this contract and extract the structured information using the provided function.
+
+Contract text:
+${extractedText.substring(0, 8000)}`
+            }
+          ],
+          tools: [
+            {
+              type: "function",
+              function: {
+                name: "extract_contract_summary",
+                description: "Extract structured contract information for user review",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    contract_overview: {
+                      type: "object",
+                      properties: {
+                        description: { type: "string", description: "Plain English description of what this contract is (1-2 sentences)" },
+                        party_a_role: { type: "string", description: "Role of first party (e.g., Employer, Landlord, Service Provider)" },
+                        party_b_role: { type: "string", description: "Role of second party (e.g., Employee, Tenant, Client)" }
+                      },
+                      required: ["description", "party_a_role", "party_b_role"]
+                    },
+                    financial_terms: {
+                      type: "object",
+                      properties: {
+                        party_a_payments: { type: "array", items: { type: "string" }, description: "What Party A must pay (fees, deposits, penalties)" },
+                        party_a_receipts: { type: "array", items: { type: "string" }, description: "What Party A receives (services, deliverables, benefits)" },
+                        party_b_payments: { type: "array", items: { type: "string" }, description: "What Party B must pay" },
+                        party_b_receipts: { type: "array", items: { type: "string" }, description: "What Party B receives" }
+                      }
+                    },
+                    key_dates: {
+                      type: "object",
+                      properties: {
+                        start_date: { type: "string", description: "Contract start date or effective date" },
+                        end_date: { type: "string", description: "Contract end date or expiry" },
+                        notice_period: { type: "string", description: "Required notice period for termination" },
+                        renewal_terms: { type: "string", description: "How the contract renews (automatic, manual, etc.)" }
+                      }
+                    },
+                    termination: {
+                      type: "object",
+                      properties: {
+                        party_a_rights: { type: "array", items: { type: "string" }, description: "How Party A can terminate" },
+                        party_b_rights: { type: "array", items: { type: "string" }, description: "How Party B can terminate" },
+                        penalties: { type: "array", items: { type: "string" }, description: "Early termination penalties" },
+                        refund_rules: { type: "array", items: { type: "string" }, description: "Refund policies on termination" }
+                      }
+                    },
+                    auto_renewal: {
+                      type: "object",
+                      properties: {
+                        has_auto_renewal: { type: "boolean", description: "Does contract auto-renew?" },
+                        details: { type: "string", description: "Auto-renewal details and how to prevent it" }
+                      },
+                      required: ["has_auto_renewal"]
+                    },
+                    obligations: {
+                      type: "object",
+                      properties: {
+                        party_a_obligations: { type: "array", items: { type: "string" }, description: "Party A's key responsibilities" },
+                        party_b_obligations: { type: "array", items: { type: "string" }, description: "Party B's key responsibilities" }
+                      }
+                    }
+                  },
+                  required: ["contract_overview", "auto_renewal"]
+                }
+              }
+            }
+          ],
+          tool_choice: { type: "function", function: { name: "extract_contract_summary" } }
+        })
+      })
+
+      if (structuredResponse.ok) {
+        const structuredData = await structuredResponse.json()
+        const toolCall = structuredData.choices?.[0]?.message?.tool_calls?.[0]
+        if (toolCall?.function?.arguments) {
+          try {
+            structuredSummary = JSON.parse(toolCall.function.arguments)
+            console.log('Structured summary extracted successfully')
+          } catch (parseError) {
+            console.error('Failed to parse structured summary:', parseError)
+          }
+        }
+      } else {
+        console.error('Structured summary request failed:', structuredResponse.status)
+      }
+    } catch (structuredError) {
+      console.error('Error generating structured summary:', structuredError)
+    }
+
     // Detect clauses using pattern matching
     console.log('Detecting clauses by pattern...')
     const patternClauses = detectClausesByPattern(extractedText)
@@ -2024,6 +2137,7 @@ ${extractedText.substring(0, 4000)}`
         file_size: fileData.size,
         extracted_text: extractedText,
         ai_summary: aiSummary,
+        structured_summary: structuredSummary,
         character_count: characterCount,
         word_count: wordCount,
         processing_time_ms: processingTime,
@@ -2079,6 +2193,7 @@ ${extractedText.substring(0, 4000)}`
         success: true,
         extracted_text: extractedText,
         ai_summary: aiSummary,
+        structured_summary: structuredSummary,
         document_analysis: {
           document_type: documentAnalysis.document_type,
           document_subtype: documentAnalysis.document_subtype,
