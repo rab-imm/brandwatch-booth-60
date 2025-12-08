@@ -582,7 +582,7 @@ export async function analyzeWithGrok(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'grok-beta',
+        model: 'grok-3',
         messages: [
           { role: 'system', content: LEGAL_ANALYSIS_PROMPT + (languageInfo?.isBilingual ? BILINGUAL_ANALYSIS_PROMPT_ADDITION : '') },
           { role: 'user', content: `Context: ${context}${bilingualContext}\n\nDocument Text:\n${documentText.substring(0, 8000)}\n\nProvide your analysis in JSON format with keys: document_classification, risk_findings, compliance_issues, confidence_score, reasoning${bilingualJsonFields}` }
@@ -720,7 +720,7 @@ export async function analyzeWithPerplexity(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-sonar-large-128k-online',
+        model: 'sonar-pro',
         messages: [
           { role: 'system', content: `${LEGAL_ANALYSIS_PROMPT}${languageInfo?.isBilingual ? BILINGUAL_ANALYSIS_PROMPT_ADDITION : ''}\n\nUse real-time web search to validate against current UAE laws and regulations. For bilingual documents, search for UAE court rulings on Arabic-English discrepancy cases.` },
           { role: 'user', content: `Context: ${context}${bilingualContext}\n\nDocument Text:\n${documentText.substring(0, 6000)}\n\nProvide analysis in JSON format with keys: document_classification, risk_findings, compliance_issues, confidence_score, reasoning${bilingualJsonFields}` }

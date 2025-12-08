@@ -1391,6 +1391,7 @@ export type Database = {
           id: string
           metadata: Json | null
           processing_time_ms: number | null
+          structured_summary: Json | null
           substantive_risk_analysis: Json | null
           user_id: string
           word_count: number | null
@@ -1408,6 +1409,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           processing_time_ms?: number | null
+          structured_summary?: Json | null
           substantive_risk_analysis?: Json | null
           user_id: string
           word_count?: number | null
@@ -1425,6 +1427,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           processing_time_ms?: number | null
+          structured_summary?: Json | null
           substantive_risk_analysis?: Json | null
           user_id?: string
           word_count?: number | null
