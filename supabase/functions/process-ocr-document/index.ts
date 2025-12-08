@@ -1841,14 +1841,21 @@ ${extractedText.substring(0, 8000)}`
     console.log(`Language detection: ${languageInfo.arabicPercentage}% Arabic, ${languageInfo.englishPercentage}% English`);
     console.log(`Primary language: ${languageInfo.primaryLanguage}, Bilingual: ${languageInfo.isBilingual}`);
 
-    // STEP 1: AI SYNTHESIS - Detect document type and applicable UAE laws using multi-AI analysis
-    console.log('Performing AI Synthesis for document type detection (Gemini + Grok + Perplexity)...')
+    // STEP 1: AI SYNTHESIS - Run BOTH synthesis calls in PARALLEL for speed
+    // Using only 2 providers (Gemini + Grok) instead of 3 to reduce timeout risk
+    console.log('Starting PARALLEL AI Synthesis (document type + risk analysis) with 2 providers...')
+    const synthesisStartTime = Date.now()
     
     const bilingualContextNote = languageInfo.isBilingual 
       ? ` This is a BILINGUAL document (${languageInfo.arabicPercentage}% Arabic, ${languageInfo.englishPercentage}% English). Arabic version takes legal precedence in UAE. Flag any translation discrepancies.`
       : '';
     
-    const synthesisResponse = await fetch(`${supabaseUrl}/functions/v1/ai-synthesis`, {
+    const riskBilingualContext = languageInfo.isBilingual 
+      ? ` CRITICAL: This is a BILINGUAL document. Identify risks where Arabic and English versions differ. Arabic takes legal precedence. Flag translation discrepancies as HIGH RISK.`
+      : '';
+    
+    // Prepare both synthesis requests
+    const docTypeSynthesisPromise = fetch(`${supabaseUrl}/functions/v1/ai-synthesis`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${supabaseKey}`,
@@ -1857,10 +1864,32 @@ ${extractedText.substring(0, 8000)}`
       body: JSON.stringify({
         document_text: extractedText,
         context: `UAE legal document classification - identify document type, applicable UAE laws, and jurisdiction.${bilingualContextNote}`,
-        providers: ['gemini', 'grok', 'perplexity'],
+        providers: ['gemini', 'grok'], // Reduced from 3 to 2 providers for speed
         language_info: languageInfo
       })
     })
+
+    const riskSynthesisPromise = fetch(`${supabaseUrl}/functions/v1/ai-synthesis`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        document_text: extractedText,
+        context: `UAE substantive legal risk analysis. Identify hidden obligations, unfair terms, misclassification risks, employment issues, consent defects, proportionality breaches, and regulatory gaps.${riskBilingualContext}`,
+        providers: ['gemini', 'grok'], // Reduced from 3 to 2 providers for speed
+        language_info: languageInfo
+      })
+    })
+
+    // Run BOTH synthesis calls in parallel
+    const [synthesisResponse, riskSynthesisResponse] = await Promise.all([
+      docTypeSynthesisPromise,
+      riskSynthesisPromise
+    ])
+
+    console.log(`Parallel AI Synthesis completed in ${Date.now() - synthesisStartTime}ms`)
 
     if (!synthesisResponse.ok) {
       const errorText = await synthesisResponse.text()
@@ -1869,16 +1898,13 @@ ${extractedText.substring(0, 8000)}`
     }
 
     const synthesisResult = await synthesisResponse.json()
-    console.log(`AI Synthesis completed: ${synthesisResult.sources_used.length} sources used`)
-    console.log(`Overall confidence: ${synthesisResult.synthesized_analysis.overall_confidence}%`)
-    console.log(`Sources: ${synthesisResult.sources_used.join(', ')}`)
+    console.log(`Doc type synthesis: ${synthesisResult.sources_used.length} sources, confidence: ${synthesisResult.synthesized_analysis.overall_confidence}%`)
     
     // Log bilingual synthesis results if applicable
     if (languageInfo.isBilingual && synthesisResult.synthesized_analysis.bilingual_synthesis) {
       const bs = synthesisResult.synthesized_analysis.bilingual_synthesis;
       console.log(`Bilingual Analysis: Translation consistency: ${bs.translation_consistency_consensus}`);
       console.log(`Arabic-precedent risks: ${bs.arabic_precedent_risks?.length || 0}`);
-      console.log(`Bilingual risk score: ${bs.bilingual_risk_score}/100`);
     }
     
     // Extract document analysis from synthesis
@@ -2007,7 +2033,6 @@ ${extractedText.substring(0, 8000)}`
     }
     
     console.log(`Document type: ${documentAnalysis.document_type} (Confidence: ${synthesisResult.synthesized_analysis.overall_confidence}%)`)
-    console.log(`Applicable laws: ${documentAnalysis.applicable_uae_laws.join(', ')}`)
 
     // STEP 2: Perform dynamic UAE compliance analysis
     console.log('Performing dynamic UAE compliance analysis...')
@@ -2050,28 +2075,10 @@ ${extractedText.substring(0, 8000)}`
     // STEP 4: Group violations by category
     const groupedViolations = groupViolationsByCategory(allViolations)
 
-    // ============= AI SYNTHESIS - SUBSTANTIVE LEGAL RISK ANALYSIS =============
-    console.log('Performing AI Synthesis for substantive legal risk analysis...')
+    // ============= PROCESS RISK SYNTHESIS (already fetched in parallel above) =============
+    console.log('Processing substantive legal risk analysis from parallel fetch...')
     
     let substantiveRisks;
-    
-    const riskBilingualContext = languageInfo.isBilingual 
-      ? ` CRITICAL: This is a BILINGUAL document. Identify risks where Arabic and English versions differ. Arabic takes legal precedence. Flag translation discrepancies as HIGH RISK.`
-      : '';
-    
-    const riskSynthesisResponse = await fetch(`${supabaseUrl}/functions/v1/ai-synthesis`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${supabaseKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        document_text: extractedText,
-        context: `UAE substantive legal risk analysis for ${documentAnalysis.document_type}. Identify hidden obligations, unfair terms, misclassification risks, employment issues, consent defects, proportionality breaches, and regulatory gaps. Laws: ${documentAnalysis.applicable_uae_laws.join(', ')}${riskBilingualContext}`,
-        providers: ['gemini', 'grok', 'perplexity'],
-        language_info: languageInfo
-      })
-    })
 
     if (!riskSynthesisResponse.ok) {
       console.error('Risk synthesis failed, falling back to single AI')
@@ -2086,8 +2093,7 @@ ${extractedText.substring(0, 8000)}`
       )
     } else {
       const riskSynthesisResult = await riskSynthesisResponse.json()
-      console.log(`Risk Synthesis completed: ${riskSynthesisResult.sources_used.length} sources consulted`)
-      console.log(`Risk confidence: ${riskSynthesisResult.synthesized_analysis.overall_confidence}%`)
+      console.log(`Risk Synthesis: ${riskSynthesisResult.sources_used.length} sources, confidence: ${riskSynthesisResult.synthesized_analysis.overall_confidence}%`)
       
       // Transform synthesis results to substantive risks format
       substantiveRisks = {
