@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/components/ui/button"
@@ -170,6 +170,126 @@ const getCategoryColor = (category: string): string => {
     default:
       return 'gray'
   }
+}
+
+// Processing stages for the enhanced loader
+const processingStages = [
+  { icon: 'upload-cloud', text: 'Uploading document securely...', subtext: 'Encrypting and transferring your file' },
+  { icon: 'scan', text: 'Extracting contract text with OCR...', subtext: 'Reading and digitizing document content' },
+  { icon: 'brain', text: 'Analyzing with Legal AI Agents...', subtext: 'Multiple AI models examining your contract' },
+  { icon: 'users', text: 'Cross-validating with multiple AI sources...', subtext: 'Gemini & Grok confirming findings' },
+  { icon: 'shield', text: 'Checking UAE regulatory compliance...', subtext: 'Federal laws, PDPL, commercial regulations' },
+  { icon: 'search', text: 'Identifying potential legal risks...', subtext: 'Scanning for hidden obligations & unfair terms' },
+  { icon: 'scale', text: 'Evaluating clause fairness...', subtext: 'Assessing balance of rights and obligations' },
+  { icon: 'file-check', text: 'Generating comprehensive analysis...', subtext: 'Compiling findings and recommendations' },
+]
+
+interface EnhancedProcessingLoaderProps {
+  uploadProgress: number
+}
+
+const EnhancedProcessingLoader = ({ uploadProgress }: EnhancedProcessingLoaderProps) => {
+  const [currentStageIndex, setCurrentStageIndex] = useState(0)
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentStageIndex(prev => (prev + 1) % processingStages.length)
+    }, 3500)
+    
+    return () => clearInterval(interval)
+  }, [])
+  
+  const currentStage = processingStages[currentStageIndex]
+  
+  return (
+    <div className="relative p-8 bg-gradient-to-br from-primary/5 via-primary/10 to-accent/20 rounded-xl border border-primary/20 overflow-hidden">
+      {/* Background animated gradient */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-pulse" />
+      
+      <div className="relative flex flex-col items-center gap-6">
+        {/* Animated spinner with multiple rings */}
+        <div className="relative w-24 h-24">
+          {/* Outer ring - slow spin */}
+          <div className="absolute inset-0 w-24 h-24 rounded-full border-4 border-primary/10" />
+          <div 
+            className="absolute inset-0 w-24 h-24 rounded-full border-4 border-transparent border-t-primary/40 border-r-primary/20"
+            style={{ animation: 'spin 3s linear infinite' }}
+          />
+          
+          {/* Middle ring - medium speed, reverse */}
+          <div 
+            className="absolute inset-2 w-20 h-20 rounded-full border-4 border-transparent border-t-primary/60 border-l-primary/30"
+            style={{ animation: 'spin 2s linear infinite reverse' }}
+          />
+          
+          {/* Inner ring - fast spin */}
+          <div 
+            className="absolute inset-4 w-16 h-16 rounded-full border-4 border-transparent border-t-primary border-b-primary/40"
+            style={{ animation: 'spin 1.2s linear infinite' }}
+          />
+          
+          {/* Center icon with pulse */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="relative">
+              <div className="absolute inset-0 w-10 h-10 -m-1 bg-primary/20 rounded-full animate-ping" />
+              <Icon 
+                name={currentStage.icon as any} 
+                className="relative h-8 w-8 text-primary transition-all duration-500" 
+              />
+            </div>
+          </div>
+        </div>
+        
+        {/* Status text with fade animation */}
+        <div className="text-center space-y-2 min-h-[60px]">
+          <p 
+            key={currentStageIndex}
+            className="text-base font-semibold text-primary animate-fade-in"
+          >
+            {currentStage.text}
+          </p>
+          <p 
+            key={`sub-${currentStageIndex}`}
+            className="text-sm text-muted-foreground animate-fade-in"
+            style={{ animationDelay: '0.1s' }}
+          >
+            {currentStage.subtext}
+          </p>
+        </div>
+        
+        {/* Progress bar with glow effect */}
+        <div className="w-full max-w-xs space-y-2">
+          <div className="relative">
+            <Progress 
+              value={uploadProgress} 
+              className="h-2"
+              indicatorClassName="bg-gradient-to-r from-primary to-primary/80 shadow-[0_0_10px_hsl(var(--primary)/0.5)]"
+            />
+          </div>
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>{Math.round(uploadProgress)}% complete</span>
+            <span>~30-60 seconds</span>
+          </div>
+        </div>
+        
+        {/* Stage indicators */}
+        <div className="flex gap-1.5 mt-2">
+          {processingStages.map((_, index) => (
+            <div 
+              key={index}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === currentStageIndex 
+                  ? 'bg-primary scale-125' 
+                  : index < currentStageIndex 
+                    ? 'bg-primary/40' 
+                    : 'bg-muted'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export const OCRUpload = ({ onScanComplete, questionnaireData }: OCRUploadProps = {}) => {
@@ -652,12 +772,9 @@ export const OCRUpload = ({ onScanComplete, questionnaireData }: OCRUploadProps 
             )}
 
             {isProcessing && (
-              <div className="space-y-2">
-                <Progress value={uploadProgress} />
-                <p className="text-xs text-center text-muted-foreground">
-                  {uploadProgress < 40 ? 'Uploading...' : uploadProgress < 80 ? 'Analyzing contract...' : 'Finalizing...'}
-                </p>
-              </div>
+              <EnhancedProcessingLoader 
+                uploadProgress={uploadProgress} 
+              />
             )}
           </CardContent>
         </Card>
