@@ -1,0 +1,13 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "nginx -g 'daemon off;'"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
+
+[[deploy.healthcheck]]
+path = "/health"
+timeout = 100
+interval = 30
