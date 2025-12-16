@@ -3,7 +3,6 @@ builder = "dockerfile"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "nginx -g 'daemon off;'"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
 
