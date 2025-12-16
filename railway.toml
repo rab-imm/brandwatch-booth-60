@@ -8,5 +8,5 @@ restartPolicyMaxRetries = 10
 
 [[deploy.healthcheck]]
 path = "/health"
-timeout = 100
-interval = 30
+timeout = 300
+interval = 10
