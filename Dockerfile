@@ -15,26 +15,21 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
+# Production stage - use Node.js with serve
+FROM node:20-alpine
 
-# Install gettext for envsubst
-RUN apk add --no-cache gettext
+WORKDIR /app
+
+# Install serve globally
+RUN npm install -g serve
 
 # Copy built assets from builder
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist ./dist
 
-# Copy nginx configuration template
-COPY nginx.conf /etc/nginx/templates/default.conf.template
-
-# Remove default nginx config to avoid conflicts
-RUN rm -f /etc/nginx/conf.d/default.conf
-
-# Railway injects PORT env var - default to 8080 for local testing
+# Railway injects PORT env var
 ENV PORT=8080
 
-# Expose the port (documentation only, Railway uses PORT env var)
 EXPOSE 8080
 
-# Use shell form to enable variable substitution
-CMD sh -c "envsubst '\$PORT' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+# Serve the static files - serve reads PORT env var automatically
+CMD ["sh", "-c", "serve -s dist -l tcp://0.0.0.0:$PORT"]

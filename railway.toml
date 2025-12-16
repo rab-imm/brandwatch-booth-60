@@ -7,6 +7,6 @@ restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
 
 [[deploy.healthcheck]]
-path = "/health"
+path = "/"
 timeout = 300
 interval = 10
